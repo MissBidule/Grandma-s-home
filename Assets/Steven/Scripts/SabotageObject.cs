@@ -2,7 +2,8 @@ using UnityEngine;
 
 /**
 @brief       Script du sabotage d'objet
-@details     La classe \c SabotageObject gère l'interaction de sabotage : proximité, surbrillance (émission), swap d'état et ajout de score
+@details     La classe \c SabotageObject gère l'interaction de sabotage : proximité, surbrillance (émission),
+             swap d'état, ajout de score et QTE.
 */
 public class SabotageObject : MonoBehaviour
 {
@@ -23,8 +24,12 @@ public class SabotageObject : MonoBehaviour
     [SerializeField] private string m_promptMessage = "E : Sabotage";
     [SerializeField] private KeyCode m_interactKey = KeyCode.E;
 
+    [Header("QTE")]
+    [SerializeField] private QteCircle m_qteCircle;
+
     private bool m_isPlayerInRange;
     private bool m_isSabotaged;
+    private bool m_isQteRunning;
 
     /**
     @brief      Initialise l'état visuel et coupe l'émission
@@ -44,10 +49,55 @@ public class SabotageObject : MonoBehaviour
     {
         if (!m_isPlayerInRange) return;
         if (m_isSabotaged) return;
+        if (m_isQteRunning) return;
 
         if (Input.GetKeyDown(m_interactKey))
         {
+            StartQte();
+        }
+    }
+
+    /**
+    @brief      Lance le QTE de sabotage.
+    @return     void
+    */
+    private void StartQte()
+    {
+        if (m_qteCircle == null)
+        {
             Sabotage();
+            return;
+        }
+
+        m_isQteRunning = true;
+
+        SetHighlight(false);
+        if (InteractPromptUI.Instance != null)
+            InteractPromptUI.Instance.Hide();
+
+        m_qteCircle.StartQte(OnQteFinished);
+    }
+
+    /**
+    @brief      Callback appelée à la fin du QTE.
+    @param      _success: true si le QTE est réussi
+    @return     void
+    */
+    private void OnQteFinished(bool _success)
+    {
+        m_isQteRunning = false;
+
+        if (!m_isPlayerInRange || m_isSabotaged) return;
+
+        if (_success)
+        {
+            Sabotage();
+        }
+        else
+        {
+            SetHighlight(true);
+            if (InteractPromptUI.Instance != null)
+                InteractPromptUI.Instance.Show(m_promptMessage);
         }
     }
 
@@ -61,6 +111,9 @@ public class SabotageObject : MonoBehaviour
 
         ApplyState();
         SetHighlight(false);
+
+        if (InteractPromptUI.Instance != null)
+            InteractPromptUI.Instance.Hide();
 
         if (ScoreManager.Instance != null)
         {
@@ -120,13 +173,13 @@ public class SabotageObject : MonoBehaviour
 
         m_isPlayerInRange = true;
 
-        if (!m_isSabotaged)
+        if (!m_isSabotaged && !m_isQteRunning)
         {
             SetHighlight(true);
-            InteractPromptUI.Instance.Show(m_promptMessage);
+            if (InteractPromptUI.Instance != null)
+                InteractPromptUI.Instance.Show(m_promptMessage);
         }
     }
-
 
     /**
     @brief      Détecte la sortie du joueur et coupe la surbrillance
@@ -140,7 +193,7 @@ public class SabotageObject : MonoBehaviour
         m_isPlayerInRange = false;
 
         SetHighlight(false);
-        InteractPromptUI.Instance.Hide();
+        if (InteractPromptUI.Instance != null)
+            InteractPromptUI.Instance.Hide();
     }
-
 }
