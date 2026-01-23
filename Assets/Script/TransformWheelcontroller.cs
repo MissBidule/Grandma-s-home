@@ -2,32 +2,41 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 
+/*
+ * @brief       Contains class declaration for TransformWheelcontroller
+ * @details     The TransformWheelcontroller class manages the transformation wheel UI and handles input to open/close it.
+ */
 public class TransformWheelcontroller : MonoBehaviour
 {
-    public Animator anim;
-    private bool transformWheelSelected = false;
-    public Image selectedTransform;
-    public Sprite noImage;
-    public static int transformID;
+    public Animator m_anim;
+    private bool m_transformWheelSelected = false;
+    public Image m_selectedTransform;
+    public Sprite m_noImage;
+    public static int m_transformID;
 
     void Awake()
     {
-        if (anim == null)
-            anim = GetComponent<Animator>();
+        if (m_anim == null)
+            m_anim = GetComponent<Animator>();
     }
 
+    /* 
+     * @brief Update triggers every frame
+     * Checks for Tab key input to toggle the transformation wheel and logs the selected transformation option.
+     * @return void
+     */
     void Update()
     {
         // New Input System: read Tab key
         if (Keyboard.current != null && Keyboard.current.tabKey.wasPressedThisFrame)
         {
-            bool open = !anim.GetBool("OpenTransformWheel");
-            anim.SetBool("OpenTransformWheel", open);
+            bool open = !m_anim.GetBool("OpenTransformWheel");
+            m_anim.SetBool("OpenTransformWheel", open);
         }
-        switch (transformID)
+        switch (m_transformID)
         {
             case 0:
-                selectedTransform.sprite = noImage;
+                m_selectedTransform.sprite = m_noImage;
                 break;
             case 1:
                 Debug.Log("Chaise/carré");

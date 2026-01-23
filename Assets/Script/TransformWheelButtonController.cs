@@ -2,53 +2,77 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+/*
+ * @brief       Contains class declaration for TransformWheelButtonController
+ * @details     The TransformWheelButtonController class manages the behavior of buttons in the transformation wheel UI.
+ */
 public class TransformWheelButtonController : MonoBehaviour
 {
-    public int ID;
-    private Animator anim;
-    public string transformName;
-    public TextMeshProUGUI transformText;
-    public Image selectedTransform;
-    private bool selected = false;
-    public Sprite icon;
+    public int m_ID;
+    private Animator m_anim;
+    public string m_transformName;
+    public TextMeshProUGUI m_transformText;
+    public Image m_selectedTransform;
+    private bool m_selected = false;
+    public Sprite m_icon;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
     void Start()
     {
-        anim = GetComponent<Animator>();
+        m_anim = GetComponent<Animator>();
     }
 
-    // Update is called once per frame
+    
     void Update()
     {
-        if(selected)
+        if(m_selected)
         {
-            selectedTransform.sprite = icon;
+            m_selectedTransform.sprite = m_icon;
         }
 
     }
 
+    /* 
+     * @brief Selects this transformation option.
+     * Sets the selected flag to true and updates the TransformWheelcontroller's transformID.
+     * @return void
+     */
     public void Select()
     {
-        selected = true;
-        TransformWheelcontroller.transformID = ID;
+        m_selected = true;
+        TransformWheelcontroller.m_transformID = m_ID;
     }
 
+    /* 
+     * @brief Deselects this transformation option.
+     * Sets the selected flag to false and resets the TransformWheelcontroller's transformID.
+     * @return void
+     */
     public void Deselect()
     {
-        selected = false;
-        TransformWheelcontroller.transformID = 0;
+        m_selected = false;
+        TransformWheelcontroller.m_transformID = 0;
     }
 
+    /* 
+     * @brief Handles hover enter event.
+     * Sets the hover animation state and updates the transform text.
+     * @return void
+     */
     public void HoverEnter()
     {
-        anim.SetBool("Hover", true);
-        transformText.text = transformName;
+        m_anim.SetBool("Hover", true);
+        m_transformText.text = m_transformName;
     }
 
-   public void HoverExit()
+    /* 
+     * @brief Handles hover exit event.
+     * Resets the hover animation state and clears the transform text.
+     * @return void
+     */
+    public void HoverExit()
     {
-        anim.SetBool("Hover", false);
-        transformText.text = "";
+        m_anim.SetBool("Hover", false);
+        m_transformText.text = "";
     }
 }
