@@ -1,16 +1,17 @@
 /**
- * @brief  Cette fonction permet de faire apparaitre un Decal de Slime à l'impacte avant de détruire la balle 
+ * @brief  This function allows a Slime Decal to appear upon impact before the ball is destroyed.
  * 
- * Quand le player tire une balle un Decal de Slime apparait au point d'impacte selon des conditions (un seul Decal de slime est autorisé à la fois)
+ * When the player fires a ball, a Slime Decal appears at the point of impact under certain conditions (only one Slime Decal is allowed at a time).
  * 
- * @param  m_lifeTime:  temps de vie de la balle avant disparision
- * @param  m_speed:  vitesse de la balle
- * @param  m_offsetFromSurface:  offset rajouté
- * @param  m_slimePrefab:  Prefab du Decal
- * @param  m_slimeOnCollider:  Un disctionnaire qui stock si un collider contient déja un Decal
+ * @param  m_lifeTime:  lifespan of the ball before disappearance
+ * @param  m_speed:  ball speed
+ * @param  m_offsetFromSurface:  offset added
+ * @param  m_slimePrefab:  Decal Prefab
+ * @param  m_slimeOnCollider:  A dictionary that stores whether a collider already contains a Decal
  */
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
 
 public class Bullet : MonoBehaviour
 {
@@ -25,6 +26,13 @@ public class Bullet : MonoBehaviour
     
     private static Dictionary<Collider, GameObject> m_slimeOnCollider = new Dictionary<Collider, GameObject>();
 
+    //nop
+    private IEnumerator DestroyAfterSeconds(GameObject obj, float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+        if(obj != null)
+            Destroy(obj);
+    }
     void Update()
     {
         
@@ -36,36 +44,40 @@ public class Bullet : MonoBehaviour
     }
 
     /**
-    * @brief  Cette fonction permet de faire ou non apparaitre un Decal et de définir pour combien de temps
+    * @brief  This function allows you to show or hide a Decal and define for how long.
     * 
-    * si la balle touche un Collider qui a un Tag "Wall" alors la balle se détruit et rien d'autre ne se passe
-    * si la balle touche un Collider qui existe et qui contient déjà un Decal alors  la balle se détruit et rien d'autre ne se passe
-    * sinon un Decal de Slime de taille "size" apparait au point d'impacte (appele fonction "SpawnSlimePrefab"), il est enregistré dans le dictionnaire "m_slimeOnCollider" et la balle est détruite
+    * If the ball hits a Collider that has a "Wall" tag, then the ball is destroyed and nothing else happens.
+    * If the ball hits an existing Collider that already contains a Decal, then the ball is destroyed and nothing else happens.
+    * Otherwise, a Slime Decal of size "size" appears at the point of impact (using the "SpawnSlimePrefab" function), it is stored in the "m_slimeOnCollider" dictionary, and the ball is destroyed.
     * 
-    * @param  size:  taille du Decal crée
+    * @param  size:  size of the Decal created
     */
 
     private void OnTriggerEnter(Collider _other)
     {
+        float size = 1.5f;
+        //ça marche pas encore
         if (_other.CompareTag("Wall"))
         {
+            GameObject slime2 = SpawnSlimePrefab(_other, size);
+            StartCoroutine(DestroyAfterSeconds(slime2, 3f));
             Destroy(gameObject);
-            return;
         }
 
-        // Si on a déjà un slime sur ce collider ET qu'il existe encore -> on ne fait rien
+        
+
+
         if (m_slimeOnCollider.ContainsKey(_other) && m_slimeOnCollider[_other] != null)
         {
             Destroy(gameObject);
             return;
         }
 
-        // Sinon on peut en poser un nouveau
-        float size = 1.5f;
+
 
         GameObject slime = SpawnSlimePrefab(_other, size);
 
-        // On enregistre le slime posé sur ce collider
+
         m_slimeOnCollider[_other] = slime;
 
         Destroy(gameObject);
@@ -73,27 +85,27 @@ public class Bullet : MonoBehaviour
 
 
     /**
-    * @brief  Cette partie de code permet d'instantier un Decal de Slime
+    * @brief  This code snippet allows you to instantiate a Slime Decal
     * 
-    * Un Decal est instantier au point le plus proche de l'impacte avec un offset "m_offsetFromSurface"
+    * A decal is instantiated at the point closest to the impact with an offset "m_offsetFromSurface"
     * 
-    * @param  slime: L'instance du Decal
+    * @param  slime: The Decal instance
     *
-    * @return Renvoie l'instance
+    * @return Returns the instance
     */
 
-    GameObject SpawnSlimePrefab(Collider target, float size)
+    GameObject SpawnSlimePrefab(Collider _target, float _size)
     {
-        Vector3 spawnPos = target.ClosestPoint(transform.position);
+        Vector3 spawnPos = _target.ClosestPoint(transform.position);
 
         spawnPos.z -= 0.3f;
         spawnPos.y += m_offsetFromSurface;
 
         GameObject slime = Instantiate(m_slimePrefab, spawnPos, Quaternion.identity);
 
-        slime.transform.localScale = Vector3.one * size;
+        slime.transform.localScale = Vector3.one * _size;
 
-        slime.transform.SetParent(target.transform);
+        slime.transform.SetParent(_target.transform);
         return slime;
     }
 
