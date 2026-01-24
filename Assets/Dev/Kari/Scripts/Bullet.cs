@@ -26,13 +26,7 @@ public class Bullet : MonoBehaviour
     
     private static Dictionary<Collider, GameObject> m_slimeOnCollider = new Dictionary<Collider, GameObject>();
 
-    //nop
-    private IEnumerator DestroyAfterSeconds(GameObject obj, float seconds)
-    {
-        yield return new WaitForSeconds(seconds);
-        if(obj != null)
-            Destroy(obj);
-    }
+
     void Update()
     {
         
@@ -46,41 +40,39 @@ public class Bullet : MonoBehaviour
     /**
     * @brief  This function allows you to show or hide a Decal and define for how long.
     * 
-    * If the ball hits a Collider that has a "Wall" tag, then the ball is destroyed and nothing else happens.
+    * If the ball hits a Collider that has a "Wall" tag, The Slime Decal appears for the duration "timeSlimeWall" before disappearing., then the ball.
     * If the ball hits an existing Collider that already contains a Decal, then the ball is destroyed and nothing else happens.
     * Otherwise, a Slime Decal of size "size" appears at the point of impact (using the "SpawnSlimePrefab" function), it is stored in the "m_slimeOnCollider" dictionary, and the ball is destroyed.
     * 
     * @param  size:  size of the Decal created
+    * @param  timeSlimeWall:  the duration of slime appearance on the walls
     */
 
     private void OnTriggerEnter(Collider _other)
     {
         float size = 1.5f;
-        //ça marche pas encore
+        float timeSlimeWall = 1f;
+
         if (_other.CompareTag("Wall"))
         {
             GameObject slime2 = SpawnSlimePrefab(_other, size);
-            StartCoroutine(DestroyAfterSeconds(slime2, 3f));
+            Destroy(slime2, timeSlimeWall);
             Destroy(gameObject);
+            return;
         }
-
-        
-
-
         if (m_slimeOnCollider.ContainsKey(_other) && m_slimeOnCollider[_other] != null)
         {
             Destroy(gameObject);
             return;
         }
-
-
-
+        
         GameObject slime = SpawnSlimePrefab(_other, size);
 
 
         m_slimeOnCollider[_other] = slime;
 
         Destroy(gameObject);
+        
     }
 
 
