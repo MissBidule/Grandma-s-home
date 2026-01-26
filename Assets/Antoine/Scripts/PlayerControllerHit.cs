@@ -40,16 +40,30 @@ public class PlayerControllerHit : MonoBehaviour
         }
     }
 
+    /*
+     * @brief Enables the attack collider to detect hits.
+     * @return void
+     */
     private void EnableAttack()
     {
         m_boxCollider.enabled = true;
     }
 
+    /*
+     * @brief Disables the attack collider to stop detecting hits.
+     * @return void
+     */
     private void DisableAttack()
     {
         m_boxCollider.enabled = false;
     }
 
+    /*
+     * @brief Called when the attack collider enters a trigger with another collider.
+     * Triggers the hit opponent logic if the other collider belongs to a PlayerGhost.
+     * @param other: The collider that was entered.
+     * @return void
+     */
     private void OnTriggerEnter(Collider other)
     {
         var ghost = other.GetComponent<PlayerGhost>();
@@ -58,6 +72,12 @@ public class PlayerControllerHit : MonoBehaviour
             HitOpponent();
         }
     }
+
+    /*
+     * @brief Logic executed when hitting an opponent.
+     * TODO: Implement actual hit logic
+     * @return void
+     */
     private void HitOpponent()
     {
         print("tape un fantôme");
