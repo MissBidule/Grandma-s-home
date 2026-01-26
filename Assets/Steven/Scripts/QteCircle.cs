@@ -1,10 +1,11 @@
 using System;
+using System.Diagnostics;
 using UnityEngine;
 
 /**
-@brief       Script du QTE cercle
-@details     La classe \c QteCircle affiche un QTE circulaire : une aiguille tourne et une zone de succès
-             est placée aléatoirement sur le cercle. Le joueur valide avec une touche.
+@brief       Script du QTE cercle à plusieurs phases
+@details     La classe \c QteCircle gère un QTE circulaire en plusieurs niveaux de difficulté
+             avec 3 zones visuelles (grande/moyenne/petite)
 */
 public class QteCircle : MonoBehaviour
 {
@@ -13,58 +14,86 @@ public class QteCircle : MonoBehaviour
     [SerializeField] private RectTransform m_needlePivot;
     [SerializeField] private RectTransform m_zonePivot;
 
-    [Header("Timing")]
-    [SerializeField] private float m_rotationSpeedDegPerSec = 180f;
+    [Header("Markers")]
+    [SerializeField] private RectTransform m_needleMarker;
+    [SerializeField] private RectTransform m_zoneMarkerLarge;
+    [SerializeField] private RectTransform m_zoneMarkerMedium;
+    [SerializeField] private RectTransform m_zoneMarkerSmall;
 
-    [Header("Zone")]
-    [SerializeField] private float m_zoneToleranceDeg = 15f;
+    [Header("Zone Visuals (placed in scene)")]
+    [SerializeField] private GameObject m_zoneLarge;
+    [SerializeField] private GameObject m_zoneMedium;
+    [SerializeField] private GameObject m_zoneSmall;
+
+    [Header("Timing")]
+    [SerializeField] private float m_rotationSpeedDegPerSec = 240f;
+
+    [Header("Phases")]
+    [SerializeField] private float[] m_zoneToleranceByPhase = { 18f, 13f, 8f };
 
     [Header("Input")]
     [SerializeField] private KeyCode m_validateKey = KeyCode.Space;
 
+
+    private const float c_minVectorSqrMagnitude = 0.0001f;
+
+    private int m_currentPhaseIndex;
     private bool m_isRunning;
     private Action<bool> m_onFinished;
 
     /**
-    @brief      Lance le QTE et place la zone de succès au hasard.
-    @param      _onFinished: callback appelée avec true si réussite, sinon false
+    @brief      Lance le QTE multi-phase
+    @param      _onFinished: callback true si toutes les phases sont réussies
     @return     void
     */
     public void StartQte(Action<bool> _onFinished)
     {
         m_onFinished = _onFinished;
         m_isRunning = true;
+        m_currentPhaseIndex = 0;
 
-        if (m_root != null) m_root.SetActive(true);
+        if (m_root != null)
+            m_root.SetActive(true);
 
-        if (m_needlePivot != null)
-            m_needlePivot.localEulerAngles = Vector3.zero;
-
-        if (m_zonePivot != null)
-        {
-            float randomAngle = UnityEngine.Random.Range(0f, 360f);
-            m_zonePivot.localEulerAngles = new Vector3(0f, 0f, randomAngle);
-        }
+        ResetNeedle();
+        PlaceZoneRandomly();
+        UpdateZoneVisual();
     }
 
     private void Update()
     {
         if (!m_isRunning) return;
-        if (m_needlePivot == null) return;
 
-        float delta = m_rotationSpeedDegPerSec * Time.deltaTime;
-        m_needlePivot.Rotate(0f, 0f, -delta);
+        RotateNeedle();
 
         if (Input.GetKeyDown(m_validateKey))
         {
             bool success = IsNeedleInZone();
-            FinishQte(success);
+
+            if (!success)
+            {
+                FinishQte(false);
+                return;
+            }
+
+            m_currentPhaseIndex++;
+
+            if (m_currentPhaseIndex >= m_zoneToleranceByPhase.Length)
+            {
+                FinishQte(true);
+            }
+            else
+            {
+                ResetNeedle();
+                PlaceZoneRandomly();
+                UpdateZoneVisual();
+            }
         }
     }
 
     /**
-    @brief      Termine le QTE et masque l'UI.
-    @param      _success: résultat du QTE
+    @brief      Termine le QTE
+    @param      _success: true si toutes les phases sont réussie
     @return     void
     */
     private void FinishQte(bool _success)
@@ -80,29 +109,98 @@ public class QteCircle : MonoBehaviour
     }
 
     /**
-    @brief      Vérifie si l'aiguille est dans la zone de succès.
-    @return     true si réussite, false sinon
+    @brief      Fait tourner l'aiguille
+    @return     void
     */
-    private bool IsNeedleInZone()
+    private void RotateNeedle()
     {
-        if (m_zonePivot == null) return false;
+        if (m_needlePivot == null) return;
 
-        float needleDeg = NormalizeAngle360(m_needlePivot.localEulerAngles.z);
-        float zoneDeg = NormalizeAngle360(m_zonePivot.localEulerAngles.z);
-
-        float delta = Mathf.Abs(Mathf.DeltaAngle(needleDeg, zoneDeg));
-        return delta <= m_zoneToleranceDeg;
+        float delta = m_rotationSpeedDegPerSec * Time.deltaTime;
+        m_needlePivot.Rotate(0f, 0f, -delta);
     }
 
     /**
-    @brief      Normalise un angle en degrés dans [0, 360).
-    @param      _deg: angle en degrés
-    @return     angle normalisé
+    @brief      Replace l'aiguille au point de départ 
+    @return     void
     */
-    private float NormalizeAngle360(float _deg)
+    private void ResetNeedle()
     {
-        float deg = _deg % 360f;
-        if (deg < 0f) deg += 360f;
-        return deg;
+        if (m_needlePivot != null)
+            m_needlePivot.localEulerAngles = Vector3.zero;
+    }
+
+    /**
+    @brief      Place la zone de succès à un angle aléatoire
+    @return     void
+    */
+    private void PlaceZoneRandomly()
+    {
+        if (m_zonePivot == null) return;
+
+        float randomAngle = UnityEngine.Random.Range(0f, 360f);
+        m_zonePivot.localEulerAngles = new Vector3(0f, 0f, randomAngle);
+    }
+
+    /**
+    @brief      Active seulement la zone correspondant à la phase courante
+    @return     void
+    */
+    private void UpdateZoneVisual()
+    {
+        if (m_zoneLarge != null) m_zoneLarge.SetActive(m_currentPhaseIndex == 0);
+        if (m_zoneMedium != null) m_zoneMedium.SetActive(m_currentPhaseIndex == 1);
+        if (m_zoneSmall != null) m_zoneSmall.SetActive(m_currentPhaseIndex == 2);
+    }
+
+    /**
+    @brief      Récupère le marker de zone selon la phase courante
+    @return     RectTransform du marker actif
+    */
+    private RectTransform GetCurrentZoneMarker()
+    {
+        if (m_currentPhaseIndex == 0) return m_zoneMarkerLarge;
+        if (m_currentPhaseIndex == 1) return m_zoneMarkerMedium;
+        return m_zoneMarkerSmall;
+    }
+
+    /**
+    @brief      Vérifie si l'aiguille est dans la zone de succès de la phase courante
+    @return     true si réussite
+    */
+    private bool IsNeedleInZone()
+    {
+        RectTransform zoneMarker = GetCurrentZoneMarker();
+        if (m_needleMarker == null || zoneMarker == null || m_needlePivot == null) return false;
+
+        Vector2 center = m_needlePivot.position;
+
+        Vector2 needleVector = (Vector2)m_needleMarker.position - center;
+        Vector2 zoneVector = (Vector2)zoneMarker.position - center;
+
+        if (needleVector.sqrMagnitude < c_minVectorSqrMagnitude) return false;
+        if (zoneVector.sqrMagnitude < c_minVectorSqrMagnitude) return false;
+
+        Vector2 needleDir = needleVector.normalized;
+        Vector2 zoneDir = zoneVector.normalized;
+
+        float delta = Vector2.Angle(needleDir, zoneDir);
+        float tolerance = GetToleranceForCurrentPhase();
+
+
+        return delta <= tolerance;
+    }
+
+    /**
+    @brief      Récupère la tolérance de la phase courante
+    @return     tolérance en degrés
+    */
+    private float GetToleranceForCurrentPhase()
+    {
+        if (m_zoneToleranceByPhase == null || m_zoneToleranceByPhase.Length == 0)
+            return 0f;
+
+        int phaseIndex = Mathf.Clamp(m_currentPhaseIndex, 0, m_zoneToleranceByPhase.Length - 1);
+        return m_zoneToleranceByPhase[phaseIndex];
     }
 }
