@@ -60,4 +60,14 @@ public class PlayerInputControllerHit : MonoBehaviour
         }
     }
 
+    /*
+     * @brief OnInteract is called by the Input System when interact input is detected
+     * @param _context: The context of the input action
+     * @return void
+     */
+    public void OnInteract(InputAction.CallbackContext _context)
+    {
+        m_playerControllerHit.Clean();
+    }
+
 }

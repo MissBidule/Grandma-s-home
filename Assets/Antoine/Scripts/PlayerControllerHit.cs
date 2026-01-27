@@ -10,8 +10,9 @@ public class PlayerControllerHit : MonoBehaviour
     private PlayerInputControllerHit m_playerInputControllerHit;
 
     private BoxCollider m_boxCollider;
-    public bool m_isranged;
+    private float m_cleanRange = 2f;
 
+    public bool m_isranged;
 
     [SerializeField] private Transform m_bulletSpawnTransform;
     [SerializeField] private GameObject m_bulletPrefab;
@@ -93,13 +94,32 @@ public class PlayerControllerHit : MonoBehaviour
 
     /*
      * @brief  This function instantiates a ball prefab
-     * 
      * We instantaneously transfer the ball and put the force into impulse mode.
+     * @return void
      */
 
     void Shoot()
     {
         GameObject bullet = Instantiate(m_bulletPrefab, m_bulletSpawnTransform.position, Quaternion.identity);
         bullet.GetComponent<Rigidbody>().AddForce(m_bulletSpawnTransform.forward, ForceMode.Impulse);
+    }
+
+    /*
+     * @brief  This function allows you to clean the slime
+     * When the player is close to a distance of m_cleanRange and there is a gameObject with the tag "Slime", they destroy the gameObject.
+     * @return void
+     */
+    public void Clean()
+    {
+        Collider[] hits = Physics.OverlapSphere(transform.position, m_cleanRange);
+
+        foreach (Collider col in hits)
+        {
+            if (col.CompareTag("Slime"))
+            {
+                Destroy(col.gameObject);
+                break;
+            }
+        }
     }
 }
