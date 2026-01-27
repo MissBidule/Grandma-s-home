@@ -10,7 +10,14 @@ public class PlayerInputControllerHit : MonoBehaviour
 
     public Vector2 m_movementInputVector { get; private set; }
 
-    public bool m_isHitting { get; private set; }
+    private PlayerControllerHit m_playerControllerHit;
+
+
+    void Awake()
+    {
+        m_movementInputVector = Vector2.zero;
+        m_playerControllerHit = GetComponent<PlayerControllerHit>();
+    }
 
     /*
      * @brief OnMove is called by the Input System when movement input is detected
@@ -28,15 +35,29 @@ public class PlayerInputControllerHit : MonoBehaviour
     @return void
     */
     public void OnHit(InputAction.CallbackContext _context)
-    {   
+    {
         if (_context.performed)
         {
-            m_isHitting = true;
+            m_playerControllerHit.Attacks();
         }
-        else if (_context.canceled)
+        if (_context.canceled)
         {
-            m_isHitting = false;
+            m_playerControllerHit.DisableAttack();
         }
-
     }
+
+
+    /*
+     * @brief OnSwitchWeapon is called by the Input System when switch weapon input is detected
+     * @param _context: The context of the input action
+     * @return void
+     */
+    public void OnSwitchWeapon(InputAction.CallbackContext _context)
+    {
+        if (_context.performed)
+        {
+            m_playerControllerHit.m_isranged = !m_playerControllerHit.m_isranged;
+        }
+    }
+
 }
