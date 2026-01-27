@@ -1,28 +1,36 @@
+using System;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.InputSystem;
 
 /*
- * @brief       Contains class declaration for TransformWheelcontroller
- * @details     The TransformWheelcontroller class manages the transformation wheel UI and handles input to open/close it.
+ * @brief Contains class declaration for TransformWheelcontroller
+ * @details The TransformWheelcontroller class manages the transformation wheel UI and handles input to open/close it.
  */
 public class TransformWheelcontroller : MonoBehaviour
 {
-    public Animator m_anim;
-    private bool m_transformWheelSelected = false;
-    public Image m_selectedTransform;
-    public Sprite m_noImage;
-    public static int m_transformID;
+    public static TransformWheelcontroller m_Instance;
+    [SerializeField] private Animator m_anim;
+    [SerializeField] private TransformPreviewGhost m_previewGhost;
+    [SerializeField] private PlayerGhost m_playerGhost;
+    [NonSerialized] public GameObject m_selectedPrefab;
 
+    /*
+     * @brief Awake is called when the script instance is being loaded
+     * Sets the instance and gets the animator if not assigned.
+     * @return void
+     */
     void Awake()
     {
+        m_Instance = this;
         if (m_anim == null)
+        {
             m_anim = GetComponent<Animator>();
+        }
     }
 
-    /* 
-     * @brief Update triggers every frame
-     * Checks for Tab key input to toggle the transformation wheel and logs the selected transformation option.
+    /*
+     * @brief Update is called every frame
+     * Checks for Tab key input to toggle the transformation wheel.
      * @return void
      */
     void Update()
@@ -33,40 +41,35 @@ public class TransformWheelcontroller : MonoBehaviour
             bool open = !m_anim.GetBool("OpenTransformWheel");
             m_anim.SetBool("OpenTransformWheel", open);
         }
-        switch (m_transformID)
+    }
+
+    /*
+     * @brief Selects the prefab for transformation
+     * Sets the selected prefab and activates the preview ghost.
+     * @param _prefab: The prefab GameObject to select.
+     * @return void
+     */
+    public void SelectPrefab(GameObject _prefab)
+    {
+        m_selectedPrefab = _prefab;
+        m_previewGhost.SetPreview(_prefab);
+        m_previewGhost.gameObject.SetActive(true);
+    }
+
+    /*
+     * @brief Clears the current selection
+     * Resets the selected prefab and deactivates the preview ghost.
+     * @return void
+     */
+    public void ClearSelection()
+    {
+        m_selectedPrefab = null;
+        m_previewGhost.gameObject.SetActive(false);
+
+        UnityEngine.EventSystems.EventSystem eventSystem = UnityEngine.EventSystems.EventSystem.current;
+        if (eventSystem != null)
         {
-            case 0:
-                m_selectedTransform.sprite = m_noImage;
-                break;
-            case 1:
-                Debug.Log("Chaise/carré");
-                break;
-            case 2:
-                Debug.Log("Armoire/Cylindre");
-                break;
-            case 3:
-                Debug.Log("machin");
-                break;
-            case 4:
-                Debug.Log("bidule");
-                break;
-            case 5:
-                Debug.Log("chose");
-                break;
-            case 6:
-                Debug.Log("objet");
-                break;
-            case 7:
-                Debug.Log("item");
-                break;
-            case 8:
-                Debug.Log("accessoire");
-                break;
-            case 9:
-                Debug.Log("Amoir");
-                break;
-
+            eventSystem.SetSelectedGameObject(null);
         }
-
     }
 }

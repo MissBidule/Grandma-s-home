@@ -1,78 +1,38 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 /*
- * @brief       Contains class declaration for TransformWheelButtonController
- * @details     The TransformWheelButtonController class manages the behavior of buttons in the transformation wheel UI.
+ * @brief Contains class declaration for TransformWheelButtonController
+ * @details The TransformWheelButtonController class manages the behavior of buttons in the transformation wheel UI, using TransformOption for data.
  */
 public class TransformWheelButtonController : MonoBehaviour
 {
-    public int m_ID;
-    private Animator m_anim;
-    public string m_transformName;
-    public TextMeshProUGUI m_transformText;
-    public Image m_selectedTransform;
-    private bool m_selected = false;
-    public Sprite m_icon;
+    [SerializeField] private TransformOption m_transformOption;
 
-
-    void Start()
+    /*
+     * @brief Awake is called when the script instance is being loaded
+     * Finds the icon transform and sets its sprite from the TransformOption.
+     * @return void
+     */
+    void Awake()
     {
-        m_anim = GetComponent<Animator>();
+        Transform iconTransform = transform.Find("icone");
+        Image iconImage = iconTransform.GetComponent<Image>();
+        iconImage.sprite = m_transformOption.icon;
     }
 
-    
-    void Update()
-    {
-        if(m_selected)
-        {
-            m_selectedTransform.sprite = m_icon;
-        }
-
-    }
-
-    /* 
-     * @brief Selects this transformation option.
-     * Sets the selected flag to true and updates the TransformWheelcontroller's transformID.
+    /*
+     * @brief Selects this transformation option
+     * Selects the prefab in the TransformWheelcontroller.
      * @return void
      */
     public void Select()
     {
-        m_selected = true;
-        TransformWheelcontroller.m_transformID = m_ID;
-    }
-
-    /* 
-     * @brief Deselects this transformation option.
-     * Sets the selected flag to false and resets the TransformWheelcontroller's transformID.
-     * @return void
-     */
-    public void Deselect()
-    {
-        m_selected = false;
-        TransformWheelcontroller.m_transformID = 0;
-    }
-
-    /* 
-     * @brief Handles hover enter event.
-     * Sets the hover animation state and updates the transform text.
-     * @return void
-     */
-    public void HoverEnter()
-    {
-        m_anim.SetBool("Hover", true);
-        m_transformText.text = m_transformName;
-    }
-
-    /* 
-     * @brief Handles hover exit event.
-     * Resets the hover animation state and clears the transform text.
-     * @return void
-     */
-    public void HoverExit()
-    {
-        m_anim.SetBool("Hover", false);
-        m_transformText.text = "";
+        if (m_transformOption.prefab == null)
+        {
+            TransformWheelcontroller.m_Instance.ClearSelection();
+            return;
+        }
+        TransformWheelcontroller.m_Instance.SelectPrefab(m_transformOption.prefab);
     }
 }
