@@ -10,9 +10,12 @@ public class PlayerControllerHit : MonoBehaviour
     private PlayerInputControllerHit m_playerInputControllerHit;
 
     private BoxCollider m_boxCollider;
-    private float m_hitDuration = 0.5f;
-    private float m_hitTimer = 0f;
+    private float m_cleanRange = 2f;
 
+    public bool m_isranged;
+
+    [SerializeField] private Transform m_bulletSpawnTransform;
+    [SerializeField] private GameObject m_bulletPrefab;
 
     private void Awake()
     {
@@ -30,14 +33,19 @@ public class PlayerControllerHit : MonoBehaviour
         Vector2 movement = m_playerInputControllerHit.m_movementInputVector;
         Vector3 moveDirection = new Vector3(movement.x, 0, movement.y);
         transform.Translate(moveDirection * Time.deltaTime * 5f);
-        if (m_playerInputControllerHit.m_isHitting)
+    }
+
+    public void Attacks()
+    {
+        if (m_isranged)
         {
-            EnableAttack();
+            Shoot();
         }
         else
         {
-            DisableAttack();
+            EnableAttack();
         }
+
     }
 
     /*
@@ -53,7 +61,7 @@ public class PlayerControllerHit : MonoBehaviour
      * @brief Disables the attack collider to stop detecting hits.
      * @return void
      */
-    private void DisableAttack()
+    public void DisableAttack()
     {
         m_boxCollider.enabled = false;
     }
@@ -81,5 +89,37 @@ public class PlayerControllerHit : MonoBehaviour
     private void HitOpponent()
     {
         print("tape un fantôme");
+    }
+
+
+    /*
+     * @brief  This function instantiates a ball prefab
+     * We instantaneously transfer the ball and put the force into impulse mode.
+     * @return void
+     */
+
+    void Shoot()
+    {
+        GameObject bullet = Instantiate(m_bulletPrefab, m_bulletSpawnTransform.position, Quaternion.identity);
+        bullet.GetComponent<Rigidbody>().AddForce(m_bulletSpawnTransform.forward, ForceMode.Impulse);
+    }
+
+    /*
+     * @brief  This function allows you to clean the slime
+     * When the player is close to a distance of m_cleanRange and there is a gameObject with the tag "Slime", they destroy the gameObject.
+     * @return void
+     */
+    public void Clean()
+    {
+        Collider[] hits = Physics.OverlapSphere(transform.position, m_cleanRange);
+
+        foreach (Collider col in hits)
+        {
+            if (col.CompareTag("Slime"))
+            {
+                Destroy(col.gameObject);
+                break;
+            }
+        }
     }
 }
