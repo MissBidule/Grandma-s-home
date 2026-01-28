@@ -7,15 +7,22 @@ using UnityEngine;
  */
 public class PlayerController : MonoBehaviour
 {
-    public float m_speed = 5f;
-    public float m_rotationSpeed = 10f;
-
     private PlayerInputController m_playerInputController;
     private Rigidbody m_rigidbody;
     private PlayerGhost m_playerGhost;
     private bool m_waitingForInputRelease = false;
 
     private Vector3 m_moveDirection;
+    private BoxCollider m_boxCollider;
+    private float m_cleanRange = 2f;
+
+    public bool m_isranged;
+
+
+    [SerializeField] private float m_speed = 5f;
+    [SerializeField] private float m_rotationSpeed = 10f;
+    [SerializeField] private Transform m_bulletSpawnTransform;
+    [SerializeField] private GameObject m_bulletPrefab;
 
     /*
      * @brief Awake is called when the script instance is being loaded
@@ -27,6 +34,7 @@ public class PlayerController : MonoBehaviour
         m_playerInputController = GetComponent<PlayerInputController>();
         m_rigidbody = GetComponent<Rigidbody>();
         m_playerGhost = GetComponent<PlayerGhost>();
+        m_boxCollider = GetComponent<BoxCollider>();
     }
 
     /*
@@ -124,5 +132,99 @@ public class PlayerController : MonoBehaviour
     public void UnanchorPlayer()
     {
         m_waitingForInputRelease = false;
+    }
+
+
+    /*
+     * @brief function called when the player inputs the hit command
+     * @return void
+     */
+    public void Attacks()
+    {
+        if (m_isranged)
+        {
+            Shoot();
+        }
+        else
+        {
+            EnableAttack();
+        }
+
+    }
+
+    /*
+     * @brief Enables the attack collider to detect hits.
+     * @return void
+     */
+    private void EnableAttack()
+    {
+        m_boxCollider.enabled = true;
+    }
+
+    /*
+     * @brief Disables the attack collider to stop detecting hits.
+     * @return void
+     */
+    public void DisableAttack()
+    {
+        m_boxCollider.enabled = false;
+    }
+
+    /*
+     * @brief Called when the attack collider enters a trigger with another collider.
+     * Triggers the hit opponent logic if the other collider belongs to a PlayerGhost.
+     * @param other: The collider that was entered.
+     * @return void
+     */
+    private void OnTriggerEnter(Collider other)
+    {
+        var ghost = other.GetComponent<PlayerGhost>();
+        if (ghost != null)
+        {
+            HitOpponent();
+        }
+    }
+
+    /*
+     * @brief Logic executed when hitting an opponent.
+     * TODO: Implement actual hit logic
+     * @return void
+     */
+    private void HitOpponent()
+    {
+        print("tape un fantôme");
+    }
+
+
+    /*
+     * @brief  This function instantiates a ball prefab
+     * We instantaneously transfer the ball and put the force into impulse mode.
+     * @return void
+     */
+
+    void Shoot()
+    {
+        print("shoot");
+        GameObject bullet = Instantiate(m_bulletPrefab, m_bulletSpawnTransform.position, transform.rotation);
+        bullet.GetComponent<Rigidbody>().AddForce(m_bulletSpawnTransform.forward, ForceMode.Impulse);
+    }
+
+    /*
+     * @brief  This function allows you to clean the slime
+     * When the player is close to a distance of m_cleanRange and there is a gameObject with the tag "Slime", they destroy the gameObject.
+     * @return void
+     */
+    public void Clean()
+    {
+        Collider[] hits = Physics.OverlapSphere(transform.position, m_cleanRange);
+
+        foreach (Collider col in hits)
+        {
+            if (col.CompareTag("Slime"))
+            {
+                Destroy(col.gameObject);
+                break;
+            }
+        }
     }
 }
