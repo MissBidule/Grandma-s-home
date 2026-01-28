@@ -2,10 +2,10 @@ using UnityEngine;
 
 /**
 @brief       Script du sabotage d'objet
-@details     La classe \c SabotageObject gère l'interaction de sabotage : proximité, surbrillance (émission),
-             swap d'état, ajout de score et QTE.
+@details     La classe \c SabotageObject gère le sabotage (QTE, meshes, highlight, score) et expose une interaction
+             contrôlée par le joueur via \c IPlayerInteractable.
 */
-public class SabotageObject : MonoBehaviour
+public class SabotageObject : MonoBehaviour, PlayerInteractable
 {
     [Header("State Meshes")]
     [SerializeField] private GameObject m_normalMesh;
@@ -22,19 +22,14 @@ public class SabotageObject : MonoBehaviour
 
     [Header("Interaction")]
     [SerializeField] private string m_promptMessage = "E : Sabotage";
-    [SerializeField] private KeyCode m_interactKey = KeyCode.E;
 
     [Header("QTE")]
     [SerializeField] private QteCircle m_qteCircle;
 
-    private bool m_isPlayerInRange;
     private bool m_isSabotaged;
     private bool m_isQteRunning;
+    private bool m_isFocused;
 
-    /**
-    @brief      Initialise l'état visuel et coupe l'émission
-    @return     void
-    */
     private void Start()
     {
         ApplyState();
@@ -42,25 +37,75 @@ public class SabotageObject : MonoBehaviour
     }
 
     /**
-    @brief      Gère l'interaction au clavier.
-    @return     void
+    @brief      Autorise uniquement le fantôme à saboter
+    @param      _playerType: type du joueur
+    @return     true si le joueur peut interagir
     */
-    private void Update()
+    public bool CanInteract(PlayerType _playerType)
     {
-        if (!m_isPlayerInRange) return;
-        if (m_isSabotaged) return;
-        if (m_isQteRunning) return;
+        if (m_isSabotaged) return false;
+        if (m_isQteRunning) return false;
 
-        if (Input.GetKeyDown(m_interactKey))
-        {
-            StartQte();
-        }
+        return _playerType == PlayerType.Ghost;
     }
 
     /**
-    @brief      Lance le QTE de sabotage.
+    @brief      Prompt selon le rôle
+    @param      _playerType: type du joueur
+    @return     texte du prompt
+    */
+    public string GetPrompt(PlayerType _playerType)
+    {
+        if (_playerType != PlayerType.Ghost) return string.Empty;
+        return m_promptMessage;
+    }
+
+    /**
+    @brief      Focus : active highlight + prompt
+    @param      _playerType: type du joueur
     @return     void
     */
+    public void OnFocus(PlayerType _playerType)
+    {
+        if (!CanInteract(_playerType)) return;
+
+        m_isFocused = true;
+
+        SetHighlight(true);
+
+        if (InteractPromptUI.Instance != null)
+            InteractPromptUI.Instance.Show(GetPrompt(_playerType));
+    }
+
+    /**
+    @brief      Unfocus : coupe highlight + prompt
+    @param      _playerType: type du joueur
+    @return     void
+    */
+    public void OnUnfocus(PlayerType _playerType)
+    {
+        m_isFocused = false;
+
+        SetHighlight(false);
+
+        if (InteractPromptUI.Instance != null)
+            InteractPromptUI.Instance.Hide();
+    }
+
+    /**
+    @brief      Interaction (touche E côté joueur) : lance le QTE puis sabotage si réussite
+    @param      _playerTransform: transform du joueur
+    @param      _playerType: type du joueur
+    @return     void
+    */
+    public void Interact(Transform _playerTransform, PlayerType _playerType)
+    {
+        if (!CanInteract(_playerType)) return;
+
+        StartQte();
+    }
+
+
     private void StartQte()
     {
         if (m_qteCircle == null)
@@ -78,22 +123,17 @@ public class SabotageObject : MonoBehaviour
         m_qteCircle.StartQte(OnQteFinished);
     }
 
-    /**
-    @brief      Callback appelée à la fin du QTE.
-    @param      _success: true si le QTE est réussi
-    @return     void
-    */
     private void OnQteFinished(bool _success)
     {
         m_isQteRunning = false;
 
-        if (!m_isPlayerInRange || m_isSabotaged) return;
-
         if (_success)
         {
             Sabotage();
+            return;
         }
-        else
+
+        if (m_isFocused)
         {
             SetHighlight(true);
             if (InteractPromptUI.Instance != null)
@@ -101,10 +141,6 @@ public class SabotageObject : MonoBehaviour
         }
     }
 
-    /**
-    @brief      Passe l'objet en état saboté + score
-    @return     void
-    */
     private void Sabotage()
     {
         m_isSabotaged = true;
@@ -116,26 +152,15 @@ public class SabotageObject : MonoBehaviour
             InteractPromptUI.Instance.Hide();
 
         if (ScoreManager.Instance != null)
-        {
             ScoreManager.Instance.Add(m_scoreValue);
-        }
     }
 
-    /**
-    @brief      Active/désactive les meshes selon l'état
-    @return     void
-    */
     private void ApplyState()
     {
         if (m_normalMesh != null) m_normalMesh.SetActive(!m_isSabotaged);
         if (m_sabotagedMesh != null) m_sabotagedMesh.SetActive(m_isSabotaged);
     }
 
-    /**
-    @brief      Active/Désactive l'émission uniquement sur le matériau ciblé (bois)
-    @param      _enabled: true active la surbrillance, false la coupe
-    @return     void
-    */
     private void SetHighlight(bool _enabled)
     {
         if (m_highlightRenderer == null) return;
@@ -160,40 +185,5 @@ public class SabotageObject : MonoBehaviour
         {
             material.SetColor("_EmissionColor", Color.black);
         }
-    }
-
-    /**
-    @brief      Détecte l'entrée du joueur et active la surbrillance
-    @param      _other: collider entrant
-    @return     void
-    */
-    private void OnTriggerEnter(Collider _other)
-    {
-        if (!_other.CompareTag("Player")) return;
-
-        m_isPlayerInRange = true;
-
-        if (!m_isSabotaged && !m_isQteRunning)
-        {
-            SetHighlight(true);
-            if (InteractPromptUI.Instance != null)
-                InteractPromptUI.Instance.Show(m_promptMessage);
-        }
-    }
-
-    /**
-    @brief      Détecte la sortie du joueur et coupe la surbrillance
-    @param      _other: collider sortant
-    @return     void
-    */
-    private void OnTriggerExit(Collider _other)
-    {
-        if (!_other.CompareTag("Player")) return;
-
-        m_isPlayerInRange = false;
-
-        SetHighlight(false);
-        if (InteractPromptUI.Instance != null)
-            InteractPromptUI.Instance.Hide();
     }
 }
