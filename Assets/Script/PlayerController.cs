@@ -15,6 +15,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 m_moveDirection;
     private BoxCollider m_boxCollider;
     private float m_cleanRange = 2f;
+    private float m_attackRange = 0.5f;
 
     public bool m_isranged;
 
@@ -34,7 +35,6 @@ public class PlayerController : MonoBehaviour
         m_playerInputController = GetComponent<PlayerInputController>();
         m_rigidbody = GetComponent<Rigidbody>();
         m_playerGhost = GetComponent<PlayerGhost>();
-        m_boxCollider = GetComponent<BoxCollider>();
     }
 
     /*
@@ -147,7 +147,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            EnableAttack();
+            Cac();
         }
 
     }
@@ -156,32 +156,17 @@ public class PlayerController : MonoBehaviour
      * @brief Enables the attack collider to detect hits.
      * @return void
      */
-    private void EnableAttack()
+    private void Cac()
     {
-        m_boxCollider.enabled = true;
-    }
+        Collider[] hits = Physics.OverlapSphere(m_bulletSpawnTransform.position, m_attackRange);
 
-    /*
-     * @brief Disables the attack collider to stop detecting hits.
-     * @return void
-     */
-    public void DisableAttack()
-    {
-        m_boxCollider.enabled = false;
-    }
-
-    /*
-     * @brief Called when the attack collider enters a trigger with another collider.
-     * Triggers the hit opponent logic if the other collider belongs to a PlayerGhost.
-     * @param other: The collider that was entered.
-     * @return void
-     */
-    private void OnTriggerEnter(Collider other)
-    {
-        var ghost = other.GetComponent<PlayerGhost>();
-        if (ghost != null)
+        foreach (Collider col in hits)
         {
-            HitOpponent();
+            var ghost = col.GetComponent<PlayerGhost>();
+            if (ghost != null)
+            {
+                HitOpponent();
+            }
         }
     }
 

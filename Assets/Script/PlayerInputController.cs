@@ -61,10 +61,6 @@ public class PlayerInputController : MonoBehaviour
         {
             m_playerController.Attacks();
         }
-        if (_context.canceled)
-        {
-            m_playerController.DisableAttack();
-        }
     }
 
 
