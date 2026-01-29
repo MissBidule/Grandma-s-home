@@ -7,15 +7,23 @@ using UnityEngine;
  */
 public class PlayerController : MonoBehaviour
 {
-    public float m_speed = 5f;
-    public float m_rotationSpeed = 10f;
-
     private PlayerInputController m_playerInputController;
     private Rigidbody m_rigidbody;
     private PlayerGhost m_playerGhost;
     private bool m_waitingForInputRelease = false;
 
     private Vector3 m_moveDirection;
+    private BoxCollider m_boxCollider;
+    private float m_cleanRange = 2f;
+    private float m_attackRange = 0.5f;
+
+    public bool m_isranged;
+
+
+    [SerializeField] private float m_speed = 5f;
+    [SerializeField] private float m_rotationSpeed = 10f;
+    [SerializeField] private Transform m_bulletSpawnTransform;
+    [SerializeField] private GameObject m_bulletPrefab;
 
     /*
      * @brief Awake is called when the script instance is being loaded
@@ -124,5 +132,84 @@ public class PlayerController : MonoBehaviour
     public void UnanchorPlayer()
     {
         m_waitingForInputRelease = false;
+    }
+
+
+    /*
+     * @brief function called when the player inputs the hit command
+     * @return void
+     */
+    public void Attacks()
+    {
+        if (m_isranged)
+        {
+            Shoot();
+        }
+        else
+        {
+            Cac();
+        }
+
+    }
+
+    /*
+     * @brief Enables the attack collider to detect hits.
+     * @return void
+     */
+    private void Cac()
+    {
+        Collider[] hits = Physics.OverlapSphere(m_bulletSpawnTransform.position, m_attackRange);
+
+        foreach (Collider col in hits)
+        {
+            var ghost = col.GetComponent<PlayerGhost>();
+            if (ghost != null)
+            {
+                HitOpponent();
+            }
+        }
+    }
+
+    /*
+     * @brief Logic executed when hitting an opponent.
+     * TODO: Implement actual hit logic
+     * @return void
+     */
+    private void HitOpponent()
+    {
+        print("tape un fantôme");
+    }
+
+
+    /*
+     * @brief  This function instantiates a ball prefab
+     * We instantaneously transfer the ball and put the force into impulse mode.
+     * @return void
+     */
+
+    void Shoot()
+    {
+        print("shoot");
+        GameObject bullet = Instantiate(m_bulletPrefab, m_bulletSpawnTransform.position, transform.rotation);
+        bullet.GetComponent<Rigidbody>().AddForce(m_bulletSpawnTransform.forward, ForceMode.Impulse);
+    }
+
+    /*
+     * @brief  This function allows you to clean the slime
+     * When the player is close to a distance of m_cleanRange and there is a gameObject with the tag "Slime", they destroy the gameObject.
+     * @return void
+     */
+    public void Clean()
+    {
+        Collider[] hits = Physics.OverlapSphere(transform.position, m_cleanRange);
+
+        foreach (Collider col in hits)
+        {
+            if (col.CompareTag("Slime"))
+            {
+                Destroy(col.gameObject);
+                break;
+            }
+        }
     }
 }

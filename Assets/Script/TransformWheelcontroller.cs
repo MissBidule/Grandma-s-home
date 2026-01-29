@@ -38,6 +38,7 @@ public class TransformWheelcontroller : MonoBehaviour
         // New Input System: read Tab key
         if (Keyboard.current != null && Keyboard.current.tabKey.wasPressedThisFrame)
         {
+            Cursor.lockState = CursorLockMode.Confined;
             bool open = !m_anim.GetBool("OpenTransformWheel");
             m_anim.SetBool("OpenTransformWheel", open);
         }
@@ -54,6 +55,7 @@ public class TransformWheelcontroller : MonoBehaviour
         m_selectedPrefab = _prefab;
         m_previewGhost.SetPreview(_prefab);
         m_previewGhost.gameObject.SetActive(true);
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     /*
