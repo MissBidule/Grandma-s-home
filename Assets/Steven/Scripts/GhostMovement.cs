@@ -1,9 +1,8 @@
 ﻿using UnityEngine;
 
 /**
-@brief       Déplacement fantôme + auto-climb limité
-@details     Le fantôme se déplace relativement à la caméra et grimpe automatiquement
-             en poussant n'importe quel mur (sans mask), avec une durée limitée.
+@brief       Déplacement fantôme + auto-climb
+@details     Le fantôme se déplace et grimpe automatiquement en poussant n'importe quel mur
 */
 public class GhostMovement : MonoBehaviour
 {

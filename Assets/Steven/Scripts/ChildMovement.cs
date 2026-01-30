@@ -2,7 +2,7 @@ using UnityEngine;
 
 /**
 @brief       Déplacement enfant (ZQSD standard Unity) + course + saut
-@details     Déplacement Rigidbody basé sur les axes Horizontal / Vertical
+@details     Déplacement
 */
 public class ChildMovement : MonoBehaviour
 {
@@ -37,7 +37,6 @@ public class ChildMovement : MonoBehaviour
         if (wishDir.sqrMagnitude > 1f)
             wishDir.Normalize();
 
-        // Déplacement relatif à l'orientation du player
         wishDir = transform.TransformDirection(wishDir);
 
         float targetSpeed = Input.GetKey(m_runKey) ? m_runSpeed : m_walkSpeed;

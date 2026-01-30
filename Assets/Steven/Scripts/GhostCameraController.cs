@@ -2,8 +2,7 @@ using UnityEngine;
 
 /**
 @brief       Caméra orbitale du Ghost
-@details     Caméra 3ème personne contrôlée par la souris, indépendante du Child.
-             La direction de déplacement du Ghost est alignée avec la caméra.
+@details     Caméra 3ème personne contrôlée par la souris, indépendante du Child. La direction de déplacement du Ghost est alignée avec la caméra
 */
 public class GhostCameraController : MonoBehaviour
 {
@@ -72,7 +71,7 @@ public class GhostCameraController : MonoBehaviour
     }
 
     /**
-    @brief      Retourne la direction forward de la caméra (pour le mouvement Ghost)
+    @brief      Retourne la direction forward de la caméra
     @return     direction normalisée sur le plan horizontal
     */
     public Vector3 GetCameraForwardFlat()

@@ -2,7 +2,7 @@ using UnityEngine;
 
 /**
 @brief       Interface d'interaction côté joueur
-@details     Permet au joueur de sélectionner un interactible unique (le plus proche) et d'interagir
+@details     Permet au joueur de sélectionner un interactible (le plus proche) et d'interagir
 */
 public interface PlayerInteractable
 {

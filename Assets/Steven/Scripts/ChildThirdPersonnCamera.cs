@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
 /**
-@brief       Caméra 3ème personne enfant (yaw player + pitch caméra)
-@details     Souris X fait tourner le joueur, souris Y incline la caméra
+@brief       Caméra 3ème personne chid
+@details     Tourner la camera
 */
 public class ChildThirdPersonCamera : MonoBehaviour
 {
