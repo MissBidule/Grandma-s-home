@@ -98,7 +98,11 @@ public class PlayerController : MonoBehaviour
     {
         if (m_moveDirection == Vector3.zero) return;
 
-        m_rigidbody.MovePosition(
+
+        // GOOD WAY TO MOVE, BUT NOT SEPARATED BETWEEN CHILD AND GHOST SO COMMENTED UNTIL FIX.
+        // GOOD WAY TO MOVE, BUT NOT SEPARATED BETWEEN CHILD AND GHOST SO COMMENTED UNTIL FIX.
+        // GOOD WAY TO MOVE, BUT NOT SEPARATED BETWEEN CHILD AND GHOST SO COMMENTED UNTIL FIX.
+        /*m_rigidbody.MovePosition(
             m_rigidbody.position + m_moveDirection * m_speed * Time.fixedDeltaTime
         );
 
@@ -109,7 +113,7 @@ public class PlayerController : MonoBehaviour
                 targetRot,
                 m_rotationSpeed * Time.fixedDeltaTime
             )
-        );
+        );*/
     }
 
     /*
@@ -162,10 +166,10 @@ public class PlayerController : MonoBehaviour
 
         foreach (Collider col in hits)
         {
-            var ghost = col.GetComponent<PlayerGhost>();
+            var ghost = col.GetComponent<GhostMovement>();
             if (ghost != null)
             {
-                HitOpponent();
+                HitOpponent(ghost);
             }
         }
     }
@@ -175,9 +179,10 @@ public class PlayerController : MonoBehaviour
      * TODO: Implement actual hit logic
      * @return void
      */
-    private void HitOpponent()
+    private void HitOpponent(GhostMovement _ghost)
     {
         print("tape un fantôme");
+        _ghost.GotHitByCac();
     }
 
 

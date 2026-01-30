@@ -6,6 +6,14 @@
 */
 public class GhostMovement : MonoBehaviour
 {
+    [SerializeField] private bool m_isSlowed = false;
+    [SerializeField] private bool m_isStopped = false;
+    [SerializeField] private float m_timerSlowed = 5f;
+    [SerializeField] private float m_timerStop = 5f;
+    [SerializeField] private float m_currentTimerSlowed = 5f;
+    [SerializeField] private float m_currentTimerStop = 5f;
+
+
     [Header("Movement")]
     [SerializeField] private float m_walkSpeed = 4f;
     [SerializeField] private float m_acceleration = 25f;
@@ -31,9 +39,24 @@ public class GhostMovement : MonoBehaviour
         m_rigidbody = GetComponent<Rigidbody>();
     }
 
+    public void GotHitByProjectile() { 
+        m_isSlowed = true;
+        m_currentTimerSlowed = m_timerSlowed;
+    }
+
+    public void GotHitByCac()
+    {
+        m_isStopped = true;
+        m_currentTimerStop = m_timerStop;
+    }
+
     private void FixedUpdate()
     {
         if (m_rigidbody == null) return;
+
+        var speedModifier = m_isSlowed ? 0.5f : 1f;
+        speedModifier = m_isStopped ? 0f : speedModifier;
+
 
         Vector2 input = new Vector2(
             Input.GetAxisRaw("Horizontal"),
@@ -58,7 +81,7 @@ public class GhostMovement : MonoBehaviour
             wishDir = (forward * input.y + right * input.x).normalized;
         }
 
-        if (wishDir.sqrMagnitude > 0.0001f)
+        if (wishDir.sqrMagnitude > 0.0001f && !m_isStopped)
         {
             Quaternion targetRotation = Quaternion.LookRotation(wishDir, Vector3.up);
 
@@ -76,7 +99,7 @@ public class GhostMovement : MonoBehaviour
             m_climbTimer -= Time.fixedDeltaTime;
 
             Vector3 vel = m_rigidbody.linearVelocity;
-            vel.y = Mathf.Max(vel.y, m_climbSpeed);
+            vel.y = Mathf.Max(vel.y, m_climbSpeed) * speedModifier;
             m_rigidbody.linearVelocity = vel;
 
             ResetClimbFlags();
@@ -96,7 +119,7 @@ public class GhostMovement : MonoBehaviour
                     m_climbTimer = m_maxClimbDuration;
 
                     float targetUp = m_climbSpeed * pushDot;
-                    vel.y = Mathf.Max(vel.y, targetUp);
+                    vel.y = Mathf.Max(vel.y, targetUp) * speedModifier;
                     m_rigidbody.linearVelocity = vel;
 
                     ResetClimbFlags();
@@ -105,19 +128,44 @@ public class GhostMovement : MonoBehaviour
             }
         }
 
-        Vector3 targetVel = wishDir * m_walkSpeed;
+        Vector3 targetVel = wishDir * m_walkSpeed * speedModifier;
 
         Vector3 currentVel = m_rigidbody.linearVelocity;
         Vector3 currentHorizontal = new Vector3(currentVel.x, 0f, currentVel.z);
 
         Vector3 delta = targetVel - currentHorizontal;
-        Vector3 accel = Vector3.ClampMagnitude(delta * m_acceleration, m_acceleration);
+        Vector3 accel = Vector3.ClampMagnitude(delta * m_acceleration * speedModifier, m_acceleration);
 
         m_rigidbody.AddForce(new Vector3(accel.x, 0f, accel.z), ForceMode.Acceleration);
 
         ResetClimbFlags();
     }
 
+    /**
+    @brief      Update des timers de slow et stop
+    @return     void
+    */
+    private void Update()
+    {
+        if (m_isSlowed)
+        {
+            m_currentTimerSlowed -= Time.deltaTime;
+            if (m_currentTimerSlowed <= 0f)
+            {
+                m_isSlowed = false;
+                m_currentTimerSlowed = m_timerSlowed;
+            }
+        }
+        if (m_isStopped)
+        {
+            m_currentTimerStop -= Time.deltaTime;
+            if (m_currentTimerStop <= 0f)
+            {
+                m_isStopped = false;
+                m_currentTimerStop = m_timerStop;
+            }
+        }
+    }
 
     private void OnCollisionStay(Collision _collision)
     {
