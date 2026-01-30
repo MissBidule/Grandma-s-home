@@ -60,6 +60,10 @@ public class Bullet : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+        if (_other.CompareTag("Slime"))
+        {
+            return;
+        }
         if (m_slimeOnCollider.ContainsKey(_other) && m_slimeOnCollider[_other] != null)
         {
             Destroy(gameObject);
