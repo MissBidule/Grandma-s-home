@@ -9,11 +9,13 @@ public class PlayerInputController : MonoBehaviour
 {
     public Vector2 m_movementInputVector { get; private set; }
     public Vector2 m_lookInputVector { get; private set; }
-
     private PlayerController m_playerController;
 
-
-
+    /*
+     * @brief Awake is called when the script instance is being loaded
+     * Gets the PlayerController component.
+     * @return void
+     */
     void Awake()
     {
         m_playerController = GetComponent<PlayerController>();
@@ -34,6 +36,7 @@ public class PlayerInputController : MonoBehaviour
      * @param _context: The context of the input action
      * @return void
      */
+
     public void OnLook(InputAction.CallbackContext _context)
     {
         m_lookInputVector = _context.ReadValue<Vector2>();
@@ -49,7 +52,6 @@ public class PlayerInputController : MonoBehaviour
         m_movementInputVector = Vector2.zero;
     }
 
-
     /*
     @brief function called when the player inputs the hit command
     @param _context: valeur liée à l'input
@@ -62,7 +64,6 @@ public class PlayerInputController : MonoBehaviour
             m_playerController.Attacks();
         }
     }
-
 
     /*
      * @brief OnSwitchWeapon is called by the Input System when switch weapon input is detected
@@ -87,4 +88,16 @@ public class PlayerInputController : MonoBehaviour
         m_playerController.Clean();
     }
 
+    /*
+     * @brief OnScan is called by the Input System when scan input is detected 
+     * @param _context: The context of the input action
+     * @return void
+     */
+    public void OnScan(InputAction.CallbackContext _context)
+    {
+        if (_context.performed)
+        {
+            TransformWheelcontroller.m_Instance.ScanForPrefab();
+        }
+    }
 }

@@ -38,7 +38,9 @@ public class TransformPreviewGhost : MonoBehaviour
         MeshFilter meshFilter = _prefab.GetComponentInChildren<MeshFilter>();
         Collider collider = _prefab.GetComponentInChildren<Collider>();
         GetComponent<MeshFilter>().mesh = meshFilter.sharedMesh;
+        m_collisionCount = 0;
         ReplaceCollider(collider);
+        UpdateMaterial();
     }
 
     /*
