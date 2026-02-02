@@ -8,7 +8,6 @@ public class TransformPreviewGhost : MonoBehaviour
 {
     private MeshRenderer m_meshRenderer;
     private Collider m_previewCollider;
-    private Material[] m_originalMaterials;
     private uint m_collisionCount = 0;
     public bool m_CanTransform => m_collisionCount == 0;
 
@@ -25,7 +24,6 @@ public class TransformPreviewGhost : MonoBehaviour
         m_meshRenderer = GetComponent<MeshRenderer>();
         m_previewCollider = GetComponent<Collider>();
         m_previewCollider.isTrigger = true;
-        m_originalMaterials = m_meshRenderer.sharedMaterials;
         UpdateMaterial();
     }
 
