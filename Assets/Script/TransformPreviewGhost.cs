@@ -40,6 +40,8 @@ public class TransformPreviewGhost : MonoBehaviour
         GetComponent<MeshFilter>().mesh = meshFilter.sharedMesh;
         m_collisionCount = 0;
         ReplaceCollider(collider);
+        transform.localScale = _prefab.transform.localScale;
+        transform.localRotation = _prefab.transform.localRotation;
         UpdateMaterial();
     }
 

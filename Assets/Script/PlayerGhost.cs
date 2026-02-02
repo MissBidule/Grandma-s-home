@@ -170,6 +170,8 @@ public class PlayerGhost : MonoBehaviour
         m_meshFilter.mesh = targetFilter.sharedMesh;
         m_meshRenderer.materials = targetRenderer.sharedMaterials;
         ReplaceCollider(targetCollider);
+        transform.localScale = _prefab.transform.localScale;
+        transform.localRotation = _prefab.transform.localRotation;
     }
 
     /*

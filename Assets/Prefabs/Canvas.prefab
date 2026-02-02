@@ -159,11 +159,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 678c5e8b4183c4b41b61f9e3deffdd16, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  ID: 1
-  transformName: 
-  transformText: {fileID: 1343679683185930948}
-  selectedTransform: {fileID: 7061156668461914054}
-  icon: {fileID: 21300000, guid: 2e58a122c0f394d4890f9494de53e7fd, type: 3}
+  m_transformOption:
+    prefab: {fileID: 0}
+    icon: {fileID: 0}
 --- !u!114 &8315390886032991261
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -637,11 +635,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 678c5e8b4183c4b41b61f9e3deffdd16, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  ID: 1
-  transformName: 
-  transformText: {fileID: 1343679683185930948}
-  selectedTransform: {fileID: 7061156668461914054}
-  icon: {fileID: 21300000, guid: 2e58a122c0f394d4890f9494de53e7fd, type: 3}
+  m_transformOption:
+    prefab: {fileID: 0}
+    icon: {fileID: 0}
 --- !u!114 &7160715175371833796
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -890,11 +886,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 678c5e8b4183c4b41b61f9e3deffdd16, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  ID: 1
-  transformName: Armoire
-  transformText: {fileID: 1343679683185930948}
-  selectedTransform: {fileID: 7061156668461914054}
-  icon: {fileID: 21300000, guid: 4b6c7af9e70d17d428e634e24aae44f2, type: 3}
+  m_transformOption:
+    prefab: {fileID: 0}
+    icon: {fileID: 0}
 --- !u!114 &5208865156529699983
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1293,11 +1287,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 678c5e8b4183c4b41b61f9e3deffdd16, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  ID: 1
-  transformName: 
-  transformText: {fileID: 1343679683185930948}
-  selectedTransform: {fileID: 7061156668461914054}
-  icon: {fileID: 21300000, guid: 2e58a122c0f394d4890f9494de53e7fd, type: 3}
+  m_transformOption:
+    prefab: {fileID: 0}
+    icon: {fileID: 0}
 --- !u!114 &3277679158872652575
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1625,11 +1617,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 678c5e8b4183c4b41b61f9e3deffdd16, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  ID: 1
-  transformName: 
-  transformText: {fileID: 1343679683185930948}
-  selectedTransform: {fileID: 7061156668461914054}
-  icon: {fileID: 21300000, guid: 2e58a122c0f394d4890f9494de53e7fd, type: 3}
+  m_transformOption:
+    prefab: {fileID: 0}
+    icon: {fileID: 0}
 --- !u!114 &6252048837393438478
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1744,23 +1734,23 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3979093525321435063}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: -0.17364825, w: 0.9848078}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1248747864977031249}
   - {fileID: 1955484965057417041}
-  - {fileID: 496215387906406501}
   - {fileID: 6284558606966071839}
-  - {fileID: 3530249501054644883}
-  - {fileID: 5313116698949205736}
   - {fileID: 4314902531860154148}
   - {fileID: 3415275583599208358}
+  - {fileID: 496215387906406501}
+  - {fileID: 5313116698949205736}
+  - {fileID: 3530249501054644883}
   - {fileID: 4538627653201088908}
   - {fileID: 9019966706972466779}
   m_Father: {fileID: 6171494601812825529}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -20}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
@@ -1778,9 +1768,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42838d3fbd9fbc342aa9cd0dc0187084, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  anim: {fileID: 3057776725169882206}
-  selectedTransform: {fileID: 7061156668461914054}
-  noImage: {fileID: 21300000, guid: d33333b51fab1d2498d54423d22460ff, type: 3}
+  m_anim: {fileID: 0}
+  m_previewGhost: {fileID: 0}
+  m_playerGhost: {fileID: 0}
+  m_scanRange: 5
+  m_wheelButtons:
+  - {fileID: 1753397079314486787}
+  - {fileID: 1979448446414712514}
+  - {fileID: 205645273318020760}
+  - {fileID: 6671219093942724757}
+  - {fileID: 1361659547605224553}
+  - {fileID: 9119591755988603553}
+  - {fileID: 7291135931673823378}
+  - {fileID: 6344635382196081346}
 --- !u!95 &3057776725169882206
 Animator:
   serializedVersion: 7
@@ -2037,11 +2037,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 678c5e8b4183c4b41b61f9e3deffdd16, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  ID: 1
-  transformName: 
-  transformText: {fileID: 1343679683185930948}
-  selectedTransform: {fileID: 7061156668461914054}
-  icon: {fileID: 21300000, guid: 2e58a122c0f394d4890f9494de53e7fd, type: 3}
+  m_transformOption:
+    prefab: {fileID: 0}
+    icon: {fileID: 0}
 --- !u!114 &3945736237271372566
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2290,11 +2288,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 678c5e8b4183c4b41b61f9e3deffdd16, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  ID: 1
-  transformName: 
-  transformText: {fileID: 1343679683185930948}
-  selectedTransform: {fileID: 7061156668461914054}
-  icon: {fileID: 21300000, guid: 2e58a122c0f394d4890f9494de53e7fd, type: 3}
+  m_transformOption:
+    prefab: {fileID: 0}
+    icon: {fileID: 0}
 --- !u!114 &5771768078458249821
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2680,11 +2676,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 678c5e8b4183c4b41b61f9e3deffdd16, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  ID: 1
-  transformName: Chaise
-  transformText: {fileID: 1343679683185930948}
-  selectedTransform: {fileID: 7061156668461914054}
-  icon: {fileID: 21300000, guid: 2e58a122c0f394d4890f9494de53e7fd, type: 3}
+  m_transformOption:
+    prefab: {fileID: 0}
+    icon: {fileID: 0}
 --- !u!114 &2669894717941747946
 MonoBehaviour:
   m_ObjectHideFlags: 0
