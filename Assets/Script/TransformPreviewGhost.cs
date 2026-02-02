@@ -8,6 +8,7 @@ public class TransformPreviewGhost : MonoBehaviour
 {
     private MeshRenderer m_meshRenderer;
     private Collider m_previewCollider;
+    private Material[] m_originalMaterials;
     private uint m_collisionCount = 0;
     public bool m_CanTransform => m_collisionCount == 0;
 
@@ -24,6 +25,7 @@ public class TransformPreviewGhost : MonoBehaviour
         m_meshRenderer = GetComponent<MeshRenderer>();
         m_previewCollider = GetComponent<Collider>();
         m_previewCollider.isTrigger = true;
+        m_originalMaterials = m_meshRenderer.sharedMaterials;
         UpdateMaterial();
     }
 
@@ -42,6 +44,15 @@ public class TransformPreviewGhost : MonoBehaviour
         ReplaceCollider(collider);
         transform.localScale = _prefab.transform.localScale;
         transform.localRotation = _prefab.transform.localRotation;
+
+        /*
+         Maths to place the preview correctly on the player
+         */
+        var render = _prefab.GetComponent<Renderer>();
+        var pRender = transform.parent.GetComponent<Renderer>();
+
+        transform.localPosition = new Vector3(0, (render.bounds.size.y - pRender.bounds.size.y) / 2, 0);
+
         UpdateMaterial();
     }
 
