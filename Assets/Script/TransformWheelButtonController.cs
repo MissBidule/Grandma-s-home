@@ -9,6 +9,7 @@ public class TransformWheelButtonController : MonoBehaviour
 {
     [SerializeField] private TransformOption m_transformOption;
     private Image m_iconImage;
+    private Button m_button;
 
     /*
      * @brief Awake is called when the script instance is being loaded
@@ -19,6 +20,7 @@ public class TransformWheelButtonController : MonoBehaviour
     {
         Transform iconTransform = transform.Find("icone");
         m_iconImage = iconTransform.GetComponent<Image>();
+        m_button = GetComponent<Button>();
         UpdateIcon();
     }
 
@@ -40,6 +42,11 @@ public class TransformWheelButtonController : MonoBehaviour
                 m_iconImage.enabled = false;
             }
         }
+
+        if (m_button != null)
+        {
+            m_button.interactable = !IsEmpty();
+        }
     }
 
     /*
@@ -49,6 +56,11 @@ public class TransformWheelButtonController : MonoBehaviour
      */
     public void Select()
     {
+        if (IsEmpty() && !TransformWheelcontroller.m_Instance.m_isWaitingForSlotSelection)
+        {
+            return;
+        }
+
         if (TransformWheelcontroller.m_Instance.m_isWaitingForSlotSelection)
         {
             OnSlotSelectedForReplacement();

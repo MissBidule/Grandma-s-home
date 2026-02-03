@@ -23,7 +23,6 @@ public class TransformWheelcontroller : MonoBehaviour
     private Sprite m_pendingIconToAdd;
 
     private MeshRenderer m_playerMeshRenderer;
-    private Material[] m_playerOriginalMaterials;
 
     /*
      * @brief Awake is called when the script instance is being loaded
@@ -38,7 +37,6 @@ public class TransformWheelcontroller : MonoBehaviour
             m_anim = GetComponent<Animator>();
         }
         m_playerMeshRenderer = m_playerGhost.GetComponent<MeshRenderer>();
-        m_playerOriginalMaterials = m_playerMeshRenderer.sharedMaterials;
     }
 
     /*
@@ -230,26 +228,31 @@ public class TransformWheelcontroller : MonoBehaviour
         m_previewGhost.gameObject.SetActive(true);
         Cursor.lockState = CursorLockMode.Locked;
         ApplyPlayerTransparency();
+
+        m_anim.SetBool("OpenTransformWheel", false);
     }
 
     /*
      * @brief Applies a transparency effect to the player
-     * Creates semi-transparent tinted materials from the player's original materials and applies them to the MeshRenderer.
+     * Applies transparency and color to the preview materials.
      * @return void
      */
     private void ApplyPlayerTransparency()
     {
-        Material[] mats = new Material[m_playerOriginalMaterials.Length];
-        for (int i = 0; i < mats.Length; ++i)
+        Material[] mats = m_playerMeshRenderer.materials;
+        foreach (Material mat in mats)
         {
-            mats[i] = new Material(m_playerOriginalMaterials[i]);
-            mats[i].color = new Color(0.4f, 0.5f, 0.8f, 0.2f);
-            mats[i].SetFloat("_Surface", 1);
-            mats[i].SetInt("_SrcBlend", 10);
-            mats[i].SetInt("_DstBlend", 10);
-            mats[i].renderQueue = 3000;
+            Color color = mat.color;
+            color.a = 0.2f;
+            mat.color = color;
+
+            mat.SetFloat("_Surface", 1);
+            mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            mat.SetInt("_ZWrite", 0);
+            mat.renderQueue = 3000;
+            mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
         }
-        m_playerMeshRenderer.materials = mats;
     }
 
     /*
@@ -259,7 +262,20 @@ public class TransformWheelcontroller : MonoBehaviour
      */
     private void RemovePlayerTransparency()
     {
-        m_playerMeshRenderer.sharedMaterials = m_playerOriginalMaterials;
+        Material[] mats = m_playerMeshRenderer.materials;
+        foreach (Material mat in mats)
+        {
+            Color color = mat.color;
+            color.a = 1.0f;
+            mat.color = color;
+
+            mat.SetFloat("_Surface", 0);
+            mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
+            mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
+            mat.SetInt("_ZWrite", 1);
+            mat.renderQueue = -1;
+            mat.DisableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        }
     }
 
     /*
@@ -273,7 +289,7 @@ public class TransformWheelcontroller : MonoBehaviour
         m_previewGhost.gameObject.SetActive(false);
         RemovePlayerTransparency();
         UnityEngine.EventSystems.EventSystem eventSystem = UnityEngine.EventSystems.EventSystem.current;
-        if (eventSystem != null)
+        if (eventSystem != null && eventSystem.currentSelectedGameObject != null)
         {
             eventSystem.SetSelectedGameObject(null);
         }
