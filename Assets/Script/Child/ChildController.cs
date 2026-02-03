@@ -23,6 +23,7 @@ public class ChildController : MonoBehaviour
     [SerializeField] private float m_rotationSpeed = 10f;
     [SerializeField] private Transform m_bulletSpawnTransform;
     [SerializeField] private GameObject m_bulletPrefab;
+    [SerializeField] private float m_jumpImpulse = 6.0f;
 
     /*
      * @brief Awake is called when the script instance is being loaded
@@ -99,6 +100,31 @@ public class ChildController : MonoBehaviour
                 m_rotationSpeed * Time.fixedDeltaTime
             )
         );
+    }
+
+    /*
+     * @brief   Makes the child jump by applying an impulse force upwards
+     * @return  void
+     */
+    public void Jump()
+    {
+        if (!IsGrounded()) return;
+        m_rigidbody.AddForce(Vector3.up * m_jumpImpulse, ForceMode.Impulse);
+    }
+
+    /*
+     * @brief   Checks if the child is grounded by casting a ray downwards
+     * @return  bool True if grounded, false otherwise
+     */
+    private bool IsGrounded()
+    {
+        if (m_rigidbody == null) return false;
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, 1.0f))
+        {
+            return true;
+        }
+        return false;
     }
 
 
