@@ -7,21 +7,12 @@ using UnityEngine.InputSystem;
  */
 public class PlayerGhost : MonoBehaviour
 {
-    private MeshFilter m_meshFilter;
     private MeshRenderer m_meshRenderer;
-    private Collider m_currentCollider;
+    private Collider m_playerCollider;
     [SerializeField] private TransformPreviewGhost m_previewGhost;
-
+    private GameObject m_currentPrefab = null;
     [System.NonSerialized] public bool m_isTransformed = false;
-
-    private Mesh m_originalMesh;
     private Material[] m_originalMaterials;
-    private System.Type m_originalColliderType;
-    private Vector3 m_originalColliderCenter;
-    private Vector3 m_originalColliderSize;
-    private float m_originalColliderRadius;
-    private float m_originalColliderHeight;
-    private int m_originalColliderDirection;
 
     /*
      * @brief Awake is called when the script instance is being loaded
@@ -30,45 +21,9 @@ public class PlayerGhost : MonoBehaviour
      */
     void Awake()
     {
-        m_meshFilter = GetComponent<MeshFilter>();
         m_meshRenderer = GetComponent<MeshRenderer>();
-        m_currentCollider = GetComponent<Collider>();
-
-        SaveOriginalAppearance();
-    }
-
-    /*
-     * @brief Saves the original appearance of the player
-     * Stores mesh, materials, and collider properties for later restoration.
-     * @return void
-     */
-    void SaveOriginalAppearance()
-    {
-        m_originalMesh = m_meshFilter.sharedMesh;
+        m_playerCollider = GetComponent<CapsuleCollider>();
         m_originalMaterials = m_meshRenderer.sharedMaterials;
-
-        if (m_currentCollider != null)
-        {
-            m_originalColliderType = m_currentCollider.GetType();
-
-            if (m_currentCollider is BoxCollider box)
-            {
-                m_originalColliderCenter = box.center;
-                m_originalColliderSize = box.size;
-            }
-            else if (m_currentCollider is SphereCollider sphere)
-            {
-                m_originalColliderCenter = sphere.center;
-                m_originalColliderRadius = sphere.radius;
-            }
-            else if (m_currentCollider is CapsuleCollider capsule)
-            {
-                m_originalColliderCenter = capsule.center;
-                m_originalColliderRadius = capsule.radius;
-                m_originalColliderHeight = capsule.height;
-                m_originalColliderDirection = capsule.direction;
-            }
-        }
     }
 
     /*
@@ -79,15 +34,17 @@ public class PlayerGhost : MonoBehaviour
      */
     public void ConfirmTransform(InputAction.CallbackContext _context)
     {
-        if (!_context.performed || !m_previewGhost.m_CanTransform || !TransformWheelcontroller.m_Instance.m_selectedPrefab)
+        if (!_context.performed || !m_previewGhost.m_CanTransform || !TransformWheelcontroller.m_Instance.m_selectedPrefab || m_isTransformed)
         {
             return;
         }
         GameObject prefab = TransformWheelcontroller.m_Instance.m_selectedPrefab;
         ApplyPrefab(prefab);
+        TransformWheelcontroller.m_Instance.m_selectedPrefab = null;
         m_previewGhost.gameObject.SetActive(false);
-
         m_isTransformed = true;
+        Rigidbody rb = GetComponent<Rigidbody>();
+        rb.constraints = RigidbodyConstraints.FreezeAll;
 
         PlayerController controller = GetComponent<PlayerController>();
         if (controller != null)
@@ -108,46 +65,15 @@ public class PlayerGhost : MonoBehaviour
             return;
         }
 
-        m_meshFilter.mesh = m_originalMesh;
-        m_meshRenderer.materials = m_originalMaterials;
-
-        if (m_currentCollider != null)
-        {
-            Destroy(m_currentCollider);
-        }
-
-        m_currentCollider = gameObject.AddComponent(m_originalColliderType) as Collider;
-
-        if (m_currentCollider is BoxCollider box)
-        {
-            box.center = m_originalColliderCenter;
-            box.size = m_originalColliderSize;
-        }
-        else if (m_currentCollider is SphereCollider sphere)
-        {
-            sphere.center = m_originalColliderCenter;
-            sphere.radius = m_originalColliderRadius;
-        }
-        else if (m_currentCollider is CapsuleCollider capsule)
-        {
-            capsule.center = m_originalColliderCenter;
-            capsule.radius = m_originalColliderRadius;
-            capsule.height = m_originalColliderHeight;
-            capsule.direction = m_originalColliderDirection;
-        }
-
+        m_playerCollider.enabled = true;
+        m_meshRenderer.enabled = true;
+        Destroy(m_currentPrefab);
+        m_currentPrefab = null;
         m_isTransformed = false;
-
-        PlayerController controller = GetComponent<PlayerController>();
-        if (controller != null)
-        {
-            controller.UnanchorPlayer();
-        }
-
-        if (TransformWheelcontroller.m_Instance != null)
-        {
-            TransformWheelcontroller.m_Instance.ClearSelection();
-        }
+        m_meshRenderer.sharedMaterials = m_originalMaterials;
+        Rigidbody rb = GetComponent<Rigidbody>();
+        rb.constraints = RigidbodyConstraints.None;
+        rb.constraints = RigidbodyConstraints.FreezeRotation;
     }
 
     /*
@@ -161,50 +87,14 @@ public class PlayerGhost : MonoBehaviour
         MeshFilter targetFilter = _prefab.GetComponent<MeshFilter>();
         MeshRenderer targetRenderer = _prefab.GetComponent<MeshRenderer>();
         Collider targetCollider = _prefab.GetComponent<Collider>();
-        if (!targetFilter
-            ||
-            !targetRenderer || !targetCollider)
+        if (!targetFilter || !targetRenderer || !targetCollider)
         {
             return;
         }
-        m_meshFilter.mesh = targetFilter.sharedMesh;
-        m_meshRenderer.materials = targetRenderer.sharedMaterials;
-        ReplaceCollider(targetCollider);
-    }
 
-    /*
-     * @brief Replaces the current collider with a new one based on the target collider
-     * Copies relevant properties from the target collider to the new collider.
-     * @param _target: The target Collider to copy from.
-     * @return void
-     */
-    void ReplaceCollider(Collider _target)
-    {
-        if (m_currentCollider != null)
-        {
-            Destroy(m_currentCollider);
-        }
-        System.Type type = _target.GetType();
-        m_currentCollider = gameObject.AddComponent(type) as Collider;
-        if (m_currentCollider is BoxCollider box &&
-            _target is BoxCollider tBox)
-        {
-            box.center = tBox.center;
-            box.size = tBox.size;
-        }
-        else if (m_currentCollider is SphereCollider sphere &&
-                 _target is SphereCollider tSphere)
-        {
-            sphere.center = tSphere.center;
-            sphere.radius = tSphere.radius;
-        }
-        else if (m_currentCollider is CapsuleCollider capsule &&
-                 _target is CapsuleCollider tCapsule)
-        {
-            capsule.center = tCapsule.center;
-            capsule.radius = tCapsule.radius;
-            capsule.height = tCapsule.height;
-            capsule.direction = tCapsule.direction;
-        }
+        m_playerCollider.enabled = false;
+        m_meshRenderer.enabled = false;
+        m_currentPrefab = Instantiate(_prefab, transform);
+        m_currentPrefab.transform.localPosition = new Vector3(0,0,0);
     }
 }

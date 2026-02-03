@@ -11,8 +11,8 @@ public class TransformPreviewGhost : MonoBehaviour
     private uint m_collisionCount = 0;
     public bool m_CanTransform => m_collisionCount == 0;
 
-    [SerializeField] private Material m_validMat;
-    [SerializeField] private Material m_invalidMat;
+    [SerializeField] private Color m_validColor = new Color(1f, 1f, 1f, 0.3f);
+    [SerializeField] private Color m_invalidColor = new Color(1f, 0f, 0f, 0.3f);
 
     /*
      * @brief Awake is called when the script instance is being loaded
@@ -37,8 +37,29 @@ public class TransformPreviewGhost : MonoBehaviour
     {
         MeshFilter meshFilter = _prefab.GetComponentInChildren<MeshFilter>();
         Collider collider = _prefab.GetComponentInChildren<Collider>();
+        MeshRenderer prefabRenderer = _prefab.GetComponentInChildren<MeshRenderer>();
+
         GetComponent<MeshFilter>().mesh = meshFilter.sharedMesh;
+
+        if (prefabRenderer != null)
+        {
+            m_meshRenderer.sharedMaterials = prefabRenderer.sharedMaterials;
+        }
+
+        m_collisionCount = 0;
         ReplaceCollider(collider);
+        transform.localScale = _prefab.transform.localScale;
+        transform.localRotation = _prefab.transform.localRotation;
+
+        /*
+         Maths to place the preview correctly on the player
+         */
+        var render = _prefab.GetComponent<Renderer>();
+        var pRender = transform.parent.GetComponent<Renderer>();
+
+        transform.localPosition = new Vector3(0, (render.bounds.size.y - pRender.bounds.size.y) / 2, 0);
+
+        UpdateMaterial();
     }
 
     /*
@@ -93,19 +114,25 @@ public class TransformPreviewGhost : MonoBehaviour
     }
 
     /*
-     * @brief Updates the material based on the collision count
-     * Sets the valid material if no collisions, otherwise sets the invalid material.
+     * @brief Updates the material colors based on the collision count
+     * Applies transparency and color to the preview materials.
      * @return void
      */
     void UpdateMaterial()
     {
-        if (m_collisionCount == 0)
+        Material[] mats = m_meshRenderer.materials;
+        Color targetColor = m_collisionCount == 0 ? m_validColor : m_invalidColor;
+
+        foreach (Material mat in mats)
         {
-            m_meshRenderer.material = m_validMat;
-        }
-        else
-        {
-            m_meshRenderer.material = m_invalidMat;
+            mat.color = targetColor;
+
+            mat.SetFloat("_Surface", 1);
+            mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            mat.SetInt("_ZWrite", 0);
+            mat.renderQueue = 3000;
+            mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
         }
     }
 }
