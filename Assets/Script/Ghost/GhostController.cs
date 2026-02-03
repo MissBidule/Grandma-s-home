@@ -1,11 +1,14 @@
 ﻿using UnityEngine;
 
 /**
-@brief       Déplacement fantôme + auto-climb
-@details     Le fantôme se déplace et grimpe automatiquement en poussant n'importe quel mur
+@brief       Controller for the Ghost character
+@details     Ghost can move and climb walls automatically when colliding with them.
 */
 public class GhostController : MonoBehaviour
 {
+    [Header("References")]
+    private GhostInputController m_ghostInputController;
+
     [SerializeField] private bool m_isSlowed = false;
     [SerializeField] private bool m_isStopped = false;
     [SerializeField] private float m_timerSlowed = 5f;
@@ -13,10 +16,10 @@ public class GhostController : MonoBehaviour
     [SerializeField] private float m_currentTimerSlowed = 5f;
     [SerializeField] private float m_currentTimerStop = 5f;
 
-
     [Header("Movement")]
     [SerializeField] private float m_walkSpeed = 4f;
     [SerializeField] private float m_acceleration = 25f;
+    private Vector2 m_moveDirection;
 
     [Header("Rotation")]
     [SerializeField] private float m_rotationSpeed = 12f;
@@ -34,52 +37,57 @@ public class GhostController : MonoBehaviour
     private Vector3 m_wallNormal;
     private float m_climbTimer;
 
-    private void Awake()
+    private float speedModifier = 1f;
+
+    private void Start()
     {
         m_rigidbody = GetComponent<Rigidbody>();
+        m_ghostInputController = GetComponent<GhostInputController>();
     }
 
-    public void GotHitByProjectile() { 
-        m_isSlowed = true;
-        m_currentTimerSlowed = m_timerSlowed;
-    }
-
-    public void GotHitByCac()
+    private void Update()
     {
-        m_isStopped = true;
-        m_currentTimerStop = m_timerStop;
+        if (m_isSlowed)
+        {
+            m_currentTimerSlowed -= Time.deltaTime;
+            if (m_currentTimerSlowed <= 0f)
+            {
+                m_isSlowed = false;
+                m_currentTimerSlowed = m_timerSlowed;
+            }
+        }
+        if (m_isStopped)
+        {
+            m_currentTimerStop -= Time.deltaTime;
+            if (m_currentTimerStop <= 0f)
+            {
+                m_isStopped = false;
+                m_currentTimerStop = m_timerStop;
+            }
+        }
+
+        speedModifier = m_isSlowed ? 0.5f : 1f;
+        speedModifier = m_isStopped ? 0f : speedModifier;
+
+
     }
 
     private void FixedUpdate()
     {
-        if (m_rigidbody == null) return;
+        Transform cam = Camera.main.transform;
 
-        var speedModifier = m_isSlowed ? 0.5f : 1f;
-        speedModifier = m_isStopped ? 0f : speedModifier;
+        Vector3 forward = cam.forward;
+        Vector3 right = cam.right;
 
+        forward.y = 0f;
+        right.y = 0f;
 
-        Vector2 input = new Vector2(
-            Input.GetAxisRaw("Horizontal"),
-            Input.GetAxisRaw("Vertical")
-        );
+        forward.Normalize();
+        right.Normalize();
 
-        Vector3 wishDir = Vector3.zero;
-
-        if (input.sqrMagnitude > 0.0001f)
-        {
-            Transform cam = Camera.main.transform;
-
-            Vector3 forward = cam.forward;
-            Vector3 right = cam.right;
-
-            forward.y = 0f;
-            right.y = 0f;
-
-            forward.Normalize();
-            right.Normalize();
-
-            wishDir = (forward * input.y + right * input.x).normalized;
-        }
+        Vector2 movementInput = m_ghostInputController.m_movementInputVector;
+        Vector3 wishDir = (forward * movementInput.y + right * movementInput.x).normalized;
+        
 
         if (wishDir.sqrMagnitude > 0.0001f && !m_isStopped)
         {
@@ -141,30 +149,16 @@ public class GhostController : MonoBehaviour
         ResetClimbFlags();
     }
 
-    /**
-    @brief      Update des timers de slow et stop
-    @return     void
-    */
-    private void Update()
+    public void GotHitByProjectile()
     {
-        if (m_isSlowed)
-        {
-            m_currentTimerSlowed -= Time.deltaTime;
-            if (m_currentTimerSlowed <= 0f)
-            {
-                m_isSlowed = false;
-                m_currentTimerSlowed = m_timerSlowed;
-            }
-        }
-        if (m_isStopped)
-        {
-            m_currentTimerStop -= Time.deltaTime;
-            if (m_currentTimerStop <= 0f)
-            {
-                m_isStopped = false;
-                m_currentTimerStop = m_timerStop;
-            }
-        }
+        m_isSlowed = true;
+        m_currentTimerSlowed = m_timerSlowed;
+    }
+
+    public void GotHitByCac()
+    {
+        m_isStopped = true;
+        m_currentTimerStop = m_timerStop;
     }
 
     private void OnCollisionStay(Collision _collision)

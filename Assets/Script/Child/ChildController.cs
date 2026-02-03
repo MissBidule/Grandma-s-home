@@ -143,7 +143,7 @@ public class ChildController : MonoBehaviour
      * TODO: Implement actual hit logic
      * @return void
      */
-    private void HitOpponent(GhostMovement _ghost)
+    private void HitOpponent(GhostController _ghost)
     {
         print("tape un fantôme");
         _ghost.GotHitByCac();
