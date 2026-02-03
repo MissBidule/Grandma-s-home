@@ -43,6 +43,8 @@ public class PlayerGhost : MonoBehaviour
         TransformWheelcontroller.m_Instance.m_selectedPrefab = null;
         m_previewGhost.gameObject.SetActive(false);
         m_isTransformed = true;
+        Rigidbody rb = GetComponent<Rigidbody>();
+        rb.constraints = RigidbodyConstraints.FreezeAll;
 
         PlayerController controller = GetComponent<PlayerController>();
         if (controller != null)
@@ -69,6 +71,9 @@ public class PlayerGhost : MonoBehaviour
         m_currentPrefab = null;
         m_isTransformed = false;
         m_meshRenderer.sharedMaterials = m_originalMaterials;
+        Rigidbody rb = GetComponent<Rigidbody>();
+        rb.constraints = RigidbodyConstraints.None;
+        rb.constraints = RigidbodyConstraints.FreezeRotation;
     }
 
     /*
