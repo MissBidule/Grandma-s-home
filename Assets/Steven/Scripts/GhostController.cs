@@ -4,7 +4,7 @@
 @brief       Déplacement fantôme + auto-climb
 @details     Le fantôme se déplace et grimpe automatiquement en poussant n'importe quel mur
 */
-public class GhostMovement : MonoBehaviour
+public class GhostController : MonoBehaviour
 {
     [SerializeField] private bool m_isSlowed = false;
     [SerializeField] private bool m_isStopped = false;

@@ -57,7 +57,7 @@ public class Bullet : MonoBehaviour
         // We check if the collider is a ghost player by checking if it has the GhostMovement component
         GameObject gameobject = _other.gameObject;
         if (gameObject != null) {
-            var ghost = gameobject.GetComponent<GhostMovement>();
+            var ghost = gameobject.GetComponent<GhostController>();
             if (ghost != null)
             {
                 ghost.GotHitByProjectile();

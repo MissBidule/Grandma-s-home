@@ -166,7 +166,7 @@ public class PlayerController : MonoBehaviour
 
         foreach (Collider col in hits)
         {
-            var ghost = col.GetComponent<GhostMovement>();
+            var ghost = col.GetComponent<GhostController>();
             if (ghost != null)
             {
                 HitOpponent(ghost);
@@ -179,7 +179,7 @@ public class PlayerController : MonoBehaviour
      * TODO: Implement actual hit logic
      * @return void
      */
-    private void HitOpponent(GhostMovement _ghost)
+    private void HitOpponent(GhostController _ghost)
     {
         print("tape un fantôme");
         _ghost.GotHitByCac();
