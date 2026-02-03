@@ -34,12 +34,13 @@ public class PlayerGhost : MonoBehaviour
      */
     public void ConfirmTransform(InputAction.CallbackContext _context)
     {
-        if (!_context.performed || !m_previewGhost.m_CanTransform || !TransformWheelcontroller.m_Instance.m_selectedPrefab)
+        if (!_context.performed || !m_previewGhost.m_CanTransform || !TransformWheelcontroller.m_Instance.m_selectedPrefab || m_isTransformed)
         {
             return;
         }
         GameObject prefab = TransformWheelcontroller.m_Instance.m_selectedPrefab;
         ApplyPrefab(prefab);
+        TransformWheelcontroller.m_Instance.m_selectedPrefab = null;
         m_previewGhost.gameObject.SetActive(false);
         m_isTransformed = true;
 
