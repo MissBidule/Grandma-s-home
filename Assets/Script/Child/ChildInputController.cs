@@ -44,11 +44,25 @@ void Awake()
 
 
     /*
+     * @brief function called when the child inputs the jump command
+     * @param _context: valeur liée à l'input
+     * @return void
+     */
+    public void OnJump(InputAction.CallbackContext _context)
+    {
+        if (_context.performed)
+        {
+            m_childController.Jump();
+        }
+    }
+
+
+    /*
     @brief function called when the child inputs the hit command
     @param _context: valeur liée à l'input
     @return void
     */
-    public void OnHit(InputAction.CallbackContext _context)
+    public void OnAttack(InputAction.CallbackContext _context)
     {
         if (_context.performed)
         {
