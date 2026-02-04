@@ -12,7 +12,7 @@ public class WheelController : MonoBehaviour
     public static WheelController m_Instance;
 
     [SerializeField] private Animator m_anim;
-    [SerializeField] private GhostTransform m_ghostTransform;
+    [SerializeField] private GhostMorph m_ghostTransform;
     [SerializeField] private List<WheelButtonController> m_wheelButtons;
 
     [NonSerialized] public GameObject m_selectedPrefab;
@@ -34,9 +34,9 @@ public class WheelController : MonoBehaviour
             m_anim = GetComponent<Animator>();
         }
 
-        // Will break in multi I guess, cause there will be multiple instances of <<GhostTransform>> ?
+        // Will break in multi I guess, cause there will be multiple instances of <<GhostMorph>> ?
         // We would need an other way to get reference to it
-        m_ghostTransform = FindAnyObjectByType<GhostTransform>();
+        m_ghostTransform = FindAnyObjectByType<GhostMorph>();
     }
 
     /*

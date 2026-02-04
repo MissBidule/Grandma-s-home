@@ -1,18 +1,19 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 /*
  * @brief Contains class declaration for TransformPreviewGhost
  * @details The TransformPreviewGhost class handles the preview of transformations, checking for collisions and updating materials accordingly.
  */
-public class TransformPreviewGhost : MonoBehaviour
+public class GhostMorphPreview : MonoBehaviour
 {
     [SerializeField] private GameObject m_mesh;
 
-    private uint m_collisionCount = 0;
+    private HashSet<Collider> m_colliders = new HashSet<Collider>();
 
     private MeshRenderer m_meshRenderer;
     private Collider m_previewCollider;
-    public bool m_CanTransform => m_collisionCount == 0;
+    public bool m_CanTransform => m_colliders.Count == 0;
 
     [SerializeField] private Color m_validColor = new Color(1f, 1f, 1f, 0.3f);
     [SerializeField] private Color m_invalidColor = new Color(1f, 0f, 0f, 0.3f);
@@ -49,7 +50,6 @@ public class TransformPreviewGhost : MonoBehaviour
             m_meshRenderer.sharedMaterials = prefabRenderer.sharedMaterials;
         }
 
-        m_collisionCount = 0;
         ReplaceCollider(collider);
         transform.localScale = _prefab.transform.localScale;
         transform.localRotation = _prefab.transform.localRotation;
@@ -69,7 +69,7 @@ public class TransformPreviewGhost : MonoBehaviour
 
         float offsetY = playerBounds.min.y - previewBounds.min.y;
 
-        transform.localPosition = new Vector3(0f, offsetY, 0f);
+        transform.localPosition = new Vector3(0f, offsetY+0.01f, 0f);
 
         UpdateMaterial();
     }
@@ -97,11 +97,10 @@ public class TransformPreviewGhost : MonoBehaviour
      */
     void OnTriggerEnter(Collider _other)
     {
-        if (_other.CompareTag("Ground"))
-        {
+        if (_other.CompareTag("Ground") || _other.gameObject.layer == 9)
             return;
-        }
-        m_collisionCount++;
+
+        m_colliders.Add(_other);
         UpdateMaterial();
     }
 
@@ -113,11 +112,10 @@ public class TransformPreviewGhost : MonoBehaviour
      */
     void OnTriggerExit(Collider _other)
     {
-        if (_other.CompareTag("Ground"))
-        {
+        if (_other.CompareTag("Ground") || _other.gameObject.layer == 9)
             return;
-        }
-        m_collisionCount--;
+
+        m_colliders.Remove(_other);
         UpdateMaterial();
     }
 
@@ -129,7 +127,7 @@ public class TransformPreviewGhost : MonoBehaviour
     void UpdateMaterial()
     {
         Material[] mats = m_meshRenderer.materials;
-        Color targetColor = m_collisionCount == 0 ? m_validColor : m_invalidColor;
+        Color targetColor = m_CanTransform ? m_validColor : m_invalidColor;
 
         foreach (Material mat in mats)
         {

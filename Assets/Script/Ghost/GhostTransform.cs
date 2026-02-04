@@ -1,10 +1,10 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class GhostTransform : MonoBehaviour
+public class GhostMorph : MonoBehaviour
 {
     [SerializeField] private GameObject m_mesh;
-    [SerializeField] private TransformPreviewGhost m_previewGhost;
+    [SerializeField] private GhostMorphPreview m_previewGhost;
     [SerializeField] private float m_scanRange = 5f;
     [SerializeField] private LayerMask m_scanLayerMask;
     private WheelController m_wheel;

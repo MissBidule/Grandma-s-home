@@ -10,7 +10,7 @@ public class GhostInputController : MonoBehaviour
     public Vector2 m_movementInputVector { get; private set; }
     public Vector2 m_lookInputVector { get; private set; }
     private GhostController m_ghostController;
-    private GhostTransform m_ghostTransform;
+    private GhostMorph m_ghostTransform;
 
     /*
      * @brief Awake is called when the script instance is being loaded
@@ -20,7 +20,7 @@ public class GhostInputController : MonoBehaviour
     void Awake()
     {
         m_ghostController = GetComponent<GhostController>();
-        m_ghostTransform = GetComponent<GhostTransform>();
+        m_ghostTransform = GetComponent<GhostMorph>();
     }
 
     /*

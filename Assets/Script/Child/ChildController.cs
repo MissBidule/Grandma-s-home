@@ -85,9 +85,6 @@ public class ChildController : MonoBehaviour
         if (m_moveDirection == Vector3.zero) return;
 
 
-        // GOOD WAY TO MOVE, BUT NOT SEPARATED BETWEEN CHILD AND GHOST SO COMMENTED UNTIL FIX.
-        // GOOD WAY TO MOVE, BUT NOT SEPARATED BETWEEN CHILD AND GHOST SO COMMENTED UNTIL FIX.
-        // GOOD WAY TO MOVE, BUT NOT SEPARATED BETWEEN CHILD AND GHOST SO COMMENTED UNTIL FIX.
         m_rigidbody.MovePosition(
             m_rigidbody.position + m_moveDirection * m_speed * Time.fixedDeltaTime
         );

@@ -68,8 +68,17 @@ public class GhostController : MonoBehaviour
 
         speedModifier = m_isSlowed ? 0.5f : 1f;
         speedModifier = m_isStopped ? 0f : speedModifier;
+    }
 
-
+    public bool IsGrounded()
+    {
+        if (m_rigidbody == null) return false;
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, 1.0f))
+        {
+            return true;
+        }
+        return false;
     }
 
     private void FixedUpdate()

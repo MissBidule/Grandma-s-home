@@ -9,7 +9,7 @@ public class PlayerGhost : MonoBehaviour
 {
     private MeshRenderer m_meshRenderer;
     private Collider m_playerCollider;
-    [SerializeField] private TransformPreviewGhost m_previewGhost;
+    [SerializeField] private GhostMorphPreview m_previewGhost;
     private GameObject m_currentPrefab = null;
     [System.NonSerialized] public bool m_isTransformed = false;
     private Material[] m_originalMaterials;
