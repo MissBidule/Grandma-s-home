@@ -16,7 +16,7 @@ public class ChildController : MonoBehaviour
     private float m_cleanRange = 2f;
     private float m_attackRange = 0.5f;
 
-    public bool m_isranged;
+    private bool m_isranged;
 
 
     [SerializeField] private float m_speed = 5f;
@@ -43,7 +43,6 @@ public class ChildController : MonoBehaviour
     void Update()
     {
         Vector2 movementInput = m_childInputController.m_movementInputVector;
-
         if (m_waitingForInputRelease)
         {
             if (movementInput == Vector2.zero)
@@ -83,20 +82,32 @@ public class ChildController : MonoBehaviour
     void FixedUpdate()
     {
         if (m_moveDirection == Vector3.zero) return;
-
-
         m_rigidbody.MovePosition(
             m_rigidbody.position + m_moveDirection * m_speed * Time.fixedDeltaTime
         );
 
-        Quaternion targetRot = Quaternion.LookRotation(m_moveDirection);
-        m_rigidbody.MoveRotation(
-            Quaternion.Slerp(
-                m_rigidbody.rotation,
-                targetRot,
-                m_rotationSpeed * Time.fixedDeltaTime
-            )
-        );
+        Vector2 movementInput = m_childInputController.m_movementInputVector;
+        if (movementInput == new Vector2(0, -1))
+        {
+            print(transform.rotation.eulerAngles);
+            transform.Rotate(new Vector3(0, 180, 0));
+            print(transform.rotation.eulerAngles);
+            m_waitingForInputRelease = true;
+        }
+        else
+        {
+            Quaternion targetRot = Quaternion.LookRotation(m_moveDirection);
+            m_rigidbody.MoveRotation(
+                Quaternion.Slerp(
+                    m_rigidbody.rotation,
+                    targetRot,
+                    m_rotationSpeed * Time.fixedDeltaTime
+                )
+            );
+        }
+
+        
+
     }
 
     /*
@@ -203,5 +214,10 @@ public class ChildController : MonoBehaviour
                 break;
             }
         }
+    }
+
+    public void SwitchAttackType()
+    {
+        m_isranged = !m_isranged;
     }
 }
