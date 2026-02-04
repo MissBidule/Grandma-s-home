@@ -102,6 +102,9 @@ public class GhostInputController : MonoBehaviour
      */
     public void OnInteract(InputAction.CallbackContext _context)
     {
-        m_ghostInteract.Interact();
+        if (_context.performed)
+        {
+            m_ghostInteract.Interact();
+        }
     }
 }

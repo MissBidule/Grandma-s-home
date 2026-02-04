@@ -2420,9 +2420,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   m_anim: {fileID: 7028853537578716937}
-  m_previewGhost: {fileID: 0}
-  m_playerGhost: {fileID: 0}
-  m_scanRange: 5
+  m_ghostTransform: {fileID: 0}
   m_wheelButtons:
   - {fileID: 6587070043790426039}
   - {fileID: 1559475335867066162}
@@ -2560,6 +2558,7 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 4420525645902793724}
   - {fileID: 3874446111614342560}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2882,3 +2881,69 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc1dc54742c49e442855b5b2a32e8f4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WheelSliceHit
+--- !u!1001 &714879772674945847
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 4649123166479991715}
+    m_Modifications:
+    - target: {fileID: 3797414073565231307, guid: 1e650381c321a374c8f330f2114a1d0c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3797414073565231307, guid: 1e650381c321a374c8f330f2114a1d0c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3797414073565231307, guid: 1e650381c321a374c8f330f2114a1d0c, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3797414073565231307, guid: 1e650381c321a374c8f330f2114a1d0c, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.9848078
+      objectReference: {fileID: 0}
+    - target: {fileID: 3797414073565231307, guid: 1e650381c321a374c8f330f2114a1d0c, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3797414073565231307, guid: 1e650381c321a374c8f330f2114a1d0c, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3797414073565231307, guid: 1e650381c321a374c8f330f2114a1d0c, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.17364825
+      objectReference: {fileID: 0}
+    - target: {fileID: 3797414073565231307, guid: 1e650381c321a374c8f330f2114a1d0c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3797414073565231307, guid: 1e650381c321a374c8f330f2114a1d0c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3797414073565231307, guid: 1e650381c321a374c8f330f2114a1d0c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7154747921207832469, guid: 1e650381c321a374c8f330f2114a1d0c, type: 3}
+      propertyPath: m_Name
+      value: QTERoot
+      objectReference: {fileID: 0}
+    - target: {fileID: 7154747921207832469, guid: 1e650381c321a374c8f330f2114a1d0c, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 1e650381c321a374c8f330f2114a1d0c, type: 3}
+--- !u!4 &4420525645902793724 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3797414073565231307, guid: 1e650381c321a374c8f330f2114a1d0c, type: 3}
+  m_PrefabInstance: {fileID: 714879772674945847}
+  m_PrefabAsset: {fileID: 0}

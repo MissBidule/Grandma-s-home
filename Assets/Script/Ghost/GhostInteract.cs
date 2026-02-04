@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using UnityEngine;
 
 /*
@@ -18,8 +19,7 @@ public class GhostInteract : MonoBehaviour
     }
 
     /*
-    @brief      Met à jour la cible : prend l'interactible autorisé le plus proche
-    @return     void
+    @brief      Check closest interactable object
     */
     private void CheckClosest()
     {
@@ -62,7 +62,6 @@ public class GhostInteract : MonoBehaviour
      */
     public void Interact()
     {
-        print("GhostInteract: Interact called");
         if (m_current == null) return;
         if (m_current.GetComponent<GhostController>() != null)
         {
