@@ -54,6 +54,8 @@ public class GhostMorphPreview : MonoBehaviour
         transform.localScale = _prefab.transform.localScale;
         transform.localRotation = _prefab.transform.localRotation;
 
+        transform.localPosition = new Vector3(0, 0f, 0f);
+
         /*
          Maths to place the preview correctly on the player
          */
@@ -63,7 +65,6 @@ public class GhostMorphPreview : MonoBehaviour
         for (int i = 1; i < playerRenders.Length; i++)
             playerBounds.Encapsulate(playerRenders[i].bounds);
 
-        // utiliser le renderer DU GHOST (déjà en scène)
         Renderer previewRender = GetComponentInChildren<Renderer>();
         Bounds previewBounds = previewRender.bounds;
 
