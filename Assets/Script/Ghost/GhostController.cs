@@ -8,6 +8,7 @@ public class GhostController : MonoBehaviour
 {
     [Header("References")]
     private GhostInputController m_ghostInputController;
+    private GhostMorph m_ghostMorph;
 
     [SerializeField] private bool m_isSlowed = false;
     [SerializeField] public bool m_isStopped = false;
@@ -44,6 +45,7 @@ public class GhostController : MonoBehaviour
     {
         m_rigidbody = GetComponent<Rigidbody>();
         m_ghostInputController = GetComponent<GhostInputController>();
+        m_ghostMorph = GetComponent<GhostMorph>();
     }
 
     private void Update()
@@ -69,6 +71,11 @@ public class GhostController : MonoBehaviour
 
         speedModifier = m_isSlowed ? 0.5f : 1f;
         speedModifier = m_isStopped ? 0f : speedModifier;
+
+        if (m_ghostInputController.m_movementInputVector != Vector2.zero)
+        {
+            m_ghostMorph.RevertToOriginal();
+        }
     }
 
     public bool IsGrounded()
