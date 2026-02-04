@@ -79,7 +79,7 @@ void Awake()
     {
         if (_context.performed)
         {
-            m_childController.m_isranged = !m_childController.m_isranged;
+            m_childController.SwitchAttackType();
         }
     }
 
