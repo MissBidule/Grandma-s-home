@@ -110,7 +110,7 @@ public class GhostMorph : MonoBehaviour
         GameObject prefab = m_wheel.m_selectedPrefab;
         ApplyPrefab(prefab);
         m_wheel.m_selectedPrefab = null;
-        m_previewGhost.gameObject.SetActive(false);
+        m_previewGhost.GetComponent<MeshRenderer>().enabled = false;
         m_isTransformed = true;
         Rigidbody rb = GetComponent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.FreezeAll;
@@ -167,7 +167,7 @@ public class GhostMorph : MonoBehaviour
         m_playerCollider.enabled = false;
         m_mesh.SetActive(false);
         m_currentPrefab = Instantiate(_prefab, transform);
-        m_currentPrefab.transform.localPosition = new Vector3(0, 0, 0);
+        m_currentPrefab.transform.localPosition = m_previewGhost.transform.localPosition;
     }
 
 

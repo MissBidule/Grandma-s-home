@@ -43,6 +43,7 @@ public class GhostMorphPreview : MonoBehaviour
         Collider collider = _prefab.GetComponentInChildren<Collider>();
         MeshRenderer prefabRenderer = _prefab.GetComponentInChildren<MeshRenderer>();
 
+        m_meshRenderer.enabled = true;
         GetComponent<MeshFilter>().mesh = meshFilter.sharedMesh;
 
         if (prefabRenderer != null)
