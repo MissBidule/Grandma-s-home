@@ -67,6 +67,11 @@ public class GhostInputController : MonoBehaviour
         }
     }
 
+    /*
+     * @brief OnScan is called by the Input System when scan input is detected 
+     * @param _context: The context of the input action
+     * @return void
+     */
     public void OnOpenWheel(InputAction.CallbackContext _context)
     {
         if (_context.performed)
@@ -75,6 +80,11 @@ public class GhostInputController : MonoBehaviour
         }
     }
 
+    /*
+     * @brief OnScan is called by the Input System when scan input is detected 
+     * @param _context: The context of the input action
+     * @return void
+     */
     public void OnTransformConfirm(InputAction.CallbackContext _context)
     {
         if (_context.performed)
