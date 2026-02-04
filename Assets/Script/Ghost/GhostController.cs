@@ -20,7 +20,6 @@ public class GhostController : MonoBehaviour
     [Header("Movement")]
     [SerializeField] private float m_walkSpeed = 4f;
     [SerializeField] private float m_acceleration = 25f;
-    private Vector2 m_moveDirection;
 
     [Header("Rotation")]
     [SerializeField] private float m_rotationSpeed = 12f;

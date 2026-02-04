@@ -17,10 +17,10 @@ public class ChildController : MonoBehaviour
     private float m_attackRange = 0.5f;
 
     private bool m_isranged;
+    private float m_yaw;
 
 
     [SerializeField] private float m_speed = 5f;
-    [SerializeField] private float m_rotationSpeed = 10f;
     [SerializeField] private Transform m_bulletSpawnTransform;
     [SerializeField] private GameObject m_bulletPrefab;
     [SerializeField] private float m_jumpImpulse = 6.0f;
@@ -76,7 +76,7 @@ public class ChildController : MonoBehaviour
     }
 
     /*
-     * @brief   Applies movement and rotation using Rigidbody physics
+     * @brief   Applies movement using Rigidbody physics
      * @return  void
      */
     void FixedUpdate()
@@ -85,29 +85,18 @@ public class ChildController : MonoBehaviour
         m_rigidbody.MovePosition(
             m_rigidbody.position + m_moveDirection * m_speed * Time.fixedDeltaTime
         );
+    }
 
-        Vector2 movementInput = m_childInputController.m_movementInputVector;
-        if (movementInput == new Vector2(0, -1))
-        {
-            print(transform.rotation.eulerAngles);
-            transform.Rotate(new Vector3(0, 180, 0));
-            print(transform.rotation.eulerAngles);
-            m_waitingForInputRelease = true;
-        }
-        else
-        {
-            Quaternion targetRot = Quaternion.LookRotation(m_moveDirection);
-            m_rigidbody.MoveRotation(
-                Quaternion.Slerp(
-                    m_rigidbody.rotation,
-                    targetRot,
-                    m_rotationSpeed * Time.fixedDeltaTime
-                )
-            );
-        }
-
-        
-
+    /*
+     * @brief   Applies rotation using the mouse movement
+     * @return  void
+     */
+    void LateUpdate()
+    {
+        Vector2 lookInput = m_childInputController.m_lookInputVector;
+        m_yaw += lookInput.x * Camera.main.GetComponent<ChildCameraController>().m_sensitivity * Time.deltaTime;
+        Quaternion targetRot = Quaternion.Euler(0f, m_yaw, 0f);
+        m_rigidbody.transform.rotation = targetRot;
     }
 
     /*
@@ -179,7 +168,7 @@ public class ChildController : MonoBehaviour
      */
     private void HitOpponent(GhostController _ghost)
     {
-        print("tape un fantôme");
+        print("tape un fantï¿½me");
         _ghost.GotHitByCac();
     }
 
