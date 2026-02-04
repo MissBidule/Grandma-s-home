@@ -11,6 +11,7 @@ public class GhostInputController : MonoBehaviour
     public Vector2 m_lookInputVector { get; private set; }
     private GhostController m_ghostController;
     private GhostMorph m_ghostTransform;
+    private GhostInteract m_ghostInteract;
 
     /*
      * @brief Awake is called when the script instance is being loaded
@@ -21,6 +22,7 @@ public class GhostInputController : MonoBehaviour
     {
         m_ghostController = GetComponent<GhostController>();
         m_ghostTransform = GetComponent<GhostMorph>();
+        m_ghostInteract = GetComponent<GhostInteract>();
     }
 
     /*
@@ -91,5 +93,15 @@ public class GhostInputController : MonoBehaviour
         {
             m_ghostTransform.ConfirmTransform(_context);
         }
+    }
+
+    /*
+     * @brief OnInteract is called by the Input System when interact input is detected
+     * @param _context: The context of the input action
+     * @return void
+     */
+    public void OnInteract(InputAction.CallbackContext _context)
+    {
+        m_ghostInteract.Interact();
     }
 }

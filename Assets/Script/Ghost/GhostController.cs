@@ -11,7 +11,7 @@ public class GhostController : MonoBehaviour
     private GhostMorph m_ghostMorph;
 
     [SerializeField] private bool m_isSlowed = false;
-    [SerializeField] private bool m_isStopped = false;
+    [SerializeField] public bool m_isStopped = false;
     [SerializeField] private float m_timerSlowed = 5f;
     [SerializeField] private float m_timerStop = 5f;
     [SerializeField] private float m_currentTimerSlowed = 5f;
@@ -39,6 +39,7 @@ public class GhostController : MonoBehaviour
     private float m_climbTimer;
 
     private float speedModifier = 1f;
+
 
     private void Start()
     {

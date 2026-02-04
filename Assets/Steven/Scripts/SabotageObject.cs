@@ -5,7 +5,7 @@ using UnityEngine;
 @details     La classe \c SabotageObject gère le sabotage (QTE, meshes, highlight, score) et expose une interaction
              contrôlée par le joueur via \c IPlayerInteractable.
 */
-public class SabotageObject : MonoBehaviour, PlayerInteractable
+public class SabotageObject : MonoBehaviour
 {
     [Header("State Meshes")]
     [SerializeField] private GameObject m_normalMesh;
@@ -36,18 +36,6 @@ public class SabotageObject : MonoBehaviour, PlayerInteractable
         SetHighlight(false);
     }
 
-    /**
-    @brief      Autorise uniquement le fantôme à saboter
-    @param      _playerType: type du joueur
-    @return     true si le joueur peut interagir
-    */
-    public bool CanInteract(PlayerType _playerType)
-    {
-        if (m_isSabotaged) return false;
-        if (m_isQteRunning) return false;
-
-        return _playerType == PlayerType.Ghost;
-    }
 
     /**
     @brief      Prompt selon le rôle
@@ -65,6 +53,8 @@ public class SabotageObject : MonoBehaviour, PlayerInteractable
     @param      _playerType: type du joueur
     @return     void
     */
+    
+    /*
     public void OnFocus(PlayerType _playerType)
     {
         if (!CanInteract(_playerType)) return;
@@ -75,13 +65,14 @@ public class SabotageObject : MonoBehaviour, PlayerInteractable
 
         if (InteractPromptUI.Instance != null)
             InteractPromptUI.Instance.Show(GetPrompt(_playerType));
-    }
+    }*/
 
     /**
     @brief      Unfocus : coupe highlight + prompt
     @param      _playerType: type du joueur
     @return     void
     */
+    /*
     public void OnUnfocus(PlayerType _playerType)
     {
         m_isFocused = false;
@@ -91,22 +82,9 @@ public class SabotageObject : MonoBehaviour, PlayerInteractable
         if (InteractPromptUI.Instance != null)
             InteractPromptUI.Instance.Hide();
     }
-
-    /**
-    @brief      Interaction (touche E côté joueur) : lance le QTE puis sabotage si réussite
-    @param      _playerTransform: transform du joueur
-    @param      _playerType: type du joueur
-    @return     void
     */
-    public void Interact(Transform _playerTransform, PlayerType _playerType)
-    {
-        if (!CanInteract(_playerType)) return;
 
-        StartQte();
-    }
-
-
-    private void StartQte()
+    public void StartQte()
     {
         if (m_qteCircle == null)
         {
