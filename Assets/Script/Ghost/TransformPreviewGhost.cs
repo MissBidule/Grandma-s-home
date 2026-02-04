@@ -6,9 +6,12 @@ using UnityEngine;
  */
 public class TransformPreviewGhost : MonoBehaviour
 {
+    [SerializeField] private GameObject m_mesh;
+
+    private uint m_collisionCount = 0;
+
     private MeshRenderer m_meshRenderer;
     private Collider m_previewCollider;
-    private uint m_collisionCount = 0;
     public bool m_CanTransform => m_collisionCount == 0;
 
     [SerializeField] private Color m_validColor = new Color(1f, 1f, 1f, 0.3f);
@@ -54,25 +57,30 @@ public class TransformPreviewGhost : MonoBehaviour
         /*
          Maths to place the preview correctly on the player
          */
-        var render = _prefab.GetComponent<Renderer>();
-        var pRender = transform.parent.GetComponent<Renderer>();
+        Renderer[] playerRenders = m_mesh.GetComponentsInChildren<Renderer>();
 
-        transform.localPosition = new Vector3(0, (render.bounds.size.y - pRender.bounds.size.y) / 2, 0);
+        Bounds playerBounds = playerRenders[0].bounds;
+        for (int i = 1; i < playerRenders.Length; i++)
+            playerBounds.Encapsulate(playerRenders[i].bounds);
+
+        // utiliser le renderer DU GHOST (déjà en scène)
+        Renderer previewRender = GetComponentInChildren<Renderer>();
+        Bounds previewBounds = previewRender.bounds;
+
+        float offsetY = playerBounds.min.y - previewBounds.min.y;
+
+        transform.localPosition = new Vector3(0f, offsetY, 0f);
 
         UpdateMaterial();
     }
 
     /*
-     * @brief Replaces the current collider with a new one based on the target collider
-     * Destroys the old collider and adds a new one of the same type, copying properties if it's a BoxCollider.
+     * @brief Modify the current collider to fit the size of the new prefab
      * @param _target: The target Collider to copy from.
      * @return void
      */
     void ReplaceCollider(Collider _target)
     {
-        Destroy(m_previewCollider);
-        m_previewCollider = gameObject.AddComponent(_target.GetType()) as Collider;
-        m_previewCollider.isTrigger = true;
         if (m_previewCollider is BoxCollider box &&
             _target is BoxCollider tBox)
         {

@@ -93,11 +93,5 @@ public class PlayerInputController : MonoBehaviour
      * @param _context: The context of the input action
      * @return void
      */
-    public void OnScan(InputAction.CallbackContext _context)
-    {
-        if (_context.performed)
-        {
-            TransformWheelcontroller.m_Instance.ScanForPrefab();
-        }
-    }
+    
 }

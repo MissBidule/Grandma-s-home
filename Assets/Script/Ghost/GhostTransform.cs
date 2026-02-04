@@ -5,6 +5,9 @@ public class GhostTransform : MonoBehaviour
 {
     [SerializeField] private GameObject m_mesh;
     [SerializeField] private TransformPreviewGhost m_previewGhost;
+    [SerializeField] private float m_scanRange = 5f;
+    [SerializeField] private LayerMask m_scanLayerMask;
+    private WheelController m_wheel;
 
     private bool m_isTransformed = false;
     private GameObject m_currentPrefab = null;
@@ -18,10 +21,77 @@ public class GhostTransform : MonoBehaviour
         // récupère tous les MeshRenderer enfants
         m_renderers = m_mesh.GetComponentsInChildren<MeshRenderer>();
 
+        m_wheel = WheelController.m_Instance;
+
         m_originalMaterials = new Material[m_renderers.Length][];
         for (int i = 0; i < m_renderers.Length; i++)
         {
             m_originalMaterials[i] = m_renderers[i].sharedMaterials;
+        }
+    }
+
+    public void SetPreview(GameObject _prefab)
+    {
+        if (m_isTransformed)
+        {
+            return;
+        }
+        ApplyTransparency();
+        m_previewGhost.SetPreview(_prefab);
+    }
+
+    public void ClearPreview()
+    {
+        RemovePlayerTransparency();
+        transform.localPosition = new Vector3(0f, 0f, 0f);
+    }
+
+    /*
+     * @brief Applies a transparency effect to the player
+     * Applies transparency and color to the preview materials.
+     * @return void
+     */
+    private void ApplyTransparency()
+    {
+        foreach (MeshRenderer renderer in m_renderers)
+        {
+            Material[] mats = renderer.materials;
+            foreach (Material mat in mats)
+            {
+                Color color = mat.color;
+                color.a = 0.2f;
+                mat.color = color;
+                mat.SetFloat("_Surface", 1);
+                mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                mat.SetInt("_ZWrite", 0);
+                mat.renderQueue = 3000;
+                mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            }
+        }
+    }
+
+    /*
+     * @brief Removes the transparency effect from the player
+     * Restores the original materials to the player's MeshRenderer.
+     * @return void
+     */
+    private void RemovePlayerTransparency()
+    {
+        foreach (MeshRenderer renderer in m_renderers)
+        {
+            foreach (Material mat in renderer.materials)
+            {
+                Color color = mat.color;
+                color.a = 1.0f;
+                mat.color = color;
+                mat.SetFloat("_Surface", 0);
+                mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
+                mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
+                mat.SetInt("_ZWrite", 1);
+                mat.renderQueue = -1;
+                mat.DisableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            }
         }
     }
 
@@ -33,13 +103,13 @@ public class GhostTransform : MonoBehaviour
      */
     public void ConfirmTransform(InputAction.CallbackContext _context)
     {
-        if (!_context.performed || !m_previewGhost.m_CanTransform || !TransformWheelcontroller.m_Instance.m_selectedPrefab || m_isTransformed)
+        if (!_context.performed || !m_previewGhost.m_CanTransform || !m_wheel.m_selectedPrefab || m_isTransformed)
         {
             return;
         }
-        GameObject prefab = TransformWheelcontroller.m_Instance.m_selectedPrefab;
+        GameObject prefab = m_wheel.m_selectedPrefab;
         ApplyPrefab(prefab);
-        TransformWheelcontroller.m_Instance.m_selectedPrefab = null;
+        m_wheel.m_selectedPrefab = null;
         m_previewGhost.gameObject.SetActive(false);
         m_isTransformed = true;
         Rigidbody rb = GetComponent<Rigidbody>();
@@ -98,5 +168,46 @@ public class GhostTransform : MonoBehaviour
         m_mesh.SetActive(false);
         m_currentPrefab = Instantiate(_prefab, transform);
         m_currentPrefab.transform.localPosition = new Vector3(0, 0, 0);
+    }
+
+
+    /*
+     * @brief Scans for a scannable prefab in front of the player
+     * If found and there's a free slot, adds it to the wheel. If wheel is full, opens the wheel for slot selection.
+     * @return void
+     */
+    public void ScanForPrefab()
+    {
+        Debug.Log("Scan");
+        Camera mainCamera = Camera.main;
+
+        Vector3 rayOrigin = transform.position;
+        Vector3 rayDirection = mainCamera.transform.forward;
+
+        if (!Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, m_scanRange, m_scanLayerMask))
+        {
+            Debug.Log("No objects detected by the raycast");
+            return;
+        }
+
+        GameObject scannedObject = hit.collider.gameObject;
+        Debug.Log($"Object detected: {scannedObject.name}");
+
+        ScannableObject scannableComponent = scannedObject.GetComponent<ScannableObject>();
+        if (scannableComponent == null)
+        {
+            Debug.Log($"Object detected but not scannable: {scannedObject.name}");
+            return;
+        }
+
+        Debug.Log($"Scannable object found: {scannedObject.name}");
+
+        if (scannableComponent.icon == null)
+        {
+            Debug.Log($"No icon for the scanned object: {scannedObject.name}");
+            return;
+        }
+
+        m_wheel.TryAddPrefabToWheel(scannedObject, scannableComponent.icon);
     }
 }

@@ -10,6 +10,7 @@ public class GhostInputController : MonoBehaviour
     public Vector2 m_movementInputVector { get; private set; }
     public Vector2 m_lookInputVector { get; private set; }
     private GhostController m_ghostController;
+    private GhostTransform m_ghostTransform;
 
     /*
      * @brief Awake is called when the script instance is being loaded
@@ -19,6 +20,7 @@ public class GhostInputController : MonoBehaviour
     void Awake()
     {
         m_ghostController = GetComponent<GhostController>();
+        m_ghostTransform = GetComponent<GhostTransform>();
     }
 
     /*
@@ -61,7 +63,23 @@ public class GhostInputController : MonoBehaviour
     {
         if (_context.performed)
         {
-            TransformWheelcontroller.m_Instance.ScanForPrefab();
+            m_ghostTransform.ScanForPrefab();
+        }
+    }
+
+    public void OnOpenWheel(InputAction.CallbackContext _context)
+    {
+        if (_context.performed)
+        {
+            WheelController.m_Instance.Toggle();
+        }
+    }
+
+    public void OnTransformConfirm(InputAction.CallbackContext _context)
+    {
+        if (_context.performed)
+        {
+            m_ghostTransform.ConfirmTransform(_context);
         }
     }
 }
