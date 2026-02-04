@@ -22,7 +22,7 @@ public class GhostInputController : MonoBehaviour
     {
         m_ghostController = GetComponent<GhostController>();
         m_ghostTransform = GetComponent<GhostMorph>();
-        m_ghostInteract = GetComponent<GhostInteract>();
+        m_ghostInteract = GetComponentInChildren<GhostInteract>();
     }
 
     /*

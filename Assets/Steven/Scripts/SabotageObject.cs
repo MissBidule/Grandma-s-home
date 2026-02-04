@@ -36,44 +36,26 @@ public class SabotageObject : MonoBehaviour
         SetHighlight(false);
     }
 
-
-    /**
-    @brief      Prompt selon le rôle
-    @param      _playerType: type du joueur
-    @return     texte du prompt
-    */
-    public string GetPrompt(PlayerType _playerType)
-    {
-        if (_playerType != PlayerType.Ghost) return string.Empty;
-        return m_promptMessage;
-    }
-
     /**
     @brief      Focus : active highlight + prompt
     @param      _playerType: type du joueur
-    @return     void
     */
     
-    /*
-    public void OnFocus(PlayerType _playerType)
+    public void OnFocus()
     {
-        if (!CanInteract(_playerType)) return;
-
         m_isFocused = true;
 
         SetHighlight(true);
 
         if (InteractPromptUI.Instance != null)
-            InteractPromptUI.Instance.Show(GetPrompt(_playerType));
-    }*/
+            InteractPromptUI.Instance.Show(m_promptMessage);
+    }
 
     /**
     @brief      Unfocus : coupe highlight + prompt
     @param      _playerType: type du joueur
-    @return     void
     */
-    /*
-    public void OnUnfocus(PlayerType _playerType)
+    public void OnUnfocus()
     {
         m_isFocused = false;
 
@@ -82,7 +64,6 @@ public class SabotageObject : MonoBehaviour
         if (InteractPromptUI.Instance != null)
             InteractPromptUI.Instance.Hide();
     }
-    */
 
     public void StartQte()
     {

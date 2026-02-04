@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2873181202271193540}
-  - component: {fileID: 8871621625151957410}
+  - component: {fileID: 4549657624992473671}
   - component: {fileID: 7350850481470766736}
   - component: {fileID: 6565872187536608583}
   - component: {fileID: 7371193213744557113}
@@ -39,8 +39,8 @@ Transform:
   - {fileID: 317916259528394339}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &8871621625151957410
-BoxCollider:
+--- !u!136 &4549657624992473671
+CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -57,9 +57,11 @@ BoxCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 2, z: 1}
-  m_Center: {x: 0, y: 0.65, z: 0}
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 2.274705
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.63735247, z: 0}
 --- !u!54 &7350850481470766736
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -112,7 +114,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChildController
   m_speed: 5
-  m_rotationSpeed: 10
   m_bulletSpawnTransform: {fileID: 8286851940836659514}
   m_bulletPrefab: {fileID: 366779594710045177, guid: b05624749c498ba4a91ccf6a1eb0ee76, type: 3}
   m_jumpImpulse: 6
@@ -329,10 +330,6 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 7efe4c02-c6e0-4a70-89cc-7f210f79e4ee
     m_ActionName: 'Ghost/Move[/Keyboard/w,/Keyboard/upArrow,/Keyboard/s,/Keyboard/downArrow,/Keyboard/a,/Keyboard/leftArrow,/Keyboard/d,/Keyboard/rightArrow]'
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 8dd154dc-d69b-4909-bbc6-4f784fe9303c
-    m_ActionName: 'Ghost/Sabotage[/Mouse/leftButton,/Keyboard/enter]'
   - m_PersistentCalls:
       m_Calls: []
     m_ActionId: f883e95f-0d17-402c-8cba-fd12dc12e495

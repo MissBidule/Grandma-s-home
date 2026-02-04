@@ -130,6 +130,10 @@ public class GhostMorphPreview : MonoBehaviour
     {
         Material[] mats = m_meshRenderer.materials;
         Color targetColor = m_CanTransform ? m_validColor : m_invalidColor;
+        if (transform.parent.GetComponent<GhostController>().IsGrounded())
+        {
+            targetColor = m_invalidColor;
+        }
 
         foreach (Material mat in mats)
         {
