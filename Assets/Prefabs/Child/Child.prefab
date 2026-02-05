@@ -398,6 +398,7 @@ GameObject:
   - component: {fileID: 924844853579488811}
   - component: {fileID: 5110337068812859165}
   - component: {fileID: 2614001505562954592}
+  - component: {fileID: 253243303044881807}
   m_Layer: 0
   m_Name: Camera
   m_TagString: MainCamera
@@ -523,6 +524,27 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!114 &253243303044881807
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8697620050906322513}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf3dbbb59f393bc47824f38fe12e7a48, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ChildCameraController
+  m_sensitivity: 120
+  m_distance: 4
+  m_minPitch: -40
+  m_maxPitch: 70
+  m_collisionOffset: 0.2
+  m_collisionMask:
+    serializedVersion: 2
+    m_Bits: 0
+  m_pivotOffset: {x: 0, y: 1.6, z: 0}
 --- !u!1001 &1291744217547211566
 PrefabInstance:
   m_ObjectHideFlags: 0
