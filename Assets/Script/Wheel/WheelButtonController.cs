@@ -2,10 +2,10 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /*
- * @brief Contains class declaration for TransformWheelButtonController
- * @details The TransformWheelButtonController class manages the behavior of buttons in the transformation wheel UI, using TransformOption for data.
+ * @brief Contains class declaration for WheelButtonController
+ * @details The WheelButtonController class manages the behavior of buttons in the transformation wheel UI, using TransformOption for data.
  */
-public class TransformWheelButtonController : MonoBehaviour
+public class WheelButtonController : MonoBehaviour
 {
     [SerializeField] private TransformOption m_transformOption;
     private Image m_iconImage;
@@ -56,12 +56,12 @@ public class TransformWheelButtonController : MonoBehaviour
      */
     public void Select()
     {
-        if (IsEmpty() && !TransformWheelcontroller.m_Instance.m_isWaitingForSlotSelection)
+        if (IsEmpty() && !WheelController.m_Instance.m_isWaitingForSlotSelection)
         {
             return;
         }
 
-        if (TransformWheelcontroller.m_Instance.m_isWaitingForSlotSelection)
+        if (WheelController.m_Instance.m_isWaitingForSlotSelection)
         {
             OnSlotSelectedForReplacement();
             return;
@@ -69,10 +69,10 @@ public class TransformWheelButtonController : MonoBehaviour
 
         if (m_transformOption == null || m_transformOption.prefab == null)
         {
-            TransformWheelcontroller.m_Instance.ClearSelection();
+            WheelController.m_Instance.ClearSelection();
             return;
         }
-        TransformWheelcontroller.m_Instance.SelectPrefab(m_transformOption.prefab);
+        WheelController.m_Instance.SelectPrefab(m_transformOption.prefab);
     }
 
     /*
@@ -111,6 +111,6 @@ public class TransformWheelButtonController : MonoBehaviour
      */
     public void OnSlotSelectedForReplacement()
     {
-        TransformWheelcontroller.m_Instance.OnSlotChosenForReplacement(this);
+        WheelController.m_Instance.OnSlotChosenForReplacement(this);
     }
 }

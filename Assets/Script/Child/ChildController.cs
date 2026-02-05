@@ -1,15 +1,14 @@
 using UnityEngine;
 
 /*
- * @brief Contains class declaration for PlayerController
- * @details The PlayerController class handles player actions by reading input from the PlayerInputController component.
- *          Movements are camera-relative and physics-based using Rigidbody.
+ * @brief Contains class declaration for ChildController
+ * @details The ChildController class handles child actions by reading input from the ChildInputController component.
+ *          Movements are camera-relative and physics-based using Rigidbody (may change).
  */
-public class PlayerController : MonoBehaviour
+public class ChildController : MonoBehaviour
 {
-    private PlayerInputController m_playerInputController;
+    private ChildInputController m_childInputController;
     private Rigidbody m_rigidbody;
-    private PlayerGhost m_playerGhost;
     private bool m_waitingForInputRelease = false;
 
     private Vector3 m_moveDirection;
@@ -17,53 +16,39 @@ public class PlayerController : MonoBehaviour
     private float m_cleanRange = 2f;
     private float m_attackRange = 0.5f;
 
-    public bool m_isranged;
+    private bool m_isranged;
+    private float m_yaw;
 
 
     [SerializeField] private float m_speed = 5f;
-    [SerializeField] private float m_rotationSpeed = 10f;
     [SerializeField] private Transform m_bulletSpawnTransform;
     [SerializeField] private GameObject m_bulletPrefab;
+    [SerializeField] private float m_jumpImpulse = 6.0f;
 
     /*
      * @brief Awake is called when the script instance is being loaded
-     * Gets the PlayerInputController and PlayerGhost components.
+     * Gets the ChildInputController component.
      * @return void
      */
     void Awake()
     {
-        m_playerInputController = GetComponent<PlayerInputController>();
+        m_childInputController = GetComponent<ChildInputController>();
         m_rigidbody = GetComponent<Rigidbody>();
-        m_playerGhost = GetComponent<PlayerGhost>();
     }
 
     /*
-     * @brief   Reads player input and computes movement direction relative to the camera
+     * @brief   Reads child input and computes movement direction relative to the camera
      * @return  void
      */
     void Update()
     {
-        Vector2 movementInput = m_playerInputController.m_movementInputVector;
-
+        Vector2 movementInput = m_childInputController.m_movementInputVector;
         if (m_waitingForInputRelease)
         {
             if (movementInput == Vector2.zero)
             {
                 m_waitingForInputRelease = false;
             }
-            m_moveDirection = Vector3.zero;
-            return;
-        }
-
-        if (m_playerGhost != null
-            && m_playerGhost.m_isTransformed
-            && movementInput != Vector2.zero)
-        {
-            m_playerGhost.RevertToOriginal();
-        }
-
-        if (m_playerGhost != null && m_playerGhost.m_isTransformed)
-        {
             m_moveDirection = Vector3.zero;
             return;
         }
@@ -91,56 +76,58 @@ public class PlayerController : MonoBehaviour
     }
 
     /*
-     * @brief   Applies movement and rotation using Rigidbody physics
+     * @brief   Applies movement using Rigidbody physics
      * @return  void
      */
     void FixedUpdate()
     {
         if (m_moveDirection == Vector3.zero) return;
-
-
-        // GOOD WAY TO MOVE, BUT NOT SEPARATED BETWEEN CHILD AND GHOST SO COMMENTED UNTIL FIX.
-        // GOOD WAY TO MOVE, BUT NOT SEPARATED BETWEEN CHILD AND GHOST SO COMMENTED UNTIL FIX.
-        // GOOD WAY TO MOVE, BUT NOT SEPARATED BETWEEN CHILD AND GHOST SO COMMENTED UNTIL FIX.
-        /*m_rigidbody.MovePosition(
+        m_rigidbody.MovePosition(
             m_rigidbody.position + m_moveDirection * m_speed * Time.fixedDeltaTime
         );
-
-        Quaternion targetRot = Quaternion.LookRotation(m_moveDirection);
-        m_rigidbody.MoveRotation(
-            Quaternion.Slerp(
-                m_rigidbody.rotation,
-                targetRot,
-                m_rotationSpeed * Time.fixedDeltaTime
-            )
-        );*/
     }
 
     /*
-     * @brief Anchors the player in place
-     * Called when the player confirms a transformation. Resets input and waits for release.
-     * @return void
+     * @brief   Applies rotation using the mouse movement
+     * @return  void
      */
-    public void AnchorPlayer()
+    void LateUpdate()
     {
-        m_playerInputController.ResetMovementInput();
-        m_waitingForInputRelease = true;
-        m_moveDirection = Vector3.zero;
+        Vector2 lookInput = m_childInputController.m_lookInputVector;
+        m_yaw += lookInput.x * Camera.main.GetComponent<ChildCameraController>().m_sensitivity * Time.deltaTime;
+        Quaternion targetRot = Quaternion.Euler(0f, m_yaw, 0f);
+        m_rigidbody.transform.rotation = targetRot;
     }
 
     /*
-     * @brief Unanchors the player
-     * Called when reverting to original form. Allows movement again.
-     * @return void
+     * @brief   Makes the child jump by applying an impulse force upwards
+     * @return  void
      */
-    public void UnanchorPlayer()
+    public void Jump()
     {
-        m_waitingForInputRelease = false;
+        if (!IsGrounded()) return;
+        m_rigidbody.AddForce(Vector3.up * m_jumpImpulse, ForceMode.Impulse);
+    }
+
+    /*
+     * @brief   Checks if the child is grounded by casting a ray downwards
+     * @return  bool True if grounded, false otherwise
+     */
+    private bool IsGrounded()
+    {
+        if (m_rigidbody == null) return false;
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, 1.0f))
+        {
+            return true;
+        }
+        return false;
     }
 
 
+
     /*
-     * @brief function called when the player inputs the hit command
+     * @brief function called when the child inputs the hit command
      * @return void
      */
     public void Attacks()
@@ -181,7 +168,7 @@ public class PlayerController : MonoBehaviour
      */
     private void HitOpponent(GhostController _ghost)
     {
-        print("tape un fantôme");
+        print("tape un fantï¿½me");
         _ghost.GotHitByCac();
     }
 
@@ -201,7 +188,7 @@ public class PlayerController : MonoBehaviour
 
     /*
      * @brief  This function allows you to clean the slime
-     * When the player is close to a distance of m_cleanRange and there is a gameObject with the tag "Slime", they destroy the gameObject.
+     * When the child is close to a distance of m_cleanRange and there is a gameObject with the tag "Slime", they destroy the gameObject.
      * @return void
      */
     public void Clean()
@@ -216,5 +203,10 @@ public class PlayerController : MonoBehaviour
                 break;
             }
         }
+    }
+
+    public void SwitchAttackType()
+    {
+        m_isranged = !m_isranged;
     }
 }

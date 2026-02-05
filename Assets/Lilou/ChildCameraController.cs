@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
  * @brief       Contains class declaration for PlayerCameraController
  * @details     Handles third-person orbital camera controlled by mouse input with collision handling.
  */
-public class PlayerCameraController : MonoBehaviour
+public class ChildCameraController : MonoBehaviour
 {
     public float m_sensitivity = 120f;
     public float m_distance = 4f;
@@ -13,13 +13,14 @@ public class PlayerCameraController : MonoBehaviour
     public float m_maxPitch = 70f;
     public float m_collisionOffset = 0.2f;
     public LayerMask m_collisionMask;
-    public Vector3 m_pivotOffset = new Vector3(0f, 1.6f, 0f); // hauteur tête approx
+    public Vector3 m_pivotOffset = new Vector3(0f, 1.6f, 0f); // approx head height
 
     private float m_yaw;
     private float m_pitch;
 
-    private GhostInputController m_ghostInputController;
+    private ChildInputController m_childInputController;
     private Transform m_target;
+    private Rigidbody m_rigidbody;
 
     /*
      * @brief   Initializes references and locks the cursor
@@ -27,8 +28,9 @@ public class PlayerCameraController : MonoBehaviour
     */
     private void Awake()
     {
-        m_ghostInputController = GetComponentInParent<GhostInputController>();
+        m_childInputController = GetComponentInParent<ChildInputController>();
         m_target = transform.parent;
+        m_rigidbody = GetComponentInParent<Rigidbody>();
 
         UnityEngine.Cursor.lockState = CursorLockMode.Locked;
     }
@@ -39,7 +41,7 @@ public class PlayerCameraController : MonoBehaviour
     */
     private void LateUpdate()
     {
-        Vector2 lookInput = m_ghostInputController.m_lookInputVector;
+        Vector2 lookInput = m_childInputController.m_lookInputVector;
 
         m_yaw += lookInput.x * m_sensitivity * Time.deltaTime;
         m_pitch -= lookInput.y * m_sensitivity * Time.deltaTime;

@@ -14,7 +14,7 @@ public class SwitchPlayer : MonoBehaviour
     [SerializeField] private ChildBehavior m_childBehavior;
     [SerializeField] private GhostBehavior m_ghostBehavior;
     [SerializeField] private ChildMovement m_childMovement;
-    [SerializeField] private GhostMovement m_ghostMovement;
+    [SerializeField] private GhostController m_ghostMovement;
 
     [Header("Cameras")]
     [SerializeField] private GameObject m_childCameraRoot;
@@ -26,7 +26,7 @@ public class SwitchPlayer : MonoBehaviour
         m_childBehavior = GetComponent<ChildBehavior>();
         m_ghostBehavior = GetComponent<GhostBehavior>();
         m_childMovement = GetComponent<ChildMovement>();
-        m_ghostMovement = GetComponent<GhostMovement>();
+        m_ghostMovement = GetComponent<GhostController>();
     }
 
     private void Awake()
@@ -35,7 +35,7 @@ public class SwitchPlayer : MonoBehaviour
         if (m_childBehavior == null) m_childBehavior = GetComponent<ChildBehavior>();
         if (m_ghostBehavior == null) m_ghostBehavior = GetComponent<GhostBehavior>();
         if (m_childMovement == null) m_childMovement = GetComponent<ChildMovement>();
-        if (m_ghostMovement == null) m_ghostMovement = GetComponent<GhostMovement>();
+        if (m_ghostMovement == null) m_ghostMovement = GetComponent<GhostController>();
         // ⚠️ Ne pas forcer les caméras ici
     }
 
