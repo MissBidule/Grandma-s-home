@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /*
  * @brief Contains class declaration for ChildController
@@ -205,8 +206,21 @@ public class ChildController : MonoBehaviour
         }
     }
 
+    /*
+     * @brief  This function allows you to switch between melee and ranged attack modes.
+     * @return void
+     */
     public void SwitchAttackType()
     {
         m_isranged = !m_isranged;
+    }
+
+    /*
+     * @brief  This function allows you to switch to the SampleScene. (DEBUG PURPOSES ONLY)
+     * @return void
+     */
+    public void SwitchScene()
+    {
+        SceneManager.LoadScene("SampleScene");
     }
 }

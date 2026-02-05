@@ -92,5 +92,18 @@ void Awake()
     {
         m_childController.Clean();
     }
+
+    /*
+     * @brief OnSwitchScene is called by the Input System when switch scene input is detected
+     * @param _context: The context of the input action
+     * @return void
+     */
+    public void OnSwitchScene(InputAction.CallbackContext _context)
+    {
+        if (_context.performed)
+        {
+            m_childController.SwitchScene();
+        }
+    }
 }
 
