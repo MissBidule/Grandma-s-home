@@ -21,7 +21,7 @@ public class PlayerGhost : MonoBehaviour
      */
     void Awake()
     {
-        m_meshRenderer = GetComponent<MeshRenderer>();
+        m_meshRenderer = GetComponentInChildren<MeshRenderer>();
         m_playerCollider = GetComponent<CapsuleCollider>();
         m_originalMaterials = m_meshRenderer.sharedMaterials;
     }
