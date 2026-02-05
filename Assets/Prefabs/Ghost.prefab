@@ -186,7 +186,7 @@ Transform:
   m_GameObject: {fileID: 857712685218003285}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.614, z: 0.989}
+  m_LocalPosition: {x: 0, y: -0.22, z: 0.989}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -334,7 +334,8 @@ GameObject:
   - component: {fileID: 1100208937895637651}
   - component: {fileID: 2219207149335232256}
   - component: {fileID: 6368071203746312751}
-  m_Layer: 9
+  - component: {fileID: 4486287382765399067}
+  m_Layer: 0
   m_Name: Ghost
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -383,9 +384,6 @@ MonoBehaviour:
   m_rotationSpeed: 12
   m_climbSpeed: 3.5
   m_wallNormalMaxY: 0.4
-  m_minPushDot: 0.2
-  m_maxClimbDuration: 0.2
-  m_minVelYToAllowNewClimb: 0.05
 --- !u!114 &4420112834733810732
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -706,6 +704,19 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 80
   m_CollisionDetection: 1
+--- !u!114 &4486287382765399067
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1734638775358860393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 504c9529d40e6d14c8bb189bee4ca0d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerGhost
+  m_previewGhost: {fileID: 0}
 --- !u!1 &1862723092181556763
 GameObject:
   m_ObjectHideFlags: 0
