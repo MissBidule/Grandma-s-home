@@ -57,6 +57,19 @@ public class WheelController : MonoBehaviour
     }
 
     /*
+     * @brief Check if the wheel is currently open
+     * @return True if the wheel is open, false otherwise
+     */
+    public bool IsWheelOpen()
+    {
+        if (m_anim == null)
+        {
+            return false;
+        }
+        return m_anim.GetBool("OpenWheel");
+    }
+
+    /*
      * @brief Tries to add a prefab to the transformation wheel
      * Finds the first empty slot or triggers slot selection if wheel is full.
      * @param _prefab: The prefab to add
@@ -178,10 +191,6 @@ public class WheelController : MonoBehaviour
 
         m_anim.SetBool("OpenWheel", false);
     }
-
-    
-
-    
 
     /*
      * @brief Clears the current selection

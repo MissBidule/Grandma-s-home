@@ -50,21 +50,21 @@ public class GhostMorphPreview : MonoBehaviour
         {
             m_meshRenderer.sharedMaterials = prefabRenderer.sharedMaterials;
         }
-
+        m_colliders.Clear();
         ReplaceCollider(collider);
         transform.localScale = _prefab.transform.localScale;
         transform.localRotation = _prefab.transform.localRotation;
 
         transform.localPosition = new Vector3(0, 0f, 0f);
 
-        /*
-         Maths to place the preview correctly on the player
-         */
+        // Maths to place the preview correctly on the player
         Renderer[] playerRenders = m_mesh.GetComponentsInChildren<Renderer>();
 
         Bounds playerBounds = playerRenders[0].bounds;
         for (int i = 1; i < playerRenders.Length; i++)
+        {
             playerBounds.Encapsulate(playerRenders[i].bounds);
+        }
 
         Renderer previewRender = GetComponentInChildren<Renderer>();
         Bounds previewBounds = previewRender.bounds;
@@ -83,11 +83,50 @@ public class GhostMorphPreview : MonoBehaviour
      */
     void ReplaceCollider(Collider _target)
     {
-        if (m_previewCollider is BoxCollider box &&
-            _target is BoxCollider tBox)
+        if (m_previewCollider != null)
         {
+            Destroy(m_previewCollider);
+        }
+
+        if (_target is BoxCollider tBox)
+        {
+            BoxCollider box = gameObject.AddComponent<BoxCollider>();
             box.center = tBox.center;
             box.size = tBox.size;
+            box.isTrigger = true;
+            m_previewCollider = box;
+        }
+        else if (_target is SphereCollider tSphere)
+        {
+            SphereCollider sphere = gameObject.AddComponent<SphereCollider>();
+            sphere.center = tSphere.center;
+            sphere.radius = tSphere.radius;
+            sphere.isTrigger = true;
+            m_previewCollider = sphere;
+        }
+        else if (_target is CapsuleCollider tCapsule)
+        {
+            CapsuleCollider capsule = gameObject.AddComponent<CapsuleCollider>();
+            capsule.center = tCapsule.center;
+            capsule.radius = tCapsule.radius;
+            capsule.height = tCapsule.height;
+            capsule.direction = tCapsule.direction;
+            capsule.isTrigger = true;
+            m_previewCollider = capsule;
+        }
+        else if (_target is MeshCollider tMesh)
+        {
+            MeshCollider mesh = gameObject.AddComponent<MeshCollider>();
+            mesh.sharedMesh = tMesh.sharedMesh;
+            mesh.convex = true;
+            mesh.isTrigger = true;
+            m_previewCollider = mesh;
+        }
+        else
+        {
+            BoxCollider box = gameObject.AddComponent<BoxCollider>();
+            box.isTrigger = true;
+            m_previewCollider = box;
         }
     }
 
@@ -100,7 +139,9 @@ public class GhostMorphPreview : MonoBehaviour
     void OnTriggerEnter(Collider _other)
     {
         if (_other.CompareTag("Ground") || _other.gameObject.layer == 9)
+        {
             return;
+        }
 
         m_colliders.Add(_other);
         UpdateMaterial();
@@ -115,7 +156,9 @@ public class GhostMorphPreview : MonoBehaviour
     void OnTriggerExit(Collider _other)
     {
         if (_other.CompareTag("Ground") || _other.gameObject.layer == 9)
+        {
             return;
+        }
 
         m_colliders.Remove(_other);
         UpdateMaterial();
@@ -130,11 +173,12 @@ public class GhostMorphPreview : MonoBehaviour
     {
         Material[] mats = m_meshRenderer.materials;
         Color targetColor = m_CanTransform ? m_validColor : m_invalidColor;
+        /*
         if (transform.parent.GetComponent<GhostController>().IsGrounded())
         {
             targetColor = m_invalidColor;
         }
-
+        */
         foreach (Material mat in mats)
         {
             mat.color = targetColor;

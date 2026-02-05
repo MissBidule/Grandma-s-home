@@ -5,7 +5,7 @@ public class GhostMorph : MonoBehaviour
 {
     [SerializeField] private GameObject m_mesh;
     [SerializeField] private GhostMorphPreview m_previewGhost;
-    [SerializeField] private float m_scanRange = 5f;
+    [SerializeField] private float m_scanRange = 10f;
     [SerializeField] private LayerMask m_scanLayerMask;
     private WheelController m_wheel;
 
@@ -18,7 +18,6 @@ public class GhostMorph : MonoBehaviour
     void Start()
     {
         m_playerCollider = GetComponent<BoxCollider>();
-        // récupère tous les MeshRenderer enfants
         m_renderers = m_mesh.GetComponentsInChildren<MeshRenderer>();
 
         m_wheel = WheelController.m_Instance;
@@ -43,7 +42,6 @@ public class GhostMorph : MonoBehaviour
     public void ClearPreview()
     {
         RemovePlayerTransparency();
-        transform.localPosition = new Vector3(0f, 0f, 0f);
     }
 
     /*
@@ -113,12 +111,24 @@ public class GhostMorph : MonoBehaviour
         m_previewGhost.GetComponent<MeshRenderer>().enabled = false;
         m_isTransformed = true;
         Rigidbody rb = GetComponent<Rigidbody>();
-        rb.constraints = RigidbodyConstraints.FreezeAll;
+        rb.constraints = RigidbodyConstraints.FreezeRotation;
 
         PlayerController controller = GetComponent<PlayerController>();
         if (controller != null)
         {
             controller.AnchorPlayer();
+        }
+
+        // Reset the input to prevent immediate detransformation
+        GhostInputController ghostInput = GetComponent<GhostInputController>();
+        if (ghostInput != null)
+        {
+            ghostInput.ResetMovementInput();
+        }
+
+        if (m_wheel.IsWheelOpen())
+        {
+            m_wheel.Toggle();
         }
     }
 
@@ -146,6 +156,7 @@ public class GhostMorph : MonoBehaviour
         Rigidbody rb = GetComponent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.None;
         rb.constraints = RigidbodyConstraints.FreezeRotation;
+        m_wheel.ClearSelection();
     }
 
     /*
@@ -170,7 +181,6 @@ public class GhostMorph : MonoBehaviour
         m_currentPrefab.transform.localPosition = m_previewGhost.transform.localPosition;
     }
 
-
     /*
      * @brief Scans for a scannable prefab in front of the player
      * If found and there's a free slot, adds it to the wheel. If wheel is full, opens the wheel for slot selection.
@@ -181,7 +191,7 @@ public class GhostMorph : MonoBehaviour
         Debug.Log("Scan");
         Camera mainCamera = Camera.main;
 
-        Vector3 rayOrigin = transform.position;
+        Vector3 rayOrigin = mainCamera.transform.position;
         Vector3 rayDirection = mainCamera.transform.forward;
 
         if (!Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, m_scanRange, m_scanLayerMask))

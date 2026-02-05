@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UIElements;
 
 /*
  * @brief       Contains class declaration for PlayerCameraController
@@ -13,7 +12,7 @@ public class PlayerCameraController : MonoBehaviour
     public float m_maxPitch = 70f;
     public float m_collisionOffset = 0.2f;
     public LayerMask m_collisionMask;
-    public Vector3 m_pivotOffset = new Vector3(0f, 1.6f, 0f); // hauteur tête approx
+    public Vector3 m_pivotOffset = new Vector3(0f, 1.6f, 0f); // approximate head height
 
     private float m_yaw;
     private float m_pitch;
@@ -39,30 +38,53 @@ public class PlayerCameraController : MonoBehaviour
     */
     private void LateUpdate()
     {
-        Vector2 lookInput = m_ghostInputController.m_lookInputVector;
+        Vector3 pivot = m_target.position + m_pivotOffset;
+        Quaternion rotation;
+        Vector3 desiredOffset;
+        float finalDistance = m_distance;
 
+        // Do not move the camera if the wheel is open
+        if (WheelController.m_Instance != null && WheelController.m_Instance.IsWheelOpen())
+        {
+            rotation = Quaternion.Euler(m_pitch, m_yaw, 0f);
+            desiredOffset = rotation * Vector3.back * m_distance;
+
+            if (Physics.Raycast(
+                pivot,
+                desiredOffset.normalized,
+                out RaycastHit hit,
+                m_distance,
+                m_collisionMask))
+            {
+                finalDistance = hit.distance - m_collisionOffset;
+            }
+
+            Vector3 finalOffset = rotation * Vector3.back * finalDistance;
+            transform.position = pivot + finalOffset;
+            transform.LookAt(pivot);
+            return;
+        }
+
+        Vector2 lookInput = m_ghostInputController.m_lookInputVector;
         m_yaw += lookInput.x * m_sensitivity * Time.deltaTime;
         m_pitch -= lookInput.y * m_sensitivity * Time.deltaTime;
         m_pitch = Mathf.Clamp(m_pitch, m_minPitch, m_maxPitch);
 
-        Quaternion rotation = Quaternion.Euler(m_pitch, m_yaw, 0f);
-        Vector3 desiredOffset = rotation * Vector3.back * m_distance;
-
-        float finalDistance = m_distance;
-        Vector3 pivot = m_target.position + m_pivotOffset;
+        rotation = Quaternion.Euler(m_pitch, m_yaw, 0f);
+        desiredOffset = rotation * Vector3.back * m_distance;
+        finalDistance = m_distance;
 
         if (Physics.Raycast(
             pivot,
             desiredOffset.normalized,
-            out RaycastHit hit,
+            out RaycastHit hit2,
             m_distance,
             m_collisionMask))
         {
-            finalDistance = hit.distance - m_collisionOffset;
+            finalDistance = hit2.distance - m_collisionOffset;
         }
-
-        Vector3 finalOffset = rotation * Vector3.back * finalDistance;
-        transform.position = pivot + finalOffset;
+        Vector3 finalOffset2 = rotation * Vector3.back * finalDistance;
+        transform.position = pivot + finalOffset2;
         transform.LookAt(pivot);
     }
 }
