@@ -2,7 +2,7 @@
 
 /**
 @brief       Controller for the Ghost character
-@details     Ghost can move and climb walls automatically when colliding with them.
+@details     Handles movement, rotation and wall climbing
 */
 public class GhostController : MonoBehaviour
 {
@@ -42,6 +42,9 @@ public class GhostController : MonoBehaviour
         m_ghostMorph = GetComponent<GhostMorph>();
     }
 
+    /**
+    @brief      Update timers and movement modifiers
+    */
     private void Update()
     {
         if (m_isSlowed)
@@ -73,6 +76,10 @@ public class GhostController : MonoBehaviour
         }
     }
 
+    /**
+    @brief      Check if the ghost is grounded
+    @return     True if a surface is detected below the character
+    */
     public bool IsGrounded()
     {
         if (m_rigidbody == null) return false;
@@ -83,6 +90,11 @@ public class GhostController : MonoBehaviour
         return false;
     }
 
+    /**
+    @brief      Physics update handling movement and climbing
+    @details    Applies camera-relative movement, rotation and automatic climbing
+                when colliding with a wal
+    */
     private void FixedUpdate()
     {
         if (m_rigidbody == null) return;
@@ -147,18 +159,27 @@ public class GhostController : MonoBehaviour
         ResetClimbFlags();
     }
 
+    /**
+    @brief      Apply slow effect from projectile hit
+    */
     public void GotHitByProjectile()
     {
         m_isSlowed = true;
         m_currentTimerSlowed = m_timerSlowed;
     }
 
+    /**
+    @brief      Apply stop effect from close combat hit
+    */
     public void GotHitByCac()
     {
         m_isStopped = true;
         m_currentTimerStop = m_timerStop;
     }
 
+    /**
+    @brief      Detect climbable wall during collision
+    */
     private void OnCollisionStay(Collision _collision)
     {
         for (int i = 0; i < _collision.contactCount; i++)
@@ -175,8 +196,7 @@ public class GhostController : MonoBehaviour
     }
 
     /**
-    @brief      Reset des flags de climb
-    @return     void
+    @brief      Reset climb flags
     */
     private void ResetClimbFlags()
     {
