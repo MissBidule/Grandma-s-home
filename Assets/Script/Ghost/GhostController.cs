@@ -27,18 +27,13 @@ public class GhostController : MonoBehaviour
     [Header("Auto Climb")]
     [SerializeField] private float m_climbSpeed = 3.5f;
     [SerializeField] private float m_wallNormalMaxY = 0.4f;
-    [SerializeField] private float m_minPushDot = 0.2f;
-    [SerializeField] private float m_maxClimbDuration = 0.20f;
-    [SerializeField] private float m_minVelYToAllowNewClimb = 0.05f;
 
     private Rigidbody m_rigidbody;
 
     private bool m_canClimbThisFrame;
     private Vector3 m_wallNormal;
-    private float m_climbTimer;
 
-    private float speedModifier = 1f;
-
+    private float m_speedModifier = 1f;
 
     private void Start()
     {
@@ -58,6 +53,7 @@ public class GhostController : MonoBehaviour
                 m_currentTimerSlowed = m_timerSlowed;
             }
         }
+
         if (m_isStopped)
         {
             m_currentTimerStop -= Time.deltaTime;
@@ -68,8 +64,8 @@ public class GhostController : MonoBehaviour
             }
         }
 
-        speedModifier = m_isSlowed ? 0.5f : 1f;
-        speedModifier = m_isStopped ? 0f : speedModifier;
+        m_speedModifier = m_isSlowed ? 0.5f : 1f;
+        m_speedModifier = m_isStopped ? 0f : m_speedModifier;
 
         if (m_ghostInputController.m_movementInputVector != Vector2.zero)
         {
@@ -80,16 +76,19 @@ public class GhostController : MonoBehaviour
     public bool IsGrounded()
     {
         if (m_rigidbody == null) return false;
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position, Vector3.down, out hit, 1.0f))
-        {
+
+        if (Physics.Raycast(transform.position, Vector3.down, out _, 1.0f))
             return true;
-        }
+
         return false;
     }
 
     private void FixedUpdate()
     {
+        if (m_rigidbody == null) return;
+        if (m_ghostInputController == null) return;
+        if (Camera.main == null) return;
+
         Transform cam = Camera.main.transform;
 
         Vector3 forward = cam.forward;
@@ -102,8 +101,10 @@ public class GhostController : MonoBehaviour
         right.Normalize();
 
         Vector2 movementInput = m_ghostInputController.m_movementInputVector;
-        Vector3 wishDir = (forward * movementInput.y + right * movementInput.x).normalized;
-        
+
+        Vector3 wishDir = Vector3.zero;
+        if (movementInput.sqrMagnitude > 0.0001f)
+            wishDir = (forward * movementInput.y + right * movementInput.x).normalized;
 
         if (wishDir.sqrMagnitude > 0.0001f && !m_isStopped)
         {
@@ -118,47 +119,28 @@ public class GhostController : MonoBehaviour
             );
         }
 
-        if (m_climbTimer > 0f)
+        if (!m_isStopped &&
+            m_canClimbThisFrame &&
+            wishDir.sqrMagnitude > 0.0001f)
         {
-            m_climbTimer -= Time.fixedDeltaTime;
-
             Vector3 vel = m_rigidbody.linearVelocity;
-            vel.y = Mathf.Max(vel.y, m_climbSpeed) * speedModifier;
+
+            float targetUp = m_climbSpeed * m_speedModifier;
+            vel.y = Mathf.Max(vel.y, targetUp);
+
             m_rigidbody.linearVelocity = vel;
 
             ResetClimbFlags();
             return;
         }
 
-        if (m_canClimbThisFrame && wishDir.sqrMagnitude > 0.0001f)
-        {
-            float pushDot = Vector3.Dot(wishDir, -m_wallNormal);
-
-            if (pushDot > m_minPushDot)
-            {
-                Vector3 vel = m_rigidbody.linearVelocity;
-
-                if (vel.y <= m_minVelYToAllowNewClimb)
-                {
-                    m_climbTimer = m_maxClimbDuration;
-
-                    float targetUp = m_climbSpeed * pushDot;
-                    vel.y = Mathf.Max(vel.y, targetUp) * speedModifier;
-                    m_rigidbody.linearVelocity = vel;
-
-                    ResetClimbFlags();
-                    return;
-                }
-            }
-        }
-
-        Vector3 targetVel = wishDir * m_walkSpeed * speedModifier;
+        Vector3 targetVel = wishDir * m_walkSpeed * m_speedModifier;
 
         Vector3 currentVel = m_rigidbody.linearVelocity;
         Vector3 currentHorizontal = new Vector3(currentVel.x, 0f, currentVel.z);
 
         Vector3 delta = targetVel - currentHorizontal;
-        Vector3 accel = Vector3.ClampMagnitude(delta * m_acceleration * speedModifier, m_acceleration);
+        Vector3 accel = Vector3.ClampMagnitude(delta * (m_acceleration * m_speedModifier), m_acceleration);
 
         m_rigidbody.AddForce(new Vector3(accel.x, 0f, accel.z), ForceMode.Acceleration);
 
