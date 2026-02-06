@@ -9,7 +9,7 @@ public class PlayerGhost : MonoBehaviour
 {
     private MeshRenderer m_meshRenderer;
     private Collider m_playerCollider;
-    [SerializeField] private TransformPreviewGhost m_previewGhost;
+    [SerializeField] private GhostMorphPreview m_previewGhost;
     private GameObject m_currentPrefab = null;
     [System.NonSerialized] public bool m_isTransformed = false;
     private Material[] m_originalMaterials;
@@ -21,7 +21,7 @@ public class PlayerGhost : MonoBehaviour
      */
     void Awake()
     {
-        m_meshRenderer = GetComponent<MeshRenderer>();
+        m_meshRenderer = GetComponentInChildren<MeshRenderer>();
         m_playerCollider = GetComponent<CapsuleCollider>();
         m_originalMaterials = m_meshRenderer.sharedMaterials;
     }
@@ -34,13 +34,13 @@ public class PlayerGhost : MonoBehaviour
      */
     public void ConfirmTransform(InputAction.CallbackContext _context)
     {
-        if (!_context.performed || !m_previewGhost.m_CanTransform || !TransformWheelcontroller.m_Instance.m_selectedPrefab || m_isTransformed)
+        if (!_context.performed || !m_previewGhost.m_CanTransform || !WheelController.m_Instance.m_selectedPrefab || m_isTransformed)
         {
             return;
         }
-        GameObject prefab = TransformWheelcontroller.m_Instance.m_selectedPrefab;
+        GameObject prefab = WheelController.m_Instance.m_selectedPrefab;
         ApplyPrefab(prefab);
-        TransformWheelcontroller.m_Instance.m_selectedPrefab = null;
+        WheelController.m_Instance.m_selectedPrefab = null;
         m_previewGhost.gameObject.SetActive(false);
         m_isTransformed = true;
         Rigidbody rb = GetComponent<Rigidbody>();

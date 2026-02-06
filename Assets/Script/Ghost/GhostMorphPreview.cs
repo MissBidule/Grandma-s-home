@@ -1,15 +1,19 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 /*
  * @brief Contains class declaration for TransformPreviewGhost
  * @details The TransformPreviewGhost class handles the preview of transformations, checking for collisions and updating materials accordingly.
  */
-public class TransformPreviewGhost : MonoBehaviour
+public class GhostMorphPreview : MonoBehaviour
 {
+    [SerializeField] private GameObject m_mesh;
+
+    private HashSet<Collider> m_colliders = new HashSet<Collider>();
+
     private MeshRenderer m_meshRenderer;
     private Collider m_previewCollider;
-    private uint m_collisionCount = 0;
-    public bool m_CanTransform => m_collisionCount == 0;
+    public bool m_CanTransform => m_colliders.Count == 0;
 
     [SerializeField] private Color m_validColor = new Color(1f, 1f, 1f, 0.3f);
     [SerializeField] private Color m_invalidColor = new Color(1f, 0f, 0f, 0.3f);
@@ -39,45 +43,90 @@ public class TransformPreviewGhost : MonoBehaviour
         Collider collider = _prefab.GetComponentInChildren<Collider>();
         MeshRenderer prefabRenderer = _prefab.GetComponentInChildren<MeshRenderer>();
 
+        m_meshRenderer.enabled = true;
         GetComponent<MeshFilter>().mesh = meshFilter.sharedMesh;
 
         if (prefabRenderer != null)
         {
             m_meshRenderer.sharedMaterials = prefabRenderer.sharedMaterials;
         }
-
-        m_collisionCount = 0;
+        m_colliders.Clear();
         ReplaceCollider(collider);
         transform.localScale = _prefab.transform.localScale;
         transform.localRotation = _prefab.transform.localRotation;
 
-        /*
-         Maths to place the preview correctly on the player
-         */
-        var render = _prefab.GetComponent<Renderer>();
-        var pRender = transform.parent.GetComponent<Renderer>();
+        transform.localPosition = new Vector3(0, 0f, 0f);
 
-        transform.localPosition = new Vector3(0, (render.bounds.size.y - pRender.bounds.size.y) / 2, 0);
+        // Maths to place the preview correctly on the player
+        Renderer[] playerRenders = m_mesh.GetComponentsInChildren<Renderer>();
+
+        Bounds playerBounds = playerRenders[0].bounds;
+        for (int i = 1; i < playerRenders.Length; i++)
+        {
+            playerBounds.Encapsulate(playerRenders[i].bounds);
+        }
+
+        Renderer previewRender = GetComponentInChildren<Renderer>();
+        Bounds previewBounds = previewRender.bounds;
+
+        float offsetY = playerBounds.min.y - previewBounds.min.y;
+
+        transform.localPosition = new Vector3(0f, offsetY+0.01f, 0f);
 
         UpdateMaterial();
     }
 
     /*
-     * @brief Replaces the current collider with a new one based on the target collider
-     * Destroys the old collider and adds a new one of the same type, copying properties if it's a BoxCollider.
+     * @brief Modify the current collider to fit the size of the new prefab
      * @param _target: The target Collider to copy from.
      * @return void
      */
     void ReplaceCollider(Collider _target)
     {
-        Destroy(m_previewCollider);
-        m_previewCollider = gameObject.AddComponent(_target.GetType()) as Collider;
-        m_previewCollider.isTrigger = true;
-        if (m_previewCollider is BoxCollider box &&
-            _target is BoxCollider tBox)
+        if (m_previewCollider != null)
         {
+            Destroy(m_previewCollider);
+        }
+
+        if (_target is BoxCollider tBox)
+        {
+            BoxCollider box = gameObject.AddComponent<BoxCollider>();
             box.center = tBox.center;
             box.size = tBox.size;
+            box.isTrigger = true;
+            m_previewCollider = box;
+        }
+        else if (_target is SphereCollider tSphere)
+        {
+            SphereCollider sphere = gameObject.AddComponent<SphereCollider>();
+            sphere.center = tSphere.center;
+            sphere.radius = tSphere.radius;
+            sphere.isTrigger = true;
+            m_previewCollider = sphere;
+        }
+        else if (_target is CapsuleCollider tCapsule)
+        {
+            CapsuleCollider capsule = gameObject.AddComponent<CapsuleCollider>();
+            capsule.center = tCapsule.center;
+            capsule.radius = tCapsule.radius;
+            capsule.height = tCapsule.height;
+            capsule.direction = tCapsule.direction;
+            capsule.isTrigger = true;
+            m_previewCollider = capsule;
+        }
+        else if (_target is MeshCollider tMesh)
+        {
+            MeshCollider mesh = gameObject.AddComponent<MeshCollider>();
+            mesh.sharedMesh = tMesh.sharedMesh;
+            mesh.convex = true;
+            mesh.isTrigger = true;
+            m_previewCollider = mesh;
+        }
+        else
+        {
+            BoxCollider box = gameObject.AddComponent<BoxCollider>();
+            box.isTrigger = true;
+            m_previewCollider = box;
         }
     }
 
@@ -89,11 +138,12 @@ public class TransformPreviewGhost : MonoBehaviour
      */
     void OnTriggerEnter(Collider _other)
     {
-        if (_other.CompareTag("Ground"))
+        if (_other.CompareTag("Ground") || _other.gameObject.layer == 9)
         {
             return;
         }
-        m_collisionCount++;
+
+        m_colliders.Add(_other);
         UpdateMaterial();
     }
 
@@ -105,11 +155,12 @@ public class TransformPreviewGhost : MonoBehaviour
      */
     void OnTriggerExit(Collider _other)
     {
-        if (_other.CompareTag("Ground"))
+        if (_other.CompareTag("Ground") || _other.gameObject.layer == 9)
         {
             return;
         }
-        m_collisionCount--;
+
+        m_colliders.Remove(_other);
         UpdateMaterial();
     }
 
@@ -121,8 +172,13 @@ public class TransformPreviewGhost : MonoBehaviour
     void UpdateMaterial()
     {
         Material[] mats = m_meshRenderer.materials;
-        Color targetColor = m_collisionCount == 0 ? m_validColor : m_invalidColor;
-
+        Color targetColor = m_CanTransform ? m_validColor : m_invalidColor;
+        /*
+        if (transform.parent.GetComponent<GhostController>().IsGrounded())
+        {
+            targetColor = m_invalidColor;
+        }
+        */
         foreach (Material mat in mats)
         {
             mat.color = targetColor;

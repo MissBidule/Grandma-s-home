@@ -57,22 +57,24 @@ public class Bullet : MonoBehaviour
         // We check if the collider is a ghost player by checking if it has the GhostMovement component
         GameObject gameobject = _other.gameObject;
         if (gameObject != null) {
-            var ghost = gameobject.GetComponent<GhostMovement>();
+            var ghost = gameobject.GetComponent<GhostController>();
             if (ghost != null)
             {
+                GameObject slime2 = SpawnSlimePrefab(_other, size);
+                Destroy(slime2, timeSlimeWall);
                 ghost.GotHitByProjectile();
                 Destroy(gameObject);
                 return;
             }
         }
 
-        if (_other.CompareTag("Wall"))
+        /*if (_other.CompareTag("Wall"))
         {
             GameObject slime2 = SpawnSlimePrefab(_other, size);
             Destroy(slime2, timeSlimeWall);
             Destroy(gameObject);
             return;
-        }
+        }*/
         if (_other.CompareTag("Slime"))
         {
             return;
@@ -84,6 +86,7 @@ public class Bullet : MonoBehaviour
         }
         
         GameObject slime = SpawnSlimePrefab(_other, size);
+        Destroy(slime, timeSlimeWall);
 
 
         m_slimeOnCollider[_other] = slime;

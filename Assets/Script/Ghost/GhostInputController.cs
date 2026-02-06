@@ -5,11 +5,13 @@ using UnityEngine.InputSystem;
  * @brief Contains class declaration for PlayerInputController
  * @details The PlayerInputController class handles player input using Unity's Input System.
  */
-public class PlayerInputController : MonoBehaviour
+public class GhostInputController : MonoBehaviour
 {
     public Vector2 m_movementInputVector { get; private set; }
     public Vector2 m_lookInputVector { get; private set; }
-    private PlayerController m_playerController;
+    private GhostController m_ghostController;
+    private GhostMorph m_ghostTransform;
+    private GhostInteract m_ghostInteract;
 
     /*
      * @brief Awake is called when the script instance is being loaded
@@ -18,7 +20,9 @@ public class PlayerInputController : MonoBehaviour
      */
     void Awake()
     {
-        m_playerController = GetComponent<PlayerController>();
+        m_ghostController = GetComponent<GhostController>();
+        m_ghostTransform = GetComponent<GhostMorph>();
+        m_ghostInteract = GetComponentInChildren<GhostInteract>();
     }
 
     /*
@@ -53,28 +57,41 @@ public class PlayerInputController : MonoBehaviour
     }
 
     /*
-    @brief function called when the player inputs the hit command
-    @param _context: valeur liée à l'input
-    @return void
-    */
-    public void OnHit(InputAction.CallbackContext _context)
+     * @brief OnScan is called by the Input System when scan input is detected 
+     * @param _context: The context of the input action
+     * @return void
+     */
+    public void OnScan(InputAction.CallbackContext _context)
     {
         if (_context.performed)
         {
-            m_playerController.Attacks();
+            m_ghostTransform.ScanForPrefab();
         }
     }
 
     /*
-     * @brief OnSwitchWeapon is called by the Input System when switch weapon input is detected
+     * @brief OnScan is called by the Input System when scan input is detected 
      * @param _context: The context of the input action
      * @return void
      */
-    public void OnSwitchWeapon(InputAction.CallbackContext _context)
+    public void OnOpenWheel(InputAction.CallbackContext _context)
     {
         if (_context.performed)
         {
-            m_playerController.m_isranged = !m_playerController.m_isranged;
+            WheelController.m_Instance.Toggle();
+        }
+    }
+
+    /*
+     * @brief OnScan is called by the Input System when scan input is detected 
+     * @param _context: The context of the input action
+     * @return void
+     */
+    public void OnTransformConfirm(InputAction.CallbackContext _context)
+    {
+        if (_context.performed)
+        {
+            m_ghostTransform.ConfirmTransform(_context);
         }
     }
 
@@ -85,13 +102,22 @@ public class PlayerInputController : MonoBehaviour
      */
     public void OnInteract(InputAction.CallbackContext _context)
     {
-        m_playerController.Clean();
+        if (_context.performed)
+        {
+            m_ghostInteract.Interact();
+        }
     }
 
     /*
-     * @brief OnScan is called by the Input System when scan input is detected 
+     * @brief OnSwitchScene is called by the Input System when switch scene input is detected
      * @param _context: The context of the input action
      * @return void
      */
-    
+    public void OnSwitchScene(InputAction.CallbackContext _context)
+    {
+        if (_context.performed)
+        {
+            m_ghostController.SwitchScene();
+        }
+    }
 }
