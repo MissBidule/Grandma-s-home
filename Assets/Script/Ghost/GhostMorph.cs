@@ -100,8 +100,7 @@ public class GhostMorph : MonoBehaviour
             m_renderers[i].sharedMaterials = m_originalMaterials[i];
         }
         Rigidbody rb = GetComponent<Rigidbody>();
-        rb.constraints = RigidbodyConstraints.None;
-        rb.constraints = RigidbodyConstraints.FreezeRotation;
+        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
         m_wheel.ClearSelection();
     }
 

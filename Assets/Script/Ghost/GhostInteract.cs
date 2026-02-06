@@ -46,7 +46,7 @@ public class GhostInteract : MonoBehaviour
                     {
                         m_focusedObject.OnUnfocus();
                     }
-
+                    print("yolo");
                     m_focusedGhost = resultGhost;
                     m_focusedObject = null;
                 }
@@ -91,7 +91,6 @@ public class GhostInteract : MonoBehaviour
     {
         if (m_focusedGhost)
         {
-            
             GhostController ghost = m_focusedGhost;
             if (ghost.m_isStopped == true)
             {
@@ -114,9 +113,7 @@ public class GhostInteract : MonoBehaviour
     public void OnSabotageover(bool success)
     {
         Rigidbody rb = GetComponentInParent<Rigidbody>();
-        rb.constraints = RigidbodyConstraints.None;
-        rb.constraints = RigidbodyConstraints.FreezeRotationZ;
-        rb.constraints = RigidbodyConstraints.FreezeRotationX;
+        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
         if (success)
         {
             m_colliders.Remove(CheckClosest());

@@ -89,7 +89,7 @@ public class SabotageObject : MonoBehaviour
 
         m_isQteRunning = false;
 
-        m_saboteur.OnSabotageover(true);
+        m_saboteur.OnSabotageover(_success);
         if (_success)
         {
             Sabotage();
