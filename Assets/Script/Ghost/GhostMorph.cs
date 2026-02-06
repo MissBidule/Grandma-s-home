@@ -35,63 +35,9 @@ public class GhostMorph : MonoBehaviour
         {
             return;
         }
-        ApplyTransparency();
         m_previewGhost.SetPreview(_prefab);
     }
 
-    public void ClearPreview()
-    {
-        RemovePlayerTransparency();
-    }
-
-    /*
-     * @brief Applies a transparency effect to the player
-     * Applies transparency and color to the preview materials.
-     * @return void
-     */
-    private void ApplyTransparency()
-    {
-        foreach (MeshRenderer renderer in m_renderers)
-        {
-            Material[] mats = renderer.materials;
-            foreach (Material mat in mats)
-            {
-                Color color = mat.color;
-                color.a = 0.2f;
-                mat.color = color;
-                mat.SetFloat("_Surface", 1);
-                mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-                mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-                mat.SetInt("_ZWrite", 0);
-                mat.renderQueue = 3000;
-                mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
-            }
-        }
-    }
-
-    /*
-     * @brief Removes the transparency effect from the player
-     * Restores the original materials to the player's MeshRenderer.
-     * @return void
-     */
-    private void RemovePlayerTransparency()
-    {
-        foreach (MeshRenderer renderer in m_renderers)
-        {
-            foreach (Material mat in renderer.materials)
-            {
-                Color color = mat.color;
-                color.a = 1.0f;
-                mat.color = color;
-                mat.SetFloat("_Surface", 0);
-                mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
-                mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
-                mat.SetInt("_ZWrite", 1);
-                mat.renderQueue = -1;
-                mat.DisableKeyword("_SURFACE_TYPE_TRANSPARENT");
-            }
-        }
-    }
 
     /*
      * @brief Confirms the transformation based on input

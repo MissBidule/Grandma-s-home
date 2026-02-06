@@ -200,7 +200,6 @@ public class WheelController : MonoBehaviour
     public void ClearSelection()
     {
         m_selectedPrefab = null;
-        m_ghostTransform.ClearPreview();
         UnityEngine.EventSystems.EventSystem eventSystem = UnityEngine.EventSystems.EventSystem.current;
         if (eventSystem != null && eventSystem.currentSelectedGameObject != null)
         {
