@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /**
 @brief       Controller for the Ghost character
@@ -202,5 +203,14 @@ public class GhostController : MonoBehaviour
     {
         m_canClimbThisFrame = false;
         m_wallNormal = Vector3.zero;
+    }
+
+    /*
+     * @brief  This function allows you to switch to the SampleScene. (DEBUG PURPOSES ONLY)
+     * @return void
+     */
+    public void SwitchScene()
+    {
+        SceneManager.LoadScene("Scene_Child_Test");
     }
 }
