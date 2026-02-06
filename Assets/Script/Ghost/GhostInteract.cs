@@ -100,8 +100,13 @@ public class GhostInteract : MonoBehaviour
         }else if (m_focusedObject)
         {
             SabotageObject sabotageObject = m_focusedObject;
-            sabotageObject.StartQte();
+            sabotageObject.StartQte(this);
         }
+    }
+
+    public void OnSabotageSuccess()
+    {
+        m_colliders.Remove(CheckClosest());
     }
 
     /*

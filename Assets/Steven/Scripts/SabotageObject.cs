@@ -22,6 +22,7 @@ public class SabotageObject : MonoBehaviour
 
     [Header("Interaction")]
     [SerializeField] private string m_promptMessage = "E : Sabotage";
+    [SerializeField] private GhostInteract m_saboteur;
 
     [Header("QTE")]
     [SerializeField] private QteCircle m_qteCircle;
@@ -65,7 +66,7 @@ public class SabotageObject : MonoBehaviour
             InteractPromptUI.Instance.Hide();
     }
 
-    public void StartQte()
+    public void StartQte(GhostInteract sabo)
     {
         if (m_qteCircle == null)
         {
@@ -79,18 +80,23 @@ public class SabotageObject : MonoBehaviour
         if (InteractPromptUI.Instance != null)
             InteractPromptUI.Instance.Hide();
 
+        m_saboteur = sabo;
         m_qteCircle.StartQte(OnQteFinished);
     }
 
     private void OnQteFinished(bool _success)
     {
+
         m_isQteRunning = false;
 
         if (_success)
         {
             Sabotage();
+            m_saboteur.OnSabotageSuccess();
+            m_saboteur = null;
             return;
         }
+        m_saboteur = null;
 
         if (m_isFocused)
         {
