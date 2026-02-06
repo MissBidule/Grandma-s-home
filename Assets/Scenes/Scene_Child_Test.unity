@@ -429,7 +429,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &581842953
 RectTransform:
   m_ObjectHideFlags: 0
@@ -564,6 +564,10 @@ PrefabInstance:
     - target: {fileID: 1734638775358860393, guid: f158c7c1584cc644a928410759f2b61c, type: 3}
       propertyPath: m_Name
       value: Ghost
+      objectReference: {fileID: 0}
+    - target: {fileID: 1734638775358860393, guid: f158c7c1584cc644a928410759f2b61c, type: 3}
+      propertyPath: m_Layer
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 8240797406063706427, guid: f158c7c1584cc644a928410759f2b61c, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1014,6 +1018,7 @@ MonoBehaviour:
   m_emissionColor: {r: 0, g: 1, b: 1, a: 1}
   m_emissionIntensity: 0.5
   m_promptMessage: 'E : Sabotage'
+  m_saboteur: {fileID: 0}
   m_qteCircle: {fileID: 12246772}
 --- !u!1 &1025131700
 GameObject:
@@ -1365,7 +1370,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1619742499
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1487,6 +1492,10 @@ PrefabInstance:
     - target: {fileID: 2220852981099475913, guid: 3fdd37937cc60aa4b8364329b03757cf, type: 3}
       propertyPath: m_Name
       value: Child
+      objectReference: {fileID: 0}
+    - target: {fileID: 2220852981099475913, guid: 3fdd37937cc60aa4b8364329b03757cf, type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 2873181202271193540, guid: 3fdd37937cc60aa4b8364329b03757cf, type: 3}
       propertyPath: m_LocalPosition.x
