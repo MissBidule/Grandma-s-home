@@ -29,6 +29,10 @@ public class GhostController : MonoBehaviour
     [SerializeField] private float m_climbSpeed = 3.5f;
     [SerializeField] private float m_wallNormalMaxY = 0.4f;
 
+    [Header("Canva")]
+    [SerializeField] public GameObject m_stopped;
+    [SerializeField] public GameObject m_slowed;
+
     private Rigidbody m_rigidbody;
 
     private bool m_canClimbThisFrame;
@@ -54,6 +58,7 @@ public class GhostController : MonoBehaviour
             if (m_currentTimerSlowed <= 0f)
             {
                 m_isSlowed = false;
+                m_slowed.SetActive(false);
                 m_currentTimerSlowed = m_timerSlowed;
             }
         }
@@ -64,6 +69,7 @@ public class GhostController : MonoBehaviour
             if (m_currentTimerStop <= 0f)
             {
                 m_isStopped = false;
+                m_stopped.SetActive(false);
                 m_currentTimerStop = m_timerStop;
             }
         }
@@ -166,6 +172,7 @@ public class GhostController : MonoBehaviour
     public void GotHitByProjectile()
     {
         m_isSlowed = true;
+        m_slowed.SetActive(true);
         m_currentTimerSlowed = m_timerSlowed;
     }
 
@@ -175,6 +182,7 @@ public class GhostController : MonoBehaviour
     public void GotHitByCac()
     {
         m_isStopped = true;
+        m_stopped.SetActive(true);
         m_currentTimerStop = m_timerStop;
     }
 
