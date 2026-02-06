@@ -1020,6 +1020,7 @@ MonoBehaviour:
   m_promptMessage: 'E : Sabotage'
   m_saboteur: {fileID: 0}
   m_qteCircle: {fileID: 12246772}
+  m_isSabotaged: 0
 --- !u!1 &1025131700
 GameObject:
   m_ObjectHideFlags: 0
@@ -1455,32 +1456,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!1 &1738906838 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8697620050906322513, guid: 3fdd37937cc60aa4b8364329b03757cf, type: 3}
-  m_PrefabInstance: {fileID: 1742401834}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1738906843
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1738906838}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf3dbbb59f393bc47824f38fe12e7a48, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ChildCameraController
-  m_sensitivity: 120
-  m_distance: 4
-  m_minPitch: -40
-  m_maxPitch: 70
-  m_collisionOffset: 0.2
-  m_collisionMask:
-    serializedVersion: 2
-    m_Bits: 0
-  m_pivotOffset: {x: 0, y: 1.6, z: 0}
 --- !u!1001 &1742401834
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1544,10 +1519,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 8697620050906322513, guid: 3fdd37937cc60aa4b8364329b03757cf, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1738906843}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3fdd37937cc60aa4b8364329b03757cf, type: 3}
 --- !u!1 &1800356280
 GameObject:

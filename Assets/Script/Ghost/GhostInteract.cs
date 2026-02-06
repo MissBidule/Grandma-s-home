@@ -91,6 +91,7 @@ public class GhostInteract : MonoBehaviour
     {
         if (m_focusedGhost)
         {
+            
             GhostController ghost = m_focusedGhost;
             if (ghost.m_isStopped == true)
             {
@@ -99,14 +100,28 @@ public class GhostInteract : MonoBehaviour
             }
         }else if (m_focusedObject)
         {
+            if (m_focusedObject.m_isSabotaged)
+            {
+                return;
+            }
             SabotageObject sabotageObject = m_focusedObject;
             sabotageObject.StartQte(this);
+            Rigidbody rb = GetComponentInParent<Rigidbody>();
+            rb.constraints = RigidbodyConstraints.FreezeAll;
         }
     }
 
-    public void OnSabotageSuccess()
+    public void OnSabotageover(bool success)
     {
-        m_colliders.Remove(CheckClosest());
+        Rigidbody rb = GetComponentInParent<Rigidbody>();
+        rb.constraints = RigidbodyConstraints.None;
+        rb.constraints = RigidbodyConstraints.FreezeRotationZ;
+        rb.constraints = RigidbodyConstraints.FreezeRotationX;
+        if (success)
+        {
+            m_colliders.Remove(CheckClosest());
+            m_focusedObject = null;
+        }
     }
 
     /*

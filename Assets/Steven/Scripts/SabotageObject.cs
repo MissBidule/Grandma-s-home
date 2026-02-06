@@ -27,7 +27,7 @@ public class SabotageObject : MonoBehaviour
     [Header("QTE")]
     [SerializeField] private QteCircle m_qteCircle;
 
-    private bool m_isSabotaged;
+    public bool m_isSabotaged;
     private bool m_isQteRunning;
     private bool m_isFocused;
 
@@ -89,10 +89,10 @@ public class SabotageObject : MonoBehaviour
 
         m_isQteRunning = false;
 
+        m_saboteur.OnSabotageover(true);
         if (_success)
         {
             Sabotage();
-            m_saboteur.OnSabotageSuccess();
             m_saboteur = null;
             return;
         }

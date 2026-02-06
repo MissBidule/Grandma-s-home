@@ -125,8 +125,8 @@ public class GhostController : MonoBehaviour
         if (movementInput.sqrMagnitude > 0.0001f)
             wishDir = (forward * movementInput.y + right * movementInput.x).normalized;
 
-        if (wishDir.sqrMagnitude > 0.0001f && !m_isStopped)
-        {
+        if (wishDir.sqrMagnitude > 0.0001f && !m_isStopped && !m_rigidbody.constraints.HasFlag(RigidbodyConstraints.FreezeRotationY))
+        {            
             Quaternion targetRotation = Quaternion.LookRotation(wishDir, Vector3.up);
 
             m_rigidbody.MoveRotation(
@@ -136,6 +136,7 @@ public class GhostController : MonoBehaviour
                     m_rotationSpeed * Time.fixedDeltaTime
                 )
             );
+            
         }
 
         if (!m_isStopped &&
