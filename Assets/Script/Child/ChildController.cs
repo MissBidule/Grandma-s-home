@@ -221,6 +221,6 @@ public class ChildController : MonoBehaviour
      */
     public void SwitchScene()
     {
-        SceneManager.LoadScene("SampleScene");
+        SceneManager.LoadScene("Scene_Ghost");
     }
 }
