@@ -1,88 +1,100 @@
-using System.Collections.Generic;
-using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+/*
+ * @brief Contains class declaration for PlayerGhost
+ * @details The PlayerGhost class allows the player to interact with items to sabotage them and transform into different objects.
+ */
 public class PlayerGhost : MonoBehaviour
 {
-    [Header("Transform Options")]
-    [SerializeField] List<TransformOption> transformOptions;
+    private MeshRenderer m_meshRenderer;
+    private Collider m_playerCollider;
+    [SerializeField] private GhostMorphPreview m_previewGhost;
+    private GameObject m_currentPrefab = null;
+    [System.NonSerialized] public bool m_isTransformed = false;
+    private Material[] m_originalMaterials;
 
-    MeshFilter meshFilter;
-    MeshRenderer meshRenderer;
-    Collider currentCollider;
-
+    /*
+     * @brief Awake is called when the script instance is being loaded
+     * Initializes the mesh filter, renderer, and collider. Saves the original appearance.
+     * @return void
+     */
     void Awake()
     {
-        meshFilter = GetComponent<MeshFilter>();
-        meshRenderer = GetComponent<MeshRenderer>();
-        currentCollider = GetComponent<Collider>();
+        m_meshRenderer = GetComponentInChildren<MeshRenderer>();
+        m_playerCollider = GetComponent<CapsuleCollider>();
+        m_originalMaterials = m_meshRenderer.sharedMaterials;
     }
 
-    public void OnTransform(InputAction.CallbackContext context)
+    /*
+     * @brief Confirms the transformation based on input
+     * Applies the selected prefab if the context is performed and transformation is allowed.
+     * @param _context: The context of the input action.
+     * @return void
+     */
+    public void ConfirmTransform(InputAction.CallbackContext _context)
     {
-        if (context.performed)
+        if (!_context.performed || !m_previewGhost.m_CanTransform || !WheelController.m_Instance.m_selectedPrefab || m_isTransformed)
         {
-            TransformPlayer(TransformWheelcontroller.transformID);
+            return;
+        }
+        GameObject prefab = WheelController.m_Instance.m_selectedPrefab;
+        ApplyPrefab(prefab);
+        WheelController.m_Instance.m_selectedPrefab = null;
+        m_previewGhost.gameObject.SetActive(false);
+        m_isTransformed = true;
+        Rigidbody rb = GetComponent<Rigidbody>();
+        rb.constraints = RigidbodyConstraints.FreezeAll;
+
+        PlayerController controller = GetComponent<PlayerController>();
+        if (controller != null)
+        {
+            controller.AnchorPlayer();
         }
     }
 
-    public void TransformPlayer(int transformID)
+    /*
+     * @brief Reverts the player to their original appearance
+     * Restores the original mesh, materials, and collider.
+     * @return void
+     */
+    public void RevertToOriginal()
     {
-        TransformOption option = transformOptions.Find(o => o.id == transformID);
-
-        if (option == null || option.prefab == null)
+        if (!m_isTransformed)
         {
             return;
         }
 
-        CopyFromPrefab(option.prefab);
+        m_playerCollider.enabled = true;
+        m_meshRenderer.enabled = true;
+        Destroy(m_currentPrefab);
+        m_currentPrefab = null;
+        m_isTransformed = false;
+        m_meshRenderer.sharedMaterials = m_originalMaterials;
+        Rigidbody rb = GetComponent<Rigidbody>();
+        rb.constraints = RigidbodyConstraints.None;
+        rb.constraints = RigidbodyConstraints.FreezeRotation;
     }
 
-    void CopyFromPrefab(GameObject prefab)
+    /*
+     * @brief Copies mesh, materials, and collider from the given prefab to the player
+     * Applies the components from the prefab if they exist.
+     * @param _prefab: The prefab GameObject to copy from.
+     * @return void
+     */
+    void ApplyPrefab(GameObject _prefab)
     {
-        MeshFilter targetFilter = prefab.GetComponent<MeshFilter>();
-        MeshRenderer targetRenderer = prefab.GetComponent<MeshRenderer>();
-        Collider targetCollider = prefab.GetComponent<Collider>();
-
+        MeshFilter targetFilter = _prefab.GetComponent<MeshFilter>();
+        MeshRenderer targetRenderer = _prefab.GetComponent<MeshRenderer>();
+        Collider targetCollider = _prefab.GetComponent<Collider>();
         if (!targetFilter || !targetRenderer || !targetCollider)
         {
             return;
         }
 
-        meshFilter.mesh = targetFilter.sharedMesh;
-        meshRenderer.materials = targetRenderer.sharedMaterials;
-
-        ReplaceCollider(targetCollider);
-    }
-
-    void ReplaceCollider(Collider target)
-    {
-        if (currentCollider != null)
-            Destroy(currentCollider);
-
-        System.Type type = target.GetType();
-        currentCollider = gameObject.AddComponent(type) as Collider;
-
-        if (currentCollider is BoxCollider box &&
-            target is BoxCollider tBox)
-        {
-            box.center = tBox.center;
-            box.size = tBox.size;
-        }
-        else if (currentCollider is SphereCollider sphere &&
-                 target is SphereCollider tSphere)
-        {
-            sphere.center = tSphere.center;
-            sphere.radius = tSphere.radius;
-        }
-        else if (currentCollider is CapsuleCollider capsule &&
-                 target is CapsuleCollider tCapsule)
-        {
-            capsule.center = tCapsule.center;
-            capsule.radius = tCapsule.radius;
-            capsule.height = tCapsule.height;
-            capsule.direction = tCapsule.direction;
-        }
+        m_playerCollider.enabled = false;
+        m_meshRenderer.enabled = false;
+        m_currentPrefab = Instantiate(_prefab, transform);
+        m_currentPrefab.transform.localPosition = new Vector3(0,0,0);
     }
 }
