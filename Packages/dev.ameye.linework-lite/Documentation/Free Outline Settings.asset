@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-457195830448363934
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca2cb9e9790a941d3b51ae2615e6e1bd, type: 3}
+  m_Name: Outline
+  m_EditorClassIdentifier: 
+  material: {fileID: 0}
+  isActive: 1
+  RenderingLayer:
+    serializedVersion: 0
+    m_Bits: 1
+  layerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  renderQueue: 0
+  occlusion: 2
+  maskingStrategy: 0
+  color: {r: 0, g: 1, b: 0, a: 1}
+  enableOcclusion: 0
+  occludedColor: {r: 1, g: 0, b: 0, a: 1}
+  blendMode: 0
+  extrusionMethod: 4
+  scaling: 0
+  width: 10.8
+  minWidth: 0
+  scaleWithResolution: 0
+  referenceResolution: 0
+  customResolution: 0
+  materialType: 0
+  customMaterial: {fileID: 0}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28765dc7302cd49b59c0e9ac8862cf45, type: 3}
+  m_Name: Free Outline Settings
+  m_EditorClassIdentifier: 
+  injectionPoint: 600
+  showInSceneView: 1
+  outlines:
+  - {fileID: -457195830448363934}

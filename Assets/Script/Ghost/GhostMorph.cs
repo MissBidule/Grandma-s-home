@@ -15,6 +15,10 @@ public class GhostMorph : MonoBehaviour
     private MeshRenderer[] m_renderers;
     private Material[][] m_originalMaterials;
 
+    [SerializeField] private uint m_outlineRenderingLayer = 2; // Light Layer 1
+    private uint m_originalRenderingLayerMask = 1;
+    private GameObject m_currentHighlightedObject = null;
+
     void Start()
     {
         m_playerCollider = GetComponent<BoxCollider>();
@@ -26,6 +30,92 @@ public class GhostMorph : MonoBehaviour
         for (int i = 0; i < m_renderers.Length; i++)
         {
             m_originalMaterials[i] = m_renderers[i].sharedMaterials;
+        }
+    }
+
+    void Update()
+    {
+        CheckForScannableObject();
+    }
+
+    /*
+     * @brief Checks for scannable objects in view and highlights them
+     * @return void
+     */
+    private void CheckForScannableObject()
+    {
+        Camera mainCamera = Camera.main;
+        if (mainCamera == null)
+        {
+            ClearHighlight();
+            return;
+        }
+
+        Vector3 rayOrigin = mainCamera.transform.position;
+        Vector3 rayDirection = mainCamera.transform.forward;
+
+        if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, m_scanRange, m_scanLayerMask))
+        {
+            GameObject hitObject = hit.collider.gameObject;
+            ScannableObject scannableComponent = hitObject.GetComponent<ScannableObject>();
+
+            if (scannableComponent != null && scannableComponent.icon != null)
+            {
+                if (m_currentHighlightedObject != hitObject)
+                {
+                    ClearHighlight();
+                    HighlightObject(hitObject);
+                }
+            }
+            else
+            {
+                ClearHighlight();
+            }
+        }
+        else
+        {
+            ClearHighlight();
+        }
+    }
+
+    /*
+     * @brief Highlights a scannable object by changing its rendering layer
+     * @param _object: The GameObject to highlight
+     * @return void
+     */
+    private void HighlightObject(GameObject _object)
+    {
+        m_currentHighlightedObject = _object;
+
+        Renderer[] objectRenderers = _object.GetComponentsInChildren<Renderer>();
+
+        foreach (Renderer renderer in objectRenderers)
+        {
+            if (renderer == objectRenderers[0])
+            {
+                m_originalRenderingLayerMask = renderer.renderingLayerMask;
+            }
+
+            renderer.renderingLayerMask = m_originalRenderingLayerMask | m_outlineRenderingLayer;
+        }
+    }
+
+    /*
+     * @brief Clears the current highlight by restoring the original rendering layer
+     * @return void
+     */
+    private void ClearHighlight()
+    {
+        if (m_currentHighlightedObject != null)
+        {
+            Renderer[] objectRenderers = m_currentHighlightedObject.GetComponentsInChildren<Renderer>();
+
+            foreach (Renderer renderer in objectRenderers)
+            {
+                renderer.renderingLayerMask = m_originalRenderingLayerMask;
+            }
+
+            m_currentHighlightedObject = null;
         }
     }
 
@@ -76,6 +166,9 @@ public class GhostMorph : MonoBehaviour
         {
             m_wheel.Toggle();
         }
+
+        // Clear highlight when transforming
+        ClearHighlight();
     }
 
     /*
