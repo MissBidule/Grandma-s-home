@@ -59,12 +59,6 @@ public class GhostMorph : MonoBehaviour
         Rigidbody rb = GetComponent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.FreezeRotation;
 
-        PlayerController controller = GetComponent<PlayerController>();
-        if (controller != null)
-        {
-            controller.AnchorPlayer();
-        }
-
         // Reset the input to prevent immediate detransformation
         GhostInputController ghostInput = GetComponent<GhostInputController>();
         if (ghostInput != null)

@@ -40,7 +40,7 @@ public class GhostMorphPreview : MonoBehaviour
     public void SetPreview(GameObject _prefab)
     {
         MeshFilter meshFilter = _prefab.GetComponentInChildren<MeshFilter>();
-        Collider collider = _prefab.GetComponentInChildren<Collider>();
+        BoxCollider collider = _prefab.GetComponentInChildren<BoxCollider>();
         MeshRenderer prefabRenderer = _prefab.GetComponentInChildren<MeshRenderer>();
 
         m_meshRenderer.enabled = true;
@@ -81,53 +81,18 @@ public class GhostMorphPreview : MonoBehaviour
      * @param _target: The target Collider to copy from.
      * @return void
      */
-    void ReplaceCollider(Collider _target)
+    void ReplaceCollider(BoxCollider _target)
     {
         if (m_previewCollider != null)
         {
             Destroy(m_previewCollider);
         }
 
-        if (_target is BoxCollider tBox)
-        {
-            BoxCollider box = gameObject.AddComponent<BoxCollider>();
-            box.center = tBox.center;
-            box.size = tBox.size;
-            box.isTrigger = true;
-            m_previewCollider = box;
-        }
-        else if (_target is SphereCollider tSphere)
-        {
-            SphereCollider sphere = gameObject.AddComponent<SphereCollider>();
-            sphere.center = tSphere.center;
-            sphere.radius = tSphere.radius;
-            sphere.isTrigger = true;
-            m_previewCollider = sphere;
-        }
-        else if (_target is CapsuleCollider tCapsule)
-        {
-            CapsuleCollider capsule = gameObject.AddComponent<CapsuleCollider>();
-            capsule.center = tCapsule.center;
-            capsule.radius = tCapsule.radius;
-            capsule.height = tCapsule.height;
-            capsule.direction = tCapsule.direction;
-            capsule.isTrigger = true;
-            m_previewCollider = capsule;
-        }
-        else if (_target is MeshCollider tMesh)
-        {
-            MeshCollider mesh = gameObject.AddComponent<MeshCollider>();
-            mesh.sharedMesh = tMesh.sharedMesh;
-            mesh.convex = true;
-            mesh.isTrigger = true;
-            m_previewCollider = mesh;
-        }
-        else
-        {
-            BoxCollider box = gameObject.AddComponent<BoxCollider>();
-            box.isTrigger = true;
-            m_previewCollider = box;
-        }
+        BoxCollider box = gameObject.AddComponent<BoxCollider>();
+        box.center = _target.center;
+        box.size = _target.size;
+        box.isTrigger = true;
+        m_previewCollider = box;
     }
 
     /*
