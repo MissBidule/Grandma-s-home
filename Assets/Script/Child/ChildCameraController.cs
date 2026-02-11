@@ -41,30 +41,31 @@ public class ChildCameraController : MonoBehaviour
     */
     private void LateUpdate()
     {
-        Vector2 lookInput = m_childInputController.m_lookInputVector;
+        Vector3 pivot = m_target.position + m_pivotOffset;
+        Quaternion rotation;
+        Vector3 desiredOffset;
+        float finalDistance = m_distance;
 
+        Vector2 lookInput = m_childInputController.m_lookInputVector;
         m_yaw += lookInput.x * m_sensitivity * Time.deltaTime;
         m_pitch -= lookInput.y * m_sensitivity * Time.deltaTime;
         m_pitch = Mathf.Clamp(m_pitch, m_minPitch, m_maxPitch);
 
-        Quaternion rotation = Quaternion.Euler(m_pitch, m_yaw, 0f);
-        Vector3 desiredOffset = rotation * Vector3.back * m_distance;
-
-        float finalDistance = m_distance;
-        Vector3 pivot = m_target.position + m_pivotOffset;
+        rotation = Quaternion.Euler(m_pitch, m_yaw, 0f);
+        desiredOffset = rotation * Vector3.back * m_distance;
+        finalDistance = m_distance;
 
         if (Physics.Raycast(
             pivot,
             desiredOffset.normalized,
-            out RaycastHit hit,
+            out RaycastHit hit2,
             m_distance,
             m_collisionMask))
         {
-            finalDistance = hit.distance - m_collisionOffset;
+            finalDistance = hit2.distance - m_collisionOffset;
         }
-
-        Vector3 finalOffset = rotation * Vector3.back * finalDistance;
-        transform.position = pivot + finalOffset;
+        Vector3 finalOffset2 = rotation * Vector3.back * finalDistance;
+        transform.position = pivot + finalOffset2;
         transform.LookAt(pivot);
     }
 }
