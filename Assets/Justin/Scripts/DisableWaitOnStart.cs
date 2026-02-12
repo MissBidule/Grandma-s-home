@@ -1,10 +1,12 @@
+using PurrNet;
+using PurrNet.Logging;
 using PurrNet.StateMachine;
 using System;
 using System.Collections;
 using Unity.Services.Multiplayer;
 using UnityEngine;
 
-public class DisableWaitOnStart : MonoBehaviour
+public class DisableWaitOnStart : NetworkBehaviour
 {
     [SerializeField] private StateMachine m_stateMachine;
     [SerializeField] private GameObject m_waitCamera;
@@ -13,24 +15,24 @@ public class DisableWaitOnStart : MonoBehaviour
 
     private void Awake()
     {
-        m_stateMachine.onStateChanged += OnStateChange;
+        InstanceHandler.RegisterInstance(this);
     }
 
     private void OnDestroy()
     {
-        m_stateMachine.onStateChanged -= OnStateChange;
+        InstanceHandler.UnregisterInstance<DisableWaitOnStart>();
     }
 
-    private void OnStateChange(StateNode _previousState, StateNode _currentState)
+    [ObserversRpc()]
+    public void DisableWaitInterface()
     {
-        if (_currentState is PlayerSpawningState)
-        {
-            // fade out
-            StartCoroutine(FadeOut());
-            
-            // Disable UI camera
-            m_waitCamera.SetActive(false);
-        }
+        PurrLogger.Log("DisableWaitInterface", this);
+        
+        // fade out
+        StartCoroutine(FadeOut());
+        
+        // Disable UI camera
+        m_waitCamera.SetActive(false);
     }
 
     private IEnumerator FadeOut()

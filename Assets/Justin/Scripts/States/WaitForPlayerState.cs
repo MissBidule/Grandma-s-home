@@ -1,3 +1,4 @@
+using PurrNet;
 using System.Collections;
 using PurrNet.Logging;
 using PurrNet.StateMachine;
@@ -32,6 +33,11 @@ public class WaitForPlayerState : StateNode
         while (networkManager?.playerCount < m_minPlayers)
             yield return null;
         
+        
+        if (InstanceHandler.TryGetInstance(out DisableWaitOnStart disableWaitOnStart))
+        {
+            disableWaitOnStart.DisableWaitInterface();
+        }
         machine.Next();
     }
 }

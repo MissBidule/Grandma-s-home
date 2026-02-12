@@ -152,11 +152,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _stopPlayingOnDisconnect: 0
-  _startServerFlags: 0
-  _startClientFlags: 0
+  _startServerFlags: 13
+  _startClientFlags: 5
   _cookieScope: 1
   _dontDestroyOnLoad: 0
-  _transport: {fileID: 104676492}
+  _transport: {fileID: 104676491}
   _networkPrefabs: {fileID: 11400000, guid: 06f0d0363a723ef44a583c0080a0c6cf, type: 2}
   _networkAssets: {fileID: 0}
   _networkRules: {fileID: 11400000, guid: d8799083b96579a42b8b2d03e4ceae98, type: 2}
@@ -186,7 +186,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 104676486}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 332e746c3c3253246aacad4d5559f1fb, type: 3}
   m_Name: 
@@ -1387,7 +1387,7 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  m_minPlayers: -1
+  m_minPlayers: 2
 --- !u!1 &1294828573
 GameObject:
   m_ObjectHideFlags: 0
@@ -2070,10 +2070,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8cdb4dd279adc6b6cae87b4e90c7476c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
   m_stateMachine: {fileID: 1070239851}
   m_waitCamera: {fileID: 273798950}
   m_canvasGroup: {fileID: 2016666115}
-  m_fadeDuration: 0.5
+  m_fadeDuration: 0.75
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

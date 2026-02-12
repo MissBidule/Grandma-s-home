@@ -49,6 +49,8 @@ public class CustomConnectedText : MonoBehaviour
      */
     private void OnConnectionState(ConnectionState _obj)
     {
+        if (!gameObject.activeInHierarchy) 
+            return;
         string[] messages = m_messageContent.Split("\n");
         
         if (_obj == ConnectionState.Connected)
@@ -67,6 +69,8 @@ public class CustomConnectedText : MonoBehaviour
 
     private void OnPlayerJoined(PlayerID _player, bool _isReconnect, bool _asServer)
     {
+        if (!gameObject.activeInHierarchy) 
+            return;
         OnNumberOfPlayersChanged(m_networkManager.playerCount, m_lobbyDataHolder.GetNumber_of_player_in_loby());
     }
 
@@ -117,15 +121,20 @@ public class CustomConnectedText : MonoBehaviour
                 }
                 break;
             case 2:
-                while (m_playerText.text.Length > 0)
+                while (m_playerText.text.Length > 10)
                 {
                     m_playerText.text = m_playerText.text.Substring(0, m_playerText.text.Length - 1);
                     yield return m_wait;
                 }
 
+                int skipCounter = 0;
                 foreach (char c in message)
                 {
+                    skipCounter++;
+                    if (skipCounter < 10)
+                        continue;
                     m_playerText.text += c;
+                    
                     yield return m_wait;
                 }
                 break;
