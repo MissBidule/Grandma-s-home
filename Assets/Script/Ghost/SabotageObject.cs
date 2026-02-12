@@ -5,7 +5,7 @@ using UnityEngine;
  * @brief  Contains class declaration for SabotageObject
  * @details Script that handles sabotage (QTE, meshes...) and exposes an interaction handled by the player
  */
-public class SabotageObject : NetworkBehaviour
+public class SabotageObject : NetworkBehaviour, IInteractable
 {
     [Header("State Meshes")]
     [SerializeField] private GameObject m_normalMesh;
@@ -71,6 +71,19 @@ public class SabotageObject : NetworkBehaviour
             InteractPromptUI.m_Instance.Hide();
     }
 
+    public void OnInteract(GhostInteract _ghost)
+    {
+        if (m_isSabotaged || m_isQteRunning) return;
+        Rigidbody rb = _ghost.GetComponentInParent<Rigidbody>();
+        rb.constraints = RigidbodyConstraints.FreezeAll;
+        StartQte(_ghost);
+    }
+
+    public void OnStopInteract(GhostInteract _ghost)
+    {
+
+    }
+
     public void StartQte(GhostInteract _sabo)
     {
         if (m_qteCircle == null)
@@ -94,7 +107,7 @@ public class SabotageObject : NetworkBehaviour
 
         m_isQteRunning = false;
 
-        m_saboteur.OnSabotageover(_success);
+        m_saboteur.OnSabotageOver(_success);
         if (_success)
         {
             Sabotage();

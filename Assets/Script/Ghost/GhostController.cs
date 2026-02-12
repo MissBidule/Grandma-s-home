@@ -20,8 +20,8 @@ public class GhostController : PlayerControllerCore
     public float m_currentTimerStop = 5f;
 
     [Header("Canva")]
-    public GameObject m_stopped;
-    public GameObject m_slowed;
+    public GameObject m_stoppedLabel;
+    public GameObject m_slowedLabel;
 
 
     [Header("Movement")]
@@ -65,13 +65,13 @@ public class GhostController : PlayerControllerCore
         {
             m_rigidbody.constraints = RigidbodyConstraints.FreezeAll;
             m_currentTimerStop -= Time.deltaTime;
-            m_slowed.SetActive(false);
+            m_slowedLabel.SetActive(false);
             if (m_currentTimerStop <= 0f)
             {
                 m_rigidbody.constraints = RigidbodyConstraints.None; 
                 m_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
                 m_isStopped = false;
-                m_stopped.SetActive(false);
+                m_stoppedLabel.SetActive(false);
             }
         }
         else if (m_isSlowed)
@@ -80,7 +80,7 @@ public class GhostController : PlayerControllerCore
             if (m_currentTimerSlowed <= 0f)
             {
                 m_isSlowed = false;
-                m_slowed.SetActive(false);
+                m_slowedLabel.SetActive(false);
             }
         }
 

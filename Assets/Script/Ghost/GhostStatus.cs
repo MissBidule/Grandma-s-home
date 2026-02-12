@@ -5,9 +5,16 @@ using UnityEngine;
  * @brief  Contains class declaration for GhostStatus
  * @details Script that is always visible and can be called by anyone to apply status on ghost
  */
-public class GhostStatus : NetworkBehaviour
+public class GhostStatus : NetworkBehaviour, IInteractable
 {
     public bool m_hitPlayer = false;
+    private GhostController ghost;
+
+    private void Awake()
+    {
+        ghost = GetComponent<GhostController>();
+    }
+
 
     protected override void OnSpawned()
     {
@@ -22,9 +29,8 @@ public class GhostStatus : NetworkBehaviour
     public void GotHitByProjectile()
     {
         if (m_hitPlayer) return;
-        var ghost = GetComponent<GhostController>();
         ghost.m_isSlowed = true;
-        ghost.m_slowed.SetActive(true);
+        ghost.m_slowedLabel.SetActive(true);
         ghost.m_currentTimerSlowed = ghost.m_timerSlowed;
     }
 
@@ -36,10 +42,30 @@ public class GhostStatus : NetworkBehaviour
     public void GotHitByCac()
     {
         if (m_hitPlayer) return;
-        var ghost = GetComponent<GhostController>();
         ghost.m_isStopped = true;
-        ghost.m_stopped.SetActive(true);
+        ghost.m_stoppedLabel.SetActive(true);
         ghost.m_currentTimerStop = ghost.m_timerStop;
     }
 
+    public void OnFocus()
+    {
+        // Do nothing
+    }
+
+    public void OnUnfocus()
+    { 
+        // Do nothing
+    }
+    
+    public void OnInteract(GhostInteract _who)
+    {
+        if (m_hitPlayer) return;
+        // ghost.m_isStopped = false;
+        // ghost.m_stoppedLabel.SetActive(false);
+        ghost.m_currentTimerStop = 0;
+    }
+    
+    public void OnStopInteract(GhostInteract _who) {
+        // Do nothing
+    }
 }

@@ -13,9 +13,8 @@ public class GhostInteract : NetworkBehaviour
     [Header("Detection")]
     [SerializeField] private float m_radius = 2.0f;
     [SerializeField] private LayerMask m_interactableMask;
-    private SabotageObject m_focusedObject;
-    private GhostController m_focusedGhost;
-    private List<GameObject> m_colliders = new List<GameObject>();
+    private IInteractable m_onFocus; // Can be either GhostStatus or SabotageObject
+    private List<IInteractable> m_interactable = new List<IInteractable>();
 
     protected override void OnSpawned()
     {
@@ -23,68 +22,44 @@ public class GhostInteract : NetworkBehaviour
 
         enabled = isOwner;
     }
-    
+
     private void Update()
     {
-        if (m_colliders.Count > 0)
+        if (m_interactable.Count <= 0) return;
+                
+        IInteractable closest = CheckClosest();
+
+        if (closest != m_onFocus)
         {
-            GameObject closest = CheckClosest();
-            if (closest != null)
-            {
-                var parent = closest.transform.parent;
-                if (parent.GetComponent<SabotageObject>())
-                {
-                    SabotageObject resultObject = parent.GetComponent<SabotageObject>();
-
-                    if (m_focusedObject != null && m_focusedObject != resultObject)
-                    {
-                        m_focusedObject.OnUnfocus();
-                    }
-                    resultObject.OnFocus();
-
-
-                    m_focusedGhost = null;
-                    m_focusedObject = resultObject;
-                }
-                else if (closest.GetComponent<GhostController>())
-                {
-                    GhostController resultGhost = parent.GetComponent<GhostController>();
-
-                    if (m_focusedObject != null)
-                    {
-                        m_focusedObject.OnUnfocus();
-                    }
-                    m_focusedGhost = resultGhost;
-                    m_focusedObject = null;
-                }
-                else
-                {
-                    Debug.Log("Error: Unknown Interactable");
-                }
-            }
+            closest.OnFocus();
+            m_onFocus.OnUnfocus();
+            m_onFocus = closest;
         }
+    }
+
+    private float SqDistanceTo(Transform _transform)
+    {
+        Vector3 closest = transform.position;
+        float sqrDistance = (closest - transform.position).sqrMagnitude;
+        return sqrDistance;
     }
 
     /*
     @brief      Check closest interactable object
     */
-    private GameObject CheckClosest()
+    private IInteractable CheckClosest()
     {
-        GameObject best = null;
+        IInteractable best = null;
         float bestSqrDistance = float.MaxValue;
-        for (int i = 0; i < m_colliders.Count; i++)
+
+        foreach (IInteractable interactable in m_interactable)
         {
-            GameObject interactable = m_colliders[i];
-            if (interactable == null) continue;
-            if ((interactable.transform.parent && interactable.transform.parent.GetComponent<SabotageObject>()) || (interactable.gameObject.transform.GetComponent<GhostController>() != null && interactable.gameObject.transform.GetComponent<GhostController>().m_isStopped))
+            MonoBehaviour mono = interactable as MonoBehaviour;
+            float sqrDistance = SqDistanceTo(mono.transform);
+            if (sqrDistance < bestSqrDistance)
             {
-                Vector3 closest = interactable.transform.position;
-                float sqrDistance = (closest - transform.position).sqrMagnitude;
-                if (sqrDistance < bestSqrDistance)
-                {
-                    bestSqrDistance = sqrDistance;
-                    best = interactable;
-                }
+                bestSqrDistance = sqrDistance;
+                best = interactable;
             }
         }
         return best;
@@ -96,35 +71,18 @@ public class GhostInteract : NetworkBehaviour
      */
     public void Interact()
     {
-        if (m_focusedGhost)
-        {
-            GhostController ghost = m_focusedGhost;
-            if (ghost.m_isStopped == true)
-            {
-                ghost.m_isStopped = false;
-                return;
-            }
-        }else if (m_focusedObject)
-        {
-            if (m_focusedObject.m_isSabotaged)
-            {
-                return;
-            }
-            SabotageObject sabotageObject = m_focusedObject;
-            sabotageObject.StartQte(this);
-            Rigidbody rb = GetComponentInParent<Rigidbody>();
-            rb.constraints = RigidbodyConstraints.FreezeAll;
-        }
+        if (m_onFocus == null) return;
+        m_onFocus.OnInteract(this);
     }
 
-    public void OnSabotageover(bool success)
+    public void OnSabotageOver(bool success)
     {
         Rigidbody rb = GetComponentInParent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
         if (success)
         {
-            m_colliders.Remove(CheckClosest());
-            m_focusedObject = null;
+            m_interactable.Remove(m_onFocus);
+            m_onFocus = null;
         }
     }
 
@@ -135,10 +93,11 @@ public class GhostInteract : NetworkBehaviour
      */
     void OnTriggerEnter(Collider _other)
     {
-        if (_other.gameObject.layer == 3 || _other.gameObject.layer == 9) // 9 = Ghost Layer 3 = Control
-            m_colliders.Add(_other.gameObject);
+        if (_other.TryGetComponent<IInteractable>(out IInteractable interactable))
+        {
+            m_interactable.Add(interactable);
+        }
     }
-
     /*
      * @brief OnTriggerExit is called when another collider exits the trigger
      * @param _other: The other Collider that exited.
@@ -146,27 +105,9 @@ public class GhostInteract : NetworkBehaviour
      */
     void OnTriggerExit(Collider _other)
     {
-        if (_other.gameObject.layer == 3 || _other.gameObject.layer == 9) // 9 = Ghost Layer 3 = Control
+        if (_other.TryGetComponent<IInteractable>(out IInteractable interactable))
         {
-            m_colliders.Remove(_other.gameObject);
-
-            Transform parent = _other.gameObject.transform.parent;
-            if (parent && parent.GetComponent<SabotageObject>())
-            {
-                SabotageObject so = parent.GetComponent<SabotageObject>();
-                if (so == m_focusedObject)
-                {
-                    m_focusedObject.OnUnfocus();
-                    m_focusedObject = null;
-                }
-            }
-            else
-            {
-                if (_other.gameObject.GetComponent<GhostController>() == m_focusedGhost)
-                {
-                    m_focusedGhost = null;
-                }
-            }
+            m_interactable.Remove(interactable);
         }
     }
 }
