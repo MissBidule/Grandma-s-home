@@ -13,14 +13,12 @@ public class PlayerControllerCore : NetworkBehaviour
     public CinemachineCamera m_playerCamera;
     [SerializeField] private NetworkAnimator m_playerAnimator;
     [SerializeField] private List<Renderer> m_renderers = new();
-    [SerializeField] private bool onSpawnedCalled = false;
 
     /*
      * @brief Spawning player logic manage ownership, hide rendered to hide if needed
      */
     protected override void OnSpawned()
     {
-        onSpawnedCalled = true;
         base.OnSpawned();
 
         enabled = isOwner;

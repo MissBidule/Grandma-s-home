@@ -14,7 +14,7 @@ public class GhostInteract : NetworkBehaviour
     [SerializeField] private float m_radius = 2.0f;
     [SerializeField] private LayerMask m_interactableMask;
     private SabotageObject m_focusedObject;
-    private GhostController m_focusedGhost;
+    private GhostStatus m_focusedGhost;
     private List<GameObject> m_colliders = new List<GameObject>();
 
     protected override void OnSpawned()
@@ -46,9 +46,9 @@ public class GhostInteract : NetworkBehaviour
                     m_focusedGhost = null;
                     m_focusedObject = resultObject;
                 }
-                else if (closest.GetComponent<GhostController>())
+                else if (closest.GetComponent<GhostStatus>())
                 {
-                    GhostController resultGhost = parent.GetComponent<GhostController>();
+                    GhostStatus resultGhost = parent.GetComponent<GhostStatus>();
 
                     if (m_focusedObject != null)
                     {
@@ -77,7 +77,7 @@ public class GhostInteract : NetworkBehaviour
         {
             GameObject interactable = m_colliders[i];
             if (interactable == null) continue;
-            if (interactable.transform.parent.GetComponent<SabotageObject>() != null || interactable.gameObject.transform.GetComponent<GhostController>() != null && interactable.gameObject.transform.GetComponent<GhostController>().m_isStopped == true)
+            if (interactable.transform.parent.GetComponent<SabotageObject>() != null || (interactable.gameObject.transform.GetComponent<GhostStatus>() != null && interactable.gameObject.transform.GetComponent<GhostStatus>().isStopped()))
             {
                 Vector3 closest = interactable.transform.position;
                 float sqrDistance = (closest - transform.position).sqrMagnitude;
@@ -99,7 +99,7 @@ public class GhostInteract : NetworkBehaviour
     {
         if (m_focusedGhost)
         {
-            GhostController ghost = m_focusedGhost;
+            GhostStatus ghost = m_focusedGhost;
             if (ghost.m_isStopped == true)
             {
                 ghost.m_isStopped = false;
@@ -163,7 +163,7 @@ public class GhostInteract : NetworkBehaviour
             }
             else
             {
-                if (_other.gameObject.GetComponent<GhostController>() == m_focusedGhost)
+                if (_other.gameObject.GetComponent<GhostStatus>() == m_focusedGhost)
                 {
                     m_focusedGhost = null;
                 }

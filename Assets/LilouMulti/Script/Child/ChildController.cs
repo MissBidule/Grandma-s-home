@@ -192,7 +192,6 @@ public class ChildController : PlayerControllerCore
         print("shoot");
         GameObject bullet = Instantiate(m_bulletPrefab, m_bulletSpawnTransform.position, transform.rotation);
         bullet.GetComponent<Rigidbody>().AddForce(m_bulletSpawnTransform.forward, ForceMode.Impulse);
-        Debug.Log(isOwner);
         bullet.GetComponent<Bullet>().hitPlayer = isOwner;
     }
 

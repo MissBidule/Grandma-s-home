@@ -17,12 +17,18 @@ public class GhostMorph : NetworkBehaviour
     private MeshRenderer[] m_renderers;
     private Material[][] m_originalMaterials;
 
+    protected override void OnSpawned()
+    {
+        base.OnSpawned();
+    }
+
     void Start()
     {
         m_playerCollider = GetComponent<BoxCollider>();
         m_renderers = m_mesh.GetComponentsInChildren<MeshRenderer>();
 
         m_wheel = WheelController.m_Instance;
+        m_wheel.m_localPlayer = (PlayerID)localPlayer;
 
         m_originalMaterials = new Material[m_renderers.Length][];
         for (int i = 0; i < m_renderers.Length; i++)

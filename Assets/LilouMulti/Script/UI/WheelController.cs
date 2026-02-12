@@ -21,6 +21,7 @@ public class WheelController : NetworkBehaviour
 
     private GameObject m_pendingPrefabToAdd;
     private Sprite m_pendingIconToAdd;
+    public PlayerID m_localPlayer;
 
     /*
      * @brief Awake is called when the script instance is being loaded
@@ -34,10 +35,6 @@ public class WheelController : NetworkBehaviour
         {
             m_anim = GetComponent<Animator>();
         }
-
-        // Will break in multi I guess, cause there will be multiple instances of <<GhostMorph>> ?
-        // We would need an other way to get reference to it
-        m_ghostTransform = FindAnyObjectByType<GhostMorph>();
     }
 
     /*
@@ -187,6 +184,19 @@ public class WheelController : NetworkBehaviour
     public void SelectPrefab(GameObject _prefab)
     {
         m_selectedPrefab = _prefab;
+        if (m_ghostTransform == null)
+        {
+            // Will break in multi I guess, cause there will be multiple instances of <<GhostMorph>> ?
+            // We would need an other way to get reference to it
+            //there should not as there can only be one per session open I guess
+            foreach (GhostMorph ghostMorph in FindObjectsByType<GhostMorph>(FindObjectsSortMode.None))
+            {
+                if (ghostMorph.owner == m_localPlayer)
+                {
+                    m_ghostTransform = ghostMorph;
+                }
+            }
+        }
         m_ghostTransform.SetPreview(_prefab);
         Cursor.lockState = CursorLockMode.Locked;
 

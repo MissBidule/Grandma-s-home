@@ -12,13 +12,6 @@ public class GhostController : PlayerControllerCore
     private GhostInputController m_ghostInputController;
     private GhostMorph m_ghostMorph;
 
-    public bool m_isSlowed = false;
-    public bool m_isStopped = false;
-    public float m_timerSlowed = 5f;
-    public float m_timerStop = 5f;
-    public float m_currentTimerSlowed = 5f;
-    public float m_currentTimerStop = 5f;
-
     [Header("Movement")]
     [SerializeField] private float m_walkSpeed = 4f;
     [SerializeField] private float m_acceleration = 25f;
@@ -30,11 +23,8 @@ public class GhostController : PlayerControllerCore
     [SerializeField] private float m_climbSpeed = 3.5f;
     [SerializeField] private float m_wallNormalMaxY = 0.4f;
 
-    [Header("Canva")]
-    [SerializeField] public GameObject m_stopped;
-    [SerializeField] public GameObject m_slowed;
-
     private Rigidbody m_rigidbody;
+    private GhostStatus m_ghostStatus;
 
     private bool m_canClimbThisFrame;
     private Vector3 m_wallNormal;
@@ -50,6 +40,7 @@ public class GhostController : PlayerControllerCore
 
     private void Start()
     {
+        m_ghostStatus = GetComponent<GhostStatus>();
         m_rigidbody = GetComponent<Rigidbody>();
         m_ghostInputController = GetComponent<GhostInputController>();
         m_ghostMorph = GetComponent<GhostMorph>();
@@ -60,31 +51,31 @@ public class GhostController : PlayerControllerCore
     */
     private void Update()
     {
-        if (m_isStopped)
+        if (m_ghostStatus.m_isStopped)
         {
             m_rigidbody.constraints = RigidbodyConstraints.FreezeAll;
-            m_currentTimerStop -= Time.deltaTime;
-            m_slowed.SetActive(false);
-            if (m_currentTimerStop <= 0f)
+            m_ghostStatus.m_currentTimerStop -= Time.deltaTime;
+            m_ghostStatus.m_slowed.SetActive(false);
+            if (m_ghostStatus.m_currentTimerStop <= 0f)
             {
                 m_rigidbody.constraints = RigidbodyConstraints.None; 
                 m_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
-                m_isStopped = false;
-                m_stopped.SetActive(false);
+                m_ghostStatus.m_isStopped = false;
+                m_ghostStatus.m_stopped.SetActive(false);
             }
         }
-        else if (m_isSlowed)
+        else if (m_ghostStatus.m_isSlowed)
         {
-            m_currentTimerSlowed -= Time.deltaTime;
-            if (m_currentTimerSlowed <= 0f)
+            m_ghostStatus.m_currentTimerSlowed -= Time.deltaTime;
+            if (m_ghostStatus.m_currentTimerSlowed <= 0f)
             {
-                m_isSlowed = false;
-                m_slowed.SetActive(false);
+                m_ghostStatus.m_isSlowed = false;
+                m_ghostStatus.m_slowed.SetActive(false);
             }
         }
 
-        m_speedModifier = m_isSlowed ? 0.5f : 1f;
-        m_speedModifier = m_isStopped ? 0f : m_speedModifier;
+        m_speedModifier = m_ghostStatus.m_isSlowed ? 0.5f : 1f;
+        m_speedModifier = m_ghostStatus.m_isStopped ? 0f : m_speedModifier;
 
         if (m_ghostInputController.m_movementInputVector != Vector2.zero)
         {
@@ -134,7 +125,7 @@ public class GhostController : PlayerControllerCore
         if (movementInput.sqrMagnitude > 0.0001f)
             wishDir = (forward * movementInput.y + right * movementInput.x).normalized;
 
-        if (wishDir.sqrMagnitude > 0.0001f && !m_isStopped && !m_rigidbody.constraints.HasFlag(RigidbodyConstraints.FreezeRotationY))
+        if (wishDir.sqrMagnitude > 0.0001f && !m_ghostStatus.m_isStopped && !m_rigidbody.constraints.HasFlag(RigidbodyConstraints.FreezeRotationY))
         {            
             Quaternion targetRotation = Quaternion.LookRotation(wishDir, Vector3.up);
 
@@ -148,7 +139,7 @@ public class GhostController : PlayerControllerCore
             
         }
 
-        if (!m_isStopped &&
+        if (!m_ghostStatus.m_isStopped &&
             m_canClimbThisFrame &&
             wishDir.sqrMagnitude > 0.0001f)
         {
