@@ -1,3 +1,4 @@
+using PurrNet;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -160,7 +161,7 @@ public class ChildController : PlayerControllerCore
 
         foreach (Collider col in hits)
         {
-            var ghost = col.GetComponent<GhostController>();
+            var ghost = col.GetComponent<GhostStatus>();
             if (ghost != null)
             {
                 HitOpponent(ghost);
@@ -173,7 +174,7 @@ public class ChildController : PlayerControllerCore
      * TODO: Implement actual hit logic
      * @return void
      */
-    private void HitOpponent(GhostController _ghost)
+    private void HitOpponent(GhostStatus _ghost)
     {
         print("ghost hit");
         _ghost.GotHitByCac();
@@ -185,12 +186,14 @@ public class ChildController : PlayerControllerCore
      * We instantaneously transfer the ball and put the force into impulse mode.
      * @return void
      */
-
+    [ObserversRpc(runLocally: true)]
     void Shoot()
     {
         print("shoot");
         GameObject bullet = Instantiate(m_bulletPrefab, m_bulletSpawnTransform.position, transform.rotation);
         bullet.GetComponent<Rigidbody>().AddForce(m_bulletSpawnTransform.forward, ForceMode.Impulse);
+        Debug.Log(isOwner);
+        bullet.GetComponent<Bullet>().hitPlayer = isOwner;
     }
 
     /*

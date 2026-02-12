@@ -8,16 +8,16 @@ using UnityEngine.SceneManagement;
 */
 public class GhostController : PlayerControllerCore
 {
-    [Header("References")]
+    [Header("Ghost references")]
     private GhostInputController m_ghostInputController;
     private GhostMorph m_ghostMorph;
 
-    [SerializeField] private bool m_isSlowed = false;
-    [SerializeField] public bool m_isStopped = false;
-    [SerializeField] private float m_timerSlowed = 5f;
-    [SerializeField] private float m_timerStop = 5f;
-    [SerializeField] private float m_currentTimerSlowed = 5f;
-    [SerializeField] private float m_currentTimerStop = 5f;
+    public bool m_isSlowed = false;
+    public bool m_isStopped = false;
+    public float m_timerSlowed = 5f;
+    public float m_timerStop = 5f;
+    public float m_currentTimerSlowed = 5f;
+    public float m_currentTimerStop = 5f;
 
     [Header("Movement")]
     [SerializeField] private float m_walkSpeed = 4f;
@@ -60,25 +60,26 @@ public class GhostController : PlayerControllerCore
     */
     private void Update()
     {
-        if (m_isSlowed)
+        if (m_isStopped)
+        {
+            m_rigidbody.constraints = RigidbodyConstraints.FreezeAll;
+            m_currentTimerStop -= Time.deltaTime;
+            m_slowed.SetActive(false);
+            if (m_currentTimerStop <= 0f)
+            {
+                m_rigidbody.constraints = RigidbodyConstraints.None; 
+                m_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+                m_isStopped = false;
+                m_stopped.SetActive(false);
+            }
+        }
+        else if (m_isSlowed)
         {
             m_currentTimerSlowed -= Time.deltaTime;
             if (m_currentTimerSlowed <= 0f)
             {
                 m_isSlowed = false;
                 m_slowed.SetActive(false);
-                m_currentTimerSlowed = m_timerSlowed;
-            }
-        }
-
-        if (m_isStopped)
-        {
-            m_currentTimerStop -= Time.deltaTime;
-            if (m_currentTimerStop <= 0f)
-            {
-                m_isStopped = false;
-                m_stopped.SetActive(false);
-                m_currentTimerStop = m_timerStop;
             }
         }
 
@@ -173,29 +174,6 @@ public class GhostController : PlayerControllerCore
         m_rigidbody.AddForce(new Vector3(accel.x, 0f, accel.z), ForceMode.Acceleration);
 
         ResetClimbFlags();
-    }
-
-    /**
-    @brief      Apply slow effect from projectile hit
-    */
-    [ServerRpc(requireOwnership:false)]
-    public void GotHitByProjectile()
-    {
-        m_isSlowed = true;
-        m_slowed.SetActive(true);
-        m_currentTimerSlowed = m_timerSlowed;
-    }
-
-    /**
-    @brief      Apply stop effect from close combat hit
-    */
-    [ServerRpc(requireOwnership:false)]
-    public void GotHitByCac()
-    {
-        m_isStopped = true;
-        m_stopped.SetActive(true);
-        m_currentTimerStop = m_timerStop;
-        m_rigidbody.constraints = RigidbodyConstraints.None;
     }
 
     /**

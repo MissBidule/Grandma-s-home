@@ -19,19 +19,18 @@ public class Bullet : NetworkBehaviour
     [Header("Balle")]
     [SerializeField] private float m_lifeTime = 3f;
     [SerializeField] private float m_speed = 10f; 
+    public bool hitPlayer = false;
 
     [Header("Slime")]      
     [SerializeField] private float m_offsetFromSurface = 0.01f;
     [SerializeField] private GameObject m_slimePrefab;
 
     
-    private static Dictionary<Collider, GameObject> m_slimeOnCollider = new Dictionary<Collider, GameObject>();
+    //private static Dictionary<Collider, GameObject> m_slimeOnCollider = new Dictionary<Collider, GameObject>();
 
     protected override void OnSpawned()
     {
         base.OnSpawned();
-
-        enabled = isOwner;
     }
 
     void Update()
@@ -63,39 +62,39 @@ public class Bullet : NetworkBehaviour
         // We check if the collider is a ghost player by checking if it has the GhostMovement component
         GameObject gameobject = _other.gameObject;
         if (gameObject != null) {
-            var ghost = gameobject.GetComponent<GhostController>();
-            if (ghost != null)
+            /*if (_other.CompareTag("Wall"))
             {
                 GameObject slime2 = SpawnSlimePrefab(_other, size);
                 Destroy(slime2, timeSlimeWall);
-                ghost.GotHitByProjectile();
                 Destroy(gameObject);
                 return;
+            }*/
+            if (_other.CompareTag("Slime"))
+            {
+                return;
             }
-        }
+            // if (m_slimeOnCollider.ContainsKey(_other) && m_slimeOnCollider[_other] != null)
+            // {
+            //     Destroy(gameObject);
+            //     return;
+            // }
 
-        /*if (_other.CompareTag("Wall"))
-        {
-            GameObject slime2 = SpawnSlimePrefab(_other, size);
-            Destroy(slime2, timeSlimeWall);
-            Destroy(gameObject);
-            return;
-        }*/
-        if (_other.CompareTag("Slime"))
-        {
-            return;
+            if (gameobject.layer == LayerMask.NameToLayer("Ghost") && hitPlayer)
+            {
+                var ghost = gameobject.GetComponent<GhostStatus>();
+                //GameObject slime2 = SpawnSlimePrefab(_other, size);
+                if (ghost != null)
+                {   
+                    ghost.GotHitByProjectile();
+                    ghost.hitPlayer = hitPlayer;
+                }
+            }
+            //else {
+                //m_slimeOnCollider[_other] = slime;
+            //}
+            GameObject slime = SpawnSlimePrefab(_other, size);
+            Destroy(slime, timeSlimeWall);
         }
-        if (m_slimeOnCollider.ContainsKey(_other) && m_slimeOnCollider[_other] != null)
-        {
-            Destroy(gameObject);
-            return;
-        }
-        
-        GameObject slime = SpawnSlimePrefab(_other, size);
-        Destroy(slime, timeSlimeWall);
-
-
-        m_slimeOnCollider[_other] = slime;
 
         Destroy(gameObject);
         
@@ -119,7 +118,7 @@ public class Bullet : NetworkBehaviour
         spawnPos.z -= 0.3f;
         spawnPos.y += m_offsetFromSurface;
 
-        GameObject slime = Instantiate(m_slimePrefab, spawnPos, Quaternion.identity);
+        GameObject slime = Instantiate(m_slimePrefab, spawnPos, Quaternion.Euler(0, 0, 1));
 
         slime.transform.localScale = Vector3.one * _size;
 
