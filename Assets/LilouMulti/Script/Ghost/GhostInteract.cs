@@ -77,7 +77,15 @@ public class GhostInteract : NetworkBehaviour
         {
             GameObject interactable = m_colliders[i];
             if (interactable == null) continue;
-            if (interactable.transform.parent.GetComponent<SabotageObject>() != null || (interactable.gameObject.transform.GetComponent<GhostStatus>() != null && interactable.gameObject.transform.GetComponent<GhostStatus>().isStopped()))
+            Debug.Log(interactable.gameObject != null);
+            Debug.Log(interactable.gameObject.transform != null);
+            Debug.Log(interactable.gameObject.transform.GetComponent<GhostStatus>());
+            if (interactable.gameObject.transform.GetComponent<GhostStatus>() != null) 
+            {
+                Debug.Log("jfdshvvujhvhbjhu ");
+                Debug.Log(gameObject.transform.GetComponent<GhostStatus>().m_isStopped);
+            }
+            if (interactable.transform.parent.GetComponent<SabotageObject>() != null || (interactable.gameObject.transform.GetComponent<GhostStatus>() != null && interactable.gameObject.transform.GetComponent<GhostStatus>().m_isStopped))
             {
                 Vector3 closest = interactable.transform.position;
                 float sqrDistance = (closest - transform.position).sqrMagnitude;

@@ -21,11 +21,6 @@ public class GhostStatus : NetworkBehaviour
     {
         base.OnSpawned();
     }
-
-    public bool isStopped()
-    {
-        return m_isStopped;
-    }
     
     /**
     @brief      Apply slow effect from projectile hit
