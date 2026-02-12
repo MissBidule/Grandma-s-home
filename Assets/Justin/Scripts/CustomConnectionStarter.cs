@@ -26,9 +26,9 @@ namespace PurrLobby
     /// </summary>
     public class CustomConnectionStarter : MonoBehaviour
     {
-        private NetworkManager _networkManager;
-        private LobbyDataHolder _lobbyDataHolder;
-        private StateMachine _stateMachine;
+        private NetworkManager m_networkManager;
+        private LobbyDataHolder m_lobbyDataHolder;
+        private StateMachine m_stateMachine;
         
         
         // Prevents duplicate network starts if scene loads multiple times
@@ -37,19 +37,19 @@ namespace PurrLobby
         
         private void Awake()
         {
-            if(!TryGetComponent(out _networkManager)) {
+            if(!TryGetComponent(out m_networkManager)) {
                 PurrLogger.LogError($"Failed to get {nameof(NetworkManager)} component.", this);
                 return;
             }
             
-            _lobbyDataHolder = FindFirstObjectByType<LobbyDataHolder>();
-            if(!_lobbyDataHolder) {
+            m_lobbyDataHolder = FindFirstObjectByType<LobbyDataHolder>();
+            if(!m_lobbyDataHolder) {
                 PurrLogger.LogError($"Failed to get {nameof(LobbyDataHolder)} component.", this);
                 return;
             }
 
-            _stateMachine = FindFirstObjectByType<StateMachine>();
-            if (!_stateMachine)
+            m_stateMachine = FindFirstObjectByType<StateMachine>();
+            if (!m_stateMachine)
             {
                 PurrLogger.LogError($"Failed to get {nameof(StateMachine)} component.", this);
                 return;
@@ -64,7 +64,7 @@ namespace PurrLobby
                 // CRITICAL FIX for Unity Relay: Disable NetworkManager to prevent auto-start
                 // Relay data must be configured asynchronously before NetworkManager starts
                 PurrLogger.Log("Unity Relay detected - configuring relay data before NetworkManager starts", this);
-                _networkManager.enabled = false;
+                m_networkManager.enabled = false;
                 _ = ConfigureRelayData();
                 return;
             }
@@ -77,10 +77,10 @@ namespace PurrLobby
 #if UTP_LOBBYRELAY
         private bool IsUsingUTPTransport()
         {
-            if (_networkManager.transport is UTPTransport)
+            if (m_networkManager.transport is UTPTransport)
                 return true;
                 
-            if (_networkManager.transport is CompositeTransport composite)
+            if (m_networkManager.transport is CompositeTransport composite)
             {
                 foreach (var transport in composite.transports)
                 {
@@ -108,10 +108,10 @@ namespace PurrLobby
         private void UpdatePlayerNumbers()
         {
             // Set up the number of player to wait for
-            if (_stateMachine.states[0] is WaitForPlayerState)
+            if (m_stateMachine.states[0] is WaitForPlayerState)
             {
                 PurrLogger.Log("Setup the number of player");
-                ((WaitForPlayerState)_stateMachine.states[0]).set_numPlayers(_lobbyDataHolder.GetNumber_of_player_in_loby());
+                ((WaitForPlayerState)m_stateMachine.states[0]).set_numPlayers(m_lobbyDataHolder.GetNumber_of_player_in_loby());
             }
             else
             {
@@ -121,30 +121,30 @@ namespace PurrLobby
         
         private void StartNetworkStandard()
         {
-            if (!_networkManager)
+            if (!m_networkManager)
             {
                 PurrLogger.LogError($"Failed to start connection. {nameof(NetworkManager)} is null!", this);
                 return;
             }
             
-            if (!_lobbyDataHolder)
+            if (!m_lobbyDataHolder)
             {
                 PurrLogger.LogError($"Failed to start connection. {nameof(LobbyDataHolder)} is null!", this);
                 return;
             }
             
-            if (!_lobbyDataHolder.CurrentLobby.IsValid)
+            if (!m_lobbyDataHolder.CurrentLobby.IsValid)
             {
                 PurrLogger.LogError($"Failed to start connection. Lobby is invalid!", this);
                 return;
             }
 
-            if(_networkManager.transport is PurrTransport) {
-                (_networkManager.transport as PurrTransport).roomName = _lobbyDataHolder.CurrentLobby.LobbyId;
+            if(m_networkManager.transport is PurrTransport) {
+                (m_networkManager.transport as PurrTransport).roomName = m_lobbyDataHolder.CurrentLobby.LobbyId;
             }
 
-            if(_lobbyDataHolder.CurrentLobby.IsOwner)
-                _networkManager.StartServer();
+            if(m_lobbyDataHolder.CurrentLobby.IsOwner)
+                m_networkManager.StartServer();
             StartCoroutine(StartClient());
         }
 
@@ -155,7 +155,7 @@ namespace PurrLobby
         /// </summary>
         private async System.Threading.Tasks.Task ConfigureRelayData()
         {
-            if (!_networkManager)
+            if (!m_networkManager)
             {
                 PurrLogger.LogError($"Failed to configure relay. {nameof(NetworkManager)} is null!", this);
                 return;
@@ -163,15 +163,15 @@ namespace PurrLobby
             
             PurrLogger.Log("NetworkManager found", this);
             
-            if (!_lobbyDataHolder)
+            if (!m_lobbyDataHolder)
             {
                 PurrLogger.LogError($"Failed to configure relay. {nameof(LobbyDataHolder)} is null!", this);
                 return;
             }
             
-            PurrLogger.Log($"LobbyDataHolder found. Lobby IsValid: {_lobbyDataHolder.CurrentLobby.IsValid}", this);
+            PurrLogger.Log($"LobbyDataHolder found. Lobby IsValid: {m_lobbyDataHolder.CurrentLobby.IsValid}", this);
             
-            if (!_lobbyDataHolder.CurrentLobby.IsValid)
+            if (!m_lobbyDataHolder.CurrentLobby.IsValid)
             {
                 PurrLogger.LogError($"Failed to configure relay. Lobby is invalid!", this);
                 return;
@@ -180,16 +180,16 @@ namespace PurrLobby
             // The player number for Unity relay
             UpdatePlayerNumbers();
 
-            PurrLogger.Log($"Checking transport type: {_networkManager.transport?.GetType().Name ?? "NULL"}", this);
+            PurrLogger.Log($"Checking transport type: {m_networkManager.transport?.GetType().Name ?? "NULL"}", this);
             
             // Find UTPTransport (either direct or inside CompositeTransport)
             UTPTransport utpTransport = null;
             
-            if(_networkManager.transport is UTPTransport) {
-                utpTransport = _networkManager.transport as UTPTransport;
+            if(m_networkManager.transport is UTPTransport) {
+                utpTransport = m_networkManager.transport as UTPTransport;
             }
-            else if(_networkManager.transport is CompositeTransport) {
-                var composite = _networkManager.transport as CompositeTransport;
+            else if(m_networkManager.transport is CompositeTransport) {
+                var composite = m_networkManager.transport as CompositeTransport;
                 foreach(var transport in composite.transports) {
                     if(transport is UTPTransport) {
                         utpTransport = transport as UTPTransport;
@@ -200,7 +200,7 @@ namespace PurrLobby
             }
             
             if(utpTransport != null) {
-                var lobby = _lobbyDataHolder.CurrentLobby;
+                var lobby = m_lobbyDataHolder.CurrentLobby;
                 
                 PurrLogger.Log($"Configuring UTP Relay: IsOwner={lobby.IsOwner}, ServerObject={(lobby.ServerObject != null ? "EXISTS" : "NULL")}, JoinCode={(lobby.Properties.ContainsKey("JoinCode") ? lobby.Properties["JoinCode"] : "MISSING")}", this);
                 
@@ -263,23 +263,23 @@ namespace PurrLobby
                 return;
             }
             
-            if (!_networkManager || !_lobbyDataHolder || !_lobbyDataHolder.CurrentLobby.IsValid)
+            if (!m_networkManager || !m_lobbyDataHolder || !m_lobbyDataHolder.CurrentLobby.IsValid)
                 return;
 
             _hasStarted = true;
             
             // CRITICAL FIX: Re-enable NetworkManager now that relay is fully configured
             // This allows NetworkManager.Start() to run with properly initialized relay data
-            _networkManager.enabled = true;
+            m_networkManager.enabled = true;
 
-            if(_lobbyDataHolder.CurrentLobby.IsOwner)
+            if(m_lobbyDataHolder.CurrentLobby.IsOwner)
             {
                 // HOST: Start as host with P2P mode enabled
                 // - Server listens through relay for remote clients
                 // - Host's client uses P2P mode for in-process communication with its own server
                 // - P2P mode must stay ENABLED for host
                 PurrLogger.Log("Starting as Host", this);
-                _networkManager.StartHost();
+                m_networkManager.StartHost();
             }
             else
             {
@@ -294,7 +294,7 @@ namespace PurrLobby
         {
             // Brief delay to ensure server is fully listening before client connects
             yield return new WaitForSeconds(1f);
-            _networkManager.StartClient();
+            m_networkManager.StartClient();
         }
     }
 }
