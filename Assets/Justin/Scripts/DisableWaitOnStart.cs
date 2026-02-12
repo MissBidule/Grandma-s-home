@@ -23,7 +23,7 @@ public class DisableWaitOnStart : NetworkBehaviour
         InstanceHandler.UnregisterInstance<DisableWaitOnStart>();
     }
 
-    [ObserversRpc()]
+    [ObserversRpc(runLocally: true, bufferLast: true)]
     public void DisableWaitInterface()
     {
         PurrLogger.Log("DisableWaitInterface", this);
