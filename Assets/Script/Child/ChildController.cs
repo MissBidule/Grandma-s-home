@@ -105,7 +105,17 @@ public class ChildController : PlayerControllerCore
         Vector2 lookInput = m_childInputController.m_lookInputVector;
         m_yaw += lookInput.x * m_playerCamera.GetComponent<ChildCameraController>().m_sensitivity * Time.deltaTime;
         Quaternion targetRot = Quaternion.Euler(0f, m_yaw, 0f);
-        m_rigidbody.transform.rotation = targetRot;
+        float epsilon = 0.01f;
+        if (Mathf.Abs(lookInput.x) > epsilon)
+        {
+            m_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+            m_rigidbody.transform.rotation = targetRot;
+        }
+        else
+        {
+
+            m_rigidbody.freezeRotation = true;
+        }
     }
 
     /*
