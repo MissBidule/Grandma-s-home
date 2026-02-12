@@ -260,6 +260,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b75530599bfcfa49ae4ecfe6ed3d21e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.StateMachine.StateMachine
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -267,8 +269,6 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _ownerAuth: 0
   _states:
   - {fileID: 1427157504}
@@ -763,6 +763,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0fb83a31afbc00745a6e2ecaf4d93fda, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerSpawningState
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -770,8 +772,6 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   m_playerPrefab: {fileID: 7028009755982917848, guid: b540882a9b64b2a49b547e32680c1bbf, type: 3}
   m_spawnPoints:
   - {fileID: 1179345820}
@@ -895,6 +895,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84d4d6f5fe0b766488236f4d24ddb56f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoundRuningState
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -902,8 +904,6 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
 --- !u!1 &898596550
 GameObject:
   m_ObjectHideFlags: 0
@@ -953,6 +953,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1761478328}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1171283706 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4070617992133892133, guid: b22e186dfc58dec44a0af4ec847f500c, type: 3}
+  m_PrefabInstance: {fileID: 3691218264787920910}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b76f42349e746b39a324dce6dbd231c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: PurrNet.UTP.Runtime::PurrNet.UTP.UTPTransport
 --- !u!1 &1179345819
 GameObject:
   m_ObjectHideFlags: 0
@@ -1284,6 +1295,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37ef3be4e62ffc44f87186f234870718, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WaitForPlayerState
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -1291,8 +1304,6 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   m_minPlayers: 2
 --- !u!1 &1456867555
 GameObject:
@@ -1695,6 +1706,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 644141223156931177, guid: b22e186dfc58dec44a0af4ec847f500c, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 789027138663167752, guid: b22e186dfc58dec44a0af4ec847f500c, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -1735,12 +1750,31 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3021170015786929515, guid: b22e186dfc58dec44a0af4ec847f500c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4070617992133892133, guid: b22e186dfc58dec44a0af4ec847f500c, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6883493468967853042, guid: b22e186dfc58dec44a0af4ec847f500c, type: 3}
       propertyPath: m_Name
       value: NetworkManager
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 644141223156931177, guid: b22e186dfc58dec44a0af4ec847f500c, type: 3}
+    - target: {fileID: 7633499938314106427, guid: b22e186dfc58dec44a0af4ec847f500c, type: 3}
+      propertyPath: _transport
+      value: 
+      objectReference: {fileID: 1171283706}
+    - target: {fileID: 7633499938314106427, guid: b22e186dfc58dec44a0af4ec847f500c, type: 3}
+      propertyPath: _startClientFlags
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7633499938314106427, guid: b22e186dfc58dec44a0af4ec847f500c, type: 3}
+      propertyPath: _startServerFlags
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
