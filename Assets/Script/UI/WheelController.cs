@@ -10,8 +10,6 @@ using UnityEngine.InputSystem;
  */
 public class WheelController : NetworkBehaviour
 {
-    public static WheelController m_Instance;
-
     [SerializeField] private Animator m_anim;
     [SerializeField] private GhostMorph m_ghostTransform;
     [SerializeField] private List<WheelButtonController> m_wheelButtons;
@@ -30,7 +28,6 @@ public class WheelController : NetworkBehaviour
      */
     void Awake()
     {
-        m_Instance = this;
         if (m_anim == null)
         {
             m_anim = GetComponent<Animator>();
@@ -51,6 +48,7 @@ public class WheelController : NetworkBehaviour
 
         Cursor.lockState = CursorLockMode.Confined;
         bool toggle = !m_anim.GetBool("OpenWheel");
+        
         m_anim.SetBool("OpenWheel", toggle);
     }
 

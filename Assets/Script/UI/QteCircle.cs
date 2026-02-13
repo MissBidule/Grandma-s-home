@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using PurrNet;
 using UnityEngine;
+using UnityEngine.UI;
 
 /*
  * @brief  Contains class declaration for QteCircle
@@ -10,7 +11,7 @@ using UnityEngine;
 public class QteCircle : NetworkBehaviour
 {
     [Header("UI")]
-    [SerializeField] private GameObject m_root;
+    [SerializeField] private RectTransform m_circleTransform;
     [SerializeField] private RectTransform m_needlePivot;
     [SerializeField] private RectTransform m_zonePivot;
 
@@ -48,6 +49,21 @@ public class QteCircle : NetworkBehaviour
         enabled = isOwner;
     }
 
+    private void Start()
+    {
+        SetVisibility(false);
+    }
+
+    private void SetVisibility(bool _visible)
+    {
+        m_circleTransform.GetComponent<Image>().enabled = _visible;
+
+        m_needleMarker.GetComponent<Image>().enabled = _visible;
+
+        m_zoneMarkerMedium.GetComponent<Image>().enabled = _visible;
+        m_zoneMarkerSmall.GetComponent<Image>().enabled = _visible;
+    }
+
     /**
     @brief      Starts the QTE
     @param      _onFinished: callback true if all phases are done
@@ -55,12 +71,14 @@ public class QteCircle : NetworkBehaviour
     */
     public void StartQte(Action<bool> _onFinished)
     {
+        SetVisibility(true);
+        enabled = true;
+        
+        
         m_onFinished = _onFinished;
         m_isRunning = true;
         m_currentPhaseIndex = 0;
 
-        if (m_root != null)
-            m_root.SetActive(true);
 
         ResetNeedle();
         PlaceZoneRandomly();
@@ -107,8 +125,8 @@ public class QteCircle : NetworkBehaviour
     {
         m_isRunning = false;
 
-        if (m_root != null)
-            m_root.SetActive(false);
+        SetVisibility(false);
+        enabled = false;
 
         Action<bool> callback = m_onFinished;
         m_onFinished = null;

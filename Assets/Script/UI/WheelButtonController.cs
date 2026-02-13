@@ -12,6 +12,8 @@ public class WheelButtonController : NetworkBehaviour
     private Image m_iconImage;
     private Button m_button;
 
+    private WheelController m_wheelController;
+
     /*
      * @brief Awake is called when the script instance is being loaded
      * Finds the icon transform and sets its sprite from the TransformOption.
@@ -22,6 +24,11 @@ public class WheelButtonController : NetworkBehaviour
         Transform iconTransform = transform.Find("icone");
         m_iconImage = iconTransform.GetComponent<Image>();
         m_button = GetComponent<Button>();
+        
+        
+        m_wheelController = GetComponentInParent<WheelController>();
+        
+        
         UpdateIcon();
     }
 
@@ -57,12 +64,12 @@ public class WheelButtonController : NetworkBehaviour
      */
     public void Select()
     {
-        if (IsEmpty() && !WheelController.m_Instance.m_isWaitingForSlotSelection)
+        if (IsEmpty() && !m_wheelController.m_isWaitingForSlotSelection)
         {
             return;
         }
 
-        if (WheelController.m_Instance.m_isWaitingForSlotSelection)
+        if (m_wheelController.m_isWaitingForSlotSelection)  
         {
             OnSlotSelectedForReplacement();
             return;
@@ -70,10 +77,10 @@ public class WheelButtonController : NetworkBehaviour
 
         if (m_transformOption == null || m_transformOption.m_prefab == null)
         {
-            WheelController.m_Instance.ClearSelection();
+            m_wheelController.ClearSelection();
             return;
         }
-        WheelController.m_Instance.SelectPrefab(m_transformOption.m_prefab);
+        m_wheelController.SelectPrefab(m_transformOption.m_prefab);
     }
 
     /*
@@ -112,6 +119,6 @@ public class WheelButtonController : NetworkBehaviour
      */
     public void OnSlotSelectedForReplacement()
     {
-        WheelController.m_Instance.OnSlotChosenForReplacement(this);
+        m_wheelController.OnSlotChosenForReplacement(this);
     }
 }

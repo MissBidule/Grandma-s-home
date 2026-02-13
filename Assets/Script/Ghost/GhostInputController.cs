@@ -1,4 +1,5 @@
 using PurrNet;
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -14,6 +15,8 @@ public class GhostInputController : NetworkBehaviour
     private GhostMorph m_ghostTransform;
     private GhostInteract m_ghostInteract;
 
+    [NonSerialized] public WheelController m_wheelController;
+
     /*
      * @brief Awake is called when the script instance is being loaded
      * Gets the PlayerController component.
@@ -24,6 +27,8 @@ public class GhostInputController : NetworkBehaviour
         m_ghostController = GetComponent<GhostController>();
         m_ghostTransform = GetComponent<GhostMorph>();
         m_ghostInteract = GetComponentInChildren<GhostInteract>();
+
+        m_wheelController = FindAnyObjectByType<WheelController>();
     }
 
     protected override void OnSpawned()
@@ -87,7 +92,7 @@ public class GhostInputController : NetworkBehaviour
     {
         if (_context.performed)
         {
-            WheelController.m_Instance.Toggle();
+            m_wheelController.Toggle();
         }
     }
 
