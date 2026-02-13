@@ -11,7 +11,8 @@ using UnityEngine;
 public class GhostInteract : NetworkBehaviour
 {
     [Header("Detection")]
-    [SerializeField] private float m_radius = 2.0f;
+    //unused
+    //[SerializeField] private float m_radius = 2.0f;
     [SerializeField] private LayerMask m_interactableMask;
     private IInteractable m_onFocus; // Can be either GhostStatus or SabotageObject
     private List<IInteractable> m_interactable = new List<IInteractable>();

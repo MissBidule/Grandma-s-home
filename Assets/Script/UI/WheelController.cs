@@ -46,8 +46,8 @@ public class WheelController : NetworkBehaviour
             return;
         }
 
-        Cursor.lockState = CursorLockMode.Confined;
         bool toggle = !m_anim.GetBool("OpenWheel");
+        Cursor.lockState = toggle ? CursorLockMode.Confined : CursorLockMode.Locked;
         
         m_anim.SetBool("OpenWheel", toggle);
     }
@@ -166,6 +166,7 @@ public class WheelController : NetworkBehaviour
 
         SelectPrefab(m_pendingPrefabToAdd);
 
+        Cursor.lockState = CursorLockMode.Locked;
         m_anim.SetBool("OpenWheel", false);
 
         m_isWaitingForSlotSelection = false;
@@ -214,5 +215,10 @@ public class WheelController : NetworkBehaviour
         {
             eventSystem.SetSelectedGameObject(null);
         }
+    }
+
+    public static implicit operator WheelController(PlayerID? v)
+    {
+        throw new NotImplementedException();
     }
 }
