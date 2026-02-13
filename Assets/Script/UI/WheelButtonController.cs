@@ -24,7 +24,11 @@ public class WheelButtonController : NetworkBehaviour
         Transform iconTransform = transform.Find("icone");
         m_iconImage = iconTransform.GetComponent<Image>();
         m_button = GetComponent<Button>();
-        m_wheelController = parent.GetComponent<WheelController>();
+        
+        
+        m_wheelController = GetComponentInParent<WheelController>();
+        
+        
         UpdateIcon();
     }
 
@@ -65,7 +69,7 @@ public class WheelButtonController : NetworkBehaviour
             return;
         }
 
-        if (m_wheelController.m_isWaitingForSlotSelection)
+        if (m_wheelController.m_isWaitingForSlotSelection)  
         {
             OnSlotSelectedForReplacement();
             return;
