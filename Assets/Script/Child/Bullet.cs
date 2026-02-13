@@ -12,24 +12,29 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
+using PurrNet;
 
-public class Bullet : MonoBehaviour
+public class Bullet : NetworkBehaviour
 {
     [Header("Balle")]
     [SerializeField] private float m_lifeTime = 3f;
     [SerializeField] private float m_speed = 10f; 
+    public bool m_hitPlayer = false;
 
     [Header("Slime")]      
     [SerializeField] private float m_offsetFromSurface = 0.01f;
     [SerializeField] private GameObject m_slimePrefab;
 
     
-    private static Dictionary<Collider, GameObject> m_slimeOnCollider = new Dictionary<Collider, GameObject>();
+    //private static Dictionary<Collider, GameObject> m_slimeOnCollider = new Dictionary<Collider, GameObject>();
 
+    protected override void OnSpawned()
+    {
+        base.OnSpawned();
+    }
 
     void Update()
     {
-        
         transform.position += transform.forward * m_speed * Time.deltaTime;
 
         m_lifeTime -= Time.deltaTime;
@@ -57,39 +62,26 @@ public class Bullet : MonoBehaviour
         // We check if the collider is a ghost player by checking if it has the GhostMovement component
         GameObject gameobject = _other.gameObject;
         if (gameObject != null) {
-            var ghost = gameobject.GetComponent<GhostController>();
-            if (ghost != null)
+            if (_other.CompareTag("Slime"))
             {
-                GameObject slime2 = SpawnSlimePrefab(_other, size);
-                Destroy(slime2, timeSlimeWall);
-                ghost.GotHitByProjectile();
-                Destroy(gameObject);
                 return;
             }
-        }
 
-        /*if (_other.CompareTag("Wall"))
-        {
-            GameObject slime2 = SpawnSlimePrefab(_other, size);
-            Destroy(slime2, timeSlimeWall);
-            Destroy(gameObject);
-            return;
-        }*/
-        if (_other.CompareTag("Slime"))
-        {
-            return;
+            //checks if we're the one who has sent the bullet
+            if (gameobject.layer == LayerMask.NameToLayer("Ghost") && m_hitPlayer)
+            {
+                var ghost = gameobject.GetComponent<GhostStatus>();
+                if (ghost != null)
+                {   
+                    ghost.GotHitByProjectile();
+                    ghost.m_hitPlayer = m_hitPlayer;
+                }
+            }
+            //Use if needed, to check that we only have one slime
+            //m_slimeOnCollider[_other] = slime;
+            GameObject slime = SpawnSlimePrefab(_other, size);
+            Destroy(slime, timeSlimeWall);
         }
-        if (m_slimeOnCollider.ContainsKey(_other) && m_slimeOnCollider[_other] != null)
-        {
-            Destroy(gameObject);
-            return;
-        }
-        
-        GameObject slime = SpawnSlimePrefab(_other, size);
-        Destroy(slime, timeSlimeWall);
-
-
-        m_slimeOnCollider[_other] = slime;
 
         Destroy(gameObject);
         
@@ -113,7 +105,7 @@ public class Bullet : MonoBehaviour
         spawnPos.z -= 0.3f;
         spawnPos.y += m_offsetFromSurface;
 
-        GameObject slime = Instantiate(m_slimePrefab, spawnPos, Quaternion.identity);
+        GameObject slime = Instantiate(m_slimePrefab, spawnPos, Quaternion.Euler(0, 0, 1));
 
         slime.transform.localScale = Vector3.one * _size;
 
