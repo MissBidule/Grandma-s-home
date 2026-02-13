@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerSpawningState : StateNode
 {
-    [SerializeField] private PlayerControllerMulti_TEMP m_playerPrefab;
+    [SerializeField] private PlayerControllerCore m_playerPrefab;
     [SerializeField] private List<Transform> m_spawnPoints = new();
     
     public override void Enter(bool _asServer)
@@ -21,9 +21,9 @@ public class PlayerSpawningState : StateNode
         machine.Next(spawnedPlayers);
     }
     
-    private List<PlayerControllerMulti_TEMP> SpawnPlayers()
+    private List<PlayerControllerCore> SpawnPlayers()
     {
-        var spawnedPlayers = new List<PlayerControllerMulti_TEMP>();
+        var spawnedPlayers = new List<PlayerControllerCore>();
         
         int currentSpawnIndex = 0;
         foreach (var player in networkManager.players)
@@ -41,7 +41,7 @@ public class PlayerSpawningState : StateNode
     
     private void DespawnPlayers()
     {
-        var allPlayers = FindObjectsByType<PlayerControllerMulti_TEMP>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        var allPlayers = FindObjectsByType<PlayerControllerCore>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
 
         foreach (var player in allPlayers)
         {
