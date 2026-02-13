@@ -52,7 +52,7 @@ public class GhostCameraController : NetworkBehaviour
         float finalDistance = m_distance;
 
         // Do not move the camera if the wheel is open
-        if (WheelController.m_Instance != null && WheelController.m_Instance.IsWheelOpen())
+        if (m_ghostInputController.m_wheelController != null && m_ghostInputController.m_wheelController.IsWheelOpen())
         {
             rotation = Quaternion.Euler(m_pitch, m_yaw, 0f);
             desiredOffset = rotation * Vector3.back * m_distance;

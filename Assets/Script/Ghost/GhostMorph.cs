@@ -31,7 +31,7 @@ public class GhostMorph : NetworkBehaviour
         m_playerCollider = GetComponent<BoxCollider>();
         m_renderers = m_mesh.GetComponentsInChildren<MeshRenderer>();
 
-        m_wheel = WheelController.m_Instance;
+        m_wheel = GetComponent<GhostInputController>().m_wheelController;
         m_wheel.m_localPlayer = (PlayerID)localPlayer;
 
         m_originalMaterials = new Material[m_renderers.Length][];
