@@ -25,14 +25,26 @@ public class GhostInteract : NetworkBehaviour
 
     private void Update()
     {
-        if (m_interactable.Count <= 0) return;
+        if (m_interactable.Count <= 0) { 
+            
+            if (m_onFocus != null)
+            {
+                m_onFocus.OnUnfocus();
+                m_onFocus = null;
+            }
+            return;
+        }
                 
         IInteractable closest = CheckClosest();
 
         if (closest != m_onFocus)
         {
             closest.OnFocus();
-            m_onFocus.OnUnfocus();
+
+            if (m_onFocus != null)
+            {
+                m_onFocus.OnUnfocus();
+            }
             m_onFocus = closest;
         }
     }
@@ -93,7 +105,7 @@ public class GhostInteract : NetworkBehaviour
      */
     void OnTriggerEnter(Collider _other)
     {
-        if (_other.TryGetComponent<IInteractable>(out IInteractable interactable))
+        if (_other.GetComponentInParent<IInteractable>() is IInteractable interactable)
         {
             m_interactable.Add(interactable);
         }
@@ -105,7 +117,7 @@ public class GhostInteract : NetworkBehaviour
      */
     void OnTriggerExit(Collider _other)
     {
-        if (_other.TryGetComponent<IInteractable>(out IInteractable interactable))
+        if (_other.GetComponentInParent<IInteractable>() is IInteractable interactable)
         {
             m_interactable.Remove(interactable);
         }
