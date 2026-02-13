@@ -31,6 +31,7 @@ public class GhostInputController : NetworkBehaviour
         base.OnSpawned();
 
         enabled = isOwner;
+        GetComponent<PlayerInput>().enabled = isOwner;
     }
 
     /*

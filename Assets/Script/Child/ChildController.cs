@@ -19,6 +19,8 @@ public class ChildController : PlayerControllerCore
     private float m_attackRange = 0.5f;
 
     private bool m_isranged;
+    [SerializeField] private float m_cdGun = 0.2f;
+    private float m_lastShot;
     private float m_yaw;
 
 
@@ -43,6 +45,7 @@ public class ChildController : PlayerControllerCore
     {
         m_childInputController = GetComponent<ChildInputController>();
         m_rigidbody = GetComponent<Rigidbody>();
+        m_lastShot = m_cdGun;
     }
 
     /*
@@ -51,6 +54,7 @@ public class ChildController : PlayerControllerCore
      */
     void Update()
     {
+        m_lastShot += Time.deltaTime;
         Vector2 movementInput = m_childInputController.m_movementInputVector;
         if (m_waitingForInputRelease)
         {
@@ -149,22 +153,29 @@ public class ChildController : PlayerControllerCore
      */
     public void Attacks()
     {
-        if (m_isranged)
+        if (m_isranged) 
         {
-            Shoot();
+            if (m_lastShot >= m_cdGun) 
+            {
+                m_lastShot = 0;
+                Debug.Log("shoot");
+                Shoot();
+            }
         }
         else
         {
             Cac();
+            Debug.Log("cac");
         }
 
     }
 
     //logic to implement
     /*
-     * @brief Enables the attack collider to detect hits.
+     * @brief Enables the attack collider to detect hits, asked on the server
      * @return void
      */
+    [ServerRpc]
     private void Cac()
     {
         Collider[] hits = Physics.OverlapSphere(m_bulletSpawnTransform.position, m_attackRange);
@@ -174,7 +185,8 @@ public class ChildController : PlayerControllerCore
             var ghost = col.GetComponent<GhostStatus>();
             if (ghost != null)
             {
-                HitOpponent(ghost);
+                HitOpponent();
+                ghost.GotHitByCac();
             }
         }
     }
@@ -184,9 +196,9 @@ public class ChildController : PlayerControllerCore
      * TODO: Implement actual hit logic
      * @return void
      */
-    private void HitOpponent(GhostStatus _ghost)
+    private void HitOpponent()
     {
-        _ghost.GotHitByCac();
+        //anim only
     }
 
 
@@ -195,13 +207,9 @@ public class ChildController : PlayerControllerCore
      * We instantaneously transfer the ball and put the force into impulse mode.
      * @return void
      */
-     //Called on everyone
-    [ObserversRpc(runLocally: true)]
     void Shoot()
     {
         GameObject bullet = Instantiate(m_bulletPrefab, m_bulletSpawnTransform.position, transform.rotation);
-        bullet.GetComponent<Rigidbody>().AddForce(m_bulletSpawnTransform.forward, ForceMode.Impulse);
-        bullet.GetComponent<Bullet>().m_hitPlayer = isOwner;
     }
 
     /*

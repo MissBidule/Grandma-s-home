@@ -4,6 +4,7 @@
  * When the player fires a ball, a Slime Decal appears at the point of impact under certain conditions (only one Slime Decal is allowed at a time).
  * 
  * @param  m_lifeTime:  lifespan of the ball before disappearance
+ * @param  m_currentLife:  current life left
  * @param  m_speed:  ball speed
  * @param  m_offsetFromSurface:  offset added
  * @param  m_slimePrefab:  Decal Prefab
@@ -18,8 +19,8 @@ public class Bullet : NetworkBehaviour
 {
     [Header("Balle")]
     [SerializeField] private float m_lifeTime = 3f;
+    [SerializeField] private float m_currentLife;
     [SerializeField] private float m_speed = 10f; 
-    public bool m_hitPlayer = false;
 
     [Header("Slime")]      
     [SerializeField] private float m_offsetFromSurface = 0.01f;
@@ -30,16 +31,27 @@ public class Bullet : NetworkBehaviour
 
     protected override void OnSpawned()
     {
+        //to init those var that keep bugging
+        m_currentLife = m_lifeTime;
         base.OnSpawned();
+    }
+
+    void Awake()
+    {
+        //for the pool made by purrnet
+        m_currentLife = m_lifeTime;
     }
 
     void Update()
     {
         transform.position += transform.forward * m_speed * Time.deltaTime;
 
-        m_lifeTime -= Time.deltaTime;
-        if (m_lifeTime <= 0f)
+        m_currentLife -= Time.deltaTime;
+        if (m_currentLife <= 0f)
+        {
+            Debug.Log("dead");
             Destroy(gameObject);
+        }
     }
 
     /**
@@ -52,7 +64,7 @@ public class Bullet : NetworkBehaviour
     * @param  size:  size of the Decal created
     * @param  timeSlimeWall:  the duration of slime appearance on the walls
     */
-
+    //where ? wrong parameters ?
     private void OnTriggerEnter(Collider _other)
     {
         float size = 1.5f;
@@ -62,31 +74,28 @@ public class Bullet : NetworkBehaviour
         // We check if the collider is a ghost player by checking if it has the GhostMovement component
         GameObject gameobject = _other.gameObject;
         if (gameObject != null) {
-            if (_other.CompareTag("Slime"))
+            if (_other.CompareTag("Player") && gameobject.layer == LayerMask.NameToLayer("Child"))
             {
                 return;
             }
 
-            //checks if we're the one who has sent the bullet
-            if (gameobject.layer == LayerMask.NameToLayer("Ghost") && m_hitPlayer)
+            if (gameobject.layer == LayerMask.NameToLayer("Ghost"))
             {
                 var ghost = gameobject.GetComponent<GhostStatus>();
                 if (ghost != null)
                 {   
-                    ghost.GotHitByProjectile();
-                    ghost.m_hitPlayer = m_hitPlayer;
+                    if (isServer) ghost.GotHitByProjectile();
                 }
             }
             //Use if needed, to check that we only have one slime
             //m_slimeOnCollider[_other] = slime;
             GameObject slime = SpawnSlimePrefab(_other, size);
+            //prevents from skipping the hit on other clients
             Destroy(slime, timeSlimeWall);
         }
-
-        Destroy(gameObject);
-        
+        gameObject.SetActive(false);
+        Destroy(gameObject, timeSlimeWall);
     }
-
 
     /**
     * @brief  This code snippet allows you to instantiate a Slime Decal
@@ -97,7 +106,6 @@ public class Bullet : NetworkBehaviour
     *
     * @return Returns the instance
     */
-
     GameObject SpawnSlimePrefab(Collider _target, float _size)
     {
         Vector3 spawnPos = _target.ClosestPoint(transform.position);
@@ -112,5 +120,4 @@ public class Bullet : NetworkBehaviour
         slime.transform.SetParent(_target.transform);
         return slime;
     }
-
 }

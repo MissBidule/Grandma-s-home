@@ -314,20 +314,19 @@ MonoBehaviour:
   m_renderers:
   - {fileID: 7637491092308997559}
   - {fileID: 5763480866988310096}
-  onSpawnedCalled: 0
   m_isSlowed: 0
   m_isStopped: 0
   m_timerSlowed: 5
   m_timerStop: 5
   m_currentTimerSlowed: 5
   m_currentTimerStop: 5
+  m_stoppedLabel: {fileID: 6256087797766208245}
+  m_slowedLabel: {fileID: 3653350487254509011}
   m_walkSpeed: 4
   m_acceleration: 25
   m_rotationSpeed: 12
   m_climbSpeed: 3.5
   m_wallNormalMaxY: 0.4
-  m_stopped: {fileID: 6256087797766208245}
-  m_slowed: {fileID: 3653350487254509011}
 --- !u!114 &9172356161564681634
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -349,7 +348,7 @@ MonoBehaviour:
   _directChildren: []
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
-  hitPlayer: 0
+  m_hitPlayer: 0
 --- !u!114 &4420112834733810732
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -377,6 +376,7 @@ MonoBehaviour:
   m_scanLayerMask:
     serializedVersion: 2
     m_Bits: 1
+  m_isTransformed: 0
 --- !u!114 &8778548429194373776
 MonoBehaviour:
   m_ObjectHideFlags: 0

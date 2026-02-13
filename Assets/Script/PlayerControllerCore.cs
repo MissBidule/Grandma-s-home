@@ -32,6 +32,10 @@ public class PlayerControllerCore : NetworkBehaviour
                 renderer.material.color = Color.HSVToRGB(UnityEngine.Random.Range(0f, 1f), 0.8f, 0.9f);
             }
         }
+        else
+        {
+            gameObject.tag = "Player";
+        }
     }
     
     private void OnDisable()
