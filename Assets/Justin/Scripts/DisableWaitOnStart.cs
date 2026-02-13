@@ -18,7 +18,7 @@ public class DisableWaitOnStart : NetworkBehaviour
         InstanceHandler.RegisterInstance(this);
     }
 
-    private void OnDestroy()
+    override protected void OnDestroy()
     {
         InstanceHandler.UnregisterInstance<DisableWaitOnStart>();
     }
