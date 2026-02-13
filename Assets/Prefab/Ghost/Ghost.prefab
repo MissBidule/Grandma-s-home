@@ -314,20 +314,19 @@ MonoBehaviour:
   m_renderers:
   - {fileID: 7637491092308997559}
   - {fileID: 5763480866988310096}
-  onSpawnedCalled: 0
   m_isSlowed: 0
   m_isStopped: 0
   m_timerSlowed: 5
   m_timerStop: 5
   m_currentTimerSlowed: 5
   m_currentTimerStop: 5
+  m_stoppedLabel: {fileID: 0}
+  m_slowedLabel: {fileID: 0}
   m_walkSpeed: 4
   m_acceleration: 25
   m_rotationSpeed: 12
   m_climbSpeed: 3.5
   m_wallNormalMaxY: 0.4
-  m_stopped: {fileID: 6256087797766208245}
-  m_slowed: {fileID: 3653350487254509011}
 --- !u!114 &9172356161564681634
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -349,7 +348,7 @@ MonoBehaviour:
   _directChildren: []
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
-  hitPlayer: 0
+  m_hitPlayer: 0
 --- !u!114 &4420112834733810732
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -377,6 +376,7 @@ MonoBehaviour:
   m_scanLayerMask:
     serializedVersion: 2
     m_Bits: 1
+  m_isTransformed: 0
 --- !u!114 &8778548429194373776
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1397,6 +1397,7 @@ GameObject:
   - component: {fileID: 2156981590633836037}
   - component: {fileID: 3029627579750678389}
   - component: {fileID: 9050502016141952390}
+  - component: {fileID: 7260665056026133308}
   m_Layer: 0
   m_Name: CinemachineBrain
   m_TagString: Untagged
@@ -1546,6 +1547,14 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!81 &7260665056026133308
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5516181086441010449}
+  m_Enabled: 1
 --- !u!1 &5777483316362531218
 GameObject:
   m_ObjectHideFlags: 0
