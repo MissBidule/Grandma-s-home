@@ -30,6 +30,8 @@ public class ChildController : PlayerControllerCore
     protected override void OnSpawned()
     {
         base.OnSpawned();
+        
+        Debug.Log($"[ChildController] OnSpawned - isOwner: {isOwner}, name: {gameObject.name}");
 
         enabled = isOwner;
     }

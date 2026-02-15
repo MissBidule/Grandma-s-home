@@ -12,6 +12,15 @@ public class ChildInputController : NetworkBehaviour
     public Vector2 m_lookInputVector { get; private set; }
     private ChildController m_childController;
 
+    protected override void OnSpawned()
+    {
+        base.OnSpawned();
+        
+        Debug.Log($"[ChildInputController] OnSpawned - isOwner: {isOwner}, name: {gameObject.name}");
+
+        enabled = isOwner;
+    }
+
     /*
      * @brief Awake is called when the script instance is being loaded
      * Gets the ChildController component.

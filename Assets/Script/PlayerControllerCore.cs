@@ -20,9 +20,27 @@ public class PlayerControllerCore : NetworkBehaviour
     protected override void OnSpawned()
     {
         base.OnSpawned();
+        
+        Debug.Log($"[{gameObject.name}] OnSpawned - isOwner: {isOwner}, localPlayer: {localPlayer}, owner: {owner}");
 
         enabled = isOwner;
-        m_playerCamera.gameObject.SetActive(isOwner);
+        
+        // Properly manage camera for ownership
+        if (m_playerCamera != null)
+        {
+            if (isOwner)
+            {
+                m_playerCamera.Priority = 10;
+                m_playerCamera.enabled = true;
+                m_playerCamera.gameObject.SetActive(true);
+            }
+            else
+            {
+                m_playerCamera.Priority = 0;
+                m_playerCamera.enabled = false;
+                m_playerCamera.gameObject.SetActive(false);
+            }
+        }
 
         if (!isOwner) {
             

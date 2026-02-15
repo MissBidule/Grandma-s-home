@@ -23,6 +23,13 @@ public class ChildCameraController : NetworkBehaviour
     private Transform m_target;
     private Rigidbody m_rigidbody;
 
+    protected override void OnSpawned()
+    {
+        base.OnSpawned();
+
+        enabled = isOwner;
+    }
+    
     /*
      * @brief   Initializes references and locks the cursor
      * @return  void
