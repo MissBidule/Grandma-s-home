@@ -18,6 +18,7 @@ public class ChildCameraController : NetworkBehaviour
 
     private float m_yaw;
     private float m_pitch;
+    private float m_xOffset;
 
     private ChildInputController m_childInputController;
     private Transform m_target;
@@ -39,6 +40,7 @@ public class ChildCameraController : NetworkBehaviour
         m_childInputController = GetComponentInParent<ChildInputController>();
         m_target = transform.parent;
         m_rigidbody = GetComponentInParent<Rigidbody>();
+        m_xOffset = transform.position.x;
 
         UnityEngine.Cursor.lockState = CursorLockMode.Locked;
     }
@@ -49,7 +51,7 @@ public class ChildCameraController : NetworkBehaviour
     */
     private void LateUpdate()
     {
-        Vector3 pivot = m_target.position + m_pivotOffset;
+        Vector3 pivot = m_target.position + m_target.right * m_xOffset + m_pivotOffset;
         Quaternion rotation;
         Vector3 desiredOffset;
         float finalDistance = m_distance;
