@@ -58,13 +58,7 @@ public class Bullet : NetworkBehaviour
     * @brief  This function allows you to show or hide a Decal and define for how long.
     * 
     * If the ball hits a Collider that has a "Wall" tag, The Slime Decal appears for the duration "timeSlimeWall" before disappearing., then the ball.
-    * If the ball hits an existing Collider that already contains a Decal, then the ball is destroyed and nothing else happens.
-    * Otherwise, a Slime Decal of size "size" appears at the point of impact (using the "SpawnSlimePrefab" function), it is stored in the "m_slimeOnCollider" dictionary, and the ball is destroyed.
-    * 
-    * @param  size:  size of the Decal created
-    * @param  timeSlimeWall:  the duration of slime appearance on the walls
     */
-    //where ? wrong parameters ?
     private void OnTriggerEnter(Collider _other)
     {
         float size = 1.5f;

@@ -68,11 +68,11 @@ public class ChildCameraController : NetworkBehaviour
         if (Physics.Raycast(
             pivot,
             desiredOffset.normalized,
-            out RaycastHit hit2,
+            out RaycastHit hit,
             m_distance,
             m_collisionMask))
         {
-            finalDistance = hit2.distance - m_collisionOffset;
+            finalDistance = hit.distance - m_collisionOffset;
         }
         Vector3 finalOffset2 = rotation * Vector3.back * finalDistance;
         transform.position = pivot + finalOffset2;

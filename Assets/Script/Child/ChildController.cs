@@ -170,7 +170,6 @@ public class ChildController : PlayerControllerCore
 
     }
 
-    //logic to implement
     /*
      * @brief Enables the attack collider to detect hits, asked on the server
      * @return void
