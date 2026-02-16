@@ -34,11 +34,8 @@ public class GhostInputController : NetworkBehaviour
     protected override void OnSpawned()
     {
         base.OnSpawned();
-        
-        Debug.Log($"[GhostInputController] OnSpawned - isOwner: {isOwner}, name: {gameObject.name}");
 
         enabled = isOwner;
-        GetComponent<PlayerInput>().enabled = isOwner;
     }
 
     /*

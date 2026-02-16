@@ -3,11 +3,11 @@ using PurrNet;
 using PurrNet.StateMachine;
 using UnityEngine;
 
-public class RoundRuningState : StateNode<List<PlayerControllerMulti_TEMP>>
+public class RoundRuningState : StateNode<List<PlayerControllerCore>>
 {
     private List<PlayerID> _players = new();
     
-    public override void Enter(List<PlayerControllerMulti_TEMP> players, bool asServer)
+    public override void Enter(List<PlayerControllerCore> players, bool asServer)
     {
         base.Enter(players, asServer);
         

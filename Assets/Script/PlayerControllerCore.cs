@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Cinemachine;
 using PurrNet;
+using UnityEngine.InputSystem;
 
 /*
  * @brief Player Core class inherited by Child & phantom
@@ -24,6 +25,9 @@ public class PlayerControllerCore : NetworkBehaviour
         Debug.Log($"[{gameObject.name}] OnSpawned - isOwner: {isOwner}, localPlayer: {localPlayer}, owner: {owner}");
 
         enabled = isOwner;
+        GetComponent<PlayerInput>().enabled = isOwner;
+        GetComponent<AudioSource>().enabled = !isOwner;
+        GetComponentInChildren<CinemachineBrain>().gameObject.SetActive(!isOwner);
         
         // Properly manage camera for ownership
         if (m_playerCamera != null)

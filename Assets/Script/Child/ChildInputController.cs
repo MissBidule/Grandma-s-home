@@ -17,7 +17,6 @@ public class ChildInputController : NetworkBehaviour
         base.OnSpawned();
 
         enabled = isOwner;
-        GetComponent<PlayerInput>().enabled = isOwner;
     }
 
     /*
