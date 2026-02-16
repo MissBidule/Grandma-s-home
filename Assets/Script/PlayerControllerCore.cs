@@ -27,7 +27,7 @@ public class PlayerControllerCore : NetworkBehaviour
         enabled = isOwner;
         GetComponent<PlayerInput>().enabled = isOwner;
         GetComponent<AudioSource>().enabled = !isOwner;
-        GetComponentInChildren<CinemachineBrain>().gameObject.SetActive(!isOwner);
+        GetComponentInChildren<CinemachineBrain>().gameObject.SetActive(isOwner);
         
         // Properly manage camera for ownership
         if (m_playerCamera != null)

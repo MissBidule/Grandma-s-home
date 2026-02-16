@@ -38,7 +38,7 @@ public class PlayerSpawningState : StateNode
         {
             bool isChild = currentSpawnIndex % 2 == 0;
 
-            Transform spawnPoint = isChild ?  m_childSpawnPoints[currentSpawnIndex/2] : m_ghostSpawnPoints[currentSpawnIndex/2];
+            Transform spawnPoint;
             PlayerControllerCore newPlayer;
 
             if (isChild)
