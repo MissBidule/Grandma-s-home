@@ -1,11 +1,11 @@
+using PurrNet;
 using UnityEngine;
 
-/**
-@brief       Script du sabotage d'objet
-@details     La classe \c SabotageObject gère le sabotage (QTE, meshes, highlight, score) et expose une interaction
-             contrôlée par le joueur via \c IPlayerInteractable.
-*/
-public class SabotageObject : MonoBehaviour
+/*
+ * @brief  Contains class declaration for SabotageObject
+ * @details Script that handles sabotage (QTE, meshes...) and exposes an interaction handled by the player
+ */
+public class SabotageObject : NetworkBehaviour, IInteractable
 {
     [Header("State Meshes")]
     [SerializeField] private GameObject m_normalMesh;
@@ -24,37 +24,42 @@ public class SabotageObject : MonoBehaviour
     [SerializeField] private string m_promptMessage = "E : Sabotage";
     [SerializeField] private GhostInteract m_saboteur;
 
-    [Header("QTE")]
-    [SerializeField] private QteCircle m_qteCircle;
+    private QteCircle m_qteCircle;
 
     public bool m_isSabotaged;
     private bool m_isQteRunning;
     private bool m_isFocused;
 
+    protected override void OnSpawned()
+    {
+        base.OnSpawned();
+    }
+
     private void Start()
     {
         ApplyState();
         SetHighlight(false);
+
+        m_qteCircle = FindAnyObjectByType<QteCircle>();
     }
 
     /**
-    @brief      Focus : active highlight + prompt
-    @param      _playerType: type du joueur
+    @brief      Focus : activates highlight + prompt
+    @param      _playerType: player's type
     */
     
     public void OnFocus()
     {
         m_isFocused = true;
-
         SetHighlight(true);
 
-        if (InteractPromptUI.Instance != null)
-            InteractPromptUI.Instance.Show(m_promptMessage);
+        if (InteractPromptUI.m_Instance != null)
+            InteractPromptUI.m_Instance.Show(m_promptMessage);
     }
 
     /**
-    @brief      Unfocus : coupe highlight + prompt
-    @param      _playerType: type du joueur
+    @brief      Unfocus : hides highlight + prompt
+    @param      _playerType: player's type
     */
     public void OnUnfocus()
     {
@@ -62,34 +67,40 @@ public class SabotageObject : MonoBehaviour
 
         SetHighlight(false);
 
-        if (InteractPromptUI.Instance != null)
-            InteractPromptUI.Instance.Hide();
+        if (InteractPromptUI.m_Instance != null)
+            InteractPromptUI.m_Instance.Hide();
     }
 
-    public void StartQte(GhostInteract sabo)
+    public void OnInteract(GhostInteract _ghost)
     {
-        if (m_qteCircle == null)
-        {
-            Sabotage();
-            return;
-        }
+        if (m_isSabotaged || m_isQteRunning) return;
+        Rigidbody rb = _ghost.GetComponentInParent<Rigidbody>();
+        rb.constraints = RigidbodyConstraints.FreezeAll;
+        StartQte(_ghost);
+    }
 
+    public void OnStopInteract(GhostInteract _ghost)
+    {
+
+    }
+
+    public void StartQte(GhostInteract _sabo)
+    {
         m_isQteRunning = true;
 
         SetHighlight(false);
-        if (InteractPromptUI.Instance != null)
-            InteractPromptUI.Instance.Hide();
+        if (InteractPromptUI.m_Instance != null)
+            InteractPromptUI.m_Instance.Hide();
 
-        m_saboteur = sabo;
+        m_saboteur = _sabo;
         m_qteCircle.StartQte(OnQteFinished);
     }
 
     private void OnQteFinished(bool _success)
     {
-
         m_isQteRunning = false;
 
-        m_saboteur.OnSabotageover(_success);
+        m_saboteur.OnSabotageOver(_success);
         if (_success)
         {
             Sabotage();
@@ -101,8 +112,8 @@ public class SabotageObject : MonoBehaviour
         if (m_isFocused)
         {
             SetHighlight(true);
-            if (InteractPromptUI.Instance != null)
-                InteractPromptUI.Instance.Show(m_promptMessage);
+            if (InteractPromptUI.m_Instance != null)
+                InteractPromptUI.m_Instance.Show(m_promptMessage);
         }
     }
 
@@ -113,11 +124,11 @@ public class SabotageObject : MonoBehaviour
         ApplyState();
         SetHighlight(false);
 
-        if (InteractPromptUI.Instance != null)
-            InteractPromptUI.Instance.Hide();
+        if (InteractPromptUI.m_Instance != null)
+            InteractPromptUI.m_Instance.Hide();
 
-        if (ScoreManager.Instance != null)
-            ScoreManager.Instance.Add(m_scoreValue);
+        if (ScoreManager.m_Instance != null)
+            ScoreManager.m_Instance.Add(m_scoreValue);
     }
 
     private void ApplyState()

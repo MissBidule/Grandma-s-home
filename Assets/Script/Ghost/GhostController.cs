@@ -1,22 +1,28 @@
-﻿using UnityEngine;
+﻿using PurrNet;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /**
 @brief       Controller for the Ghost character
 @details     Handles movement, rotation and wall climbing
 */
-public class GhostController : MonoBehaviour
+public class GhostController : PlayerControllerCore
 {
-    [Header("References")]
+    [Header("Ghost references")]
     private GhostInputController m_ghostInputController;
     private GhostMorph m_ghostMorph;
 
-    [SerializeField] private bool m_isSlowed = false;
-    [SerializeField] public bool m_isStopped = false;
-    [SerializeField] private float m_timerSlowed = 5f;
-    [SerializeField] private float m_timerStop = 5f;
-    [SerializeField] private float m_currentTimerSlowed = 5f;
-    [SerializeField] private float m_currentTimerStop = 5f;
+    public bool m_isSlowed = false;
+    public bool m_isStopped = false;
+    public float m_timerSlowed = 5f;
+    public float m_timerStop = 5f;
+    public float m_currentTimerSlowed = 5f;
+    public float m_currentTimerStop = 5f;
+
+    [Header("Canva")]
+    public GameObject m_stoppedLabel;
+    public GameObject m_slowedLabel;
+
 
     [Header("Movement")]
     [SerializeField] private float m_walkSpeed = 4f;
@@ -29,16 +35,19 @@ public class GhostController : MonoBehaviour
     [SerializeField] private float m_climbSpeed = 3.5f;
     [SerializeField] private float m_wallNormalMaxY = 0.4f;
 
-    [Header("Canva")]
-    [SerializeField] public GameObject m_stopped;
-    [SerializeField] public GameObject m_slowed;
-
     private Rigidbody m_rigidbody;
 
     private bool m_canClimbThisFrame;
     private Vector3 m_wallNormal;
 
     private float m_speedModifier = 1f;
+
+    protected override void OnSpawned()
+    {
+        base.OnSpawned();
+
+        enabled = isOwner;
+    }
 
     private void Start()
     {
@@ -52,25 +61,26 @@ public class GhostController : MonoBehaviour
     */
     private void Update()
     {
-        if (m_isSlowed)
+        if (m_isStopped)
+        {
+            m_rigidbody.constraints = RigidbodyConstraints.FreezeAll;
+            m_currentTimerStop -= Time.deltaTime;
+            m_slowedLabel.SetActive(false);
+            if (m_currentTimerStop <= 0f)
+            {
+                m_rigidbody.constraints = RigidbodyConstraints.None; 
+                m_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+                m_isStopped = false;
+                m_stoppedLabel.SetActive(false);
+            }
+        }
+        else if (m_isSlowed)
         {
             m_currentTimerSlowed -= Time.deltaTime;
             if (m_currentTimerSlowed <= 0f)
             {
                 m_isSlowed = false;
-                m_slowed.SetActive(false);
-                m_currentTimerSlowed = m_timerSlowed;
-            }
-        }
-
-        if (m_isStopped)
-        {
-            m_currentTimerStop -= Time.deltaTime;
-            if (m_currentTimerStop <= 0f)
-            {
-                m_isStopped = false;
-                m_stopped.SetActive(false);
-                m_currentTimerStop = m_timerStop;
+                m_slowedLabel.SetActive(false);
             }
         }
 
@@ -106,9 +116,9 @@ public class GhostController : MonoBehaviour
     {
         if (m_rigidbody == null) return;
         if (m_ghostInputController == null) return;
-        if (Camera.main == null) return;
+        if (m_playerCamera == null) return;
 
-        Transform cam = Camera.main.transform;
+        Transform cam = m_playerCamera.transform;
 
         Vector3 forward = cam.forward;
         Vector3 right = cam.right;
@@ -168,26 +178,6 @@ public class GhostController : MonoBehaviour
     }
 
     /**
-    @brief      Apply slow effect from projectile hit
-    */
-    public void GotHitByProjectile()
-    {
-        m_isSlowed = true;
-        m_slowed.SetActive(true);
-        m_currentTimerSlowed = m_timerSlowed;
-    }
-
-    /**
-    @brief      Apply stop effect from close combat hit
-    */
-    public void GotHitByCac()
-    {
-        m_isStopped = true;
-        m_stopped.SetActive(true);
-        m_currentTimerStop = m_timerStop;
-    }
-
-    /**
     @brief      Detect climbable wall during collision
     */
     private void OnCollisionStay(Collision _collision)
@@ -212,14 +202,5 @@ public class GhostController : MonoBehaviour
     {
         m_canClimbThisFrame = false;
         m_wallNormal = Vector3.zero;
-    }
-
-    /*
-     * @brief  This function allows you to switch to the SampleScene. (DEBUG PURPOSES ONLY)
-     * @return void
-     */
-    public void SwitchScene()
-    {
-        SceneManager.LoadScene("Scene_Child_Test");
     }
 }

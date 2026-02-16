@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using PurrNet;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,10 +8,8 @@ using UnityEngine.InputSystem;
  * @brief Contains class declaration for WheelController
  * @details The WheelController class manages the transformation wheel UI and handles input to open/close it.
  */
-public class WheelController : MonoBehaviour
+public class WheelController : NetworkBehaviour
 {
-    public static WheelController m_Instance;
-
     [SerializeField] private Animator m_anim;
     [SerializeField] private GhostMorph m_ghostTransform;
     [SerializeField] private List<WheelButtonController> m_wheelButtons;
@@ -20,6 +19,7 @@ public class WheelController : MonoBehaviour
 
     private GameObject m_pendingPrefabToAdd;
     private Sprite m_pendingIconToAdd;
+    public PlayerID m_localPlayer;
 
     /*
      * @brief Awake is called when the script instance is being loaded
@@ -28,15 +28,10 @@ public class WheelController : MonoBehaviour
      */
     void Awake()
     {
-        m_Instance = this;
         if (m_anim == null)
         {
             m_anim = GetComponent<Animator>();
         }
-
-        // Will break in multi I guess, cause there will be multiple instances of <<GhostMorph>> ?
-        // We would need an other way to get reference to it
-        m_ghostTransform = FindAnyObjectByType<GhostMorph>();
     }
 
     /*
@@ -51,8 +46,9 @@ public class WheelController : MonoBehaviour
             return;
         }
 
-        Cursor.lockState = CursorLockMode.Confined;
         bool toggle = !m_anim.GetBool("OpenWheel");
+        Cursor.lockState = toggle ? CursorLockMode.Confined : CursorLockMode.Locked;
+        
         m_anim.SetBool("OpenWheel", toggle);
     }
 
@@ -116,7 +112,7 @@ public class WheelController : MonoBehaviour
         foreach (WheelButtonController button in m_wheelButtons)
         {
             TransformOption option = button.GetTransformOption();
-            if (option != null && option.icon == _icon)
+            if (option != null && option.m_icon == _icon)
             {
                 return true;
             }
@@ -170,6 +166,7 @@ public class WheelController : MonoBehaviour
 
         SelectPrefab(m_pendingPrefabToAdd);
 
+        Cursor.lockState = CursorLockMode.Locked;
         m_anim.SetBool("OpenWheel", false);
 
         m_isWaitingForSlotSelection = false;
@@ -186,6 +183,19 @@ public class WheelController : MonoBehaviour
     public void SelectPrefab(GameObject _prefab)
     {
         m_selectedPrefab = _prefab;
+        if (m_ghostTransform == null)
+        {
+            // Will break in multi I guess, cause there will be multiple instances of <<GhostMorph>> ?
+            // We would need an other way to get reference to it
+            //there should not as there can only be one per session open I guess
+            foreach (GhostMorph ghostMorph in FindObjectsByType<GhostMorph>(FindObjectsSortMode.None))
+            {
+                if (ghostMorph.owner == m_localPlayer)
+                {
+                    m_ghostTransform = ghostMorph;
+                }
+            }
+        }
         m_ghostTransform.SetPreview(_prefab);
         Cursor.lockState = CursorLockMode.Locked;
 
@@ -205,5 +215,10 @@ public class WheelController : MonoBehaviour
         {
             eventSystem.SetSelectedGameObject(null);
         }
+    }
+
+    public static implicit operator WheelController(PlayerID? v)
+    {
+        throw new NotImplementedException();
     }
 }

@@ -1,7 +1,8 @@
+using PurrNet;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class WheelSliceHit : MonoBehaviour
+public class WheelSliceHit : NetworkBehaviour
 {
     void Awake()
     {

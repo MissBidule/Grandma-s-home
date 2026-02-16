@@ -1,7 +1,12 @@
+using PurrNet;
+using PurrNet.Logging;
+using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class GhostMorph : MonoBehaviour
+
+//MISSING COMM
+public class GhostMorph : NetworkBehaviour
 {
     [SerializeField] private GameObject m_mesh;
     [SerializeField] private GhostMorphPreview m_previewGhost;
@@ -9,24 +14,36 @@ public class GhostMorph : MonoBehaviour
     [SerializeField] private LayerMask m_scanLayerMask;
     private WheelController m_wheel;
 
-    private bool m_isTransformed = false;
+    public bool m_isTransformed = false;
     private GameObject m_currentPrefab = null;
     private Collider m_playerCollider;
     private MeshRenderer[] m_renderers;
     private Material[][] m_originalMaterials;
 
-    void Start()
+    public PlayerID m_localPlayer;
+
+    protected override void OnSpawned()
     {
+        base.OnSpawned();
+        
+        // Move Start code to OnSpawned for proper network Initialisation
+        
         m_playerCollider = GetComponent<BoxCollider>();
         m_renderers = m_mesh.GetComponentsInChildren<MeshRenderer>();
 
-        m_wheel = WheelController.m_Instance;
+        m_wheel = GetComponent<GhostInputController>().m_wheelController;
+        m_wheel.m_localPlayer = (PlayerID)localPlayer;
 
         m_originalMaterials = new Material[m_renderers.Length][];
         for (int i = 0; i < m_renderers.Length; i++)
         {
             m_originalMaterials[i] = m_renderers[i].sharedMaterials;
         }
+    }
+
+    void Start()
+    {
+        // Code moved to OnSpawned
     }
 
     public void SetPreview(GameObject _prefab)
@@ -52,10 +69,9 @@ public class GhostMorph : MonoBehaviour
             return;
         }
         GameObject prefab = m_wheel.m_selectedPrefab;
-        ApplyPrefab(prefab);
+        ApplyPrefab(prefab, m_previewGhost.transform.localPosition);
         m_wheel.m_selectedPrefab = null;
         m_previewGhost.GetComponent<MeshRenderer>().enabled = false;
-        m_isTransformed = true;
         Rigidbody rb = GetComponent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.FreezeRotation;
 
@@ -77,6 +93,8 @@ public class GhostMorph : MonoBehaviour
      * Restores the original mesh, materials, and collider.
      * @return void
      */
+     //Called by everyone
+    [ObserversRpc(runLocally: true)]
     public void RevertToOriginal()
     {
         if (!m_isTransformed)
@@ -104,8 +122,11 @@ public class GhostMorph : MonoBehaviour
      * @param _prefab: The prefab GameObject to copy from.
      * @return void
      */
-    void ApplyPrefab(GameObject _prefab)
+     //Called by everyone
+    [ObserversRpc(runLocally: true)]
+    void ApplyPrefab(GameObject _prefab, Vector3 _position)
     {
+        m_isTransformed = true;
         MeshFilter targetFilter = _prefab.GetComponent<MeshFilter>();
         MeshRenderer targetRenderer = _prefab.GetComponent<MeshRenderer>();
         Collider targetCollider = _prefab.GetComponent<Collider>();
@@ -117,7 +138,8 @@ public class GhostMorph : MonoBehaviour
         m_playerCollider.enabled = false;
         m_mesh.SetActive(false);
         m_currentPrefab = Instantiate(_prefab, transform);
-        m_currentPrefab.transform.localPosition = m_previewGhost.transform.localPosition;
+        //correct position for observers
+        m_currentPrefab.transform.localPosition = _position;
     }
 
     /*
@@ -128,7 +150,7 @@ public class GhostMorph : MonoBehaviour
     public void ScanForPrefab()
     {
         Debug.Log("Scan");
-        Camera mainCamera = Camera.main;
+        CinemachineCamera mainCamera = GetComponent<PlayerControllerCore>().m_playerCamera;
 
         Vector3 rayOrigin = mainCamera.transform.position;
         Vector3 rayDirection = mainCamera.transform.forward;
@@ -151,12 +173,12 @@ public class GhostMorph : MonoBehaviour
 
         Debug.Log($"Scannable object found: {scannedObject.name}");
 
-        if (scannableComponent.icon == null)
+        if (scannableComponent.m_icon == null)
         {
             Debug.Log($"No icon for the scanned object: {scannedObject.name}");
             return;
         }
 
-        m_wheel.TryAddPrefabToWheel(scannedObject, scannableComponent.icon);
+        m_wheel.TryAddPrefabToWheel(scannedObject, scannableComponent.m_icon);
     }
 }

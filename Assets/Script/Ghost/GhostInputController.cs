@@ -1,3 +1,5 @@
+using PurrNet;
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -5,13 +7,15 @@ using UnityEngine.InputSystem;
  * @brief Contains class declaration for PlayerInputController
  * @details The PlayerInputController class handles player input using Unity's Input System.
  */
-public class GhostInputController : MonoBehaviour
+public class GhostInputController : NetworkBehaviour
 {
     public Vector2 m_movementInputVector { get; private set; }
     public Vector2 m_lookInputVector { get; private set; }
     private GhostController m_ghostController;
     private GhostMorph m_ghostTransform;
     private GhostInteract m_ghostInteract;
+
+    [NonSerialized] public WheelController m_wheelController;
 
     /*
      * @brief Awake is called when the script instance is being loaded
@@ -23,6 +27,15 @@ public class GhostInputController : MonoBehaviour
         m_ghostController = GetComponent<GhostController>();
         m_ghostTransform = GetComponent<GhostMorph>();
         m_ghostInteract = GetComponentInChildren<GhostInteract>();
+
+        m_wheelController = FindAnyObjectByType<WheelController>();
+    }
+
+    protected override void OnSpawned()
+    {
+        base.OnSpawned();
+
+        enabled = isOwner;
     }
 
     /*
@@ -78,7 +91,7 @@ public class GhostInputController : MonoBehaviour
     {
         if (_context.performed)
         {
-            WheelController.m_Instance.Toggle();
+            m_wheelController.Toggle();
         }
     }
 
@@ -105,19 +118,6 @@ public class GhostInputController : MonoBehaviour
         if (_context.performed)
         {
             m_ghostInteract.Interact();
-        }
-    }
-
-    /*
-     * @brief OnSwitchScene is called by the Input System when switch scene input is detected
-     * @param _context: The context of the input action
-     * @return void
-     */
-    public void OnSwitchScene(InputAction.CallbackContext _context)
-    {
-        if (_context.performed)
-        {
-            m_ghostController.SwitchScene();
         }
     }
 }

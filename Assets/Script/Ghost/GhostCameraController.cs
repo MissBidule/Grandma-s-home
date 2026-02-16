@@ -1,10 +1,11 @@
+using PurrNet;
 using UnityEngine;
 
 /*
  * @brief       Contains class declaration for PlayerCameraController
  * @details     Handles third-person orbital camera controlled by mouse input with collision handling.
  */
-public class GhostCameraController : MonoBehaviour
+public class GhostCameraController : NetworkBehaviour
 {
     public float m_sensitivity = 120f;
     public float m_distance = 4f;
@@ -20,6 +21,13 @@ public class GhostCameraController : MonoBehaviour
     private GhostInputController m_ghostInputController;
     private Transform m_target;
 
+    protected override void OnSpawned()
+    {
+        base.OnSpawned();
+
+        enabled = isOwner;
+    }
+    
     /*
      * @brief   Initializes references and locks the cursor
      * @return  void
@@ -44,7 +52,7 @@ public class GhostCameraController : MonoBehaviour
         float finalDistance = m_distance;
 
         // Do not move the camera if the wheel is open
-        if (WheelController.m_Instance != null && WheelController.m_Instance.IsWheelOpen())
+        if (m_ghostInputController.m_wheelController != null && m_ghostInputController.m_wheelController.IsWheelOpen())
         {
             rotation = Quaternion.Euler(m_pitch, m_yaw, 0f);
             desiredOffset = rotation * Vector3.back * m_distance;

@@ -1,3 +1,4 @@
+using PurrNet;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -6,7 +7,7 @@ using UnityEngine.SceneManagement;
  * @details The ChildController class handles child actions by reading input from the ChildInputController component.
  *          Movements are camera-relative and physics-based using Rigidbody (may change).
  */
-public class ChildController : MonoBehaviour
+public class ChildController : PlayerControllerCore
 {
     private ChildInputController m_childInputController;
     private Rigidbody m_rigidbody;
@@ -18,6 +19,8 @@ public class ChildController : MonoBehaviour
     private float m_attackRange = 0.5f;
 
     private bool m_isranged;
+    [SerializeField] private float m_cdGun = 0.2f;
+    private float m_lastShot;
     private float m_yaw;
 
 
@@ -26,6 +29,13 @@ public class ChildController : MonoBehaviour
     [SerializeField] private GameObject m_bulletPrefab;
     [SerializeField] private float m_jumpImpulse = 6.0f;
 
+    protected override void OnSpawned()
+    {
+        base.OnSpawned();
+
+        enabled = isOwner;
+    }
+    
     /*
      * @brief Awake is called when the script instance is being loaded
      * Gets the ChildInputController component.
@@ -35,6 +45,7 @@ public class ChildController : MonoBehaviour
     {
         m_childInputController = GetComponent<ChildInputController>();
         m_rigidbody = GetComponent<Rigidbody>();
+        m_lastShot = m_cdGun;
     }
 
     /*
@@ -43,6 +54,7 @@ public class ChildController : MonoBehaviour
      */
     void Update()
     {
+        m_lastShot += Time.deltaTime;
         Vector2 movementInput = m_childInputController.m_movementInputVector;
         if (m_waitingForInputRelease)
         {
@@ -60,7 +72,7 @@ public class ChildController : MonoBehaviour
             return;
         }
 
-        Transform cameraTransform = Camera.main.transform;
+        Transform cameraTransform = m_playerCamera.transform;
 
         Vector3 cameraForward = cameraTransform.forward;
         Vector3 cameraRight = cameraTransform.right;
@@ -95,9 +107,19 @@ public class ChildController : MonoBehaviour
     void LateUpdate()
     {
         Vector2 lookInput = m_childInputController.m_lookInputVector;
-        m_yaw += lookInput.x * Camera.main.GetComponent<ChildCameraController>().m_sensitivity * Time.deltaTime;
+        m_yaw += lookInput.x * m_playerCamera.GetComponent<ChildCameraController>().m_sensitivity * Time.deltaTime;
         Quaternion targetRot = Quaternion.Euler(0f, m_yaw, 0f);
-        m_rigidbody.transform.rotation = targetRot;
+        float epsilon = 0.01f;
+        if (Mathf.Abs(lookInput.x) > epsilon)
+        {
+            m_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+            m_rigidbody.transform.rotation = targetRot;
+        }
+        else
+        {
+
+            m_rigidbody.freezeRotation = true;
+        }
     }
 
     /*
@@ -125,39 +147,45 @@ public class ChildController : MonoBehaviour
         return false;
     }
 
-
-
     /*
      * @brief function called when the child inputs the hit command
      * @return void
      */
     public void Attacks()
     {
-        if (m_isranged)
+        if (m_isranged) 
         {
-            Shoot();
+            if (m_lastShot >= m_cdGun) 
+            {
+                m_lastShot = 0;
+                Debug.Log("shoot");
+                Shoot();
+            }
         }
         else
         {
             Cac();
+            Debug.Log("cac");
         }
 
     }
 
     /*
-     * @brief Enables the attack collider to detect hits.
+     * @brief Enables the attack collider to detect hits, asked on the server
      * @return void
      */
+    [ServerRpc]
     private void Cac()
     {
         Collider[] hits = Physics.OverlapSphere(m_bulletSpawnTransform.position, m_attackRange);
 
         foreach (Collider col in hits)
         {
-            var ghost = col.GetComponent<GhostController>();
+            var ghost = col.GetComponent<GhostStatus>();
             if (ghost != null)
             {
-                HitOpponent(ghost);
+                HitOpponent();
+                ghost.GotHitByCac();
             }
         }
     }
@@ -167,10 +195,9 @@ public class ChildController : MonoBehaviour
      * TODO: Implement actual hit logic
      * @return void
      */
-    private void HitOpponent(GhostController _ghost)
+    private void HitOpponent()
     {
-        print("tape un fant�me");
-        _ghost.GotHitByCac();
+        //anim only
     }
 
 
@@ -179,12 +206,9 @@ public class ChildController : MonoBehaviour
      * We instantaneously transfer the ball and put the force into impulse mode.
      * @return void
      */
-
     void Shoot()
     {
-        print("shoot");
         GameObject bullet = Instantiate(m_bulletPrefab, m_bulletSpawnTransform.position, transform.rotation);
-        bullet.GetComponent<Rigidbody>().AddForce(m_bulletSpawnTransform.forward, ForceMode.Impulse);
     }
 
     /*
@@ -213,14 +237,5 @@ public class ChildController : MonoBehaviour
     public void SwitchAttackType()
     {
         m_isranged = !m_isranged;
-    }
-
-    /*
-     * @brief  This function allows you to switch to the SampleScene. (DEBUG PURPOSES ONLY)
-     * @return void
-     */
-    public void SwitchScene()
-    {
-        SceneManager.LoadScene("Scene_Ghost");
     }
 }

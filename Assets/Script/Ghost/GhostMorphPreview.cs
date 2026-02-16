@@ -1,11 +1,12 @@
 using UnityEngine;
 using System.Collections.Generic;
+using PurrNet;
 
 /*
  * @brief Contains class declaration for TransformPreviewGhost
  * @details The TransformPreviewGhost class handles the preview of transformations, checking for collisions and updating materials accordingly.
  */
-public class GhostMorphPreview : MonoBehaviour
+public class GhostMorphPreview : NetworkBehaviour
 {
     [SerializeField] private GameObject m_mesh;
 
@@ -17,6 +18,13 @@ public class GhostMorphPreview : MonoBehaviour
 
     [SerializeField] private Color m_validColor = new Color(1f, 1f, 1f, 0.3f);
     [SerializeField] private Color m_invalidColor = new Color(1f, 0f, 0f, 0.3f);
+
+    protected override void OnSpawned()
+    {
+        base.OnSpawned();
+
+        enabled = isOwner;
+    }
 
     /*
      * @brief Awake is called when the script instance is being loaded
