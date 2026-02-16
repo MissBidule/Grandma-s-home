@@ -1,4 +1,5 @@
 using PurrNet;
+using PurrNet.Logging;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -24,12 +25,21 @@ public class GhostMorph : NetworkBehaviour
     protected override void OnSpawned()
     {
         base.OnSpawned();
-    }
-
-    void Start()
-    {
+        
+        // Move Start code to OnSpawned for proper network Initialisation
+        
         m_playerCollider = GetComponent<BoxCollider>();
         m_renderers = m_mesh.GetComponentsInChildren<MeshRenderer>();
+        
+        if (localPlayer.HasValue)
+        {
+            m_wheel = WheelController.m_Instance;
+            m_wheel.m_localPlayer = (PlayerID)localPlayer;
+        }
+        else
+        {
+            PurrLogger.LogError("Problem instancing the player PlayerID not found", this);
+        }
 
         m_wheel = GetComponent<GhostInputController>().m_wheelController;
         m_wheel.m_localPlayer = (PlayerID)localPlayer;
@@ -39,6 +49,11 @@ public class GhostMorph : NetworkBehaviour
         {
             m_originalMaterials[i] = m_renderers[i].sharedMaterials;
         }
+    }
+
+    void Start()
+    {
+        // Code moved to OnSpawned
     }
 
     public void SetPreview(GameObject _prefab)

@@ -1,11 +1,18 @@
+using PurrNet;
 using System.Collections.Generic;
 using PurrNet.StateMachine;
 using UnityEngine;
 
 public class PlayerSpawningState : StateNode
 {
-    [SerializeField] private PlayerControllerMulti_TEMP m_playerPrefab;
-    [SerializeField] private List<Transform> m_spawnPoints = new();
+    [Header("Child spawner")]
+    [SerializeField] private ChildController m_childPrefab;
+    [SerializeField] private List<Transform> m_childSpawnPoints = new List<Transform>();
+    
+    [Header("Ghost spawner")]
+    [SerializeField] private GhostController m_ghostPrefab;
+    [Tooltip("Even if rules are to not despawn on disconnect, this will ignore that and always spawn a player.")]
+    [SerializeField] private List<Transform> m_ghostSpawnPoints = new List<Transform>();
     
     public override void Enter(bool _asServer)
     {
@@ -18,22 +25,36 @@ public class PlayerSpawningState : StateNode
 
         var spawnedPlayers = SpawnPlayers();
 
-        machine.Next(spawnedPlayers);
+        // We still keep the player list in case for future implementation of round running state.
+        machine.Next();
     }
     
-    private List<PlayerControllerMulti_TEMP> SpawnPlayers()
+    private List<PlayerControllerCore> SpawnPlayers()
     {
-        var spawnedPlayers = new List<PlayerControllerMulti_TEMP>();
+        var spawnedPlayers = new List<PlayerControllerCore>();
         
         int currentSpawnIndex = 0;
         foreach (var player in networkManager.players)
         {
-            var spawnPoint = m_spawnPoints[currentSpawnIndex];
-            var newPlayer = Instantiate(m_playerPrefab, spawnPoint.position, spawnPoint.rotation);
+            bool isChild = currentSpawnIndex % 2 == 0;
+
+            Transform spawnPoint = isChild ?  m_childSpawnPoints[currentSpawnIndex/2] : m_ghostSpawnPoints[currentSpawnIndex/2];
+            PlayerControllerCore newPlayer;
+
+            if (isChild)
+            {
+                spawnPoint = m_childSpawnPoints[(currentSpawnIndex / 2) % m_childSpawnPoints.Count];
+                newPlayer = UnityProxy.Instantiate(m_childPrefab, spawnPoint.position, spawnPoint.rotation);
+            }
+            else
+            {
+                spawnPoint = m_ghostSpawnPoints[(currentSpawnIndex / 2) %  m_ghostSpawnPoints.Count];
+                newPlayer = UnityProxy.Instantiate(m_ghostPrefab, spawnPoint.position, spawnPoint.rotation);
+            } 
             newPlayer.GiveOwnership(player);
             spawnedPlayers.Add(newPlayer);
             
-            currentSpawnIndex = (currentSpawnIndex + 1) % m_spawnPoints.Count;
+            currentSpawnIndex = currentSpawnIndex + 1;
         }
 
         return spawnedPlayers;
@@ -41,7 +62,7 @@ public class PlayerSpawningState : StateNode
     
     private void DespawnPlayers()
     {
-        var allPlayers = FindObjectsByType<PlayerControllerMulti_TEMP>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        var allPlayers = FindObjectsByType<PlayerControllerCore>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
 
         foreach (var player in allPlayers)
         {

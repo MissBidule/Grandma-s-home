@@ -19,6 +19,13 @@ public class GhostMorphPreview : NetworkBehaviour
     [SerializeField] private Color m_validColor = new Color(1f, 1f, 1f, 0.3f);
     [SerializeField] private Color m_invalidColor = new Color(1f, 0f, 0f, 0.3f);
 
+    protected override void OnSpawned()
+    {
+        base.OnSpawned();
+
+        enabled = isOwner;
+    }
+
     /*
      * @brief Awake is called when the script instance is being loaded
      * Initializes the mesh renderer and collider, sets the collider as a trigger, and updates the material.

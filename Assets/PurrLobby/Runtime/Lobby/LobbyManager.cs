@@ -59,12 +59,16 @@ namespace PurrLobby
         {
             _lastKnownState = new Lobby { IsValid = false };
 
-            if (CurrentProvider != null)
-                SetProvider(CurrentProvider);
-            else
-                PurrLogger.LogWarning("No lobby provider assigned to LobbyManager.");
-
             SetupDataHolder();
+
+            if (CurrentProvider != null)
+            {
+                SetProvider(CurrentProvider);
+            }
+            else
+            {
+                PurrLogger.LogWarning("No lobby provider assigned to LobbyManager.");
+            }
         }
 
         private void SetupDataHolder()
@@ -145,6 +149,14 @@ namespace PurrLobby
 
                 _lastKnownState = room;
                 _currentLobby = room;
+                
+                // Update LobbyDataHolder with player count
+                if (_lobbyDataHolder != null)
+                {
+                    PurrLogger.Log($"Updating player count: {room.Members.Count}", this);
+                    _lobbyDataHolder.setNumber_of_player_in_loby(room.Members.Count);
+                }
+                
                 OnRoomUpdated?.Invoke(room);
 
                 if (!IsStarting && room.Members.TrueForAll(x => x.IsReady))
