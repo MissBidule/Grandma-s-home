@@ -60,8 +60,10 @@ public class QteCircle : NetworkBehaviour
 
         m_needleMarker.GetComponent<Image>().enabled = _visible;
 
+        m_zoneMarkerLarge.GetComponent<Image>().enabled = _visible;
         m_zoneMarkerMedium.GetComponent<Image>().enabled = _visible;
         m_zoneMarkerSmall.GetComponent<Image>().enabled = _visible;
+
     }
 
     /**
@@ -90,30 +92,6 @@ public class QteCircle : NetworkBehaviour
         if (!m_isRunning) return;
 
         RotateNeedle();
-
-        if (Input.GetKeyDown(m_validateKey))
-        {
-            bool success = IsNeedleInZone();
-
-            if (!success)
-            {
-                FinishQte(false);
-                return;
-            }
-
-            m_currentPhaseIndex++;
-
-            if (m_currentPhaseIndex >= m_zoneToleranceByPhase.Length)
-            {
-                FinishQte(true);
-            }
-            else
-            {
-                ResetNeedle();
-                PlaceZoneRandomly();
-                UpdateZoneVisual();
-            }
-        }
     }
 
     /**
@@ -227,5 +205,29 @@ public class QteCircle : NetworkBehaviour
 
         int phaseIndex = Mathf.Clamp(m_currentPhaseIndex, 0, m_zoneToleranceByPhase.Length - 1);
         return m_zoneToleranceByPhase[phaseIndex];
+    }
+
+    public void CheckSuccess()
+    {
+        bool success = IsNeedleInZone();
+
+        if (!success)
+        {
+            FinishQte(false);
+            return;
+        }
+
+        m_currentPhaseIndex++;
+
+        if (m_currentPhaseIndex >= m_zoneToleranceByPhase.Length)
+        {
+            FinishQte(true);
+        }
+        else
+        {
+            ResetNeedle();
+            PlaceZoneRandomly();
+            UpdateZoneVisual();
+        }
     }
 }
