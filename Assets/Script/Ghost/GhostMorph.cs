@@ -3,9 +3,8 @@ using PurrNet.Logging;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections;
 
-
-//MISSING COMM
 public class GhostMorph : NetworkBehaviour
 {
     [SerializeField] private GameObject m_mesh;
@@ -22,12 +21,21 @@ public class GhostMorph : NetworkBehaviour
 
     public PlayerID m_localPlayer;
 
+    [SerializeField] private Color m_highlightColor = Color.yellow;
+    [SerializeField] private float m_pulseSpeed = 3f;
+    [SerializeField] private float m_minIntensity = 0.2f;
+    [SerializeField] private float m_maxIntensity = 0.6f;
+
+    private GameObject m_currentHighlightedObject = null;
+    private Coroutine m_pulseCoroutine = null;
+    private MaterialPropertyBlock m_propertyBlock;
+
     protected override void OnSpawned()
     {
         base.OnSpawned();
-        
+
         // Move Start code to OnSpawned for proper network Initialisation
-        
+
         m_playerCollider = GetComponent<BoxCollider>();
         m_renderers = m_mesh.GetComponentsInChildren<MeshRenderer>();
 
@@ -39,11 +47,165 @@ public class GhostMorph : NetworkBehaviour
         {
             m_originalMaterials[i] = m_renderers[i].sharedMaterials;
         }
+
+        m_propertyBlock = new MaterialPropertyBlock();
     }
 
     void Start()
     {
         // Code moved to OnSpawned
+    }
+
+    void Update()
+    {
+        CheckForScannableObject();
+    }
+
+    /*
+     * @brief Checks for scannable objects in view and highlights them
+     * @return void
+     */
+    private void CheckForScannableObject()
+    {
+        CinemachineCamera mainCamera = GetComponent<PlayerControllerCore>().m_playerCamera;
+        if (mainCamera == null)
+        {
+            ClearHighlight();
+            return;
+        }
+
+        Vector3 rayOrigin = mainCamera.transform.position;
+        Vector3 rayDirection = mainCamera.transform.forward;
+
+        if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, m_scanRange, m_scanLayerMask))
+        {
+            GameObject hitObject = hit.collider.gameObject;
+
+            if (IsPartOfPlayer(hitObject))
+            {
+                ClearHighlight();
+                return;
+            }
+
+            ScannableObject scannableComponent = hitObject.GetComponent<ScannableObject>();
+
+            if (scannableComponent != null && scannableComponent.m_icon != null)
+            {
+                if (m_currentHighlightedObject != hitObject)
+                {
+                    ClearHighlight();
+                    HighlightObject(hitObject);
+                }
+            }
+            else
+            {
+                ClearHighlight();
+            }
+        }
+        else
+        {
+            ClearHighlight();
+        }
+    }
+
+    /*
+     * @brief Checks if a GameObject is part of the player hierarchy
+     * @param _obj: The GameObject to check
+     * @return True if the object is the player or a child of the player
+     */
+    private bool IsPartOfPlayer(GameObject _obj)
+    {
+        Transform current = _obj.transform;
+        while (current != null)
+        {
+            if (current == transform)
+            {
+                return true;
+            }
+            current = current.parent;
+        }
+        return false;
+    }
+
+    /*
+     * @brief Highlights a scannable object with pulsing emission
+     * @param _object: The GameObject to highlight
+     * @return void
+     */
+    private void HighlightObject(GameObject _object)
+    {
+        m_currentHighlightedObject = _object;
+
+        Renderer[] objectRenderers = _object.GetComponentsInChildren<Renderer>();
+
+        foreach (Renderer renderer in objectRenderers)
+        {
+            foreach (Material mat in renderer.sharedMaterials)
+            {
+                if (mat != null)
+                {
+                    mat.EnableKeyword("_EMISSION");
+                }
+            }
+        }
+
+        if (m_pulseCoroutine != null)
+        {
+            StopCoroutine(m_pulseCoroutine);
+        }
+        m_pulseCoroutine = StartCoroutine(PulseHighlight());
+    }
+
+    /*
+     * @brief Animates the highlight with a pulsing effect
+     * @return IEnumerator for coroutine
+     */
+    private IEnumerator PulseHighlight()
+    {
+        float time = 0;
+
+        Renderer[] renderers = m_currentHighlightedObject.GetComponentsInChildren<Renderer>();
+
+        while (m_currentHighlightedObject != null)
+        {
+            float pulse = Mathf.Lerp(m_minIntensity, m_maxIntensity,
+                                    (Mathf.Sin(time * m_pulseSpeed) + 1f) * 0.5f);
+
+            foreach (Renderer r in renderers)
+            {
+                r.GetPropertyBlock(m_propertyBlock);
+                m_propertyBlock.SetColor("_EmissionColor", m_highlightColor * pulse);
+                r.SetPropertyBlock(m_propertyBlock);
+            }
+
+            time += Time.deltaTime;
+            yield return null;
+        }
+    }
+
+    /*
+     * @brief Clears the current highlight by restoring the original materials
+     * @return void
+     */
+    private void ClearHighlight()
+    {
+        if (m_currentHighlightedObject != null)
+        {
+            if (m_pulseCoroutine != null)
+            {
+                StopCoroutine(m_pulseCoroutine);
+                m_pulseCoroutine = null;
+            }
+
+            Renderer[] objectRenderers = m_currentHighlightedObject.GetComponentsInChildren<Renderer>();
+
+            foreach (Renderer r in objectRenderers)
+            {
+                r.SetPropertyBlock(null);
+            }
+
+            m_currentHighlightedObject = null;
+        }
     }
 
     public void SetPreview(GameObject _prefab)
@@ -54,7 +216,6 @@ public class GhostMorph : NetworkBehaviour
         }
         m_previewGhost.SetPreview(_prefab);
     }
-
 
     /*
      * @brief Confirms the transformation based on input
@@ -86,6 +247,8 @@ public class GhostMorph : NetworkBehaviour
         {
             m_wheel.Toggle();
         }
+
+        ClearHighlight();
     }
 
     /*
@@ -93,7 +256,7 @@ public class GhostMorph : NetworkBehaviour
      * Restores the original mesh, materials, and collider.
      * @return void
      */
-     //Called by everyone
+    //Called by everyone
     [ObserversRpc(runLocally: true)]
     public void RevertToOriginal()
     {
@@ -120,9 +283,10 @@ public class GhostMorph : NetworkBehaviour
      * @brief Copies mesh, materials, and collider from the given prefab to the player
      * Applies the components from the prefab if they exist.
      * @param _prefab: The prefab GameObject to copy from.
+     * @param _position: The local position to place the instantiated prefab.
      * @return void
      */
-     //Called by everyone
+    //Called by everyone
     [ObserversRpc(runLocally: true)]
     void ApplyPrefab(GameObject _prefab, Vector3 _position)
     {

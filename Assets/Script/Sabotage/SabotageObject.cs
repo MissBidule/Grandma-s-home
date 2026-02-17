@@ -1,10 +1,7 @@
 using PurrNet;
 using UnityEngine;
+using System.Collections;
 
-/*
- * @brief  Contains class declaration for SabotageObject
- * @details Script that handles sabotage (QTE, meshes...) and exposes an interaction handled by the player
- */
 public class SabotageObject : NetworkBehaviour, IInteractable
 {
     [Header("State Meshes")]
@@ -16,9 +13,10 @@ public class SabotageObject : NetworkBehaviour, IInteractable
 
     [Header("Highlight")]
     [SerializeField] private Renderer m_highlightRenderer;
-    [SerializeField] private int m_highlightMaterialIndex = 0;
-    [SerializeField] private Color m_emissionColor = new Color(0f, 1f, 1f, 1f);
-    [SerializeField] private float m_emissionIntensity = 0.5f;
+    [SerializeField] private Color m_highlightColor = new Color(0f, 1f, 1f, 1f);
+    [SerializeField] private float m_pulseSpeed = 3f;
+    [SerializeField] private float m_minIntensity = 0.2f;
+    [SerializeField] private float m_maxIntensity = 0.6f;
 
     [Header("Interaction")]
     [SerializeField] private string m_promptMessage = "E : Sabotage";
@@ -30,6 +28,9 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     private bool m_isQteRunning;
     private bool m_isFocused;
 
+    private Coroutine m_pulseCoroutine;
+    private MaterialPropertyBlock m_propertyBlock;
+
     protected override void OnSpawned()
     {
         base.OnSpawned();
@@ -37,17 +38,24 @@ public class SabotageObject : NetworkBehaviour, IInteractable
 
     private void Start()
     {
+        m_propertyBlock = new MaterialPropertyBlock();
+
+        // Active l'émission sur les sharedMaterials une seule fois (comme GhostMorph)
+        if (m_highlightRenderer != null)
+        {
+            foreach (Material mat in m_highlightRenderer.sharedMaterials)
+            {
+                if (mat != null)
+                    mat.EnableKeyword("_EMISSION");
+            }
+        }
+
         ApplyState();
         SetHighlight(false);
 
         m_qteCircle = FindAnyObjectByType<QteCircle>();
     }
 
-    /**
-    @brief      Focus : activates highlight + prompt
-    @param      _playerType: player's type
-    */
-    
     public void OnFocus()
     {
         m_isFocused = true;
@@ -57,14 +65,9 @@ public class SabotageObject : NetworkBehaviour, IInteractable
             InteractPromptUI.m_Instance.Show(m_promptMessage);
     }
 
-    /**
-    @brief      Unfocus : hides highlight + prompt
-    @param      _playerType: player's type
-    */
     public void OnUnfocus()
     {
         m_isFocused = false;
-
         SetHighlight(false);
 
         if (InteractPromptUI.m_Instance != null)
@@ -79,16 +82,13 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         StartQte(_ghost);
     }
 
-    public void OnStopInteract(GhostInteract _ghost)
-    {
-
-    }
+    public void OnStopInteract(GhostInteract _ghost) { }
 
     public void StartQte(GhostInteract _sabo)
     {
         m_isQteRunning = true;
-
         SetHighlight(false);
+
         if (InteractPromptUI.m_Instance != null)
             InteractPromptUI.m_Instance.Hide();
 
@@ -120,7 +120,6 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     private void Sabotage()
     {
         m_isSabotaged = true;
-
         ApplyState();
         SetHighlight(false);
 
@@ -141,25 +140,42 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     {
         if (m_highlightRenderer == null) return;
 
-        Material[] materials = m_highlightRenderer.materials;
-        if (materials == null) return;
-
-        int materialIndex = m_highlightMaterialIndex;
-        if (materialIndex < 0 || materialIndex >= materials.Length) return;
-
-        Material material = materials[materialIndex];
-        if (material == null) return;
-        if (!material.HasProperty("_EmissionColor")) return;
-
         if (_enabled)
         {
-            material.EnableKeyword("_EMISSION");
-            material.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
-            material.SetColor("_EmissionColor", m_emissionColor * m_emissionIntensity);
+            if (m_pulseCoroutine != null)
+                StopCoroutine(m_pulseCoroutine);
+            m_pulseCoroutine = StartCoroutine(PulseHighlight());
         }
         else
         {
-            material.SetColor("_EmissionColor", Color.black);
+            if (m_pulseCoroutine != null)
+            {
+                StopCoroutine(m_pulseCoroutine);
+                m_pulseCoroutine = null;
+            }
+
+            // Réinitialise la couleur d'émission via le PropertyBlock
+            m_highlightRenderer.GetPropertyBlock(m_propertyBlock);
+            m_propertyBlock.SetColor("_EmissionColor", Color.black);
+            m_highlightRenderer.SetPropertyBlock(m_propertyBlock);
+        }
+    }
+
+    private IEnumerator PulseHighlight()
+    {
+        float time = 0f;
+
+        while (true)
+        {
+            float pulse = Mathf.Lerp(m_minIntensity, m_maxIntensity,
+                                     (Mathf.Sin(time * m_pulseSpeed) + 1f) * 0.5f);
+
+            m_highlightRenderer.GetPropertyBlock(m_propertyBlock);
+            m_propertyBlock.SetColor("_EmissionColor", m_highlightColor * pulse);
+            m_highlightRenderer.SetPropertyBlock(m_propertyBlock);
+
+            time += Time.deltaTime;
+            yield return null;
         }
     }
 }
