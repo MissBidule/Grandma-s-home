@@ -20,7 +20,9 @@ public class ChildController : PlayerControllerCore
 
     private bool m_isranged;
     [SerializeField] private float m_cdGun = 0.2f;
+    [SerializeField] private float m_cdSwitch = 0.2f;
     private float m_lastShot;
+    private float m_switchingTime;
     private float m_yaw;
 
 
@@ -46,6 +48,7 @@ public class ChildController : PlayerControllerCore
         m_childInputController = GetComponent<ChildInputController>();
         m_rigidbody = GetComponent<Rigidbody>();
         m_lastShot = m_cdGun;
+        m_switchingTime = m_cdSwitch;
     }
 
     /*
@@ -55,6 +58,7 @@ public class ChildController : PlayerControllerCore
     void Update()
     {
         m_lastShot += Time.deltaTime;
+        m_switchingTime += Time.deltaTime;
         Vector2 movementInput = m_childInputController.m_movementInputVector;
         if (m_waitingForInputRelease)
         {
@@ -153,6 +157,7 @@ public class ChildController : PlayerControllerCore
      */
     public void Attacks()
     {
+        if (m_switchingTime < m_cdSwitch) return;
         if (m_isranged) 
         {
             if (m_lastShot >= m_cdGun) 
