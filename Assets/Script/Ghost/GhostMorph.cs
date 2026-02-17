@@ -126,6 +126,7 @@ public class GhostMorph : NetworkBehaviour
     [ObserversRpc(runLocally: true)]
     void ApplyPrefab(GameObject _prefab, Vector3 _position)
     {
+        print("Applying prefab: " + _prefab.name);
         m_isTransformed = true;
         MeshFilter targetFilter = _prefab.GetComponent<MeshFilter>();
         MeshRenderer targetRenderer = _prefab.GetComponent<MeshRenderer>();
