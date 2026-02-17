@@ -54,7 +54,6 @@ public class ChildController : PlayerControllerCore
      */
     void Update()
     {
-        print(IsGrounded());
         m_lastShot += Time.deltaTime;
         Vector2 movementInput = m_childInputController.m_movementInputVector;
         if (m_waitingForInputRelease)
@@ -131,7 +130,6 @@ public class ChildController : PlayerControllerCore
     {
         if (!IsGrounded()) return;
         m_rigidbody.AddForce(Vector3.up * m_jumpImpulse, ForceMode.Impulse);
-        print("jumping");
     }
 
     /*
