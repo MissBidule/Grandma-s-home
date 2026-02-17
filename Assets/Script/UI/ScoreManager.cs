@@ -1,4 +1,3 @@
-using PurrNet;
 using TMPro;
 using UnityEngine;
 
@@ -6,7 +5,7 @@ using UnityEngine;
  * @brief  Contains class declaration for ScoreManager
  * @details Script that handles the score and updates theUI text
  */
-public class ScoreManager : NetworkBehaviour
+public class ScoreManager : MonoBehaviour
 {
     public static ScoreManager m_Instance;
 

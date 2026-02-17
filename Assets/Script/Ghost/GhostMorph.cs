@@ -1,12 +1,10 @@
-using PurrNet;
-using PurrNet.Logging;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 
 //MISSING COMM
-public class GhostMorph : NetworkBehaviour
+public class GhostMorph : MonoBehaviour
 {
     [SerializeField] private GameObject m_mesh;
     [SerializeField] private GhostMorphPreview m_previewGhost;
@@ -20,26 +18,6 @@ public class GhostMorph : NetworkBehaviour
     private MeshRenderer[] m_renderers;
     private Material[][] m_originalMaterials;
 
-    public PlayerID m_localPlayer;
-
-    protected override void OnSpawned()
-    {
-        base.OnSpawned();
-        
-        // Move Start code to OnSpawned for proper network Initialisation
-        
-        m_playerCollider = GetComponent<BoxCollider>();
-        m_renderers = m_mesh.GetComponentsInChildren<MeshRenderer>();
-
-        m_wheel = GetComponent<GhostInputController>().m_wheelController;
-        m_wheel.m_localPlayer = (PlayerID)localPlayer;
-
-        m_originalMaterials = new Material[m_renderers.Length][];
-        for (int i = 0; i < m_renderers.Length; i++)
-        {
-            m_originalMaterials[i] = m_renderers[i].sharedMaterials;
-        }
-    }
 
     void Start()
     {
@@ -94,7 +72,6 @@ public class GhostMorph : NetworkBehaviour
      * @return void
      */
      //Called by everyone
-    [ObserversRpc(runLocally: true)]
     public void RevertToOriginal()
     {
         if (!m_isTransformed)
@@ -123,7 +100,6 @@ public class GhostMorph : NetworkBehaviour
      * @return void
      */
      //Called by everyone
-    [ObserversRpc(runLocally: true)]
     void ApplyPrefab(GameObject _prefab, Vector3 _position)
     {
         print("Applying prefab: " + _prefab.name);
@@ -151,7 +127,7 @@ public class GhostMorph : NetworkBehaviour
     public void ScanForPrefab()
     {
         Debug.Log("Scan");
-        CinemachineCamera mainCamera = GetComponent<PlayerControllerCore>().m_playerCamera;
+        Camera mainCamera = Camera.main;
 
         Vector3 rayOrigin = mainCamera.transform.position;
         Vector3 rayDirection = mainCamera.transform.forward;

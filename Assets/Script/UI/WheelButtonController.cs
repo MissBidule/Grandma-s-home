@@ -1,4 +1,3 @@
-using PurrNet;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,7 +5,7 @@ using UnityEngine.UI;
  * @brief Contains class declaration for WheelButtonController
  * @details The WheelButtonController class manages the behavior of buttons in the transformation wheel UI, using TransformOption for data.
  */
-public class WheelButtonController : NetworkBehaviour
+public class WheelButtonController : MonoBehaviour
 {
     [SerializeField] private TransformOption m_transformOption;
     private Image m_iconImage;

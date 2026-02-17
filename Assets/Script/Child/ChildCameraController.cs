@@ -1,4 +1,3 @@
-using PurrNet;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -6,7 +5,7 @@ using UnityEngine.UIElements;
  * @brief       Contains class declaration for PlayerCameraController
  * @details     Handles third-person orbital camera controlled by mouse input with collision handling.
  */
-public class ChildCameraController : NetworkBehaviour
+public class ChildCameraController : MonoBehaviour
 {
     public float m_sensitivity = 120f;
     public float m_distance = 4f;
@@ -23,13 +22,6 @@ public class ChildCameraController : NetworkBehaviour
     private ChildInputController m_childInputController;
     private Transform m_target;
     private Rigidbody m_rigidbody;
-
-    protected override void OnSpawned()
-    {
-        base.OnSpawned();
-
-        enabled = isOwner;
-    }
     
     /*
      * @brief   Initializes references and locks the cursor

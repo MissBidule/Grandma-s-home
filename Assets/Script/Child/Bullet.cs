@@ -13,9 +13,8 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
-using PurrNet;
 
-public class Bullet : NetworkBehaviour
+public class Bullet : MonoBehaviour
 {
     [Header("Balle")]
     [SerializeField] private float m_lifeTime = 3f;
@@ -27,15 +26,6 @@ public class Bullet : NetworkBehaviour
     [SerializeField] private GameObject m_slimePrefab;
 
     
-    //private static Dictionary<Collider, GameObject> m_slimeOnCollider = new Dictionary<Collider, GameObject>();
-
-    protected override void OnSpawned()
-    {
-        //to init those var that keep bugging
-        m_currentLife = m_lifeTime;
-        base.OnSpawned();
-    }
-
     void Awake()
     {
         //for the pool made by purrnet
@@ -78,7 +68,7 @@ public class Bullet : NetworkBehaviour
                 var ghost = gameobject.GetComponent<GhostStatus>();
                 if (ghost != null)
                 {   
-                    if (isServer) ghost.GotHitByProjectile();
+                    ghost.GotHitByProjectile();
                 }
             }
             //Use if needed, to check that we only have one slime

@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics;
-using PurrNet;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,7 +7,7 @@ using UnityEngine.UI;
  * @brief  Contains class declaration for QteCircle
  * @details Script that handles a circular QTE with several difficulties
  */
-public class QteCircle : NetworkBehaviour
+public class QteCircle : MonoBehaviour
 {
     [Header("UI")]
     [SerializeField] private RectTransform m_circleTransform;
@@ -41,13 +40,6 @@ public class QteCircle : NetworkBehaviour
     private int m_currentPhaseIndex;
     private bool m_isRunning;
     private Action<bool> m_onFinished;
-
-    protected override void OnSpawned()
-    {
-        base.OnSpawned();
-
-        enabled = isOwner;
-    }
 
     private void Start()
     {

@@ -1,5 +1,4 @@
 using NUnit.Framework;
-using PurrNet;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,22 +7,14 @@ using UnityEngine;
  * @brief  Contains class declaration for GhostInteract
  * @details The GhostInteract class handles interactions with sabotageable objects and downed ghosts for the Ghost player.
  */
-public class GhostInteract : NetworkBehaviour
+public class GhostInteract : MonoBehaviour
 {
     [Header("Detection")]
     //unused
     //[SerializeField] private float m_radius = 2.0f;
     [SerializeField] private LayerMask m_interactableMask;
     private List<IInteractable> m_interactable = new List<IInteractable>();
-
     public IInteractable m_onFocus; // Can be either GhostStatus or SabotageObject
-
-    protected override void OnSpawned()
-    {
-        base.OnSpawned();
-
-        enabled = isOwner;
-    }
 
     private void Update()
     {

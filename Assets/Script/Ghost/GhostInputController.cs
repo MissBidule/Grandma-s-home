@@ -1,4 +1,3 @@
-using PurrNet;
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -7,7 +6,7 @@ using UnityEngine.InputSystem;
  * @brief Contains class declaration for PlayerInputController
  * @details The PlayerInputController class handles player input using Unity's Input System.
  */
-public class GhostInputController : NetworkBehaviour
+public class GhostInputController : MonoBehaviour
 {
     public Vector2 m_movementInputVector { get; private set; }
     public Vector2 m_lookInputVector { get; private set; }
@@ -29,13 +28,6 @@ public class GhostInputController : NetworkBehaviour
         m_ghostInteract = GetComponentInChildren<GhostInteract>();
 
         m_wheelController = FindAnyObjectByType<WheelController>();
-    }
-
-    protected override void OnSpawned()
-    {
-        base.OnSpawned();
-
-        enabled = isOwner;
     }
 
     /*

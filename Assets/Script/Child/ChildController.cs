@@ -1,4 +1,3 @@
-using PurrNet;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -7,7 +6,7 @@ using UnityEngine.SceneManagement;
  * @details The ChildController class handles child actions by reading input from the ChildInputController component.
  *          Movements are camera-relative and physics-based using Rigidbody (may change).
  */
-public class ChildController : PlayerControllerCore
+public class ChildController : MonoBehaviour
 {
     private ChildInputController m_childInputController;
     private Rigidbody m_rigidbody;
@@ -29,13 +28,8 @@ public class ChildController : PlayerControllerCore
     [SerializeField] private GameObject m_bulletPrefab;
     [SerializeField] private float m_jumpImpulse = 6.0f;
 
-    protected override void OnSpawned()
-    {
-        base.OnSpawned();
+    private Camera m_playerCamera;
 
-        enabled = isOwner;
-    }
-    
     /*
      * @brief Awake is called when the script instance is being loaded
      * Gets the ChildInputController component.
@@ -46,6 +40,7 @@ public class ChildController : PlayerControllerCore
         m_childInputController = GetComponent<ChildInputController>();
         m_rigidbody = GetComponent<Rigidbody>();
         m_lastShot = m_cdGun;
+        m_playerCamera = GetComponentInChildren<Camera>();
     }
 
     /*
@@ -174,7 +169,6 @@ public class ChildController : PlayerControllerCore
      * @brief Enables the attack collider to detect hits, asked on the server
      * @return void
      */
-    [ServerRpc]
     private void Cac()
     {
         Collider[] hits = Physics.OverlapSphere(m_bulletSpawnTransform.position, m_attackRange);

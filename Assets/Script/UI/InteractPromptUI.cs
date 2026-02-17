@@ -1,4 +1,3 @@
-using PurrNet;
 using TMPro;
 using UnityEngine;
 
@@ -6,7 +5,7 @@ using UnityEngine;
  * @brief  Contains class declaration for InteractPromptUI
  * @details Script that handles text interactions
  */
-public class InteractPromptUI : NetworkBehaviour
+public class InteractPromptUI : MonoBehaviour
 {
     public static InteractPromptUI m_Instance;
 

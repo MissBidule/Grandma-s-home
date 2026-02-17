@@ -1,12 +1,11 @@
-﻿using PurrNet;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /**
 @brief       Controller for the Ghost character
 @details     Handles movement, rotation and wall climbing
 */
-public class GhostController : PlayerControllerCore
+public class GhostController : MonoBehaviour
 {
     [Header("Ghost references")]
     private GhostInputController m_ghostInputController;
@@ -41,19 +40,14 @@ public class GhostController : PlayerControllerCore
     private Vector3 m_wallNormal;
 
     private float m_speedModifier = 1f;
-
-    protected override void OnSpawned()
-    {
-        base.OnSpawned();
-
-        enabled = isOwner;
-    }
+    private Camera m_playerCamera;
 
     private void Start()
     {
         m_rigidbody = GetComponent<Rigidbody>();
         m_ghostInputController = GetComponent<GhostInputController>();
         m_ghostMorph = GetComponent<GhostMorph>();
+        m_playerCamera = GetComponentInChildren<Camera>();
     }
 
     /**
@@ -116,7 +110,6 @@ public class GhostController : PlayerControllerCore
     {
         if (m_rigidbody == null) return;
         if (m_ghostInputController == null) return;
-        if (m_playerCamera == null) return;
 
         Transform cam = m_playerCamera.transform;
 

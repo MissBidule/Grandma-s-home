@@ -1,11 +1,10 @@
-using PurrNet;
 using UnityEngine;
 
 /*
  * @brief  Contains class declaration for GhostStatus
  * @details Script that is always visible and can be called by anyone to apply status on ghost
  */
-public class GhostStatus : NetworkBehaviour, IInteractable
+public class GhostStatus : MonoBehaviour, IInteractable
 {
     private GhostController ghost;
 
@@ -14,16 +13,9 @@ public class GhostStatus : NetworkBehaviour, IInteractable
         ghost = GetComponent<GhostController>();
     }
 
-
-    protected override void OnSpawned()
-    {
-        base.OnSpawned();
-    }
-    
     /**
     @brief      Prevents cheating and lagging
     */
-    [ServerRpc]
     public void GotHitByProjectile()
     {
         Debug.Log("hit approved by server (I guess)");
@@ -33,7 +25,6 @@ public class GhostStatus : NetworkBehaviour, IInteractable
     /**
     @brief      Apply slow effect from projectile hit
     */
-    [ObserversRpc]
     private void GhostHitRanged()
     {
         Debug.Log("Ghost hit");
@@ -45,7 +36,6 @@ public class GhostStatus : NetworkBehaviour, IInteractable
     /**
     @brief      Prevents cheating and lagging
     */
-    [ServerRpc]
     public void GotHitByCac()
     {
         Debug.Log("hit approved by server (I guess)");
@@ -55,7 +45,6 @@ public class GhostStatus : NetworkBehaviour, IInteractable
     /**
     @brief      Apply stop effect from close combat hit
     */
-    [ObserversRpc]
     public void GhostHitCloseCombat()
     {
         Debug.Log("Ghost hit");

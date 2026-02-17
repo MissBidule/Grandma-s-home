@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using PurrNet;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -8,7 +7,7 @@ using UnityEngine.InputSystem;
  * @brief Contains class declaration for WheelController
  * @details The WheelController class manages the transformation wheel UI and handles input to open/close it.
  */
-public class WheelController : NetworkBehaviour
+public class WheelController : MonoBehaviour
 {
     [SerializeField] private Animator m_anim;
     [SerializeField] private GhostMorph m_ghostTransform;
@@ -19,7 +18,6 @@ public class WheelController : NetworkBehaviour
 
     private GameObject m_pendingPrefabToAdd;
     private Sprite m_pendingIconToAdd;
-    public PlayerID m_localPlayer;
 
     /*
      * @brief Awake is called when the script instance is being loaded
@@ -185,15 +183,9 @@ public class WheelController : NetworkBehaviour
         m_selectedPrefab = _prefab;
         if (m_ghostTransform == null)
         {
-            // Will break in multi I guess, cause there will be multiple instances of <<GhostMorph>> ?
-            // We would need an other way to get reference to it
-            //there should not as there can only be one per session open I guess
             foreach (GhostMorph ghostMorph in FindObjectsByType<GhostMorph>(FindObjectsSortMode.None))
             {
-                if (ghostMorph.owner == m_localPlayer)
-                {
-                    m_ghostTransform = ghostMorph;
-                }
+                m_ghostTransform = ghostMorph;
             }
         }
         m_ghostTransform.SetPreview(_prefab);
@@ -215,10 +207,5 @@ public class WheelController : NetworkBehaviour
         {
             eventSystem.SetSelectedGameObject(null);
         }
-    }
-
-    public static implicit operator WheelController(PlayerID? v)
-    {
-        throw new NotImplementedException();
     }
 }

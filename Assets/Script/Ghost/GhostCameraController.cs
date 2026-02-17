@@ -1,11 +1,10 @@
-using PurrNet;
 using UnityEngine;
 
 /*
  * @brief       Contains class declaration for PlayerCameraController
  * @details     Handles third-person orbital camera controlled by mouse input with collision handling.
  */
-public class GhostCameraController : NetworkBehaviour
+public class GhostCameraController : MonoBehaviour
 {
     public float m_sensitivity = 120f;
     public float m_distance = 4f;
@@ -21,12 +20,6 @@ public class GhostCameraController : NetworkBehaviour
     private GhostInputController m_ghostInputController;
     private Transform m_target;
 
-    protected override void OnSpawned()
-    {
-        base.OnSpawned();
-
-        enabled = isOwner;
-    }
     
     /*
      * @brief   Initializes references and locks the cursor

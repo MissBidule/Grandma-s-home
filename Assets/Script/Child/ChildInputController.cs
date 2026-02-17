@@ -1,4 +1,3 @@
-using PurrNet;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -6,18 +5,11 @@ using UnityEngine.InputSystem;
  * @brief Contains class declaration for ChildInputController
  * @details The ChildInputController class handles child input using Unity's Input System.
  */
-public class ChildInputController : NetworkBehaviour
+public class ChildInputController : MonoBehaviour
 {
     public Vector2 m_movementInputVector { get; private set; }
     public Vector2 m_lookInputVector { get; private set; }
     private ChildController m_childController;
-
-    protected override void OnSpawned()
-    {
-        base.OnSpawned();
-
-        enabled = isOwner;
-    }
 
     /*
      * @brief Awake is called when the script instance is being loaded

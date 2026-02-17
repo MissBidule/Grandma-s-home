@@ -1,11 +1,10 @@
-using PurrNet;
 using UnityEngine;
 
 /*
  * @brief  Contains class declaration for SabotageObject
  * @details Script that handles sabotage (QTE, meshes...) and exposes an interaction handled by the player
  */
-public class SabotageObject : NetworkBehaviour, IInteractable
+public class SabotageObject : MonoBehaviour, IInteractable
 {
     [Header("State Meshes")]
     [SerializeField] private GameObject m_normalMesh;
@@ -30,10 +29,6 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     private bool m_isQteRunning;
     private bool m_isFocused;
 
-    protected override void OnSpawned()
-    {
-        base.OnSpawned();
-    }
 
     private void Start()
     {
