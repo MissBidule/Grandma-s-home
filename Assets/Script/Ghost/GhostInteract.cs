@@ -14,7 +14,7 @@ public class GhostInteract : NetworkBehaviour
     //unused
     //[SerializeField] private float m_radius = 2.0f;
     [SerializeField] private LayerMask m_interactableMask;
-    private IInteractable m_onFocus; // Can be either GhostStatus or SabotageObject
+    public IInteractable m_onFocus; // Can be either GhostStatus or SabotageObject
     private List<IInteractable> m_interactable = new List<IInteractable>();
 
     protected override void OnSpawned()

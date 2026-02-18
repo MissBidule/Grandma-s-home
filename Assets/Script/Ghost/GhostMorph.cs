@@ -78,9 +78,8 @@ public class GhostMorph : NetworkBehaviour
         {
             return;
         }
-        GameObject prefab = _selectedPrefab;
         
-        ApplyPrefab(prefab, _previewGhost.transform.localPosition);
+        ApplyPrefab(_selectedPrefab, _previewGhost.transform.localPosition);
     }
 
     /*
@@ -118,7 +117,7 @@ public class GhostMorph : NetworkBehaviour
      * @return void
      */
      //Called by everyone
-    [ObserversRpc(runLocally:true)]
+    [ObserversRpc]
     void ApplyPrefab(GameObject _prefab, Vector3 _position)
     {        
         // Reset the input to prevent immediate detransformation on all sides
