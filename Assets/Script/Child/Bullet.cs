@@ -66,6 +66,19 @@ public class Bullet : NetworkBehaviour
         float size = 1.5f;
         float timeSlimeWall = 1f;
 
+        if (_other.transform.parent) 
+        {
+            Debug.Log(_other.transform.parent.gameObject.layer);
+            if (_other.transform.parent.gameObject.layer == LayerMask.NameToLayer("Ghost"))
+            {
+                var ghost = _other.transform.parent.gameObject.GetComponent<GhostMorph>();
+                if (ghost != null)
+                    {   
+                        if (isServer) ghost.RevertToOriginal();
+                    }
+            }
+        }
+
 
         // We check if the collider is a ghost player by checking if it has the GhostMovement component
         GameObject gameobject = _other.gameObject;
