@@ -64,6 +64,7 @@ public class GhostInputController : NetworkBehaviour
      * Used when anchoring the player to prevent immediate movement detection.
      * @return void
      */
+    [ObserversRpc]
     public void ResetMovementInput()
     {
         m_movementInputVector = Vector2.zero;
@@ -104,7 +105,7 @@ public class GhostInputController : NetworkBehaviour
     {
         if (_context.performed)
         {
-            m_ghostTransform.ConfirmTransform(_context);
+            m_ghostTransform.TryToConfirmTransform();
         }
     }
 

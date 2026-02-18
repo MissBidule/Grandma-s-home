@@ -31,14 +31,16 @@ public class Bullet : NetworkBehaviour
 
     protected override void OnSpawned()
     {
-        //to init those var that keep bugging
-        m_currentLife = m_lifeTime;
         base.OnSpawned();
     }
 
     void Awake()
     {
-        //for the pool made by purrnet
+        m_currentLife = m_lifeTime;
+    }
+
+    protected override void OnPoolReset()
+    {
         m_currentLife = m_lifeTime;
     }
 

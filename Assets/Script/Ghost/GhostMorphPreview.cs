@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using PurrNet;
+using UnityEngine.Rendering;
 
 /*
  * @brief Contains class declaration for TransformPreviewGhost
@@ -23,7 +24,12 @@ public class GhostMorphPreview : NetworkBehaviour
     {
         base.OnSpawned();
 
-        enabled = isOwner;
+        if (!isOwner)
+        {
+            m_validColor.a = 0f;
+            m_invalidColor.a = 0f;
+            m_meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
+        }
     }
 
     /*
@@ -45,6 +51,8 @@ public class GhostMorphPreview : NetworkBehaviour
      * @param _prefab: The prefab GameObject to preview.
      * @return void
      */
+
+    [ObserversRpc]
     public void SetPreview(GameObject _prefab)
     {
         MeshFilter meshFilter = _prefab.GetComponentInChildren<MeshFilter>();
