@@ -2,6 +2,10 @@ using PurrNet;
 using UnityEngine;
 using System.Collections;
 
+/*
+ * @brief  Contains class declaration for SabotageObject
+ * @details Script that handles sabotage (QTE, meshes...) and exposes an interaction handled by the player
+ */
 public class SabotageObject : NetworkBehaviour, IInteractable
 {
     [Header("State Meshes")]
@@ -36,17 +40,23 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         base.OnSpawned();
     }
 
+    /*
+     * @brief Initialises the material property block, enables emission keyword on the highlight renderer,
+     *        applies the current state and retrieves the QteCircle instance
+     * @return void
+     */
     private void Start()
     {
         m_propertyBlock = new MaterialPropertyBlock();
 
-        // Active l'émission sur les sharedMaterials une seule fois (comme GhostMorph)
         if (m_highlightRenderer != null)
         {
             foreach (Material mat in m_highlightRenderer.sharedMaterials)
             {
                 if (mat != null)
+                {
                     mat.EnableKeyword("_EMISSION");
+                }
             }
         }
 
@@ -56,27 +66,48 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         m_qteCircle = FindAnyObjectByType<QteCircle>();
     }
 
+    /*
+     * @brief Activates the highlight effect and displays the interaction prompt
+     * @return void
+     */
     public void OnFocus()
     {
         m_isFocused = true;
         SetHighlight(true);
 
         if (InteractPromptUI.m_Instance != null)
+        {
             InteractPromptUI.m_Instance.Show(m_promptMessage);
+        }
     }
 
+    /*
+     * @brief Deactivates the highlight effect and hides the interaction prompt
+     * @return void
+     */
     public void OnUnfocus()
     {
         m_isFocused = false;
         SetHighlight(false);
 
         if (InteractPromptUI.m_Instance != null)
+        {
             InteractPromptUI.m_Instance.Hide();
+        }
     }
 
+    /*
+     * @brief Handles player interaction with the sabotage object
+     * Freezes the interacting ghost's rigidbody and starts the QTE if the object is not already sabotaged or busy
+     * @param _ghost: The GhostInteract component of the interacting player
+     * @return void
+     */
     public void OnInteract(GhostInteract _ghost)
     {
-        if (m_isSabotaged || m_isQteRunning) return;
+        if (m_isSabotaged || m_isQteRunning)
+        {
+            return;
+        }
         Rigidbody rb = _ghost.GetComponentInParent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.FreezeAll;
         StartQte(_ghost);
@@ -84,18 +115,32 @@ public class SabotageObject : NetworkBehaviour, IInteractable
 
     public void OnStopInteract(GhostInteract _ghost) { }
 
+    /*
+     * @brief Starts the QTE sequence for the given ghost interactor
+     * Disables the highlight, hides the prompt and launches the QTE circle
+     * @param _sabo: The GhostInteract component of the saboteur
+     * @return void
+     */
     public void StartQte(GhostInteract _sabo)
     {
         m_isQteRunning = true;
         SetHighlight(false);
 
         if (InteractPromptUI.m_Instance != null)
+        {
             InteractPromptUI.m_Instance.Hide();
+        }
 
         m_saboteur = _sabo;
         m_qteCircle.StartQte(OnQteFinished);
     }
 
+    /*
+     * @brief Callback triggered when the QTE ends
+     * Applies sabotage on success or restores the highlight and prompt on failure
+     * @param _success: Whether the player successfully completed the QTE
+     * @return void
+     */
     private void OnQteFinished(bool _success)
     {
         m_isQteRunning = false;
@@ -113,10 +158,16 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         {
             SetHighlight(true);
             if (InteractPromptUI.m_Instance != null)
+            {
                 InteractPromptUI.m_Instance.Show(m_promptMessage);
+            }
         }
     }
 
+    /*
+     * @brief Marks the object as sabotaged, updates its visual state and increments the score
+     * @return void
+     */
     private void Sabotage()
     {
         m_isSabotaged = true;
@@ -124,26 +175,51 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         SetHighlight(false);
 
         if (InteractPromptUI.m_Instance != null)
+        {
             InteractPromptUI.m_Instance.Hide();
+        }
 
         if (ScoreManager.m_Instance != null)
+        {
             ScoreManager.m_Instance.Add(m_scoreValue);
+        }
     }
 
+    /*
+     * @brief Toggles the normal and sabotaged meshes according to the current sabotage state
+     * @return void
+     */
     private void ApplyState()
     {
-        if (m_normalMesh != null) m_normalMesh.SetActive(!m_isSabotaged);
-        if (m_sabotagedMesh != null) m_sabotagedMesh.SetActive(m_isSabotaged);
+        if (m_normalMesh != null)
+        {
+            m_normalMesh.SetActive(!m_isSabotaged);
+        }
+        if (m_sabotagedMesh != null)
+        {
+            m_sabotagedMesh.SetActive(m_isSabotaged);
+        }
     }
 
+    /*
+     * @brief Starts or stops the pulsing highlight coroutine on the highlight renderer
+     * Resets emission to black when disabled
+     * @param _enabled: Whether the highlight should be active
+     * @return void
+     */
     private void SetHighlight(bool _enabled)
     {
-        if (m_highlightRenderer == null) return;
+        if (m_highlightRenderer == null)
+        {
+            return;
+        }
 
         if (_enabled)
         {
             if (m_pulseCoroutine != null)
+            {
                 StopCoroutine(m_pulseCoroutine);
+            }
             m_pulseCoroutine = StartCoroutine(PulseHighlight());
         }
         else
@@ -154,13 +230,16 @@ public class SabotageObject : NetworkBehaviour, IInteractable
                 m_pulseCoroutine = null;
             }
 
-            // Réinitialise la couleur d'émission via le PropertyBlock
             m_highlightRenderer.GetPropertyBlock(m_propertyBlock);
             m_propertyBlock.SetColor("_EmissionColor", Color.black);
             m_highlightRenderer.SetPropertyBlock(m_propertyBlock);
         }
     }
 
+    /*
+     * @brief Animates the highlight renderer with a pulsing emission effect
+     * @return IEnumerator for coroutine
+     */
     private IEnumerator PulseHighlight()
     {
         float time = 0f;
