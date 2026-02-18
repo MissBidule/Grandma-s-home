@@ -98,7 +98,7 @@ public class GhostMorph : NetworkBehaviour
 
         m_playerCollider.enabled = true;
         m_mesh.SetActive(true);
-        Destroy(m_currentPrefab);
+        Destroy(m_currentPrefab, .1f);
         m_currentPrefab = null;
         m_isTransformed = false;
         for (int i = 0; i < m_renderers.Length; i++)
