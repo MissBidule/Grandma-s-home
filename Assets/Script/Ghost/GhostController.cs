@@ -33,7 +33,10 @@ public class GhostController : PlayerControllerCore
 
     [Header("Auto Climb")]
     [SerializeField] private float m_climbSpeed = 3.5f;
-    [SerializeField] private float m_wallNormalMaxY = 0.4f;
+    [SerializeField] private float m_climbCheckDistance = 0.6f;
+    [SerializeField] private float m_wallNormalMaxY = 0.4f; 
+    [SerializeField] private float m_raycastHeightOffset = 0.5f;
+    [SerializeField] private LayerMask m_climbableLayerMask = ~0;
 
     private Rigidbody m_rigidbody;
 
@@ -68,7 +71,7 @@ public class GhostController : PlayerControllerCore
             m_slowedLabel.SetActive(false);
             if (m_currentTimerStop <= 0f)
             {
-                m_rigidbody.constraints = RigidbodyConstraints.None; 
+                m_rigidbody.constraints = RigidbodyConstraints.None;
                 m_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
                 m_isStopped = false;
                 m_stoppedLabel.SetActive(false);
@@ -108,9 +111,29 @@ public class GhostController : PlayerControllerCore
     }
 
     /**
+    @brief      Check for climbable wall in front of the player using raycast
+    @return     True if a climbable wall is detected
+    */
+    private bool CheckForClimbableWall()
+    {
+        Vector3 rayOrigin = transform.position + Vector3.up * m_raycastHeightOffset;
+        Vector3 rayDirection = transform.forward;
+
+        if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, m_climbCheckDistance, m_climbableLayerMask))
+        {
+            if (hit.normal.y <= m_wallNormalMaxY)
+            {
+                m_wallNormal = hit.normal;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
     @brief      Physics update handling movement and climbing
-    @details    Applies camera-relative movement, rotation and automatic climbing
-                when colliding with a wal
+    @details    Applies camera-relative movement, rotation and automatic climbing when facing a wall
     */
     private void FixedUpdate()
     {
@@ -136,7 +159,7 @@ public class GhostController : PlayerControllerCore
             wishDir = (forward * movementInput.y + right * movementInput.x).normalized;
 
         if (wishDir.sqrMagnitude > 0.0001f && !m_isStopped && !m_rigidbody.constraints.HasFlag(RigidbodyConstraints.FreezeRotationY))
-        {            
+        {
             Quaternion targetRotation = Quaternion.LookRotation(wishDir, Vector3.up);
 
             m_rigidbody.MoveRotation(
@@ -146,7 +169,12 @@ public class GhostController : PlayerControllerCore
                     m_rotationSpeed * Time.fixedDeltaTime
                 )
             );
-            
+
+        }
+
+        if (CheckForClimbableWall())
+        {
+            m_canClimbThisFrame = true;
         }
 
         if (!m_isStopped &&
@@ -175,24 +203,6 @@ public class GhostController : PlayerControllerCore
         m_rigidbody.AddForce(new Vector3(accel.x, 0f, accel.z), ForceMode.Acceleration);
 
         ResetClimbFlags();
-    }
-
-    /**
-    @brief      Detect climbable wall during collision
-    */
-    private void OnCollisionStay(Collision _collision)
-    {
-        for (int i = 0; i < _collision.contactCount; i++)
-        {
-            Vector3 normal = _collision.GetContact(i).normal;
-
-            if (normal.y <= m_wallNormalMaxY)
-            {
-                m_canClimbThisFrame = true;
-                m_wallNormal = normal;
-                return;
-            }
-        }
     }
 
     /**
