@@ -119,7 +119,8 @@ public class GhostMorph : NetworkBehaviour
      //Called by everyone
     [ObserversRpc]
     void ApplyPrefab(GameObject _prefab, Vector3 _position)
-    {        
+    {       
+        Debug.Log("General apply of transform"); 
         // Reset the input to prevent immediate detransformation on all sides
         GhostInputController ghostInput = GetComponent<GhostInputController>();
         if (ghostInput != null)
@@ -138,6 +139,7 @@ public class GhostMorph : NetworkBehaviour
      */
     void ApplyPrefabLocally(GameObject _prefab, Vector3 _position)
     {
+        Debug.Log("Local apply of transform"); 
         m_wheel.m_selectedPrefab = null;
         m_previewGhost.GetComponent<MeshRenderer>().enabled = false;
         Rigidbody rb = GetComponent<Rigidbody>();
