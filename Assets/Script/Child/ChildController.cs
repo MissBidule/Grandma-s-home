@@ -158,9 +158,10 @@ public class ChildController : PlayerControllerCore
     public void Attacks()
     {
         if (m_switchingTime < m_cdSwitch) return;
-        if (m_isranged) 
+        else m_switchingTime = 0;
+        if (m_isranged)
         {
-            if (m_lastShot >= m_cdGun) 
+            if (m_lastShot >= m_cdGun)
             {
                 m_lastShot = 0;
                 Debug.Log("shoot");
