@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9ac2e59ec50867458fa45964a218963, type: 3}
   m_Name: NetworkAssets
   m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkAssets
-  autoGenerate: 1
+  autoGenerate: 0
   folder: {fileID: 102900000, guid: 00000000000000001000000000000000, type: 3}
   _enabledTypeNames:
   - PurrNet.Voice.PurrAudioFilter, PurrVoice.Runtime, Version=0.0.0.0, Culture=neutral,
@@ -24,6 +24,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9c8418ab66b53de41a341150591d714e, type: 2}
   - {fileID: 11400000, guid: b0e0d0823301ab6408aefd4b30df783a, type: 2}
   _availableTypeNames:
+  - PurrNet.Voice.PurrAudioFilter, PurrVoice.Runtime, Version=0.0.0.0, Culture=neutral,
+    PublicKeyToken=null
   - UnityEngine.AnimationClip, UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral,
     PublicKeyToken=null
   - UnityEngine.Animator, UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral,
@@ -42,7 +44,13 @@ MonoBehaviour:
     Culture=neutral, PublicKeyToken=null
   - UnityEditor.Rendering.Universal.AssetVersion, Unity.RenderPipelines.Universal.Editor,
     Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-  - UnityEngine.EventSystems.BaseInputModule, UnityEngine.UI, Version=1.0.0.0, Culture=neutral,
+  - UnityEngine.AudioBehaviour, UnityEngine.AudioModule, Version=0.0.0.0, Culture=neutral,
+    PublicKeyToken=null
+  - UnityEngine.AudioListener, UnityEngine.AudioModule, Version=0.0.0.0, Culture=neutral,
+    PublicKeyToken=null
+  - UnityEngine.AudioSource, UnityEngine.AudioModule, Version=0.0.0.0, Culture=neutral,
+    PublicKeyToken=null
+  - PurrNet.Voice.AudioSourceVoiceProvider, PurrVoice.Runtime, Version=0.0.0.0, Culture=neutral,
     PublicKeyToken=null
   - UnityEngine.EventSystems.BaseRaycaster, UnityEngine.UI, Version=1.0.0.0, Culture=neutral,
     PublicKeyToken=null
@@ -94,11 +102,11 @@ MonoBehaviour:
     Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - UnityEngine.Rendering.Universal.DecalRendererFeature, Unity.RenderPipelines.Universal.Runtime,
     Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - PurrNet.Voice.DefaultInputProvider, PurrVoice.Runtime, Version=0.0.0.0, Culture=neutral,
+    PublicKeyToken=null
   - UnityEngine.Rendering.Universal.DepthOfField, Unity.RenderPipelines.Universal.Runtime,
     Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - PurrNet.Voice.DuckingFilter, PurrVoice.Runtime, Version=0.0.0.0, Culture=neutral,
-    PublicKeyToken=null
-  - UnityEngine.EventSystems.EventSystem, UnityEngine.UI, Version=1.0.0.0, Culture=neutral,
     PublicKeyToken=null
   - UnityEngine.EventSystems.EventTrigger, UnityEngine.UI, Version=1.0.0.0, Culture=neutral,
     PublicKeyToken=null
@@ -126,8 +134,8 @@ MonoBehaviour:
     Culture=neutral, PublicKeyToken=null
   - UnityEngine.InputSystem.InputActionReference, Unity.InputSystem, Version=1.18.0.0,
     Culture=neutral, PublicKeyToken=null
-  - UnityEngine.InputSystem.UI.InputSystemUIInputModule, Unity.InputSystem, Version=1.18.0.0,
-    Culture=neutral, PublicKeyToken=null
+  - PurrNet.Voice.InputProvider, PurrVoice.Runtime, Version=0.0.0.0, Culture=neutral,
+    PublicKeyToken=null
   - UnityEngine.Rendering.Universal.LensDistortion, Unity.RenderPipelines.Universal.Runtime,
     Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - UnityEngine.Rendering.Universal.LiftGammaGain, Unity.RenderPipelines.Universal.Runtime,
@@ -165,12 +173,16 @@ MonoBehaviour:
     PublicKeyToken=null
   - UnityEngine.Object, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
     PublicKeyToken=null
+  - PurrNet.Voice.OutputProvider, PurrVoice.Runtime, Version=0.0.0.0, Culture=neutral,
+    PublicKeyToken=null
   - UnityEngine.Rendering.Universal.PaniniProjection, Unity.RenderPipelines.Universal.Runtime,
     Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - ParrelSync.ParrelSyncProjectSettings, ParrelSync, Version=0.0.0.0, Culture=neutral,
     PublicKeyToken=null
   - PurrNet.Voice.LipSync.PhonemeSpritePreset, PurrVoice.Runtime, Version=0.0.0.0,
     Culture=neutral, PublicKeyToken=null
+  - UnityEngine.PhysicsMaterial, UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral,
+    PublicKeyToken=null
   - PlayerControllerCore, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - UnityEngine.InputSystem.PlayerInput, Unity.InputSystem, Version=1.18.0.0, Culture=neutral,
     PublicKeyToken=null
@@ -179,7 +191,10 @@ MonoBehaviour:
   - UnityEngine.Rendering.ProbeVolumesOptions, Unity.RenderPipelines.Core.Runtime,
     Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - uLipSync.Profile, uLipSync.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-  - PurrNet.Voice.PurrAudioFilter, PurrVoice.Runtime, Version=0.0.0.0, Culture=neutral,
+  - PurrAudioReader, PurrVoice.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - PurrNet.Voice.PurrVoicePlayer, PurrVoice.Runtime, Version=0.0.0.0, Culture=neutral,
+    PublicKeyToken=null
+  - PurrNet.Voice.PurrVoicePlayerDebug, PurrVoice.Runtime, Version=0.0.0.0, Culture=neutral,
     PublicKeyToken=null
   - QteCircle, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - UnityEngine.UI.RawImage, UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
