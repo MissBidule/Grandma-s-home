@@ -121,4 +121,21 @@ public class GhostInputController : NetworkBehaviour
             m_ghostInteract.Interact();
         }
     }
+
+
+    /*
+     * @brief OnValidate is called by the Input System when validate input is detected
+     * @param _context: The context of the input action
+     * @return void
+     */
+    public void OnValidation(InputAction.CallbackContext _context)
+    {
+        if (_context.performed)
+        {
+            if(((SabotageObject)m_ghostInteract.m_onFocus).m_qteCircle != null)
+            {
+                ((SabotageObject)m_ghostInteract.m_onFocus).m_qteCircle.CheckSuccess();
+            }
+        }
+    }
 }
