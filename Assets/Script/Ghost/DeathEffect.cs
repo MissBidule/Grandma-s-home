@@ -27,11 +27,11 @@ public class CameraEffect : MonoBehaviour
     {
         if(isDead)
         {
-            colorAdjustments.saturation.value = 0f;
+            colorAdjustments.saturation.value = saturationValue;
         }
         else
         {
-            colorAdjustments.saturation.value = saturationValue;
+            colorAdjustments.saturation.value = 0f;
         }
     }
 }
