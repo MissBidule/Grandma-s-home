@@ -124,6 +124,7 @@ GameObject:
   - component: {fileID: 8610913410535433184}
   - component: {fileID: -7897050309470336131}
   - component: {fileID: 6962044170748144648}
+  - component: {fileID: 5696445354917125266}
   m_Layer: 8
   m_Name: Child
   m_TagString: Untagged
@@ -260,6 +261,7 @@ MonoBehaviour:
   - {fileID: 1387167139261906182}
   - {fileID: 7543199853055395055}
   m_cdGun: 0.2
+  m_cdSwitch: 0.2
   m_speed: 5
   m_bulletSpawnTransform: {fileID: 8286851940836659514}
   m_bulletPrefab: {fileID: 366779594710045177, guid: 90e50898fd15e4755813076e701192cc, type: 3}
@@ -517,6 +519,14 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: be8f47a1-0c5b-4108-a75f-e3a4926431ce
     m_ActionName: 'Ghost/changeScene[/Keyboard/l]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 040859e4-2cd6-49e2-be8b-7f3ce8ef554b
+    m_ActionName: 'Child/Validate[/Keyboard/space]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 55397657-de04-43c4-aa9d-3b0ef9651449
+    m_ActionName: 'Ghost/Validate[/Keyboard/space]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Child
@@ -753,6 +763,47 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: PurrVoice.Runtime::PurrNet.Voice.PurrVoicePlayerDebug
   timeWindow: 3
+--- !u!114 &5696445354917125266
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2220852981099475913}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d497b70c6fb6adc46b663609bee66dfd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkRigidbody
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  _ownerAuth: 0
+  _acceptableError: 0.05
+  _hardCorrectionThreshold: 2
+  _maxCorrectionTime: -1
+  _springConstant: 80
+  _dampingConstant: 5
+  _rotationSpringMultiplier: 0.3
+  _minRotationCorrectionAngle: 1
+  _uncertaintySpringDampening: 0.5
+  _accelerationDecay: 0.85
+  _hardCorrectionAccelerationScale: 0.1
+  _maxHardCorrectionMultiplier: 5
+  _lowSpeedThreshold: 1.5
+  _lowSpeedSpringMultiplier: 0.1
+  _extrapolateBasedOnPing: 0
+  _positionChangeThreshold: 0.001
+  _rotationChangeThreshold: 0.001
+  _velocityStopThreshold: 0.001
+  _debugGizmos: 0
+  _debugTextOffset: 2
 --- !u!1 &2316951510614423555
 GameObject:
   m_ObjectHideFlags: 0
