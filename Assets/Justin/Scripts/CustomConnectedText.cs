@@ -34,6 +34,10 @@ public class CustomConnectedText : MonoBehaviour
             return;
         }
 
+        string[] messages = m_messageContent.Split("\n");
+        messages[2] = "Currently 0 out of " + m_lobbyDataHolder.GetNumber_of_player_in_loby();
+        m_playerText.text = messages[2];
+
         m_networkManager.onPlayerJoined += OnPlayerJoined;
     }
 

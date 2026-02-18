@@ -7,12 +7,13 @@ using UnityEngine;
 public class WaitForPlayerState : StateNode
 {
     // Need to be updated to wait for the number of player in the lobby
-    [SerializeField] private int m_minPlayers = -1;
+    [SerializeField] private int m_minPlayers = 1;
+    [SerializeField] private int m_numPlayers = -1;
 
-    public void set_numPlayers(int numPlayers)
+    public void set_numPlayers(int _numPlayers)
     {
-        PurrLogger.Log("Number of players in lobby: " + numPlayers);
-        m_minPlayers = numPlayers;
+        PurrLogger.Log("Number of players in lobby: " + _numPlayers);
+        m_numPlayers = _numPlayers;
     }
     
     public override void Enter(bool _asServer)
@@ -30,12 +31,13 @@ public class WaitForPlayerState : StateNode
         if (m_minPlayers == -1)
             yield return null;
         
-        while (networkManager?.playerCount < m_minPlayers)
+        while (m_numPlayers < m_minPlayers)
             yield return null;
         
         
         if (InstanceHandler.TryGetInstance(out DisableWaitOnStart disableWaitOnStart))
         {
+            yield return new WaitForSeconds(2.5f);
             disableWaitOnStart.DisableWaitInterface();
         }
         machine.Next();

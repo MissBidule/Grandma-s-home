@@ -48,6 +48,6 @@ public class DisableWaitOnStart : NetworkBehaviour
         }
         
         m_canvasGroup.alpha = 0f;
-        gameObject.SetActive(false);
+        Destroy(gameObject, .5f);
     }
 }
