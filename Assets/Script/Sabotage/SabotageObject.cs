@@ -24,7 +24,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     [SerializeField] private string m_promptMessage = "E : Sabotage";
     [SerializeField] private GhostInteract m_saboteur;
 
-    private QteCircle m_qteCircle;
+    public QteCircle m_qteCircle;
 
     public bool m_isSabotaged;
     private bool m_isQteRunning;
