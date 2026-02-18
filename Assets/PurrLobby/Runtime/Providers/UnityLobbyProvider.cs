@@ -154,7 +154,7 @@ namespace PurrLobby.Providers {
             return updatedLobby;
         }
 
-        public async Task<Lobby> CreateLobbyAsync(int maxPlayers, Dictionary<string, string> lobbyProperties = null) {
+        public async Task<Lobby> CreateLobbyAsync(string _lobbyName, int maxPlayers, Dictionary<string, string> lobbyProperties = null) {
             try {
                 if(!IsUnityServiceAvailable) { return default; }
 
@@ -164,6 +164,8 @@ namespace PurrLobby.Providers {
                 foreach(var prop in lobbyProperties) {
                     lobbyData.Add(prop.Key, new DataObject(DataObject.VisibilityOptions.Public, prop.Value, 0));
                 }
+
+                lobbyName = _lobbyName == "" ? "New Lobby" : _lobbyName;
 
                 CurrentLobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, maxPlayers, new CreateLobbyOptions() {
                     IsPrivate = lobbyType == LobbyType.Private,
@@ -220,6 +222,11 @@ namespace PurrLobby.Providers {
                 OnLobbyJoinFailed?.Invoke($"Failed to Join Lobby with Code '{lobbyCode}'");
                 return new Lobby { IsValid = false };
             }
+        }
+
+        public void UsernameChanged(string _username) {
+            playerName = _username == "" ? "Player" : _username;
+            Debug.Log(_username);
         }
 
         public async Task InitializeLocalPlayerData() {

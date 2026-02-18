@@ -98,10 +98,25 @@ namespace PurrLobby
             ShowView<LoadingRoomView>(false);
         }
 
-        public void OnLeaveBrowseClicked()
+        public void OnBackToMenu()
         {
             ShowView<MainMenuView>();
         }
+
+        public void OnPlayClicked()
+        {
+            ShowView<PlayView>();
+        }   
+
+        public void OnOptionsClicked()
+        {
+            ShowView<OptionsView>();
+        }   
+
+        public void OnCreditsClicked()
+        {
+            ShowView<CreditsView>();
+        }   
 
         #endregion
     }

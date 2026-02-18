@@ -236,20 +236,20 @@ namespace PurrLobby
         /// <summary>
         /// Creates a room using the inspector CreateRoomArgs values.
         /// </summary>
-        public void CreateRoom()
+        public void CreateRoom(string _lobbyName)
         {
-            CreateRoom(createRoomArgs.maxPlayers, createRoomArgs.roomProperties.ToDictionary());
+            CreateRoom(_lobbyName, createRoomArgs.maxPlayers, createRoomArgs.roomProperties.ToDictionary());
         }
         
         /// <summary>
         /// Creates a room using custom settings set through code
         /// </summary>
-        public void CreateRoom(int maxPlayers, Dictionary<string, string> roomProperties = null)
+        public void CreateRoom(string _lobbyName, int maxPlayers, Dictionary<string, string> roomProperties = null)
         {
             RunTask(async () =>
             {
                 EnsureProviderSet();
-                var room = await _currentProvider.CreateLobbyAsync(maxPlayers, roomProperties);
+                var room = await _currentProvider.CreateLobbyAsync(_lobbyName, maxPlayers, roomProperties);
                 _currentLobby = room;
                 OnRoomUpdated?.Invoke(room);
             });

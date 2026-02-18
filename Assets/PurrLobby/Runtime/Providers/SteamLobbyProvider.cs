@@ -72,7 +72,7 @@ namespace PurrLobby.Providers
             }
         }
 
-        public async Task<Lobby> CreateLobbyAsync(int maxPlayers, Dictionary<string, string> lobbyProperties = null)
+        public async Task<Lobby> CreateLobbyAsync(string _lobbyName, int maxPlayers, Dictionary<string, string> lobbyProperties = null)
         {
             if (!IsSteamClientAvailable)
                 return default;
@@ -81,7 +81,7 @@ namespace PurrLobby.Providers
 
             var tcs = new TaskCompletionSource<bool>();
             Steamworks.CSteamID lobbyId = Steamworks.CSteamID.Nil;
-            var lobbyName = $"{Steamworks.SteamFriends.GetPersonaName()}'s Lobby";
+            var lobbyName = _lobbyName == null ? $"{Steamworks.SteamFriends.GetPersonaName()}'s Lobby" : _lobbyName;
 
             var handle = Steamworks.SteamMatchmaking.CreateLobby((Steamworks.ELobbyType)lobbyType, maxPlayers);
             _LobbyCreated.Set(handle, (result, ioError) =>
