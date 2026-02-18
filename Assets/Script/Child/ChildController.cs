@@ -192,7 +192,22 @@ public class ChildController : PlayerControllerCore
                 HitOpponent();
                 ghost.GotHitByCac();
             }
+
+            if (col.transform.parent) 
+            {
+                Debug.Log(col.transform.parent.gameObject.layer);
+                if (col.transform.parent.gameObject.layer == LayerMask.NameToLayer("Ghost"))
+                {
+                    var ghost2 = col.transform.parent.gameObject.GetComponent<GhostMorph>();
+                    if (ghost2 != null)
+                        {   
+                            if (isServer) ghost2.RevertToOriginal();
+                        }
+                }
+            }
         }
+
+        
     }
 
     /*
