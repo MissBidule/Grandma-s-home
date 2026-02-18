@@ -158,7 +158,6 @@ public class ChildController : PlayerControllerCore
     public void Attacks()
     {
         if (m_switchingTime < m_cdSwitch) return;
-        else m_switchingTime = 0;
         if (m_isranged)
         {
             if (m_lastShot >= m_cdGun)
@@ -243,5 +242,6 @@ public class ChildController : PlayerControllerCore
     public void SwitchAttackType()
     {
         m_isranged = !m_isranged;
+        m_switchingTime = 0;
     }
 }
