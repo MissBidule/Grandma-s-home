@@ -14,13 +14,18 @@ public class PlayerSpawningState : StateNode
     [SerializeField] private GhostController m_ghostPrefab;
     [Tooltip("Even if rules are to not despawn on disconnect, this will ignore that and always spawn a player.")]
     [SerializeField] private List<Transform> m_ghostSpawnPoints = new List<Transform>();
+    private bool m_isServer = false;
     
     public override void Enter(bool _asServer)
     {
         base.Enter(_asServer);
 
-        if (!_asServer)
-            return;
+        m_isServer = _asServer;
+    }
+
+    public void StartMachine()
+    {
+        if(!m_isServer) return;
 
         DespawnPlayers();
 

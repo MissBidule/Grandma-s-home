@@ -111,7 +111,7 @@ public class CustomConnectionStarter : MonoBehaviour
         if (m_stateMachine.states[0] is WaitForPlayerState)
         {
             PurrLogger.Log("Setup the number of player");
-            ((WaitForPlayerState)m_stateMachine.states[0]).set_numPlayers(m_lobbyDataHolder.GetNumber_of_player_in_loby());
+            ((WaitForPlayerState)m_stateMachine.states[0]).set_numPlayers(m_lobbyDataHolder.GetNumber_of_player_in_lobby());
         }
         else
         {
@@ -284,7 +284,7 @@ public class CustomConnectionStarter : MonoBehaviour
         else
         {
             // REMOTE CLIENT: Connect to host through relay
-            PurrLogger.Log("Starting as Client", this);
+            PurrLogger.Log("Starting as Client", this);     
             StartCoroutine(StartClient());
         }
     }

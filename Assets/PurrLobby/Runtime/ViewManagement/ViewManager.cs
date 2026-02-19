@@ -80,7 +80,7 @@ namespace PurrLobby
         
         public void OnRoomLeft()
         {
-            ShowView<MainMenuView>();
+            ShowView<PlayView>();
         }
 
         public void OnBrowseClicked()

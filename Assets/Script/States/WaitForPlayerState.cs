@@ -34,12 +34,6 @@ public class WaitForPlayerState : StateNode
         while (m_numPlayers < m_minPlayers)
             yield return null;
         
-        
-        if (InstanceHandler.TryGetInstance(out DisableWaitOnStart disableWaitOnStart))
-        {
-            yield return new WaitForSeconds(2.5f);
-            disableWaitOnStart.DisableWaitInterface();
-        }
         machine.Next();
     }
 }

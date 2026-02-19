@@ -27,6 +27,8 @@ namespace PurrLobby {
         Task<string> GetLocalUserIdAsync();
         Task SetAllReadyAsync();
         Task SetLobbyStartedAsync();
+        Task UpdateLobbyMaxPlayers(int _maxPlayers);
+        Task UpdateLobbyType(bool _isPrivate);
 
         // Events
         event UnityAction<string> OnLobbyJoinFailed;
