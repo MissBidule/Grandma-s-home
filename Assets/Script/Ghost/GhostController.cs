@@ -42,6 +42,9 @@ public class GhostController : PlayerControllerCore
 
     private float m_speedModifier = 1f;
 
+    private CameraEffect m_cameraEffect;
+    private bool m_wasDead = false;
+
     protected override void OnSpawned()
     {
         base.OnSpawned();
@@ -54,6 +57,9 @@ public class GhostController : PlayerControllerCore
         m_rigidbody = GetComponent<Rigidbody>();
         m_ghostInputController = GetComponent<GhostInputController>();
         m_ghostMorph = GetComponent<GhostMorph>();
+
+        if (m_playerCamera != null)
+            m_cameraEffect = m_playerCamera.GetComponent<CameraEffect>();
     }
 
     /**
@@ -86,6 +92,13 @@ public class GhostController : PlayerControllerCore
 
         m_speedModifier = m_isSlowed ? 0.5f : 1f;
         m_speedModifier = m_isStopped ? 0f : m_speedModifier;
+
+        bool isDead = m_isStopped;
+        if (isDead != m_wasDead)
+        {
+            m_cameraEffect?.SetDeathEffect(isDead);
+            m_wasDead = isDead;
+        }
 
         if (m_ghostInputController.m_movementInputVector != Vector2.zero)
         {
