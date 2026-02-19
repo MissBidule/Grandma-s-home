@@ -6,11 +6,12 @@ public class AnchorController : NetworkBehaviour
     [SerializeField] private RoomController m_room;
     [SerializeField] private AnchorSize m_anchorSize;
     private GameObject m_appearance;
-    
 
 
-    void Start()
+
+    protected override void OnSpawned()
     {
+        base.OnSpawned();
         if (m_room == null)
         {
             m_room = GetComponentInParent<RoomController>();
