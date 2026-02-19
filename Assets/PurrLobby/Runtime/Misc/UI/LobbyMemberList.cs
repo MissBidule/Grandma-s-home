@@ -41,7 +41,7 @@ namespace PurrLobby
             }
         }
 
-        private void HandleNewMembers(Lobby room)
+        private async void HandleNewMembers(Lobby room)
         {
             var existingMembers = content.GetComponentsInChildren<MemberEntry>();
     
@@ -51,7 +51,7 @@ namespace PurrLobby
                     continue;
 
                 var entry = Instantiate(memberEntryPrefab, content);
-                entry.Init(member);
+                await entry.Init(member);
             }
         }
 

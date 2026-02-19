@@ -229,6 +229,10 @@ namespace PurrLobby.Providers {
             Debug.Log(_username);
         }
 
+        public async Task<string> GetPlayer() {
+            return LocalPlayerId;
+        }
+
         public async Task InitializeLocalPlayerData() {
             LocalPlayer.Data = new Dictionary<string, PlayerDataObject>() {
                 { "Name", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, playerName) },

@@ -42,6 +42,8 @@ public class PlayerSpawningState : StateNode
         int currentSpawnIndex = 0;
         foreach (var player in networkManager.players)
         {
+            Debug.Log(player);
+            Debug.Log(localPlayer);
             bool isChild = currentSpawnIndex % 2 == 0;
 
             Transform spawnPoint;

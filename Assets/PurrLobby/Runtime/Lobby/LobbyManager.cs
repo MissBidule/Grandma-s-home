@@ -236,6 +236,12 @@ namespace PurrLobby
             });
         }
 
+        public async Task<string> GetPlayer()
+        {
+            EnsureProviderSet();
+            return await _currentProvider.GetPlayer();
+        }
+
         /// <summary>
         /// Creates a room using the inspector CreateRoomArgs values.
         /// </summary>

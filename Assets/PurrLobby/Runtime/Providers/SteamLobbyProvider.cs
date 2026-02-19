@@ -71,6 +71,11 @@ namespace PurrLobby.Providers
                 }
             }
         }
+
+        public async Task<string> GetPlayer() {
+            string steamId = await GetLocalUserIdAsync();
+            return steamId;
+        }
         
         public async Task UpdateLobbyMaxPlayers(int _maxPlayers)
         {

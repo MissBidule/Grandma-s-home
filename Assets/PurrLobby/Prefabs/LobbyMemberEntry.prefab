@@ -257,7 +257,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 3878438123572755637}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1132880664040779526}
+        m_TargetAssemblyTypeName: PurrLobby.MemberEntry, PurrNetLobbySetup
+        m_MethodName: ChangeRole
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &3780635072618208056
 GameObject:
   m_ObjectHideFlags: 0
@@ -424,6 +436,7 @@ MonoBehaviour:
   userName: {fileID: 355520813798555985}
   avatar: {fileID: 1555551733864911413}
   readyColor: {r: 0.27058825, g: 1, b: 0.49803922, a: 1}
+  roleButton: {fileID: 4216240422977589560}
 --- !u!1 &6635417074626458831
 GameObject:
   m_ObjectHideFlags: 0
