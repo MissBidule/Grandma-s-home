@@ -5,6 +5,7 @@ using PurrNet;
 using PurrNet.Logging;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 namespace PurrLobby
 {
@@ -54,6 +55,8 @@ namespace PurrLobby
         private LobbyDataHolder _lobbyDataHolder;
 
         private bool IsStarting = false;
+
+        [SerializeField] private Button m_readyButton;
 
         private void Awake()
         {
@@ -154,7 +157,7 @@ namespace PurrLobby
                 if (_lobbyDataHolder != null)
                 {
                     PurrLogger.Log($"Updating player count: {room.Members.Count}", this);
-                    _lobbyDataHolder.setNumber_of_player_in_loby(room.Members.Count);
+                    _lobbyDataHolder.setNumber_of_player_in_lobby(room.Members.Count);
                 }
                 
                 OnRoomUpdated?.Invoke(room);
@@ -355,6 +358,27 @@ namespace PurrLobby
         }
         
         /// <summary>
+        /// Update Lobby Type
+        /// </summary>
+        public void UpdateLobbyType(bool _isPrivate)
+        {
+            EnsureProviderSet();
+            _currentProvider.UpdateLobbyType(_isPrivate);
+        }
+
+        /// <summary>
+        /// Update max players
+        /// </summary>
+        public void UpdateLobbyMaxPlayer(int _maxPlayers)
+        {
+            if (!_lobbyDataHolder)
+                return;
+            _lobbyDataHolder.SetMaxPlayer(_maxPlayers);
+            EnsureProviderSet();
+            _currentProvider.UpdateLobbyMaxPlayers(_maxPlayers);
+        }
+        
+        /// <summary>
         /// Gets meta data from the current lobby we're in
         /// </summary>
         /// <param name="key">Key/Identifier of the meta data we want</param>
@@ -398,10 +422,16 @@ namespace PurrLobby
             await WaitForAllTasksAsync();
             if(_currentLobby.IsValid && _currentLobby.Members.TrueForAll(x => x.IsReady))
             {
+                LockReady();
                 await _currentProvider.SetAllReadyAsync();
 
                 OnAllReady?.Invoke();
             }
+        }
+
+        public void LockReady()
+        {
+            m_readyButton.interactable = false;
         }
         
         public async Task WaitForAllTasksAsync()

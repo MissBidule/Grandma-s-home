@@ -71,6 +71,21 @@ namespace PurrLobby.Providers
                 }
             }
         }
+        
+        public async Task UpdateLobbyMaxPlayers(int _maxPlayers)
+        {
+            if (!IsSteamClientAvailable)
+                return;
+            Steamworks.SteamMatchmaking.SetLobbyMemberLimit(lobbyId, _maxPlayers);
+        }
+
+        public async Task UpdateLobbyType(bool _isPrivate)
+        {
+            if (!IsSteamClientAvailable)
+                return;
+            lobbyType = _isPrivate ? LobbyType.Private : LobbyType.Public;
+            Steamworks.SteamMatchmaking.SetLobbyType(lobbyId, _isPrivate ? (Steamworks.ELobbyType)LobbyType.Private : (Steamworks.ELobbyType)LobbyType.Public);
+        }
 
         public async Task<Lobby> CreateLobbyAsync(string _lobbyName, int maxPlayers, Dictionary<string, string> lobbyProperties = null)
         {

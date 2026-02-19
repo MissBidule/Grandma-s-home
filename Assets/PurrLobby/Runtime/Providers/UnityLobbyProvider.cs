@@ -565,6 +565,29 @@ namespace PurrLobby.Providers {
         }
 
         /// <summary>
+        /// Update Lobby MaxPlayers
+        /// </summary>
+        public async Task UpdateLobbyMaxPlayers(int _maxPlayers)
+        {
+            await LobbyService.Instance.UpdateLobbyAsync(CurrentLobby.Id, new UpdateLobbyOptions() {
+                MaxPlayers = _maxPlayers,
+                Data = CurrentLobby.Data
+            });
+        }
+
+        /// <summary>
+        /// Update Lobby type
+        /// </summary>
+        public async Task UpdateLobbyType(bool _isPrivate)
+        {
+            lobbyType = _isPrivate ? LobbyType.Private : LobbyType.Public;
+            await LobbyService.Instance.UpdateLobbyAsync(CurrentLobby.Id, new UpdateLobbyOptions() {
+                IsPrivate = lobbyType == LobbyType.Private,
+                Data = CurrentLobby.Data
+            });
+        }
+
+        /// <summary>
         /// Add/Update a Player property
         /// </summary>
         public async Task SetPlayerDataAsync(string key, string value, PlayerDataObject.VisibilityOptions visibility = PlayerDataObject.VisibilityOptions.Public) {
@@ -586,6 +609,7 @@ namespace PurrLobby.Providers {
         /// </summary>
         public async Task UpdatePlayerDataAsync() {
             if(!IsUnityServiceAvailable || CurrentLobby == null || LocalPlayer == null) { return; }
+            Debug.Log("Joined Lobby");
 
             try {
                 await LobbyService.Instance.UpdatePlayerAsync(CurrentLobby.Id, LocalPlayerId, new UpdatePlayerOptions() {

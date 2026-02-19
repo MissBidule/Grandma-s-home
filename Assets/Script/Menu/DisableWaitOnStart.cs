@@ -11,7 +11,7 @@ public class DisableWaitOnStart : NetworkBehaviour
     [SerializeField] private StateMachine m_stateMachine;
     [SerializeField] private GameObject m_waitCamera;
     [SerializeField] private CanvasGroup m_canvasGroup;
-    [SerializeField] private float m_fadeDuration = 0.5f;
+    [SerializeField] private float m_fadeDuration = 1f;
 
     private void Awake()
     {
@@ -30,8 +30,6 @@ public class DisableWaitOnStart : NetworkBehaviour
         
         // fade out
         StartCoroutine(FadeOut());
-        
-        // Disable UI camera
         m_waitCamera.SetActive(false);
     }
 
@@ -48,6 +46,7 @@ public class DisableWaitOnStart : NetworkBehaviour
         }
         
         m_canvasGroup.alpha = 0f;
-        Destroy(gameObject, .5f);
+        // Disable UI camera
+        enabled = false;
     }
 }
