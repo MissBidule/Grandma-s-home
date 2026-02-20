@@ -1,0 +1,167 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4259182706298663089
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4627407873277862541}
+  m_Layer: 0
+  m_Name: LivingRoom1Anchor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4627407873277862541
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4259182706298663089}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4878086449046378222}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8040886141930320745
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4878086449046378222}
+  - component: {fileID: 7168079792807854314}
+  m_Layer: 0
+  m_Name: HouseBuilder
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4878086449046378222
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8040886141930320745}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 4627407873277862541}
+  - {fileID: 2806976905590487558}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7168079792807854314
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8040886141930320745}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de76dc384593297eb929f2438eb25c2a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  m_livingRoomAnchor: {fileID: 4627407873277862541}
+  m_livingRoomLayouts:
+  - {fileID: 5464291833361340894, guid: 82c928c9dcd465b08b64303874e24067, type: 3}
+  - {fileID: 5464291833361340894, guid: fd8fbb0dcc295bf75839144b45e88685, type: 3}
+  m_livingRoom2Anchor: {fileID: 2806976905590487558}
+  m_livingRoom2Layouts:
+  - {fileID: 5464291833361340894, guid: a1068aba05c74c4debe452272eda9bea, type: 3}
+  - {fileID: 5464291833361340894, guid: eeabd921ba00c165094500150bba3e01, type: 3}
+  m_diningRoomAnchor: {fileID: 0}
+  m_diningRoomLayouts: []
+  m_solariumAnchor: {fileID: 0}
+  m_solariumLayouts: []
+  m_childrenBedroomAnchor: {fileID: 0}
+  m_childrenBedroomLayouts: []
+  m_grandmotherBedroomAnchor: {fileID: 0}
+  m_grandmotherBedroomLayouts: []
+  m_bathroomAnchor: {fileID: 0}
+  m_bathroomLayouts: []
+  m_dressingRoomAnchor: {fileID: 0}
+  m_dressingRoomLayouts: []
+  m_pantryAnchor: {fileID: 0}
+  m_pantryLayouts: []
+  m_toilet1Anchor: {fileID: 0}
+  m_toilet1Layouts: []
+  m_toilet2Anchor: {fileID: 0}
+  m_toilet2Layouts: []
+  m_laundryRoomAnchor: {fileID: 0}
+  m_laundryRoomLayouts: []
+  m_closet1Anchor: {fileID: 0}
+  m_closet1Layouts: []
+  m_closet2Anchor: {fileID: 0}
+  m_closet2Layouts: []
+  m_garageAnchor: {fileID: 0}
+  m_garageLayouts: []
+  m_artWorkshopAnchor: {fileID: 0}
+  m_artWorkshopLayouts: []
+  m_musicWorkshopAnchor: {fileID: 0}
+  m_musicWorkshopLayouts: []
+  m_inventionsWorkshopAnchor: {fileID: 0}
+  m_inventionsWorkshopLayouts: []
+  m_libraryAnchor: {fileID: 0}
+  m_libraryLayouts: []
+  m_officeAnchor: {fileID: 0}
+  m_officeLayouts: []
+  m_gameRoomAnchor: {fileID: 0}
+  m_gameRoomLayouts: []
+  m_smallPropsPercentage: 0.5
+  m_mediumPropsPercentage: 0.5
+--- !u!1 &8300014669539232561
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2806976905590487558}
+  m_Layer: 0
+  m_Name: LivingRoom2Anchor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2806976905590487558
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8300014669539232561}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.5, z: -7}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4878086449046378222}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
