@@ -30,6 +30,7 @@ public class ChildController : PlayerControllerCore
     [SerializeField] private Transform m_bulletSpawnTransform;
     [SerializeField] private GameObject m_bulletPrefab;
     [SerializeField] private float m_jumpImpulse = 6.0f;
+    [SerializeField] private float m_shootRange = 50f;
 
     protected override void OnSpawned()
     {
@@ -207,13 +208,24 @@ public class ChildController : PlayerControllerCore
 
 
     /*
-     * @brief  This function instantiates a ball prefab
-     * We instantaneously transfer the ball and put the force into impulse mode.
+     * @brief  Instantiates a bullet from the character aimed at where the camera points
      * @return void
      */
     void Shoot()
     {
-        GameObject bullet = Instantiate(m_bulletPrefab, m_bulletSpawnTransform.position, transform.rotation);
+        Vector3 camOrigin = m_playerCamera.transform.position;
+        Vector3 camDirection = m_playerCamera.transform.forward;
+
+        // Find aim target via camera raycast
+        Vector3 aimTarget;
+        if (Physics.Raycast(camOrigin, camDirection, out RaycastHit hit, m_shootRange))
+            aimTarget = hit.point;
+        else
+            aimTarget = camOrigin + camDirection * m_shootRange;
+
+        // Orient bullet from spawn point toward aim target
+        Vector3 shootDirection = (aimTarget - m_bulletSpawnTransform.position).normalized;
+        GameObject bullet = Instantiate(m_bulletPrefab, m_bulletSpawnTransform.position, Quaternion.LookRotation(shootDirection));
     }
 
     /*

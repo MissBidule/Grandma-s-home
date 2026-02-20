@@ -8,10 +8,12 @@ using UnityEngine;
 public class GhostStatus : NetworkBehaviour, IInteractable
 {
     private GhostController ghost;
+    private GhostDeathIndicator m_deathIndicator;
 
     private void Awake()
     {
         ghost = GetComponent<GhostController>();
+        m_deathIndicator = GetComponent<GhostDeathIndicator>();
     }
 
 
@@ -62,6 +64,9 @@ public class GhostStatus : NetworkBehaviour, IInteractable
         ghost.m_isStopped = true;
         ghost.m_stoppedLabel.SetActive(true);
         ghost.m_currentTimerStop = ghost.m_timerStop;
+
+        if (m_deathIndicator != null)
+            m_deathIndicator.OnGhostDied();
     }
     public void OnFocus()
     {
