@@ -3,6 +3,7 @@ using System.Collections;
 using PurrNet.Logging;
 using PurrNet.StateMachine;
 using UnityEngine;
+using PurrLobby;
 
 public class WaitForPlayerState : StateNode
 {

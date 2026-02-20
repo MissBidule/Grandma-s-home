@@ -21,6 +21,7 @@ namespace PurrLobby {
         Task<Lobby> JoinLobbyAsync(string lobbyId);
         Task<List<Lobby>> SearchLobbiesAsync(int maxRoomsToFind = 10, Dictionary<string, string> filters = null);
         Task SetIsReadyAsync(string userId, bool isReady);
+        Task SetIsGhostAsync(string userId, bool isGhost);
         Task SetLobbyDataAsync(string key, string value);
         Task<string> GetLobbyDataAsync(string key);
         Task<List<LobbyUser>> GetLobbyMembersAsync();

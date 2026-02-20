@@ -18,6 +18,7 @@ using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
 using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
+using PurrNet;
 #endif
 
 namespace PurrLobby.Providers {
@@ -226,7 +227,6 @@ namespace PurrLobby.Providers {
 
         public void UsernameChanged(string _username) {
             playerName = _username == "" ? "Player" : _username;
-            Debug.Log(_username);
         }
 
         public async Task<string> GetPlayer() {
@@ -234,9 +234,11 @@ namespace PurrLobby.Providers {
         }
 
         public async Task InitializeLocalPlayerData() {
+            string test = (UnityEngine.Random.Range(0, 2) == 0).ToString();
             LocalPlayer.Data = new Dictionary<string, PlayerDataObject>() {
                 { "Name", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, playerName) },
-                { "IsReady", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, "False") }
+                { "IsReady", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, "False") },
+                { "IsGhost", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, test) }
             };
 
             await UpdatePlayerDataAsync();
@@ -251,7 +253,8 @@ namespace PurrLobby.Providers {
                         Id = player.Id,
                         DisplayName = player.Data["Name"]?.Value,
                         IsReady = player.Data["IsReady"]?.Value == "True",
-                        Avatar = null
+                        Avatar = null,
+                        IsGhost = player.Data["IsGhost"]?.Value == "True",
                     });
                 } catch { } //player dataobject can throw
             }
@@ -628,6 +631,12 @@ namespace PurrLobby.Providers {
             if(!IsUnityServiceAvailable || CurrentLobby == null || LocalPlayer == null) { return; }
 
             await SetPlayerDataAsync("IsReady", $"{isReady}");
+        }
+
+        public async Task SetIsGhostAsync(string userId, bool isGhost) {
+            if(!IsUnityServiceAvailable || CurrentLobby == null || LocalPlayer == null) { return; }
+
+            await SetPlayerDataAsync("IsGhost", $"{isGhost}");
         }
 
         public async Task SetAllReadyAsync() {

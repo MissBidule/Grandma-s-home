@@ -348,6 +348,20 @@ namespace PurrLobby
                 await _currentProvider.SetIsReadyAsync(userId, isReady);
             });
         }
+
+        /// <summary>
+        /// Set the given User to Ghost
+        /// </summary>
+        /// <param name="userId">User ID of player</param>
+        /// <param name="isGhost">Role state to set</param>
+        public void SetIsGhost(string userId, bool isGhost)
+        {
+            RunTask(async () =>
+            {
+                EnsureProviderSet();
+                await _currentProvider.SetIsGhostAsync(userId, isGhost);
+            });
+        }
         
         /// <summary>
         /// Sets meta data on the current lobby we're in
@@ -415,6 +429,28 @@ namespace PurrLobby
             
             var localLobbyUser = _currentLobby.Members.Find(x => x.Id == localUserId);
             SetIsReady(localUserId, !localLobbyUser.IsReady);
+        }
+
+        /// <summary>
+        /// Toggles the local users role state automatically
+        /// </summary>
+        public void ToggleLocalRole()
+        {
+            if (!_currentLobby.IsValid)
+            {
+                PurrLogger.LogError($"Can't toggle role state, current lobby is invalid.");
+                return;
+            }
+            
+            var localUserId = _currentProvider.GetLocalUserIdAsync().Result;
+            if (string.IsNullOrEmpty(localUserId))
+            {
+                PurrLogger.LogError($"Can't toggle role state, local user ID is null or empty.");
+                return;
+            }
+            
+            var localLobbyUser = _currentLobby.Members.Find(x => x.Id == localUserId);
+            SetIsGhost(localUserId, !localLobbyUser.IsGhost);
         }
 
         private void OnDestroy()

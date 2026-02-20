@@ -1,4 +1,5 @@
 using System;
+using PurrNet;
 using TMPro;
 using UnityEngine;
 using WebSocketSharp;
@@ -11,6 +12,7 @@ namespace PurrLobby
         [SerializeField] private TextMeshProUGUI m_serverType;
         [SerializeField] private LobbyManager m_lobbyManager;
         [SerializeField] private const int c_maxPlayersInLobby = 12;
+
         public void OnServerTypeClicked()
         {
             if (m_serverType.text == "Public") m_serverType.text = "Private";

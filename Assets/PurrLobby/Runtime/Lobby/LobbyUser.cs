@@ -8,5 +8,7 @@ namespace PurrLobby
         public string DisplayName;
         public bool IsReady;
         public Texture2D Avatar;
+
+        public bool IsGhost;
     }
 }

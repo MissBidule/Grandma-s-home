@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using PurrNet.Logging;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace PurrLobby
 {
@@ -9,6 +10,13 @@ namespace PurrLobby
     {
         [SerializeField] private MemberEntry memberEntryPrefab;
         [SerializeField] private Transform content;
+        [SerializeField] private Button readyButton;
+        private RoleKeeper m_roleKeeper;
+
+        void Start()
+        {
+            m_roleKeeper = FindAnyObjectByType<RoleKeeper>();  
+        }
 
         public void LobbyDataUpdate(Lobby room)
         {
@@ -37,6 +45,7 @@ namespace PurrLobby
                 if (!string.IsNullOrEmpty(matchingMember.Id))
                 {
                     member.SetReady(matchingMember.IsReady);
+                    member.SetRole(matchingMember.IsGhost);
                 }
             }
         }
@@ -51,7 +60,9 @@ namespace PurrLobby
                     continue;
 
                 var entry = Instantiate(memberEntryPrefab, content);
+                entry.readyButton = readyButton;
                 await entry.Init(member);
+                m_roleKeeper.AddRole(entry.MemberId, entry._isGhost);
             }
         }
 
@@ -67,6 +78,7 @@ namespace PurrLobby
 
                 if (!room.Members.Exists(x => x.Id == member.MemberId))
                 {
+                    m_roleKeeper.RemoveRole(member.MemberId);
                     childrenToRemove.Add(child);
                 }
             }

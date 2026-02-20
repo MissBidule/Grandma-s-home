@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using PurrNet.StateMachine;
 using UnityEngine;
 using PurrNet.Modules;
+using PurrLobby;
+using System;
 
 public class PlayerSpawningState : StateNode
 {
@@ -38,31 +40,29 @@ public class PlayerSpawningState : StateNode
     private List<PlayerControllerCore> SpawnPlayers()
     {
         var spawnedPlayers = new List<PlayerControllerCore>();
+        var roleKeeper = FindAnyObjectByType<RoleKeeper>();
         
-        int currentSpawnIndex = 0;
+        int currentSpawnChildIndex = 0;
+        int currentSpawnGhostIndex = 0;
         foreach (var player in networkManager.players)
         {
-            Debug.Log(player);
-            Debug.Log(localPlayer);
-            bool isChild = currentSpawnIndex % 2 == 0;
+            bool isGhost = roleKeeper.IsGhost(player.GetHashCode());
 
             Transform spawnPoint;
             PlayerControllerCore newPlayer;
 
-            if (isChild)
+            if (isGhost)
             {
-                spawnPoint = m_childSpawnPoints[(currentSpawnIndex / 2) % m_childSpawnPoints.Count];
-                newPlayer = UnityProxy.Instantiate(m_childPrefab, spawnPoint.position, spawnPoint.rotation);
+                spawnPoint = m_ghostSpawnPoints[currentSpawnGhostIndex++ %  m_ghostSpawnPoints.Count];
+                newPlayer = UnityProxy.Instantiate(m_ghostPrefab, spawnPoint.position, spawnPoint.rotation);
             }
             else
             {
-                spawnPoint = m_ghostSpawnPoints[(currentSpawnIndex / 2) %  m_ghostSpawnPoints.Count];
-                newPlayer = UnityProxy.Instantiate(m_ghostPrefab, spawnPoint.position, spawnPoint.rotation);
+                spawnPoint = m_childSpawnPoints[currentSpawnChildIndex++ % m_childSpawnPoints.Count];
+                newPlayer = UnityProxy.Instantiate(m_childPrefab, spawnPoint.position, spawnPoint.rotation);
             } 
             newPlayer.GiveOwnership(player);
             spawnedPlayers.Add(newPlayer);
-            
-            currentSpawnIndex = currentSpawnIndex + 1;
         }
 
         return spawnedPlayers;

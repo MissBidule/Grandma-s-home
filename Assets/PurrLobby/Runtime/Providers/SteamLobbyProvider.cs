@@ -245,7 +245,6 @@ namespace PurrLobby.Providers
                 return default;
 
             _LobbyEnter ??= Steamworks.CallResult<Steamworks.LobbyEnter_t>.Create();
-
             var tcs = new TaskCompletionSource<bool>();
             var cLobbyId = new Steamworks.CSteamID(ulong.Parse(lobbyId));
             var handle = Steamworks.SteamMatchmaking.JoinLobby(cLobbyId);
@@ -268,6 +267,8 @@ namespace PurrLobby.Providers
                 OnLobbyJoinFailed?.Invoke($"Failed to join lobby {lobbyId}.");
                 return new Lobby { IsValid = false };
             }
+
+            Steamworks.SteamMatchmaking.SetLobbyMemberData(_currentLobby, "IsGhost", (Random.Range(0, 2) == 0).ToString());
 
             var lobby = LobbyFactory.Create(
                 Steamworks.SteamMatchmaking.GetLobbyData(_currentLobby, "Name"),
@@ -364,6 +365,18 @@ namespace PurrLobby.Providers
             return Task.FromResult(Task.CompletedTask);
         }
 
+        public async Task SetIsGhostAsync(string userId, bool isGhost) {
+            //You can only set the role state for your own user
+            if (IsSteamClientAvailable && !string.IsNullOrEmpty(userId) && ulong.TryParse(userId, out var id)
+                && Steamworks.SteamUser.GetSteamID().m_SteamID == id)
+            {
+                Steamworks.SteamMatchmaking.SetLobbyMemberData(_currentLobby, "IsGhost", _isGhost.ToString());
+                Steamworks.SteamMatchmaking.SetLobbyData(_currentLobby, "UpdateTrigger", DateTime.UtcNow.Ticks.ToString());
+            }
+
+            return Task.FromResult(Task.CompletedTask);
+        }
+
         public Task SetLobbyDataAsync(string key, string value)
         {
             if (IsSteamClientAvailable)
@@ -448,6 +461,8 @@ namespace PurrLobby.Providers
             var displayName = Steamworks.SteamFriends.GetFriendPersonaName(steamId);
             var isReadyString = Steamworks.SteamMatchmaking.GetLobbyMemberData(lobbyId, steamId, "IsReady");
             var isReady = !string.IsNullOrEmpty(isReadyString) && isReadyString == "True";
+            var isGhostString = Steamworks.SteamMatchmaking.GetLobbyMemberData(lobbyId, steamId, "IsGhost");
+            var isGhost = !string.IsNullOrEmpty(isGhostString) && isGhostString == "True";
 
             var avatarHandle = Steamworks.SteamFriends.GetLargeFriendAvatar(steamId);
             Texture2D avatar = null;
@@ -470,6 +485,7 @@ namespace PurrLobby.Providers
                 DisplayName = displayName,
                 IsReady = isReady,
                 Avatar = avatar
+                IsGhost = isGhost;
             };
         }
 
