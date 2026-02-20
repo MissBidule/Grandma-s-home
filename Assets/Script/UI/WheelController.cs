@@ -48,7 +48,7 @@ public class WheelController : NetworkBehaviour
 
         bool toggle = !m_anim.GetBool("OpenWheel");
         Cursor.lockState = toggle ? CursorLockMode.Confined : CursorLockMode.Locked;
-        
+
         m_anim.SetBool("OpenWheel", toggle);
     }
 

@@ -67,6 +67,12 @@ public class GhostMorph : NetworkBehaviour
      */
     private void CheckForScannableObject()
     {
+        if (m_isTransformed)
+        {
+            ClearHighlight();
+            return;
+        }
+
         CinemachineCamera mainCamera = GetComponent<PlayerControllerCore>().m_playerCamera;
         if (mainCamera == null)
         {
