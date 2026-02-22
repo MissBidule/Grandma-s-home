@@ -1,48 +1,80 @@
-using UnityEngine;
-using System.Collections.Generic;
 using PurrNet;
+using System;
+using System.Collections.Generic;
+using Unity.Cinemachine;
+using UnityEngine;
 using UnityEngine.Rendering;
 
 /*
  * @brief Contains class declaration for TransformPreviewGhost
  * @details The TransformPreviewGhost class handles the preview of transformations, checking for collisions and updating materials accordingly.
  */
-public class GhostMorphPreview : NetworkBehaviour
+public class GhostMorphPreview : MonoBehaviour
 {
+    [SerializeField] private float m_scanRange = 10f;
+    [SerializeField] private LayerMask m_scanLayerMask;
     [SerializeField] private GameObject m_mesh;
 
     private HashSet<Collider> m_colliders = new HashSet<Collider>();
-
     private MeshRenderer m_meshRenderer;
     private Collider m_previewCollider;
-    public bool m_CanTransform => m_colliders.Count == 0;
+    public WheelController m_wheel;
+    public bool m_canMorph => m_colliders.Count == 0;
 
-    [SerializeField] private Color m_validColor = new Color(1f, 1f, 1f, 0.3f);
-    [SerializeField] private Color m_invalidColor = new Color(1f, 0f, 0f, 0.3f);
+    [NonSerialized] public GameObject m_currentPrefab = null;
 
-    protected override void OnSpawned()
-    {
-        base.OnSpawned();
-
-        if (!isOwner)
-        {
-            m_validColor.a = 0f;
-            m_invalidColor.a = 0f;
-            m_meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
-        }
-    }
+    [SerializeField] private Color m_validColor = new Color(1f, 1f, 1f, 0f);
+    [SerializeField] private Color m_invalidColor = new Color(1f, 0f, 0f, 0f);
 
     /*
-     * @brief Awake is called when the script instance is being loaded
      * Initializes the mesh renderer and collider, sets the collider as a trigger, and updates the material.
      * @return void
      */
-    void Awake()
+    void Start()
     {
         m_meshRenderer = GetComponent<MeshRenderer>();
         m_previewCollider = GetComponent<Collider>();
-        m_previewCollider.isTrigger = true;
-        UpdateMaterial();
+        m_meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
+    }
+
+    /*
+     * @brief Scans for a scannable prefab in front of the player
+     * If found and there's a free slot, adds it to the wheel. If wheel is full, opens the wheel for slot selection.
+     * @return void
+     */
+    public void ScanForPrefab()
+    {
+        Debug.Log("Scan");
+        CinemachineCamera mainCamera = GetComponentInParent<PlayerControllerCore>().m_playerCamera;
+
+        Vector3 rayOrigin = mainCamera.transform.position;
+        Vector3 rayDirection = mainCamera.transform.forward;
+
+        if (!Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, m_scanRange, m_scanLayerMask))
+        {
+            Debug.Log("No objects detected by the raycast");
+            return;
+        }
+
+        GameObject scannedObject = hit.collider.gameObject;
+        Debug.Log($"Object detected: {scannedObject.name}");
+
+        ScannableObject scannableComponent = scannedObject.GetComponent<ScannableObject>();
+        if (scannableComponent == null)
+        {
+            Debug.Log($"Object detected but not scannable: {scannedObject.name}");
+            return;
+        }
+
+        Debug.Log($"Scannable object found: {scannedObject.name}");
+
+        if (scannableComponent.m_icon == null)
+        {
+            Debug.Log($"No icon for the scanned object: {scannedObject.name}");
+            return;
+        }
+
+        m_wheel.TryAddPrefabToWheel(scannedObject, scannableComponent.m_icon);
     }
 
     /*
@@ -51,10 +83,10 @@ public class GhostMorphPreview : NetworkBehaviour
      * @param _prefab: The prefab GameObject to preview.
      * @return void
      */
-
-    [ObserversRpc]
     public void SetPreview(GameObject _prefab)
     {
+        m_currentPrefab = _prefab;
+
         MeshFilter meshFilter = _prefab.GetComponentInChildren<MeshFilter>();
         BoxCollider collider = _prefab.GetComponentInChildren<BoxCollider>();
         MeshRenderer prefabRenderer = _prefab.GetComponentInChildren<MeshRenderer>();
@@ -90,6 +122,12 @@ public class GhostMorphPreview : NetworkBehaviour
         transform.localPosition = new Vector3(0f, offsetY+0.01f, 0f);
 
         UpdateMaterial();
+    }
+
+    public void HidePreview()
+    {
+        m_meshRenderer.enabled = false;
+        m_currentPrefab = null;
     }
 
     /*
@@ -153,13 +191,7 @@ public class GhostMorphPreview : NetworkBehaviour
     void UpdateMaterial()
     {
         Material[] mats = m_meshRenderer.materials;
-        Color targetColor = m_CanTransform ? m_validColor : m_invalidColor;
-        /*
-        if (transform.parent.GetComponent<GhostController>().IsGrounded())
-        {
-            targetColor = m_invalidColor;
-        }
-        */
+        Color targetColor = m_canMorph ? m_validColor : m_invalidColor;
         foreach (Material mat in mats)
         {
             mat.color = targetColor;

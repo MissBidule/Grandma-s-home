@@ -24,8 +24,6 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     [SerializeField] private string m_promptMessage = "E : Sabotage";
     [SerializeField] private GhostInteract m_saboteur;
 
-    public QteCircle m_qteCircle;
-
     public bool m_isSabotaged;
     private bool m_isQteRunning;
     private bool m_isFocused;
@@ -39,8 +37,6 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     {
         ApplyState();
         SetHighlight(false);
-
-        m_qteCircle = FindAnyObjectByType<QteCircle>();
     }
 
     /**
@@ -93,7 +89,8 @@ public class SabotageObject : NetworkBehaviour, IInteractable
             InteractPromptUI.m_Instance.Hide();
 
         m_saboteur = _sabo;
-        m_qteCircle.StartQte(OnQteFinished);
+        QteCircle qte = FindAnyObjectByType<QteCircle>();
+        qte.StartQte(OnQteFinished);
     }
 
     private void OnQteFinished(bool _success)
@@ -103,7 +100,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         m_saboteur.OnSabotageOver(_success);
         if (_success)
         {
-            Sabotage();
+            SabotageRPC();
             m_saboteur = null;
             return;
         }
@@ -117,7 +114,14 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         }
     }
 
-    private void Sabotage()
+    [ServerRpc(requireOwnership:false)]
+    private void SabotageRPC()
+    {
+        SabotageForAll();
+    }
+
+    [ObserversRpc(runLocally:true, requireServer:true)]
+    private void SabotageForAll()
     {
         m_isSabotaged = true;
 

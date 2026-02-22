@@ -1,28 +1,27 @@
 ﻿using PurrNet;
+using System;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 /**
 @brief       Controller for the Ghost character
 @details     Handles movement, rotation and wall climbing
 */
-public class GhostController : PlayerControllerCore
+public class GhostController : PlayerControllerCore, IInteractable
 {
+    // Network Variables
+    public SyncVar<Vector3> m_wishDir; // I dont think SyncVar is needed for this.
+    public SyncVar<bool> m_isSlowed = new(false);
+    public SyncVar<bool> m_isStopped = new(false);
+
+
     [Header("Ghost references")]
-    private GhostInputController m_ghostInputController;
     private GhostMorph m_ghostMorph;
 
-    public bool m_isSlowed = false;
-    public bool m_isStopped = false;
-    public float m_timerSlowed = 5f;
-    public float m_timerStop = 5f;
-    public float m_currentTimerSlowed = 5f;
-    public float m_currentTimerStop = 5f;
-
-    [Header("Canva")]
-    public GameObject m_stoppedLabel;
-    public GameObject m_slowedLabel;
-
+    [Header("Status Timers")]
+    [SerializeField] private float m_timerSlowed = 5f;
+    [SerializeField] private float m_timerStop = 5f;
+    private float m_currentTimerSlowed = 5f;
+    private float m_currentTimerStop = 5f;
 
     [Header("Movement")]
     [SerializeField] private float m_walkSpeed = 4f;
@@ -45,36 +44,103 @@ public class GhostController : PlayerControllerCore
 
     private float m_speedModifier = 1f;
 
+
+    // -------------------------------------------
+    // --- Everything Down Here is Server-Side ---
+    // ---  And should be checked by isServer  ---
+    // -------------------------------------------
+
     protected override void OnSpawned()
     {
         base.OnSpawned();
 
-        enabled = isOwner;
-    }
-
-    private void Start()
-    {
+        if (!isServer) return;
         m_rigidbody = GetComponent<Rigidbody>();
-        m_ghostInputController = GetComponent<GhostInputController>();
         m_ghostMorph = GetComponent<GhostMorph>();
     }
 
-    /**
-    @brief      Update timers and movement modifiers
-    */
     private void Update()
+    {
+        if (!isServer) return;
+        UpdateTimers();
+
+        SetSpeedModifier();
+
+        // Casting to Vector2 to ignore falling movement
+        if ((Vector2)m_wishDir.value != Vector2.zero)
+        {
+            m_ghostMorph.RevertToOriginal();
+        }
+    }
+
+    /**
+    @brief      Physics update handling movement and climbing
+    @details    Applies camera-relative movement, rotation and automatic climbing when facing a wall
+    */
+    private void FixedUpdate()
+    {
+        if (!isServer) return;
+
+        if (m_wishDir.value.sqrMagnitude > 0.0001f
+            && !m_isStopped
+            && !m_rigidbody.constraints.HasFlag(RigidbodyConstraints.FreezeRotationY)
+        )
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(m_wishDir.value, Vector3.up);
+
+            m_rigidbody.MoveRotation(
+                Quaternion.Slerp(
+                    m_rigidbody.rotation,
+                    targetRotation,
+                    m_rotationSpeed * Time.fixedDeltaTime
+                )
+            );
+        }
+
+        if (CheckForClimbableWall())
+        {
+            m_canClimbThisFrame = true;
+        }
+
+        if (!m_isStopped &&
+            m_canClimbThisFrame &&
+            m_wishDir.value.sqrMagnitude > 0.0001f)
+        {
+            Vector3 vel = m_rigidbody.linearVelocity;
+
+            float targetUp = m_climbSpeed * m_speedModifier;
+            vel.y = Mathf.Max(vel.y, targetUp);
+
+            m_rigidbody.linearVelocity = vel;
+
+            ResetClimbFlags();
+            return;
+        }
+
+        Vector3 targetVel = m_speedModifier * m_walkSpeed * m_wishDir.value;
+
+        Vector3 currentVel = m_rigidbody.linearVelocity;
+        Vector3 currentHorizontal = new Vector3(currentVel.x, 0f, currentVel.z);
+
+        Vector3 delta = targetVel - currentHorizontal;
+        Vector3 accel = Vector3.ClampMagnitude(delta * (m_acceleration * m_speedModifier), m_acceleration);
+
+        m_rigidbody.AddForce(new Vector3(accel.x, 0f, accel.z), ForceMode.Acceleration);
+
+        ResetClimbFlags();
+    }
+
+    void UpdateTimers()
     {
         if (m_isStopped)
         {
             m_rigidbody.constraints = RigidbodyConstraints.FreezeAll;
             m_currentTimerStop -= Time.deltaTime;
-            m_slowedLabel.SetActive(false);
             if (m_currentTimerStop <= 0f)
             {
                 m_rigidbody.constraints = RigidbodyConstraints.None;
                 m_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
-                m_isStopped = false;
-                m_stoppedLabel.SetActive(false);
+                m_isStopped.value = false;
             }
         }
         else if (m_isSlowed)
@@ -82,18 +148,17 @@ public class GhostController : PlayerControllerCore
             m_currentTimerSlowed -= Time.deltaTime;
             if (m_currentTimerSlowed <= 0f)
             {
-                m_isSlowed = false;
-                m_slowedLabel.SetActive(false);
+                m_isSlowed.value = false;
             }
         }
+    }
 
-        m_speedModifier = m_isSlowed ? 0.5f : 1f;
-        m_speedModifier = m_isStopped ? 0f : m_speedModifier;
-
-        if (m_ghostInputController.m_movementInputVector != Vector2.zero)
-        {
-            m_ghostMorph.RevertToOriginal();
-        }
+    void SetSpeedModifier()
+    {
+        m_speedModifier = 1f;
+        if (m_isSlowed) m_speedModifier *= 0.5f;
+        // Place between those lines the speedModifier change for when the player will "dash" / "sprint"
+        if (m_isStopped) m_speedModifier = 0f;
     }
 
     /**
@@ -102,12 +167,7 @@ public class GhostController : PlayerControllerCore
     */
     public bool IsGrounded()
     {
-        if (m_rigidbody == null) return false;
-
-        if (Physics.Raycast(transform.position, Vector3.down, out _, 1.0f))
-            return true;
-
-        return false;
+        return Physics.Raycast(transform.position, Vector3.down, out _, 1.0f);
     }
 
     /**
@@ -127,83 +187,10 @@ public class GhostController : PlayerControllerCore
                 return true;
             }
         }
-
         return false;
     }
 
-    /**
-    @brief      Physics update handling movement and climbing
-    @details    Applies camera-relative movement, rotation and automatic climbing when facing a wall
-    */
-    private void FixedUpdate()
-    {
-        if (m_rigidbody == null) return;
-        if (m_ghostInputController == null) return;
-        if (m_playerCamera == null) return;
-
-        Transform cam = m_playerCamera.transform;
-
-        Vector3 forward = cam.forward;
-        Vector3 right = cam.right;
-
-        forward.y = 0f;
-        right.y = 0f;
-
-        forward.Normalize();
-        right.Normalize();
-
-        Vector2 movementInput = m_ghostInputController.m_movementInputVector;
-
-        Vector3 wishDir = Vector3.zero;
-        if (movementInput.sqrMagnitude > 0.0001f)
-            wishDir = (forward * movementInput.y + right * movementInput.x).normalized;
-
-        if (wishDir.sqrMagnitude > 0.0001f && !m_isStopped && !m_rigidbody.constraints.HasFlag(RigidbodyConstraints.FreezeRotationY))
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(wishDir, Vector3.up);
-
-            m_rigidbody.MoveRotation(
-                Quaternion.Slerp(
-                    m_rigidbody.rotation,
-                    targetRotation,
-                    m_rotationSpeed * Time.fixedDeltaTime
-                )
-            );
-
-        }
-
-        if (CheckForClimbableWall())
-        {
-            m_canClimbThisFrame = true;
-        }
-
-        if (!m_isStopped &&
-            m_canClimbThisFrame &&
-            wishDir.sqrMagnitude > 0.0001f)
-        {
-            Vector3 vel = m_rigidbody.linearVelocity;
-
-            float targetUp = m_climbSpeed * m_speedModifier;
-            vel.y = Mathf.Max(vel.y, targetUp);
-
-            m_rigidbody.linearVelocity = vel;
-
-            ResetClimbFlags();
-            return;
-        }
-
-        Vector3 targetVel = wishDir * m_walkSpeed * m_speedModifier;
-
-        Vector3 currentVel = m_rigidbody.linearVelocity;
-        Vector3 currentHorizontal = new Vector3(currentVel.x, 0f, currentVel.z);
-
-        Vector3 delta = targetVel - currentHorizontal;
-        Vector3 accel = Vector3.ClampMagnitude(delta * (m_acceleration * m_speedModifier), m_acceleration);
-
-        m_rigidbody.AddForce(new Vector3(accel.x, 0f, accel.z), ForceMode.Acceleration);
-
-        ResetClimbFlags();
-    }
+    
 
     /**
     @brief      Reset climb flags
@@ -212,5 +199,66 @@ public class GhostController : PlayerControllerCore
     {
         m_canClimbThisFrame = false;
         m_wallNormal = Vector3.zero;
+    }
+
+    /**
+    @brief      Apply slow effect from projectile hit
+    */
+    public void HitRanged()
+    {
+        if (!isOwner) return;
+        ApplySlowedRPC();
+    }
+
+    /**
+    @brief      Apply stop effect from close combat hit
+    */
+    public void HitCac()
+    {
+        if (!isOwner) return;
+        ApplyStoppedRPC();
+    }
+
+    public void OnFocus()
+    {
+        // Do nothing
+    }
+
+    public void OnUnfocus()
+    {
+        // Do nothing
+    }
+
+    public void OnInteract(GhostInteract _who)
+    {
+        if (!isOwner) return;
+        ResetStoppedRPC();
+    }
+
+    public void OnStopInteract(GhostInteract _who)
+    {
+        // Do nothing
+    }
+
+
+    [ServerRpc]
+    private void ApplySlowedRPC()
+    {
+        m_isSlowed.value = true;
+        m_currentTimerSlowed = m_timerSlowed;
+    }
+
+    [ServerRpc]
+    private void ApplyStoppedRPC()
+    {
+        m_isStopped.value = true;
+        m_currentTimerStop = m_timerStop;
+    }
+
+    [ServerRpc]
+    private void ResetStoppedRPC()
+    {
+        m_isStopped.value = false;
+        m_currentTimerStop = 0f;
     }
 }

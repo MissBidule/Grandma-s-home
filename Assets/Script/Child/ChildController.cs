@@ -9,12 +9,13 @@ using UnityEngine.SceneManagement;
  */
 public class ChildController : PlayerControllerCore
 {
-    private ChildInputController m_childInputController;
     private Rigidbody m_rigidbody;
-    private bool m_waitingForInputRelease = false;
 
-    private Vector3 m_moveDirection;
-    private BoxCollider m_boxCollider;
+    public SyncVar<Vector3> m_wishDir; // I dont think SyncVar is needed for this.
+    public SyncVar<Vector3> m_lookDir; // Same
+    private Vector3 lastLookDir;
+
+
     private float m_cleanRange = 2f;
     private float m_attackRange = 0.5f;
 
@@ -23,7 +24,6 @@ public class ChildController : PlayerControllerCore
     private float m_lastShot;
     [SerializeField] private float m_cdSwitch = 0.2f;
     private float m_switchingTime;
-    private float m_yaw;
 
 
     [SerializeField] private float m_speed = 5f;
@@ -34,21 +34,11 @@ public class ChildController : PlayerControllerCore
     protected override void OnSpawned()
     {
         base.OnSpawned();
-
-        enabled = isOwner;
-    }
-    
-    /*
-     * @brief Awake is called when the script instance is being loaded
-     * Gets the ChildInputController component.
-     * @return void
-     */
-    void Awake()
-    {
-        m_childInputController = GetComponent<ChildInputController>();
         m_rigidbody = GetComponent<Rigidbody>();
+        if (!isServer) return;
         m_lastShot = m_cdGun;
         m_switchingTime = m_cdSwitch;
+
     }
 
     /*
@@ -57,39 +47,15 @@ public class ChildController : PlayerControllerCore
      */
     void Update()
     {
+        if (!isServer) return;
         m_lastShot += Time.deltaTime;
         m_switchingTime += Time.deltaTime;
-        Vector2 movementInput = m_childInputController.m_movementInputVector;
-        if (m_waitingForInputRelease)
+        
+        if (lastLookDir != m_lookDir)
         {
-            if (movementInput == Vector2.zero)
-            {
-                m_waitingForInputRelease = false;
-            }
-            m_moveDirection = Vector3.zero;
-            return;
+            //UpdateRotateForEveryone(m_lookDir);
+            lastLookDir = m_lookDir;
         }
-
-        if (movementInput.sqrMagnitude < 0.01f)
-        {
-            m_moveDirection = Vector3.zero;
-            return;
-        }
-
-        Transform cameraTransform = m_playerCamera.transform;
-
-        Vector3 cameraForward = cameraTransform.forward;
-        Vector3 cameraRight = cameraTransform.right;
-
-        cameraForward.y = 0f;
-        cameraRight.y = 0f;
-
-        cameraForward.Normalize();
-        cameraRight.Normalize();
-
-        m_moveDirection =
-            cameraForward * movementInput.y +
-            cameraRight * movementInput.x;
     }
 
     /*
@@ -98,33 +64,33 @@ public class ChildController : PlayerControllerCore
      */
     void FixedUpdate()
     {
-        if (m_moveDirection == Vector3.zero) return;
+        if (!isServer) return;
+
+        m_rigidbody.rotation = Quaternion.LookRotation(m_lookDir, Vector3.up);
+
+        if (m_wishDir == Vector3.zero) return;
+
+
         m_rigidbody.MovePosition(
-            m_rigidbody.position + m_moveDirection * m_speed * Time.fixedDeltaTime
+            m_rigidbody.position + m_wishDir.value * m_speed * Time.fixedDeltaTime
         );
     }
 
-    /*
-     * @brief   Applies rotation using the mouse movement
-     * @return  void
-     */
-    void LateUpdate()
+    // Called to bypass the latency from the server and have the child rotate immediately on the client side
+    public void LocalRotation(Vector3 _lookDir)
     {
-        Vector2 lookInput = m_childInputController.m_lookInputVector;
-        m_yaw += lookInput.x * m_playerCamera.GetComponent<ChildCameraController>().m_sensitivity * Time.deltaTime;
-        Quaternion targetRot = Quaternion.Euler(0f, m_yaw, 0f);
-        float epsilon = 0.01f;
-        if (Mathf.Abs(lookInput.x) > epsilon)
-        {
-            m_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
-            m_rigidbody.transform.rotation = targetRot;
-        }
-        else
-        {
-
-            m_rigidbody.freezeRotation = true;
-        }
+        m_rigidbody.rotation = Quaternion.LookRotation(_lookDir, Vector3.up);
     }
+
+    // Called when lookDir changes to update the rotation of the child on all clients except the one that initiated the change (since it already updated locally)
+    // I think this is awful.
+    // So I didn't put it to try, so I think rotation only work for local player and server, but not other clients.
+    /*[ObserversRpc(runLocally:true)]
+    public void UpdateRotateForEveryone(Vector3 _lookDir)
+    {
+        if (isOwner || isServer) return;
+        m_rigidbody.rotation = Quaternion.LookRotation(_lookDir, Vector3.up);
+    }*/
 
     /*
      * @brief   Makes the child jump by applying an impulse force upwards
@@ -132,6 +98,7 @@ public class ChildController : PlayerControllerCore
      */
     public void Jump()
     {
+        if (!isServer) return;
         if (!IsGrounded()) return;
         m_rigidbody.AddForce(Vector3.up * m_jumpImpulse, ForceMode.Impulse);
     }
@@ -142,21 +109,16 @@ public class ChildController : PlayerControllerCore
      */
     private bool IsGrounded()
     {
-        if (m_rigidbody == null) return false;
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position, Vector3.down, out hit, 1.0f))
-        {
-            return true;
-        }
-        return false;
+        return Physics.Raycast(transform.position, Vector3.down, out _, 1.0f);
     }
 
     /*
      * @brief function called when the child inputs the hit command
      * @return void
      */
-    public void Attacks()
+    public void Attack()
     {
+        if (!isServer) return;
         if (m_switchingTime < m_cdSwitch) return;
         if (m_isranged)
         {
@@ -164,7 +126,7 @@ public class ChildController : PlayerControllerCore
             {
                 m_lastShot = 0;
                 Debug.Log("shoot");
-                Shoot();
+                ShootForAll();
             }
         }
         else
@@ -179,20 +141,18 @@ public class ChildController : PlayerControllerCore
      * @brief Enables the attack collider to detect hits, asked on the server
      * @return void
      */
-    [ServerRpc]
     private void Cac()
     {
         Collider[] hits = Physics.OverlapSphere(m_bulletSpawnTransform.position, m_attackRange);
 
         foreach (Collider col in hits)
         {
-            var ghost = col.GetComponent<GhostStatus>();
+            var ghost = col.GetComponent<GhostController>();
             if (ghost != null)
             {
                 HitOpponent();
-                ghost.GotHitByCac();
+                ghost.HitCac();
             }
-
             if (col.transform.parent) 
             {
                 Debug.Log(col.transform.parent.gameObject.layer);
@@ -201,7 +161,7 @@ public class ChildController : PlayerControllerCore
                     var ghost2 = col.transform.parent.gameObject.GetComponent<GhostMorph>();
                     if (ghost2 != null)
                         {   
-                            if (isServer) ghost2.RevertToOriginal();
+                            ghost2.RevertToOriginal();
                         }
                 }
             }
@@ -226,9 +186,10 @@ public class ChildController : PlayerControllerCore
      * We instantaneously transfer the ball and put the force into impulse mode.
      * @return void
      */
-    void Shoot()
+    [ObserversRpc(runLocally:true)]
+    void ShootForAll()
     {
-        GameObject bullet = Instantiate(m_bulletPrefab, m_bulletSpawnTransform.position, transform.rotation);
+        GameObject bullet = UnityProxy.InstantiateDirectly(m_bulletPrefab, m_bulletSpawnTransform.position, transform.rotation);
     }
 
     /*
@@ -238,6 +199,7 @@ public class ChildController : PlayerControllerCore
      */
     public void Clean()
     {
+        if (!isServer) return;
         Collider[] hits = Physics.OverlapSphere(transform.position, m_cleanRange);
 
         foreach (Collider col in hits)
@@ -256,6 +218,7 @@ public class ChildController : PlayerControllerCore
      */
     public void SwitchAttackType()
     {
+        if (!isServer) return;
         m_isranged = !m_isranged;
         m_switchingTime = 0;
     }

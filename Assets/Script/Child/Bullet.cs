@@ -27,19 +27,12 @@ public class Bullet : NetworkBehaviour
     [SerializeField] private GameObject m_slimePrefab;
 
     
-    //private static Dictionary<Collider, GameObject> m_slimeOnCollider = new Dictionary<Collider, GameObject>();
-
     protected override void OnSpawned()
     {
         base.OnSpawned();
     }
 
     void Awake()
-    {
-        m_currentLife = m_lifeTime;
-    }
-
-    protected override void OnPoolReset()
     {
         m_currentLife = m_lifeTime;
     }
@@ -51,7 +44,6 @@ public class Bullet : NetworkBehaviour
         m_currentLife -= Time.deltaTime;
         if (m_currentLife <= 0f)
         {
-            Debug.Log("dead");
             Destroy(gameObject);
         }
     }
@@ -68,13 +60,12 @@ public class Bullet : NetworkBehaviour
 
         if (_other.transform.parent) 
         {
-            Debug.Log(_other.transform.parent.gameObject.layer);
             if (_other.transform.parent.gameObject.layer == LayerMask.NameToLayer("Ghost"))
             {
                 var ghost = _other.transform.parent.gameObject.GetComponent<GhostMorph>();
                 if (ghost != null)
                     {   
-                        if (isServer) ghost.RevertToOriginal();
+                        ghost.RevertToOriginal();
                     }
             }
         }
@@ -90,10 +81,10 @@ public class Bullet : NetworkBehaviour
 
             if (gameobject.layer == LayerMask.NameToLayer("Ghost"))
             {
-                var ghost = gameobject.GetComponent<GhostStatus>();
+                var ghost = gameobject.GetComponent<GhostController>();
                 if (ghost != null)
                 {   
-                    if (isServer) ghost.GotHitByProjectile();
+                    if (isServer) ghost.HitRanged();
                 }
             }
             //Use if needed, to check that we only have one slime

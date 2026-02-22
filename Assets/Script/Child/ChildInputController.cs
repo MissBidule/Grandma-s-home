@@ -6,19 +6,14 @@ using UnityEngine.InputSystem;
  * @brief Contains class declaration for ChildInputController
  * @details The ChildInputController class handles child input using Unity's Input System.
  */
-public class ChildInputController : NetworkBehaviour
+public class ChildInputController : MonoBehaviour
 {
     public Vector2 m_movementInputVector { get; private set; }
     public Vector2 m_lookInputVector { get; private set; }
-    private ChildController m_childController;
 
-    protected override void OnSpawned()
-    {
-        base.OnSpawned();
+    public ChildClientController m_childClientController;
 
-        enabled = isOwner;
-    }
-
+    private bool isOwner => m_childClientController != null && m_childClientController.isOwner;
     /*
      * @brief Awake is called when the script instance is being loaded
      * Gets the ChildController component.
@@ -26,7 +21,7 @@ public class ChildInputController : NetworkBehaviour
      */
     void Awake()
     {
-        m_childController = GetComponent<ChildController>();
+        m_childClientController = GetComponent<ChildClientController>();
     }
 
     /*
@@ -36,6 +31,7 @@ public class ChildInputController : NetworkBehaviour
      */
     public void OnMove(InputAction.CallbackContext _context)
     {
+        if (!isOwner) return;
         m_movementInputVector = _context.ReadValue<Vector2>();
     }
 
@@ -47,6 +43,7 @@ public class ChildInputController : NetworkBehaviour
 
     public void OnLook(InputAction.CallbackContext _context)
     {
+        if (!isOwner) return;
         m_lookInputVector = _context.ReadValue<Vector2>();
     }
 
@@ -58,9 +55,10 @@ public class ChildInputController : NetworkBehaviour
      */
     public void OnJump(InputAction.CallbackContext _context)
     {
+        if (!isOwner) return;
         if (_context.performed)
         {
-            m_childController.Jump();
+            m_childClientController.OnJump();
         }
     }
 
@@ -72,9 +70,10 @@ public class ChildInputController : NetworkBehaviour
     */
     public void OnAttack(InputAction.CallbackContext _context)
     {
+        if (!isOwner) return;
         if (_context.performed)
         {
-            m_childController.Attacks();
+            m_childClientController.OnAttack();
         }
     }
 
@@ -85,9 +84,10 @@ public class ChildInputController : NetworkBehaviour
      */
     public void OnSwitchWeapon(InputAction.CallbackContext _context)
     {
+        if (!isOwner) return;
         if (_context.performed)
         {
-            m_childController.SwitchAttackType();
+            m_childClientController.OnSwitchWeapon();
         }
     }
 
@@ -98,7 +98,10 @@ public class ChildInputController : NetworkBehaviour
      */
     public void OnInteract(InputAction.CallbackContext _context)
     {
-        m_childController.Clean();
+        if (_context.performed)
+        {
+            //m_childController.Clean();
+        }
     }
 }
 
