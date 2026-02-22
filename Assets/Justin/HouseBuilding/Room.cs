@@ -7,8 +7,10 @@ public class Room : MonoBehaviour
     [SerializeField] private List<PropAnchor> m_smallPropsAnchors;
     [SerializeField] private List<PropAnchor> m_mediumPropsAnchors;
 
-    public void PopulateRoom(float _smallPropsPercentage, float _mediumPropsPercentage)
+    public void PopulateRoom(float _smallPropsPercentage, float _mediumPropsPercentage, int _randomSeed)
     {
+        Random.InitState(_randomSeed);
+        
         foreach (PropAnchor propAnchor in m_smallPropsAnchors)
         {
             if (Random.Range(0f, 1f) < _smallPropsPercentage)

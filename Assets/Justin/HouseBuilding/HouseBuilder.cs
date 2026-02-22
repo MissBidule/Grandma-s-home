@@ -1,10 +1,37 @@
 using PurrNet;
 using PurrNet.Logging;
+using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class HouseBuilder : NetworkBehaviour
 {
+    private enum RoomType
+    {
+        LivingRoom,
+        LivingRoom2,
+        DiningRoom,
+        Solarium,
+        ChildrenBedroom,
+        GrandmotherBedroom,
+        Bathroom,
+        DressingRoom,
+        Pantry,
+        Toilet1,
+        Toilet2,
+        LaundryRoom,
+        Closet1,
+        Closet2,
+        Garage,
+        ArtWorkshop,
+        MusicWorkshop,
+        InventionsWorkshop,
+        Library,
+        Office,
+        GameRoom
+    }
+    
     /*
        Room Types:
      
@@ -104,12 +131,17 @@ public class HouseBuilder : NetworkBehaviour
     protected override void OnSpawned(bool _asServer)
     {
         base.OnSpawned(_asServer);
+
+        if (!_asServer)
+        {
+            enabled = false;
+            return;
+        }
         
-        enabled = _asServer;
 
         RoomsValidation();
 
-        BuildHouse();
+        SeedHouse();
     }
 
     private void RoomsValidation()
@@ -241,41 +273,235 @@ public class HouseBuilder : NetworkBehaviour
             PurrLogger.LogError("Game Room Layouts not set or empty", this);
     }
 
-    private void SpawnRoom(Transform _anchor, List<Room> _layouts)
+    private List<Room> GetLayoutsForRoomType(RoomType roomType)
     {
-        Room room;
-        
-        room = UnityProxy.Instantiate(_layouts[Random.Range(0, _layouts.Count)], _anchor);
-        
-        room.PopulateRoom(m_smallPropsPercentage, m_mediumPropsPercentage);
+        switch (roomType)
+        {
+            case RoomType.LivingRoom: return m_livingRoomLayouts;
+            case RoomType.LivingRoom2: return m_livingRoom2Layouts;
+            case RoomType.DiningRoom: return m_diningRoomLayouts;
+            case RoomType.Solarium: return m_solariumLayouts;
+            case RoomType.ChildrenBedroom: return m_childrenBedroomLayouts;
+            case RoomType.GrandmotherBedroom: return m_grandmotherBedroomLayouts;
+            case RoomType.Bathroom: return m_bathroomLayouts;
+            case RoomType.DressingRoom: return m_dressingRoomLayouts;
+            case RoomType.Pantry: return m_pantryLayouts;
+            case RoomType.Toilet1: return m_toilet1Layouts;
+            case RoomType.Toilet2: return m_toilet2Layouts;
+            case RoomType.LaundryRoom: return m_laundryRoomLayouts;
+            case RoomType.Closet1: return m_closet1Layouts;
+            case RoomType.Closet2: return m_closet2Layouts;
+            case RoomType.Garage: return m_garageLayouts;
+            case RoomType.ArtWorkshop: return m_artWorkshopLayouts;
+            case RoomType.MusicWorkshop: return m_musicWorkshopLayouts;
+            case RoomType.InventionsWorkshop: return m_inventionsWorkshopLayouts;
+            case RoomType.Library: return m_libraryLayouts;
+            case RoomType.Office: return m_officeLayouts;
+            case RoomType.GameRoom: return m_gameRoomLayouts;
+            default: return null;
+        }
     }
 
-    private void BuildHouse()
+    private Transform GetAnchorForRoomType(RoomType roomType)
     {
-        SpawnRoom(m_livingRoomAnchor, m_livingRoomLayouts);
-        SpawnRoom(m_livingRoom2Anchor, m_livingRoom2Layouts);
-        SpawnRoom(m_diningRoomAnchor, m_diningRoomLayouts);
-        SpawnRoom(m_solariumAnchor, m_solariumLayouts);
+        switch (roomType)
+        {
+            case RoomType.LivingRoom: return m_livingRoomAnchor;
+            case RoomType.LivingRoom2: return m_livingRoom2Anchor;
+            case RoomType.DiningRoom: return m_diningRoomAnchor;
+            case RoomType.Solarium: return m_solariumAnchor;
+            case RoomType.ChildrenBedroom: return m_childrenBedroomAnchor;
+            case RoomType.GrandmotherBedroom: return m_grandmotherBedroomAnchor;
+            case RoomType.Bathroom: return m_bathroomAnchor;
+            case RoomType.DressingRoom: return m_dressingRoomAnchor;
+            case RoomType.Pantry: return m_pantryAnchor;
+            case RoomType.Toilet1: return m_toilet1Anchor;
+            case RoomType.Toilet2: return m_toilet2Anchor;
+            case RoomType.LaundryRoom: return m_laundryRoomAnchor;
+            case RoomType.Closet1: return m_closet1Anchor;
+            case RoomType.Closet2: return m_closet2Anchor;
+            case RoomType.Garage: return m_garageAnchor;
+            case RoomType.ArtWorkshop: return m_artWorkshopAnchor;
+            case RoomType.MusicWorkshop: return m_musicWorkshopAnchor;
+            case RoomType.InventionsWorkshop: return m_inventionsWorkshopAnchor;
+            case RoomType.Library: return m_libraryAnchor;
+            case RoomType.Office: return m_officeAnchor;
+            case RoomType.GameRoom: return m_gameRoomAnchor;
+            default: return null;
+        }
+    }
+
+    /*
+     * @The Seeding must be on server only
+     */
+    private void SeedHouse()
+    {
+        // Initialize random with a fixed seed so all clients generate the same random values
+        int masterSeed = System.DateTime.Now.Millisecond;
+        PurrLogger.Log($"Seeding with master seed: {masterSeed}", this);
         
-        SpawnRoom(m_childrenBedroomAnchor, m_childrenBedroomLayouts);
-        SpawnRoom(m_grandmotherBedroomAnchor, m_grandmotherBedroomLayouts);
-        SpawnRoom(m_bathroomAnchor, m_bathroomLayouts);
-        SpawnRoom(m_dressingRoomAnchor, m_dressingRoomLayouts);
+        BuildHouse(masterSeed);
+    }
+
+    /*
+     * Big function because refactoring caused race issues
+     */
+    [ObserversRpc(bufferLast:true)]
+    private void BuildHouse(int  _masterSeed)
+    {
         
-        SpawnRoom(m_pantryAnchor, m_pantryLayouts);
-        SpawnRoom(m_toilet1Anchor, m_toilet1Layouts);
-        SpawnRoom(m_toilet2Anchor, m_toilet2Layouts);
-        SpawnRoom(m_laundryRoomAnchor, m_laundryRoomLayouts);
-        SpawnRoom(m_closet1Anchor, m_closet1Layouts);
-        SpawnRoom(m_closet2Anchor, m_closet2Layouts);
-        SpawnRoom(m_garageAnchor, m_garageLayouts);
+        Random.InitState(_masterSeed);
         
-        SpawnRoom(m_artWorkshopAnchor, m_artWorkshopLayouts);
-        SpawnRoom(m_musicWorkshopAnchor, m_musicWorkshopLayouts);
-        SpawnRoom(m_inventionsWorkshopAnchor, m_inventionsWorkshopLayouts);
-        SpawnRoom(m_libraryAnchor, m_libraryLayouts);
-        SpawnRoom(m_officeAnchor, m_officeLayouts);
-        SpawnRoom(m_gameRoomAnchor, m_gameRoomLayouts);
+        
+        
+        if (m_livingRoomAnchor != null && m_livingRoomLayouts != null && m_livingRoomLayouts.Count > 0)
+        {
+            int layoutIndex = Random.Range(0, m_livingRoomLayouts.Count);
+            PurrLogger.Log($"[BuildHouse] Spawning Living Room with index {layoutIndex}", this);
+            Room newRoom = UnityProxy.Instantiate(GetLayoutsForRoomType(RoomType.LivingRoom)[layoutIndex], GetAnchorForRoomType(RoomType.LivingRoom));
+            newRoom.PopulateRoom(m_smallPropsPercentage, m_mediumPropsPercentage, _masterSeed + 0);
+        }
+        
+        if (m_livingRoom2Anchor != null && m_livingRoom2Layouts != null && m_livingRoom2Layouts.Count > 0)
+        {
+            int layoutIndex = Random.Range(0, m_livingRoom2Layouts.Count);
+            PurrLogger.Log($"[BuildHouse] Spawning Living Room 2 with index {layoutIndex}", this);
+            Room newRoom = UnityProxy.Instantiate(GetLayoutsForRoomType(RoomType.LivingRoom2)[layoutIndex], GetAnchorForRoomType(RoomType.LivingRoom2));
+            newRoom.PopulateRoom(m_smallPropsPercentage, m_mediumPropsPercentage, _masterSeed + 1);
+        }
+        
+        if (m_diningRoomAnchor != null && m_diningRoomLayouts != null && m_diningRoomLayouts.Count > 0)
+        {
+            int layoutIndex = Random.Range(0, m_diningRoomLayouts.Count);
+            Room newRoom = UnityProxy.Instantiate(GetLayoutsForRoomType(RoomType.DiningRoom)[layoutIndex], GetAnchorForRoomType(RoomType.DiningRoom));
+            newRoom.PopulateRoom(m_smallPropsPercentage, m_mediumPropsPercentage, _masterSeed + 2);
+        }
+        
+        if (m_solariumAnchor != null && m_solariumLayouts != null && m_solariumLayouts.Count > 0)
+        {
+            int layoutIndex = Random.Range(0, m_solariumLayouts.Count);
+            Room newRoom = UnityProxy.Instantiate(GetLayoutsForRoomType(RoomType.Solarium)[layoutIndex], GetAnchorForRoomType(RoomType.Solarium));
+            newRoom.PopulateRoom(m_smallPropsPercentage, m_mediumPropsPercentage, _masterSeed + 3);
+        }
+        
+        if (m_childrenBedroomAnchor != null && m_childrenBedroomLayouts != null && m_childrenBedroomLayouts.Count > 0)
+        {
+            int layoutIndex = Random.Range(0, m_childrenBedroomLayouts.Count);
+            Room newRoom = UnityProxy.Instantiate(GetLayoutsForRoomType(RoomType.ChildrenBedroom)[layoutIndex], GetAnchorForRoomType(RoomType.ChildrenBedroom));
+            newRoom.PopulateRoom(m_smallPropsPercentage, m_mediumPropsPercentage, _masterSeed + 4);
+        }
+        
+        if (m_grandmotherBedroomAnchor != null && m_grandmotherBedroomLayouts != null && m_grandmotherBedroomLayouts.Count > 0)
+        {
+            int layoutIndex = Random.Range(0, m_grandmotherBedroomLayouts.Count);
+            Room newRoom = UnityProxy.Instantiate(GetLayoutsForRoomType(RoomType.GrandmotherBedroom)[layoutIndex], GetAnchorForRoomType(RoomType.GrandmotherBedroom));
+            newRoom.PopulateRoom(m_smallPropsPercentage, m_mediumPropsPercentage, _masterSeed + 5);
+        }
+        
+        if (m_bathroomAnchor != null && m_bathroomLayouts != null && m_bathroomLayouts.Count > 0)
+        {
+            int layoutIndex = Random.Range(0, m_bathroomLayouts.Count);
+            Room newRoom = UnityProxy.Instantiate(GetLayoutsForRoomType(RoomType.Bathroom)[layoutIndex], GetAnchorForRoomType(RoomType.Bathroom));
+            newRoom.PopulateRoom(m_smallPropsPercentage, m_mediumPropsPercentage, _masterSeed + 6);
+        }
+        
+        if (m_dressingRoomAnchor != null && m_dressingRoomLayouts != null && m_dressingRoomLayouts.Count > 0)
+        {
+            int layoutIndex = Random.Range(0, m_dressingRoomLayouts.Count);
+            Room newRoom = UnityProxy.Instantiate(GetLayoutsForRoomType(RoomType.DressingRoom)[layoutIndex], GetAnchorForRoomType(RoomType.DressingRoom));
+            newRoom.PopulateRoom(m_smallPropsPercentage, m_mediumPropsPercentage, _masterSeed + 7);
+        }
+        
+        if (m_pantryAnchor != null && m_pantryLayouts != null && m_pantryLayouts.Count > 0)
+        {
+            int layoutIndex = Random.Range(0, m_pantryLayouts.Count);
+            Room newRoom = UnityProxy.Instantiate(GetLayoutsForRoomType(RoomType.Pantry)[layoutIndex], GetAnchorForRoomType(RoomType.Pantry));
+            newRoom.PopulateRoom(m_smallPropsPercentage, m_mediumPropsPercentage, _masterSeed + 8);
+        }
+        
+        if (m_toilet1Anchor != null && m_toilet1Layouts != null && m_toilet1Layouts.Count > 0)
+        {
+            int layoutIndex = Random.Range(0, m_toilet1Layouts.Count);
+            Room newRoom = UnityProxy.Instantiate(GetLayoutsForRoomType(RoomType.Toilet1)[layoutIndex], GetAnchorForRoomType(RoomType.Toilet1));
+            newRoom.PopulateRoom(m_smallPropsPercentage, m_mediumPropsPercentage, _masterSeed + 9);
+        }
+        
+        if (m_toilet2Anchor != null && m_toilet2Layouts != null && m_toilet2Layouts.Count > 0)
+        {
+            int layoutIndex = Random.Range(0, m_toilet2Layouts.Count);
+            Room newRoom = UnityProxy.Instantiate(GetLayoutsForRoomType(RoomType.Toilet2)[layoutIndex], GetAnchorForRoomType(RoomType.Toilet2));
+            newRoom.PopulateRoom(m_smallPropsPercentage, m_mediumPropsPercentage, _masterSeed + 10);
+        }
+        
+        if (m_laundryRoomAnchor != null && m_laundryRoomLayouts != null && m_laundryRoomLayouts.Count > 0)
+        {
+            int layoutIndex = Random.Range(0, m_laundryRoomLayouts.Count);
+            Room newRoom = UnityProxy.Instantiate(GetLayoutsForRoomType(RoomType.LaundryRoom)[layoutIndex], GetAnchorForRoomType(RoomType.LaundryRoom));
+            newRoom.PopulateRoom(m_smallPropsPercentage, m_mediumPropsPercentage, _masterSeed + 11);
+        }
+        
+        if (m_closet1Anchor != null && m_closet1Layouts != null && m_closet1Layouts.Count > 0)
+        {
+            int layoutIndex = Random.Range(0, m_closet1Layouts.Count);
+            Room newRoom = UnityProxy.Instantiate(GetLayoutsForRoomType(RoomType.Closet1)[layoutIndex], GetAnchorForRoomType(RoomType.Closet1));
+            newRoom.PopulateRoom(m_smallPropsPercentage, m_mediumPropsPercentage, _masterSeed + 12);
+        }
+        
+        if (m_closet2Anchor != null && m_closet2Layouts != null && m_closet2Layouts.Count > 0)
+        {
+            int layoutIndex = Random.Range(0, m_closet2Layouts.Count);
+            Room newRoom = UnityProxy.Instantiate(GetLayoutsForRoomType(RoomType.Closet2)[layoutIndex], GetAnchorForRoomType(RoomType.Closet2));
+            newRoom.PopulateRoom(m_smallPropsPercentage, m_mediumPropsPercentage, _masterSeed + 13);
+        }
+        
+        if (m_garageAnchor != null && m_garageLayouts != null && m_garageLayouts.Count > 0)
+        {
+            int layoutIndex = Random.Range(0, m_garageLayouts.Count);
+            Room newRoom = UnityProxy.Instantiate(GetLayoutsForRoomType(RoomType.Garage)[layoutIndex], GetAnchorForRoomType(RoomType.Garage));
+            newRoom.PopulateRoom(m_smallPropsPercentage, m_mediumPropsPercentage, _masterSeed + 14);
+        }
+        
+        if (m_artWorkshopAnchor != null && m_artWorkshopLayouts != null && m_artWorkshopLayouts.Count > 0)
+        {
+            int layoutIndex = Random.Range(0, m_artWorkshopLayouts.Count);
+            Room newRoom = UnityProxy.Instantiate(GetLayoutsForRoomType(RoomType.ArtWorkshop)[layoutIndex], GetAnchorForRoomType(RoomType.ArtWorkshop));
+            newRoom.PopulateRoom(m_smallPropsPercentage, m_mediumPropsPercentage, _masterSeed + 15);
+        }
+        
+        if (m_musicWorkshopAnchor != null && m_musicWorkshopLayouts != null && m_musicWorkshopLayouts.Count > 0)
+        {
+            int layoutIndex = Random.Range(0, m_musicWorkshopLayouts.Count);
+            Room newRoom = UnityProxy.Instantiate(GetLayoutsForRoomType(RoomType.MusicWorkshop)[layoutIndex], GetAnchorForRoomType(RoomType.MusicWorkshop));
+            newRoom.PopulateRoom(m_smallPropsPercentage, m_mediumPropsPercentage, _masterSeed + 16);
+        }
+        
+        if (m_inventionsWorkshopAnchor != null && m_inventionsWorkshopLayouts != null && m_inventionsWorkshopLayouts.Count > 0)
+        {
+            int layoutIndex = Random.Range(0, m_inventionsWorkshopLayouts.Count);
+            Room newRoom = UnityProxy.Instantiate(GetLayoutsForRoomType(RoomType.InventionsWorkshop)[layoutIndex], GetAnchorForRoomType(RoomType.InventionsWorkshop));
+            newRoom.PopulateRoom(m_smallPropsPercentage, m_mediumPropsPercentage, _masterSeed + 17);
+        }
+        
+        if (m_libraryAnchor != null && m_libraryLayouts != null && m_libraryLayouts.Count > 0)
+        {
+            int layoutIndex = Random.Range(0, m_libraryLayouts.Count);
+            Room newRoom = UnityProxy.Instantiate(GetLayoutsForRoomType(RoomType.Library)[layoutIndex], GetAnchorForRoomType(RoomType.Library));
+            newRoom.PopulateRoom(m_smallPropsPercentage, m_mediumPropsPercentage, _masterSeed + 18);
+        }
+        
+        if (m_officeAnchor != null && m_officeLayouts != null && m_officeLayouts.Count > 0)
+        {
+            int layoutIndex = Random.Range(0, m_officeLayouts.Count);
+            Room newRoom = UnityProxy.Instantiate(GetLayoutsForRoomType(RoomType.Office)[layoutIndex], GetAnchorForRoomType(RoomType.Office));
+            newRoom.PopulateRoom(m_smallPropsPercentage, m_mediumPropsPercentage, _masterSeed + 19);
+        }
+        
+        if (m_gameRoomAnchor != null && m_gameRoomLayouts != null && m_gameRoomLayouts.Count > 0)
+        {
+            int layoutIndex = Random.Range(0, m_gameRoomLayouts.Count);
+            Room newRoom = UnityProxy.Instantiate(GetLayoutsForRoomType(RoomType.GameRoom)[layoutIndex], GetAnchorForRoomType(RoomType.GameRoom));
+            newRoom.PopulateRoom(m_smallPropsPercentage, m_mediumPropsPercentage, _masterSeed + 20);
+        }
     }
 
 }

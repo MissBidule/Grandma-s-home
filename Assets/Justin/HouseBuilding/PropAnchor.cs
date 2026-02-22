@@ -1,4 +1,3 @@
-using PurrNet;
 using UnityEngine;
 
 public class PropAnchor : MonoBehaviour
@@ -7,6 +6,6 @@ public class PropAnchor : MonoBehaviour
 
     public void Initialize()
     {
-        UnityProxy.Instantiate(m_propPrefab, transform);
+        Instantiate(m_propPrefab, transform);
     }
 }
