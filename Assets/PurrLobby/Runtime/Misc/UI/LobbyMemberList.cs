@@ -30,6 +30,7 @@ namespace PurrLobby
 
         public void OnLobbyLeave()
         {
+            m_roleKeeper.DeleteList();
             foreach (Transform child in content)
                 Destroy(child.gameObject);
         }
@@ -88,6 +89,5 @@ namespace PurrLobby
                 Destroy(child.gameObject);
             }
         }
-
     }
 }

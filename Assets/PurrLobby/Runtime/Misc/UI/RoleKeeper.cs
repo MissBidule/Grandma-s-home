@@ -57,5 +57,10 @@ namespace PurrLobby
         {
             DontDestroyOnLoad(gameObject);
         }
+
+        public void DeleteList()
+        {
+            m_roles = new List<Role>();
+        }
     }
 }
