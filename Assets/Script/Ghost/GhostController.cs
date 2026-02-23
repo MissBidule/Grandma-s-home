@@ -80,6 +80,7 @@ public class GhostController : PlayerControllerCore, IInteractable
     private void FixedUpdate()
     {
         if (!isServer) return;
+        if (m_isStopped) return;
 
         if (m_wishDir.value.sqrMagnitude > 0.0001f
             && !m_isStopped
@@ -102,8 +103,7 @@ public class GhostController : PlayerControllerCore, IInteractable
             m_canClimbThisFrame = true;
         }
 
-        if (!m_isStopped &&
-            m_canClimbThisFrame &&
+        if (m_canClimbThisFrame &&
             m_wishDir.value.sqrMagnitude > 0.0001f)
         {
             Vector3 vel = m_rigidbody.linearVelocity;
@@ -143,7 +143,8 @@ public class GhostController : PlayerControllerCore, IInteractable
                 m_isStopped.value = false;
             }
         }
-        else if (m_isSlowed)
+        
+        if (m_isSlowed)
         {
             m_currentTimerSlowed -= Time.deltaTime;
             if (m_currentTimerSlowed <= 0f)
