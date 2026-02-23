@@ -11,16 +11,28 @@ public class Room : MonoBehaviour
     {
         Random.InitState(_randomSeed);
         
-        foreach (PropAnchor propAnchor in m_smallPropsAnchors)
+        // Shuffle the lists
+
+        for (var i = m_smallPropsAnchors.Count - 1; i > 0; i--)
         {
-            if (Random.Range(0f, 1f) < _smallPropsPercentage)
-                propAnchor.Initialize();
+            var randomIndex = Random.Range(0, m_smallPropsAnchors.Count);
+            (m_smallPropsAnchors[i], m_smallPropsAnchors[randomIndex]) = (m_smallPropsAnchors[randomIndex], m_smallPropsAnchors[i]);
         }
         
-        foreach (PropAnchor propAnchor in m_mediumPropsAnchors)
+        for (var i = m_mediumPropsAnchors.Count - 1; i > 0; i--)
         {
-            if (Random.Range(0f, 1f) < _mediumPropsPercentage)
-                propAnchor.Initialize();
+            var randomIndex = Random.Range(0, m_mediumPropsAnchors.Count);
+            (m_mediumPropsAnchors[i], m_mediumPropsAnchors[randomIndex]) = (m_mediumPropsAnchors[randomIndex], m_mediumPropsAnchors[i]);
+        }
+
+        for (var index = 0; index < m_smallPropsAnchors.Count * _smallPropsPercentage; index++)
+        {
+            m_smallPropsAnchors[index].Initialize();
+        }
+
+        for (var index = 0; index < m_mediumPropsAnchors.Count * _mediumPropsPercentage; index++)
+        {
+            m_mediumPropsAnchors[index].Initialize();
         }
     }
 }
