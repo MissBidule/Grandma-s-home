@@ -15,8 +15,6 @@ public class ChildController : PlayerControllerCore
     public SyncVar<Vector3> m_lookDir; // Same
     private Vector3 lastLookDir;
 
-
-    private float m_cleanRange = 2f;
     private float m_attackRange = 0.5f;
 
     private bool m_isranged;
@@ -190,26 +188,6 @@ public class ChildController : PlayerControllerCore
     void ShootForAll()
     {
         GameObject bullet = UnityProxy.InstantiateDirectly(m_bulletPrefab, m_bulletSpawnTransform.position, transform.rotation);
-    }
-
-    /*
-     * @brief  This function allows you to clean the slime
-     * When the child is close to a distance of m_cleanRange and there is a gameObject with the tag "Slime", they destroy the gameObject.
-     * @return void
-     */
-    public void Clean()
-    {
-        if (!isServer) return;
-        Collider[] hits = Physics.OverlapSphere(transform.position, m_cleanRange);
-
-        foreach (Collider col in hits)
-        {
-            if (col.CompareTag("Slime"))
-            {
-                Destroy(col.gameObject);
-                break;
-            }
-        }
     }
 
     /*

@@ -90,18 +90,5 @@ public class ChildInputController : MonoBehaviour
             m_childClientController.OnSwitchWeapon();
         }
     }
-
-    /*
-     * @brief OnInteract is called by the Input System when interact input is detected
-     * @param _context: The context of the input action
-     * @return void
-     */
-    public void OnInteract(InputAction.CallbackContext _context)
-    {
-        if (_context.performed)
-        {
-            //m_childController.Clean();
-        }
-    }
 }
 
