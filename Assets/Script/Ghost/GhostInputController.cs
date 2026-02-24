@@ -121,6 +121,14 @@ public class GhostInputController : NetworkBehaviour
         }
     }
 
+    public void OnSprint(InputAction.CallbackContext _context)
+    {
+        if (_context.performed)
+        {
+            m_ghostController.StartSprint();
+        }
+    }
+
 
     /*
      * @brief OnValidate is called by the Input System when validate input is detected

@@ -1,4 +1,5 @@
 ﻿using PurrNet;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -14,6 +15,8 @@ public class GhostController : PlayerControllerCore
 
     public bool m_isSlowed = false;
     public bool m_isStopped = false;
+    private bool m_isSprinting = false;
+    private bool m_canSprint = true;
     public float m_timerSlowed = 5f;
     public float m_timerStop = 5f;
     public float m_currentTimerSlowed = 5f;
@@ -27,6 +30,11 @@ public class GhostController : PlayerControllerCore
     [Header("Movement")]
     [SerializeField] private float m_walkSpeed = 4f;
     [SerializeField] private float m_acceleration = 25f;
+    [SerializeField] private float m_slowAmplitude = 0.5f;
+    [SerializeField] private float m_sprintAmplitude = 1.5f;
+    [SerializeField] [Tooltip("In seconds")] private float m_sprintDuration = 2.5f;
+    [SerializeField] [Tooltip("In seconds")] private float m_sprintCooldown = 30.0f;
+    
 
     [Header("Rotation")]
     [SerializeField] private float m_rotationSpeed = 12f;
@@ -89,9 +97,13 @@ public class GhostController : PlayerControllerCore
                 m_slowedLabel.SetActive(false);
             }
         }
-
-        m_speedModifier = m_isSlowed ? 0.5f : 1f;
-        m_speedModifier = m_isStopped ? 0f : m_speedModifier;
+        
+        // Doing it not in one line might help clarity but eh
+        m_speedModifier = m_isStopped ? 0f : m_isSlowed ? m_slowAmplitude : m_isSprinting ? m_sprintAmplitude : 1.0f;  
+        
+        // Old code commented just in case. The new one should do things better (less var assignment & sprint)
+        //m_speedModifier = m_isSlowed ? 0.5f : 1f;
+        //m_speedModifier = m_isStopped ? 0f : m_speedModifier;
 
         bool isDead = m_isStopped;
         if (isDead != m_wasDead)
@@ -216,4 +228,35 @@ public class GhostController : PlayerControllerCore
         m_canClimbThisFrame = false;
         m_wallNormal = Vector3.zero;
     }
+    
+    /**
+     * @brief   Activate Sprint speed modifier and Start duration Timer
+     */
+    public void StartSprint()
+    {
+        if (!m_canSprint) return;
+        m_canSprint = false;
+        m_isSprinting = true;
+        StartCoroutine(SprintDuration(m_sprintDuration));
+    }
+
+    /**
+     * @brief   Sprint Duration Timer.
+     */
+    private IEnumerator SprintDuration(float _duration)
+    {
+        yield return new WaitForSeconds(_duration);
+        m_isSprinting = false;
+        StartCoroutine(SprintCoolingDown());
+    }
+    
+    /**
+     * @brief   Sprint Cooldown Timer.
+     */
+    private IEnumerator SprintCoolingDown()
+    {
+        yield return new WaitForSeconds(m_sprintCooldown);
+        m_canSprint = true;
+    }
+
 }

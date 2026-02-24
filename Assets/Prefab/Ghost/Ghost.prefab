@@ -66,6 +66,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e3702c3e2f382d4bbe96170f351c660, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GhostInteract
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -73,8 +75,6 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   m_interactableMask:
     serializedVersion: 2
     m_Bits: 8
@@ -225,6 +225,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c6ab74feb870db47baea93c46b89316, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GhostMovement
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -232,8 +234,6 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   m_playerCamera: {fileID: 696320938370797279}
   m_playerAnimator: {fileID: 0}
   m_renderers:
@@ -249,6 +249,10 @@ MonoBehaviour:
   m_slowedLabel: {fileID: 3653350487254509011}
   m_walkSpeed: 4
   m_acceleration: 25
+  m_slowAmplitude: 0.5
+  m_sprintAmplitude: 1.5
+  m_sprintDuration: 2.5
+  m_sprintCooldown: 30
   m_rotationSpeed: 12
   m_climbSpeed: 3.5
   m_wallNormalMaxY: 0.4
@@ -264,6 +268,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea55811944e3c4b4ab69d9dbf808a3a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GhostStatus
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -271,8 +277,6 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
 --- !u!114 &4420112834733810732
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -285,6 +289,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5992a18904861294a8b74c63f0393b15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GhostTransform
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -292,8 +298,6 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   m_mesh: {fileID: 1862723092181556763}
   m_previewGhost: {fileID: 1950302744553119850}
   m_scanRange: 10
@@ -317,6 +321,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6385cb8ed63e6054aa73f7bd8e23c822, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GhostInputController
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -324,8 +330,6 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
 --- !u!114 &1100208937895637651
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -585,9 +589,25 @@ MonoBehaviour:
     m_ActionName: 'Child/Validate[/Keyboard/space]'
   - m_PersistentCalls:
       m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: GhostInputController, Assembly-CSharp
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 55397657-de04-43c4-aa9d-3b0ef9651449
+    m_ActionName: 'Ghost/Validate[/Keyboard/space]'
+  - m_PersistentCalls:
+      m_Calls:
       - m_Target: {fileID: 8778548429194373776}
         m_TargetAssemblyTypeName: GhostInputController, Assembly-CSharp
-        m_MethodName: OnValidation
+        m_MethodName: OnSprint
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -597,8 +617,8 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_ActionId: 55397657-de04-43c4-aa9d-3b0ef9651449
-    m_ActionName: 'Ghost/Validate[/Keyboard/space]'
+    m_ActionId: 223b1381-0e06-4847-a2f5-ec55c4aa0437
+    m_ActionName: 'Ghost/Sprint[/Keyboard/leftShift]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Ghost
@@ -664,6 +684,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 817fe5016bd0a2a49a95b6eb338bb132, type: 3}
   m_Name: 
   m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkTransform
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -671,8 +693,6 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _syncPosition: 1
   _syncRotation: 1
   _syncScale: 1
@@ -1337,6 +1357,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95af2522adafbaa42ad14f7915ad496c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GhostCameraController
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -1344,8 +1366,6 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   m_sensitivity: 120
   m_distance: 4
   m_minPitch: -40
@@ -1738,6 +1758,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7de7a3b999fcfa4583aee014a16c38f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -1745,8 +1767,6 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   m_mesh: {fileID: 1862723092181556763}
   m_validColor: {r: 1, g: 1, b: 1, a: 0.3}
   m_invalidColor: {r: 1, g: 0, b: 0, a: 0.3}
