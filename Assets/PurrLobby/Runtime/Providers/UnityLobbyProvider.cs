@@ -234,11 +234,12 @@ namespace PurrLobby.Providers {
         }
 
         public async Task InitializeLocalPlayerData() {
-            string test = (UnityEngine.Random.Range(0, 2) == 0).ToString();
+            
+            string isGhost = (UnityEngine.Random.Range(0, 2) == 0).ToString();
             LocalPlayer.Data = new Dictionary<string, PlayerDataObject>() {
                 { "Name", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, playerName) },
                 { "IsReady", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, "False") },
-                { "IsGhost", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, test) }
+                { "IsGhost", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, isGhost) }
             };
 
             await UpdatePlayerDataAsync();

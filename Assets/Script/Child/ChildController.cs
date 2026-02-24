@@ -64,7 +64,9 @@ public class ChildController : PlayerControllerCore
     {
         if (!isServer) return;
 
-        m_rigidbody.rotation = Quaternion.LookRotation(m_lookDir, Vector3.up);
+        //Was provoking anoying Debug
+        if (!m_lookDir.Equals(Vector3.zero))
+            m_rigidbody.rotation = Quaternion.LookRotation(m_lookDir, Vector3.up);
 
         if (m_wishDir == Vector3.zero) return;
 

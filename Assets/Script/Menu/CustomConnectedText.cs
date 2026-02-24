@@ -100,11 +100,6 @@ public class CustomConnectedText : MonoBehaviour
                 return;
             }
             else ((PlayerSpawningState)stateMachine.states[1]).StartMachine();
-
-            if (InstanceHandler.TryGetInstance(out DisableWaitOnStart disableWaitOnStart))
-            {
-                disableWaitOnStart.DisableWaitInterface();
-            }
         }
     }
 

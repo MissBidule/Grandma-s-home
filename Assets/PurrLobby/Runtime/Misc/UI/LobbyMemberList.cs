@@ -63,7 +63,8 @@ namespace PurrLobby
                 var entry = Instantiate(memberEntryPrefab, content);
                 entry.readyButton = readyButton;
                 await entry.Init(member);
-                m_roleKeeper.AddRole(entry.MemberId, entry._isGhost);
+                string ownId = await FindAnyObjectByType<LobbyManager>().GetPlayer();
+                m_roleKeeper.AddRole(entry.MemberId, entry._isGhost, ownId == entry.MemberId);
             }
         }
 

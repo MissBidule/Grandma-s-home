@@ -5,6 +5,7 @@ using UnityEngine;
 using PurrNet.Modules;
 using PurrLobby;
 using System;
+using PurrNet.Transports;
 
 public class PlayerSpawningState : StateNode
 {
@@ -46,7 +47,13 @@ public class PlayerSpawningState : StateNode
         int currentSpawnGhostIndex = 0;
         foreach (var player in networkManager.players)
         {
-            bool isGhost = roleKeeper.IsGhost(player.GetHashCode());
+            if (NetworkManager.main.TryGetModule(out GlobalOwnershipModule ownership, true) && ownership.PlayerOwnsSomething(player))
+                continue;
+                
+            //CONNECTION
+            networkManager.GetModule<PlayersManager>(m_isServer).TryGetConnection(player, out Connection conn);
+
+            bool isGhost = roleKeeper.IsGhost(conn.connectionId);
 
             Transform spawnPoint;
             PlayerControllerCore newPlayer;
@@ -65,7 +72,18 @@ public class PlayerSpawningState : StateNode
             spawnedPlayers.Add(newPlayer);
         }
 
+        DisableWaitInterface();
+
         return spawnedPlayers;
+    }
+
+    [ObserversRpc]
+    void DisableWaitInterface()
+    {
+        if (InstanceHandler.TryGetInstance(out DisableWaitOnStart disableWaitOnStart))
+        {
+            disableWaitOnStart.DisableWaitInterface();
+        }
     }
     
     private void DespawnPlayers()
