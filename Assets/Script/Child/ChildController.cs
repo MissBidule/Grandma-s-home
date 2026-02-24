@@ -188,6 +188,11 @@ public class ChildController : PlayerControllerCore
     void ShootForAll()
     {
         GameObject bullet = UnityProxy.InstantiateDirectly(m_bulletPrefab, m_bulletSpawnTransform.position, transform.rotation);
+        if (isServer)
+        {
+            Bullet bScript = bullet.GetComponent<Bullet>();
+            bScript.m_amIServerSide = true;
+        }
     }
 
     /*
