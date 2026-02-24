@@ -1,4 +1,5 @@
 using PurrNet;
+using PurrNet.Logging;
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -125,6 +126,7 @@ public class GhostInputController : NetworkBehaviour
     {
         if (_context.performed)
         {
+            PurrLogger.Log("Sprint Input", this);
             m_ghostController.StartSprint();
         }
     }

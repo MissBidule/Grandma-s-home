@@ -1,4 +1,5 @@
 ﻿using PurrNet;
+using PurrNet.Logging;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -237,6 +238,7 @@ public class GhostController : PlayerControllerCore
         if (!m_canSprint) return;
         m_canSprint = false;
         m_isSprinting = true;
+        PurrLogger.Log("Sprint Start", this);
         StartCoroutine(SprintDuration(m_sprintDuration));
     }
 
@@ -247,6 +249,7 @@ public class GhostController : PlayerControllerCore
     {
         yield return new WaitForSeconds(_duration);
         m_isSprinting = false;
+        PurrLogger.Log("Sprint End", this);
         StartCoroutine(SprintCoolingDown());
     }
     
@@ -256,6 +259,7 @@ public class GhostController : PlayerControllerCore
     private IEnumerator SprintCoolingDown()
     {
         yield return new WaitForSeconds(m_sprintCooldown);
+        PurrLogger.Log("Sprint Cooldown End", this);
         m_canSprint = true;
     }
 
