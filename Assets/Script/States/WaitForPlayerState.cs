@@ -2,6 +2,7 @@ using PurrNet;
 using System.Collections;
 using PurrNet.Logging;
 using PurrNet.StateMachine;
+using UI;
 using UnityEngine;
 
 public class WaitForPlayerState : StateNode
@@ -32,12 +33,18 @@ public class WaitForPlayerState : StateNode
         
         while (networkManager?.playerCount < m_minPlayers)
             yield return null;
+
+        DisableWaitUIObserverRPC();
         
-        
-        if (InstanceHandler.TryGetInstance(out DisableWaitOnStart disableWaitOnStart))
-        {
-            disableWaitOnStart.DisableWaitInterface();
-        }
         machine.Next();
+    }
+
+    [ObserversRpc (runLocally: true, bufferLast: true)]
+    private void DisableWaitUIObserverRPC()
+    {
+        if (!InstanceHandler.TryGetInstance(out UIsManager uisManager))
+            return;
+        uisManager.HideView<WaitForPlayerView>();
+        uisManager.ToggleUIVision();
     }
 }
