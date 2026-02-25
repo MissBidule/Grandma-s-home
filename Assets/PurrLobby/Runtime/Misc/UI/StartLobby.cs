@@ -12,7 +12,6 @@ namespace PurrLobby
         public void CreateLobby()
         {
             string lobbyName = m_lobbyName.text;
-            if (lobbyName == "") lobbyName = "New Lobby";
             m_lobbyManager.CreateRoom(lobbyName);
             m_viewManager.OnRoomCreateClicked();
         }

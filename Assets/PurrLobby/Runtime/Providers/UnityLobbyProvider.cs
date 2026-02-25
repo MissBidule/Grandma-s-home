@@ -43,7 +43,7 @@ namespace PurrLobby.Providers {
 #pragma warning restore CS0067
 
         [Header("Lobby")]
-        public string lobbyName = "New Lobby";
+        public string lobbyName = "";
         [Tooltip("Only public lobbies will display in lobby search results, a private lobby requires the host to share a lobby code.")]
         public LobbyType lobbyType = LobbyType.Public;
         [Tooltip("Optional password to require for joining a lobby, must be at least 8 characters in length.")]
@@ -166,7 +166,7 @@ namespace PurrLobby.Providers {
                     lobbyData.Add(prop.Key, new DataObject(DataObject.VisibilityOptions.Public, prop.Value, 0));
                 }
 
-                lobbyName = _lobbyName == "" ? "New Lobby" : _lobbyName;
+                lobbyName = _lobbyName == "" ? playerName + "'s Lobby" : _lobbyName;
 
                 CurrentLobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, maxPlayers, new CreateLobbyOptions() {
                     IsPrivate = lobbyType == LobbyType.Private,
@@ -227,6 +227,7 @@ namespace PurrLobby.Providers {
 
         public void UsernameChanged(string _username) {
             playerName = _username == "" ? "Player" : _username;
+            FindAnyObjectByType<PersistentDataManager>().ChangeUsername(playerName);
         }
 
         public async Task<string> GetPlayer() {
@@ -234,7 +235,7 @@ namespace PurrLobby.Providers {
         }
 
         public async Task InitializeLocalPlayerData() {
-            
+            playerName = FindAnyObjectByType<PersistentDataManager>().LoadUsername();
             string isGhost = (UnityEngine.Random.Range(0, 2) == 0).ToString();
             LocalPlayer.Data = new Dictionary<string, PlayerDataObject>() {
                 { "Name", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, playerName) },

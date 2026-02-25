@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using PurrNet;
 using PurrNet.Logging;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -16,6 +17,9 @@ namespace PurrLobby
 
         private readonly Queue<Action> _delayedActions = new Queue<Action>();
         private int _taskLock;
+
+        [SerializeField] private TextMeshProUGUI m_usernameField;
+
 
         public CreateRoomArgs createRoomArgs = new();
         public SerializableDictionary<string, string> searchRoomArgs = new();
@@ -72,6 +76,12 @@ namespace PurrLobby
             {
                 PurrLogger.LogWarning("No lobby provider assigned to LobbyManager.");
             }
+        }
+
+        void Start()
+        {
+            m_usernameField.text = FindAnyObjectByType<PersistentDataManager>().LoadUsername();  
+            EnsureProviderSet();
         }
 
         private void SetupDataHolder()
@@ -142,6 +152,7 @@ namespace PurrLobby
             _currentProvider.OnLobbyJoinFailed += message => InvokeDelayed(() => OnRoomJoinFailed.Invoke(message));
             _currentProvider.OnLobbyLeft += () => InvokeDelayed(() =>
             {
+                _lastKnownState = default;
                 _currentLobby = default;
                 OnRoomLeft?.Invoke();
             });
