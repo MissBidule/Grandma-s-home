@@ -4,6 +4,10 @@ using UnityEngine;
 
 namespace PurrLobby
 {
+    /*
+    * @brief  Contains class declaration for RoleKeeper
+    * @details Script that handles the data processed during the lobby step of the game
+    */
     public class RoleKeeper : MonoBehaviour
     {
         [Serializable]

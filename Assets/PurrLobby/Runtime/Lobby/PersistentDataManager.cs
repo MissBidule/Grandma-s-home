@@ -2,6 +2,10 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
+/*
+* @brief  Contains class declaration for PersistentDataManager
+* @details Script that will save and load the persistent game data in a local file
+*/
 public class PersistentDataManager : MonoBehaviour {
 
 	public void ChangeUsername(string _username)

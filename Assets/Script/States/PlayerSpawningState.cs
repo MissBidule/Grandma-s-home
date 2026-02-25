@@ -7,6 +7,10 @@ using PurrLobby;
 using System;
 using PurrNet.Transports;
 
+/*
+ * @brief  Contains class declaration for the state PlayerSpawningState
+ * @details Script that will handle the correct spawning of each player element
+ */
 public class PlayerSpawningState : StateNode
 {
     [Header("Child spawner")]

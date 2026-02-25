@@ -5,6 +5,10 @@ using PurrNet.StateMachine;
 using UnityEngine;
 using PurrLobby;
 
+/*
+ * @brief  Contains class declaration for the state WaitForPlayerState
+ * @details Script that will wait for each player to be ready before going into the server game
+ */
 public class WaitForPlayerState : StateNode
 {
     // Need to be updated to wait for the number of player in the lobby
