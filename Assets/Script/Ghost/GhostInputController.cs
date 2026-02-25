@@ -1,6 +1,8 @@
 using PurrNet;
 using PurrNet.Logging;
+using Script.UI.Views;
 using System;
+using UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -121,13 +123,36 @@ public class GhostInputController : NetworkBehaviour
             m_ghostInteract.Interact();
         }
     }
-
+    
+    
+    /*
+     * @brief OnSprint is called by the Input System when Sprint input is detected
+     * @param _context: The context of the input action
+     * @return void
+     */
     public void OnSprint(InputAction.CallbackContext _context)
     {
         if (_context.performed)
         {
             PurrLogger.Log("Sprint Input", this);
             m_ghostController.StartSprint();
+        }
+    }
+    
+    /*
+     * @brief OnHint is called by the Input System when hint input is detected used to display the controls hint
+     * @param _context: The context of the input action
+     * @return void
+     */
+    public void OnHint(InputAction.CallbackContext _context)
+    {
+        if (_context.performed)
+        {
+            PurrLogger.Log("Hint Input", this);
+            if (!InstanceHandler.TryGetInstance(out UIsManager uisManager))
+                return;
+            
+            uisManager.ToggleView<InstructionsView>();
         }
     }
 

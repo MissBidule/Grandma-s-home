@@ -224,6 +224,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dce48cc5993db504a8a67906b40e060a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChildInputController
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -231,8 +233,6 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
 --- !u!114 &7371193213744557113
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -245,6 +245,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e615a781e5c582a4d85bba5c306c81ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChildController
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -252,14 +254,13 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   m_playerCamera: {fileID: 3116613213369430143}
   m_playerAnimator: {fileID: 0}
   m_renderers:
   - {fileID: 1387167139261906182}
   - {fileID: 7543199853055395055}
   m_cdGun: 0.2
+  m_cdSwitch: 0.2
   m_speed: 5
   m_bulletSpawnTransform: {fileID: 8286851940836659514}
   m_bulletPrefab: {fileID: 366779594710045177, guid: 90e50898fd15e4755813076e701192cc, type: 3}
@@ -517,6 +518,38 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: be8f47a1-0c5b-4108-a75f-e3a4926431ce
     m_ActionName: 'Ghost/changeScene[/Keyboard/l]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 040859e4-2cd6-49e2-be8b-7f3ce8ef554b
+    m_ActionName: 'Child/Validate[/Keyboard/space]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 55397657-de04-43c4-aa9d-3b0ef9651449
+    m_ActionName: 'Ghost/Validate[/Keyboard/space]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 46160aee-2a43-444d-a6f1-377c688007c1
+    m_ActionName: 'Ghost/Sprint[/Keyboard/leftShift]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6565872187536608583}
+        m_TargetAssemblyTypeName: ChildInputController, Assembly-CSharp
+        m_MethodName: OnHint
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: ea2e3932-0535-40f3-9dcc-9236d288a500
+    m_ActionName: 'Child/Hint[/Keyboard/h]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 63ac072b-1e83-4270-932d-4bbaf1fdb089
+    m_ActionName: 'Ghost/Hint[/Keyboard/h]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Child
@@ -534,6 +567,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 817fe5016bd0a2a49a95b6eb338bb132, type: 3}
   m_Name: 
   m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkTransform
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -541,8 +576,6 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _syncPosition: 1
   _syncRotation: 1
   _syncScale: 1
@@ -565,6 +598,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 12cf33844d765b246855f943e21c97ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: PurrVoice.Runtime::PurrNet.Voice.PurrVoicePlayer
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -572,20 +607,18 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
-  _inputProvider: {fileID: 613093929203921896}
-  _outputProvider: {fileID: 8610913410535433184}
-  muted: 0
-  _enableLocalPlayback: 1
-  _localOutputProvider: {fileID: -7897050309470336131}
-  _currentDevice: 
   _audioFilters:
     _ownerAuth: 0
     _filters: []
   _enableSmoothing: 1
   _visualAmplitudeScale: 3
   _visualTimeScale: 1
+  _inputProvider: {fileID: 613093929203921896}
+  _outputProvider: {fileID: 8610913410535433184}
+  muted: 0
+  _enableLocalPlayback: 1
+  _localOutputProvider: {fileID: -7897050309470336131}
+  _currentDevice: 
 --- !u!82 &-3510194049335302436
 AudioSource:
   m_ObjectHideFlags: 0
@@ -842,6 +875,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf3dbbb59f393bc47824f38fe12e7a48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChildCameraController
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -849,8 +884,6 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   m_sensitivity: 120
   m_distance: 4
   m_minPitch: -40

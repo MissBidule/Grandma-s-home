@@ -52,6 +52,35 @@ namespace UI
         }
 
         /*
+         * @brief Toggle The View of the given Type
+         */
+        public void ToggleView<T>() where T : GameView
+        {
+            foreach (var view in m_gameViews)
+            {
+                if (view is T)
+                {
+                    if (view.IsDisplayed())
+                    {
+                        if (m_fadeViews)
+                            StartCoroutine(FadeOut(view));
+                        else
+                            HideViewInternal(view);
+                    }
+                    else
+                    {
+                        if (m_fadeViews)
+                            StartCoroutine(FadeIn(view));
+                        else
+                            ShowViewInternal(view);
+                    }
+                    
+                    
+                }
+            }
+        }
+
+        /*
          * @brief Show The View of the given Type
          * @params bool hideOthers -> Hide the other views if true
          */
@@ -100,7 +129,7 @@ namespace UI
          */
         private void ShowViewInternal(GameView _view)
         {
-            _view.canvasGroup.alpha = 1f;
+            _view.m_canvasGroup.alpha = 1f;
             _view.OnShow();
         }
         
@@ -109,7 +138,7 @@ namespace UI
          */
         private void HideViewInternal(GameView _view)
         {
-            _view.canvasGroup.alpha = 0f;
+            _view.m_canvasGroup.alpha = 0f;
             _view.OnHide();
         }
         
@@ -119,16 +148,17 @@ namespace UI
         private IEnumerator FadeIn(GameView _view)
         {
             float elapsed = 0f;
-            float startAlpha = _view.canvasGroup.alpha;
+            float startAlpha = _view.m_canvasGroup.alpha;
         
             while (elapsed < m_fadeDuration)
             {
                 elapsed += Time.deltaTime;
-                _view.canvasGroup.alpha = Mathf.Lerp(startAlpha, 1f, elapsed / m_fadeDuration);
+                _view.m_canvasGroup.alpha = Mathf.Lerp(startAlpha, 1f, elapsed / m_fadeDuration);
                 yield return null;
             }
         
-            _view.canvasGroup.alpha = 1f;
+            _view.m_canvasGroup.alpha = 1f;
+            _view.OnShow();
         }
         
         /*
@@ -137,25 +167,38 @@ namespace UI
         private IEnumerator FadeOut(GameView _view)
         {
             float elapsed = 0f;
-            float startAlpha = _view.canvasGroup.alpha;
+            float startAlpha = _view.m_canvasGroup.alpha;
         
             while (elapsed < m_fadeDuration)
             {
                 elapsed += Time.deltaTime;
-                _view.canvasGroup.alpha = Mathf.Lerp(startAlpha, 0f, elapsed / m_fadeDuration);
+                _view.m_canvasGroup.alpha = Mathf.Lerp(startAlpha, 0f, elapsed / m_fadeDuration);
                 yield return null;
             }
         
-            _view.canvasGroup.alpha = 0f;
+            _view.m_canvasGroup.alpha = 0f;
+            _view.OnHide();
         }
         
     }
 
     public abstract class GameView : MonoBehaviour
     {
-        public CanvasGroup canvasGroup;
+        public CanvasGroup m_canvasGroup;
+        private bool m_isDisplayed;
 
-        public abstract void OnShow();
-        public abstract void OnHide();
+        public void OnShow()
+        {
+            m_isDisplayed = true;
+        }
+        public void OnHide()
+        {
+            m_isDisplayed = false;
+        }
+
+        public bool IsDisplayed()
+        {
+            return m_isDisplayed;
+        }
     }
 }

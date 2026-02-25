@@ -1,15 +1,8 @@
 using UI;
-using UnityEngine;
 
-public class InstructionsView : GameView
+namespace Script.UI.Views
 {
-
-    public override void OnShow()
+    public class InstructionsView : GameView
     {
-        // Nothing Special
-    }
-    public override void OnHide()
-    {
-        // Nothing Special
     }
 }

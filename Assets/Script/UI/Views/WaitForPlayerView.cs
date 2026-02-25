@@ -1,14 +1,8 @@
 using UI;
-using UnityEngine;
 
-public class WaitForPlayerView : GameView
+namespace Script.UI.Views
 {
-    public override void OnShow()
+    public class WaitForPlayerView : GameView
     {
-        // No Need for now
-    }
-    public override void OnHide()
-    {
-        // No Need for now
     }
 }

@@ -1,4 +1,6 @@
 using PurrNet;
+using Script.UI.Views;
+using UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -99,6 +101,22 @@ public class ChildInputController : NetworkBehaviour
     public void OnInteract(InputAction.CallbackContext _context)
     {
         m_childController.Clean();
+    }
+    
+    /*
+     * @brief OnHint is called by the Input System when hint input is detected used to display the controls hint
+     * @param _context: The context of the input action
+     * @return void
+     */
+    public void OnHint(InputAction.CallbackContext _context)
+    {
+        if (_context.performed)
+        {
+            if (!InstanceHandler.TryGetInstance(out UIsManager uisManager))
+                return;
+            
+            uisManager.ToggleView<InstructionsView>();
+        }
     }
 }
 
