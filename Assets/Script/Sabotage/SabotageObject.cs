@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using PurrNet;
 using UnityEngine;
 
@@ -28,6 +29,8 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     private bool m_isQteRunning;
     private bool m_isFocused;
 
+    [SerializeField] public List<GhostInteract> m_saboteurs = new List<GhostInteract>();
+
     protected override void OnSpawned()
     {
         base.OnSpawned();
@@ -44,10 +47,12 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     @param      _playerType: player's type
     */
     
-    public void OnFocus()
+    public void OnFocus(GhostInteract _ghost)
     {
         m_isFocused = true;
         SetHighlight(true);
+       
+        m_saboteurs.Add(_ghost);
 
         if (InteractPromptUI.m_Instance != null)
             InteractPromptUI.m_Instance.Show(m_promptMessage);
@@ -57,9 +62,11 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     @brief      Unfocus : hides highlight + prompt
     @param      _playerType: player's type
     */
-    public void OnUnfocus()
+    public void OnUnfocus(GhostInteract _ghost)
     {
         m_isFocused = false;
+
+        m_saboteurs.Remove(_ghost);
 
         SetHighlight(false);
 
@@ -136,10 +143,38 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     }
 
     private void ApplyState()
+{
+    if (m_normalMesh != null)
     {
-        if (m_normalMesh != null) m_normalMesh.SetActive(!m_isSabotaged);
-        if (m_sabotagedMesh != null) m_sabotagedMesh.SetActive(m_isSabotaged);
+        var r = m_normalMesh.GetComponent<Renderer>();
+        if (r != null)
+            r.enabled = !m_isSabotaged;
+
+        foreach (GhostInteract ghostinteract in m_saboteurs)
+        {
+            
+              ghostinteract.OnSabotageOver( true);
+              Debug.Log("iteration");       
+        }
+        var c = m_normalMesh.GetComponent<Collider>();
+        if (c != null)
+            c.enabled = !m_isSabotaged;
+        
     }
+    
+
+    if (m_sabotagedMesh != null)
+    {
+        var r = m_sabotagedMesh.GetComponent<Renderer>();
+        if (r != null)
+            r.enabled = m_isSabotaged;
+            
+        var c = m_sabotagedMesh.GetComponent<Collider>();
+        if (c != null)
+            c.enabled = m_isSabotaged;
+    }
+}
+
 
     private void SetHighlight(bool _enabled)
     {

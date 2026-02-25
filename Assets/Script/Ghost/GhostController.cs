@@ -262,4 +262,14 @@ public class GhostController : PlayerControllerCore, IInteractable
         m_isStopped.value = false;
         m_currentTimerStop = 0f;
     }
+
+    public void OnFocus(GhostInteract who)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void OnUnfocus(GhostInteract who)
+    {
+        throw new NotImplementedException();
+    }
 }

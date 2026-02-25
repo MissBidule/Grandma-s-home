@@ -23,7 +23,7 @@ public class GhostInteract : NetworkBehaviour
             
             if (m_onFocus != null)
             {
-                m_onFocus.OnUnfocus();
+                m_onFocus.OnUnfocus(this);
                 m_onFocus = null;
             }
             return;
@@ -33,8 +33,8 @@ public class GhostInteract : NetworkBehaviour
 
         if (closest != m_onFocus)
         {
-            closest?.OnFocus();
-            m_onFocus?.OnUnfocus();
+            closest?.OnFocus(this);
+            m_onFocus?.OnUnfocus(this);
             m_onFocus = closest;
         }
     }
