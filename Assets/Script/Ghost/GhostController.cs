@@ -74,7 +74,7 @@ public class GhostController : PlayerControllerCore, IInteractable
 
         if (m_isStopped != m_wasDead)
         {
-            m_cameraEffect?.SetDeathEffect(isDead);
+            m_cameraEffect?.SetDeathEffect(m_isStopped);
             m_wasDead = m_isStopped;
         }
 

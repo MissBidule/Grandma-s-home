@@ -6,7 +6,6 @@ using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
-using System.Collections;
 
 public class GhostMorph : NetworkBehaviour
 {
@@ -25,26 +24,17 @@ public class GhostMorph : NetworkBehaviour
     protected override void OnSpawned()
     {
         base.OnSpawned();
-    }
-    
-
-    [SerializeField] private Color m_highlightColor = Color.yellow;
-    [SerializeField] private float m_pulseSpeed = 3f;
-    [SerializeField] private float m_minIntensity = 0.2f;
-    [SerializeField] private float m_maxIntensity = 0.6f;
-
-    private GameObject m_currentHighlightedObject = null;
-    private Coroutine m_pulseCoroutine = null;
-    private MaterialPropertyBlock m_propertyBlock;
-
-    protected override void OnSpawned()
-    {
-        base.OnSpawned();
 
         // Move Start code to OnSpawned for proper network Initialisation
 
         m_playerCollider = GetComponent<BoxCollider>();
         m_renderers = m_mesh.GetComponentsInChildren<MeshRenderer>();
+    }
+
+
+    
+
+
 
     void Start()
     {
@@ -58,39 +48,14 @@ public class GhostMorph : NetworkBehaviour
         {
             m_originalMaterials[i] = m_renderers[i].sharedMaterials;
         }
-        m_propertyBlock = new MaterialPropertyBlock();
-    }
 
         // I'm so disappointed by this line that I will not even remove it as a proof of my own failure.
-        if (!isServer) return; 
+        if (!isServer) return;
     }
 
-    /*
-     * @brief Copies mesh, materials, and collider from the given prefab to the player
-     * Applies the components from the prefab if they exist.
-     * @param _prefab: The prefab GameObject to copy from.
-     * @param _position: The local position to place the instantiated prefab.
-     * @return void
-     */
-    public void Morphing(GameObject _prefab, Vector3 _position)
-    {
-        Rigidbody rb = GetComponent<Rigidbody>();
-        rb.constraints = RigidbodyConstraints.FreezeRotation;
+    
 
-        MeshFilter targetFilter = _prefab.GetComponent<MeshFilter>();
-        MeshRenderer targetRenderer = _prefab.GetComponent<MeshRenderer>();
-        Collider targetCollider = _prefab.GetComponent<Collider>();
-        if (!targetFilter || !targetRenderer || !targetCollider)
-        {
-            return;
-        }
-
-        InstantiateForAll(_prefab, _position);
-
-        m_isMorphed = true;
-    }
-
-    [ObserversRpc(requireServer:true, runLocally:true)]
+    [ObserversRpc(requireServer: true, runLocally: true)]
     public void InstantiateForAll(GameObject _prefab, Vector3 _position)
     {
         m_playerCollider.enabled = false;
@@ -116,6 +81,9 @@ public class GhostMorph : NetworkBehaviour
         DestroyForAll();
     }
 
+
+
+
     [ObserversRpc(requireServer: true, runLocally: true)]
     public void DestroyForAll()
     {
@@ -129,5 +97,30 @@ public class GhostMorph : NetworkBehaviour
         }
         Rigidbody rb = GetComponent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+    }
+
+    /*
+     * @brief Copies mesh, materials, and collider from the given prefab to the player
+     * Applies the components from the prefab if they exist.
+     * @param _prefab: The prefab GameObject to copy from.
+     * @param _position: The local position to place the instantiated prefab.
+     * @return void
+     */
+    public void Morphing(GameObject _prefab, Vector3 _position)
+    {
+        Rigidbody rb = GetComponent<Rigidbody>();
+        rb.constraints = RigidbodyConstraints.FreezeRotation;
+
+        MeshFilter targetFilter = _prefab.GetComponent<MeshFilter>();
+        MeshRenderer targetRenderer = _prefab.GetComponent<MeshRenderer>();
+        Collider targetCollider = _prefab.GetComponent<Collider>();
+        if (!targetFilter || !targetRenderer || !targetCollider)
+        {
+            return;
+        }
+
+        InstantiateForAll(_prefab, _position);
+
+        m_isMorphed = true;
     }
 }

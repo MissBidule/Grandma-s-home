@@ -29,7 +29,7 @@ public class ChildClientController : NetworkBehaviour
     {
         if (!isOwner) return;
 
-        DebugPrintTrafic();
+        // DebugPrintTrafic();
 
         SendChildRPC(
             GetDirectionIntention(m_childInputController.m_movementInputVector),
