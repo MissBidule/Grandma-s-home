@@ -23,7 +23,7 @@ GameObject:
   - component: {fileID: 8610913410535433184}
   - component: {fileID: -7897050309470336131}
   - component: {fileID: 6962044170748144648}
-  - component: {fileID: 5696445354917125266}
+  - component: {fileID: 3504036722481472221}
   m_Layer: 8
   m_Name: Child
   m_TagString: Untagged
@@ -172,14 +172,8 @@ MonoBehaviour:
   m_renderers:
   - {fileID: 1387167139261906182}
   - {fileID: 7543199853055395055}
-  m_wishDir:
-    _value: {x: 0, y: 0, z: 0}
-    _ownerAuth: 0
-    _sendIntervalInSeconds: 0
-  m_lookDir:
-    _value: {x: 0, y: 0, z: 0}
-    _ownerAuth: 0
-    _sendIntervalInSeconds: 0
+  m_wishDir: {x: 0, y: 0, z: 0}
+  m_cameraYaw: 0
   m_cdGun: 0.2
   m_cdSwitch: 0.2
   m_speed: 5
@@ -474,9 +468,9 @@ MonoBehaviour:
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
   _syncPosition: 1
-  _syncRotation: 0
+  _syncRotation: 1
   _syncScale: 0
-  _syncParent: 0
+  _syncParent: 1
   _interpolateSettings: 7
   _minBufferSize: 1
   _maxBufferSize: 2
@@ -683,7 +677,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: PurrVoice.Runtime::PurrNet.Voice.PurrVoicePlayerDebug
   timeWindow: 3
---- !u!114 &5696445354917125266
+--- !u!114 &3504036722481472221
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

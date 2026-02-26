@@ -75,7 +75,6 @@ public class Bullet : NetworkBehaviour
                 {
                     if (m_amIServerSide) // Only calling HitRanged on the server side
                     {
-                        print("hit ranged");
                         ghost.HitRanged();
                     }
                 }

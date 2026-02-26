@@ -11,8 +11,9 @@ public class ChildClientController : NetworkBehaviour
     private ChildInputController m_childInputController;
     private ChildController m_childController;
 
-    private Vector3 lastWishDir = Vector3.zero;
-    private Vector3 lastCameraForward = Vector3.zero;
+    private bool m_jumpPressed = false;
+    private bool m_switchWeaponPressed = false;
+    private bool m_attackPressed = false;
 
     protected override void OnSpawned()
     {
@@ -28,54 +29,54 @@ public class ChildClientController : NetworkBehaviour
     {
         if (!isOwner) return;
 
-        var cameraForward = GetCameraForward();
-        if (cameraForward != lastCameraForward) // Only send RPC when the camera forward direction changes
-        {
-            LookRPC(cameraForward);
-            m_childController.LocalRotation(cameraForward);
-            lastCameraForward = cameraForward;
+        DebugPrintTrafic();
 
-        }
+        SendChildRPC(
+            GetDirectionIntention(m_childInputController.m_movementInputVector),
+            m_playerCamera.transform.eulerAngles.y,
+            m_jumpPressed,
+            m_switchWeaponPressed,
+            m_attackPressed
+        );
 
+        m_jumpPressed = false;
+        m_switchWeaponPressed = false;
+        m_attackPressed = false;
+    }
 
-        if (m_childInputController.m_movementInputVector != Vector2.zero)
-        {
-            Vector3 wishDirection = GetDirectionIntention(m_childInputController.m_movementInputVector);
-            if (wishDirection != lastWishDir) // Prevents sending RPCs every frame when the direction hasn't changed
-                UpdateDirectionIntentionRPC(wishDirection);
-
-            lastWishDir = wishDirection;
-
-        }
-        else
-        {
-            if (lastWishDir != Vector3.zero) // Only send RPC when changing from moving to not moving
-                UpdateDirectionIntentionRPC(Vector2.zero);
-
-            lastWishDir = Vector3.zero;
-        }
+    public void DebugPrintTrafic()
+    {
+        print("sended");
+        print(m_childInputController.m_movementInputVector);
+        print(GetDirectionIntention(m_childInputController.m_movementInputVector));
+        print(m_playerCamera.transform.eulerAngles.y);
+        print(m_jumpPressed);
+        print(m_switchWeaponPressed);
+        print(m_attackPressed);
     }
 
     public void OnJump()
     {
         if (!isOwner) return;
-        JumpRPC();
+        m_jumpPressed = true;
     }
 
     public void OnSwitchWeapon()
     {
         if (!isOwner) return;
-        SwitchWeaponRPC();
+        m_switchWeaponPressed = true;
     }
 
     public void OnAttack()
     {
         if (!isOwner) return;
-        AttackRPC();
+        m_attackPressed = true;
     }
 
     private Vector3 GetDirectionIntention(Vector2 _movement)
     {
+        if (_movement == Vector2.zero) return Vector3.zero;
+
         var wishDir = Vector3.zero;
 
         if (_movement.sqrMagnitude < 0.001f) return wishDir;
@@ -103,34 +104,13 @@ public class ChildClientController : NetworkBehaviour
         return forward.normalized;
     }
 
-
     [ServerRpc]
-    private void UpdateDirectionIntentionRPC(Vector3 _wishDirection)
+    private void SendChildRPC(Vector3 _wishDirection, float _cameraYaw, bool _jumpPressed, bool _switchPressed, bool _attackPressed)
     {
         m_childController.m_wishDir = _wishDirection;
-    }
-
-    [ServerRpc]
-    private void LookRPC(Vector3 _forward)
-    {
-        m_childController.m_lookDir = _forward;
-    }
-
-    [ServerRpc]
-    private void JumpRPC()
-    {
-        m_childController.Jump();
-    }
-
-    [ServerRpc]
-    private void SwitchWeaponRPC()
-    {
-        m_childController.SwitchAttackType();
-    }
-
-    [ServerRpc]
-    private void AttackRPC()
-    {
-        m_childController.Attack();
+        m_childController.m_cameraYaw = _cameraYaw;
+        if (_jumpPressed) m_childController.Jump();
+        if (_switchPressed) m_childController.SwitchAttackType();
+        if (_attackPressed) m_childController.Attack();
     }
 }

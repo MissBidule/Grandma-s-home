@@ -12,8 +12,7 @@ public class ChildController : PlayerControllerCore
     private Rigidbody m_rigidbody;
 
     public Vector3 m_wishDir;
-    public Vector3 m_lookDir; 
-    private Vector3 lastLookDir;
+    public float m_cameraYaw; 
 
     private float m_attackRange = 0.5f;
 
@@ -49,48 +48,18 @@ public class ChildController : PlayerControllerCore
         m_lastShot += Time.deltaTime;
         m_switchingTime += Time.deltaTime;
         
-        if (lastLookDir != m_lookDir)
-        {
-            //UpdateRotateForEveryone(m_lookDir);
-            lastLookDir = m_lookDir;
-        }
-    }
 
-    /*
-     * @brief   Applies movement using Rigidbody physics
-     * @return  void
-     */
-    void FixedUpdate()
-    {
-        if (!isServer) return;
+        transform.rotation = Quaternion.Euler(0, m_cameraYaw, 0);
 
-        //Was provoking anoying Debug
-        if (!m_lookDir.Equals(Vector3.zero))
-            m_rigidbody.rotation = Quaternion.LookRotation(m_lookDir, Vector3.up);
 
-        if (m_wishDir == Vector3.zero) return;
 
 
         m_rigidbody.MovePosition(
-            m_rigidbody.position + m_wishDir * m_speed * Time.fixedDeltaTime
+            m_rigidbody.position + m_wishDir * m_speed * Time.deltaTime
         );
-    }
 
-    // Called to bypass the latency from the server and have the child rotate immediately on the client side
-    public void LocalRotation(Vector3 _lookDir)
-    {
-        m_rigidbody.rotation = Quaternion.LookRotation(_lookDir, Vector3.up);
-    }
 
-    // Called when lookDir changes to update the rotation of the child on all clients except the one that initiated the change (since it already updated locally)
-    // I think this is awful.
-    // So I didn't put it to try, so I think rotation only work for local player and server, but not other clients.
-    /*[ObserversRpc(runLocally:true)]
-    public void UpdateRotateForEveryone(Vector3 _lookDir)
-    {
-        if (isOwner || isServer) return;
-        m_rigidbody.rotation = Quaternion.LookRotation(_lookDir, Vector3.up);
-    }*/
+    }
 
     /*
      * @brief   Makes the child jump by applying an impulse force upwards

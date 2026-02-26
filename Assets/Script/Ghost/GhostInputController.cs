@@ -96,7 +96,7 @@ public class GhostInputController : MonoBehaviour
         if (!isOwner) return;
         if (_context.performed)
         {
-            m_ghostClientController.OnTransform();
+            m_ghostClientController.OnMorph();
         }
     }
 

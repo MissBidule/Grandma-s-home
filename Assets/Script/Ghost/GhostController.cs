@@ -62,6 +62,7 @@ public class GhostController : PlayerControllerCore, IInteractable
     private void Update()
     {
         if (!isServer) return;
+     
         UpdateTimers();
 
         SetSpeedModifier();
@@ -207,7 +208,6 @@ public class GhostController : PlayerControllerCore, IInteractable
     public void HitRanged()
     {
         if (!isServer) return;
-        print("slowed apply");
         ApplySlowToAll();
         m_currentTimerSlowed = m_timerSlowed;
     }

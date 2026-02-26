@@ -186,7 +186,7 @@ GameObject:
   - component: {fileID: 6368071203746312751}
   - component: {fileID: 4080166736381987135}
   - component: {fileID: 3165849117006584195}
-  - component: {fileID: 9139699453466798653}
+  - component: {fileID: 8670369571578246189}
   m_Layer: 9
   m_Name: Ghost
   m_TagString: Untagged
@@ -241,7 +241,6 @@ MonoBehaviour:
   m_stoppedLabel: {fileID: 6256087797766208245}
   m_slowedLabel: {fileID: 3653350487254509011}
   randomPrefab: {fileID: 1294835051642455331, guid: 4059a613f15f3b04bb5706783c2e41ed, type: 3}
-  lastWishDir: {x: 0, y: 0, z: 0}
 --- !u!114 &8435777744922512404
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -270,7 +269,7 @@ MonoBehaviour:
   - {fileID: 5763480866988310096}
   m_isSlowed: 0
   m_isStopped: 0
-  m_timerSlowed: 100
+  m_timerSlowed: 5
   m_timerStop: 5
   m_walkSpeed: 4
   m_acceleration: 25
@@ -303,10 +302,7 @@ MonoBehaviour:
   _directChildren: []
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
-  m_isMorphed:
-    _value: 0
-    _ownerAuth: 0
-    _sendIntervalInSeconds: 0
+  m_isMorphed: 0
   m_mesh: {fileID: 1862723092181556763}
   m_previewGhost: {fileID: 1950302744553119850}
 --- !u!114 &8778548429194373776
@@ -775,7 +771,7 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &9139699453466798653
+--- !u!114 &8670369571578246189
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

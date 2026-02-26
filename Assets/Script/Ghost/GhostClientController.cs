@@ -20,7 +20,7 @@ public class GhostClientController : NetworkBehaviour
 
     public GameObject randomPrefab;
 
-    public Vector3 lastWishDir = Vector3.zero;
+    private bool morphPressed = false;
 
     protected override void OnSpawned()
     {
@@ -46,23 +46,27 @@ public class GhostClientController : NetworkBehaviour
 
         UpdateLabels();
 
-        if (m_ghostInputController.m_movementInputVector != Vector2.zero)
-        {
-            Vector3 wishDirection = GetDirectionIntention(m_ghostInputController.m_movementInputVector);
+        DebugPrintTrafic();
 
-            if (wishDirection != lastWishDir) // Prevents sending RPCs every frame when the direction hasn't changed
-                UpdateDirectionIntentionRPC(wishDirection);
+        SendGhostRPC(
+            GetDirectionIntention(m_ghostInputController.m_movementInputVector),
+            morphPressed ? m_ghostMorphPreview.m_currentPrefab : null,                  // Morph Parameters
+            m_ghostMorphPreview.transform.localPosition                                 // Morph Parameters
+        );
 
-            lastWishDir = wishDirection;
+        // Reset values after sending to server
+        if (morphPressed) m_ghostMorphPreview.HidePreview();
+        morphPressed = false;
+    }
 
-        }
-        else
-        {
-            if (lastWishDir != Vector3.zero) // Only send RPC when changing from moving to not moving
-                UpdateDirectionIntentionRPC(Vector2.zero);
-        
-            lastWishDir = Vector3.zero;
-        }
+    void DebugPrintTrafic()
+    {
+        print("sended");
+        print(m_ghostInputController.m_movementInputVector);
+        print(GetDirectionIntention(m_ghostInputController.m_movementInputVector));
+        print(morphPressed);
+        print(morphPressed ? m_ghostMorphPreview.m_currentPrefab : null);
+        print(m_ghostMorphPreview.transform.localPosition);
     }
 
     void UpdateLabels()
@@ -100,17 +104,16 @@ public class GhostClientController : NetworkBehaviour
         m_wheel.Toggle();
     }
 
-    public void OnTransform()
+    public void OnMorph()
     {
         if (!isOwner) return;
-
-        if (!m_ghostMorphPreview.m_canMorph || !m_ghostMorphPreview.m_currentPrefab || m_ghostMorph.m_isMorphed.value) return;
-
+        if (!m_ghostMorphPreview.m_canMorph || !m_ghostMorphPreview.m_currentPrefab || m_ghostMorph.m_isMorphed) return;
         if (m_wheel.IsWheelOpen()) m_wheel.Toggle();
 
         m_wheel.ClearSelection();
-        MorphRPC(m_ghostMorphPreview.m_currentPrefab, m_ghostMorphPreview.transform.localPosition);
-        m_ghostMorphPreview.HidePreview();
+
+        morphPressed = true;
+
     }
 
     /**
@@ -136,16 +139,12 @@ public class GhostClientController : NetworkBehaviour
         return wishDir;
     }
 
-
     [ServerRpc]
-    public void UpdateDirectionIntentionRPC(Vector3 _movement)
+    private void SendGhostRPC(Vector3 _movement, GameObject _prefab, Vector3 _pos)
     {
         m_ghostController.m_wishDir = _movement;
-    }
-
-    [ServerRpc]
-    public void MorphRPC(GameObject _prefab, Vector3 _pos)
-    {
-        m_ghostMorph.Morphing(_prefab, _pos);
+        // Prefab is not null only when morphPressed is true.
+        // This method helps reduce the network traffic by not sending that bool "morphPressed"
+        if (_prefab) m_ghostMorph.Morphing(_prefab, _pos);
     }
 }

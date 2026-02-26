@@ -10,7 +10,7 @@ using UnityEngine.UIElements;
 
 public class GhostMorph : NetworkBehaviour
 {
-    public SyncVar<bool> m_isMorphed = new(false);
+    public bool m_isMorphed = false;
 
 
     [SerializeField] private GameObject m_mesh;
@@ -65,7 +65,7 @@ public class GhostMorph : NetworkBehaviour
 
         InstantiateForAll(_prefab, _position);
 
-        m_isMorphed.value = true;
+        m_isMorphed = true;
     }
 
     [ObserversRpc(requireServer:true, runLocally:true)]
@@ -85,12 +85,12 @@ public class GhostMorph : NetworkBehaviour
      */
     public void RevertToOriginal() // Server Side only (called by [ServerRCP] functions)
     {
-        if (!m_isMorphed.value)
+        if (!m_isMorphed)
         {
             return;
         }
 
-        m_isMorphed.value = false;
+        m_isMorphed = false;
         DestroyForAll();
     }
 
