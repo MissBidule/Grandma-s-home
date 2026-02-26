@@ -17,6 +17,7 @@ public class GhostDeathIndicator : MonoBehaviour
     private bool m_initialized;
     private float m_deathTimer;
     private bool m_isDying;
+    private Transform m_cameraTransform;
 
     private void Start()
     {
@@ -50,6 +51,9 @@ public class GhostDeathIndicator : MonoBehaviour
             if (localPlayer != null)
             {
                 m_isLocalPlayerGhost = localPlayer.GetComponent<GhostController>() != null;
+                var playerCore = localPlayer.GetComponent<PlayerControllerCore>();
+                if (playerCore != null && playerCore.m_playerCamera != null)
+                    m_cameraTransform = playerCore.m_playerCamera.transform;
                 m_initialized = true;
             }
             else return;
@@ -72,12 +76,9 @@ public class GhostDeathIndicator : MonoBehaviour
         bool shouldShow = m_isLocalPlayerGhost && m_isDying;
         m_indicatorCanvas.gameObject.SetActive(shouldShow);
 
-        if (shouldShow)
+        if (shouldShow && m_cameraTransform != null)
         {
-            // Billboard: face the active camera
-            Camera cam = Camera.main;
-            if (cam != null)
-                m_indicatorCanvas.transform.rotation = cam.transform.rotation;
+            m_indicatorCanvas.transform.rotation = m_cameraTransform.rotation;
         }
     }
 }
