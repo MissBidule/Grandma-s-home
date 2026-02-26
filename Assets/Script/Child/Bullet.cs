@@ -53,14 +53,14 @@ public class Bullet : NetworkBehaviour
             {
                 var ghost = _other.transform.parent.gameObject.GetComponent<GhostMorph>();
                 if (ghost != null)
-                    {   
-                        ghost.RevertToOriginal();
-                    }
+                {   
+                    ghost.RevertToOriginal();
+                }
             }
         }
 
 
-        // We check if the collider is a ghost player by checking if it has the GhostMovement component
+        // We check if the collider is a ghost player by checking if it has the GhostController component
         GameObject gameobject = _other.gameObject;
         if (gameObject != null) {
             if (_other.CompareTag("Player") && gameobject.layer == LayerMask.NameToLayer("Child"))
@@ -72,11 +72,18 @@ public class Bullet : NetworkBehaviour
             {
                 var ghost = gameobject.GetComponent<GhostController>();
                 if (ghost != null)
-                {   
-                    if (m_amIServerSide) ghost.HitRanged();
+                {
+                    if (m_amIServerSide) // Only calling HitRanged on the server side
+                    {
+                        print("hit ranged");
+                        ghost.HitRanged();
+                    }
                 }
             }
-            SpawnSlimePrefab(_other);
+            else
+            {
+                SpawnSlimePrefab(_other);
+            }
         }
         Destroy(gameObject);
     }

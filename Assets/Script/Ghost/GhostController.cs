@@ -207,7 +207,8 @@ public class GhostController : PlayerControllerCore, IInteractable
     public void HitRanged()
     {
         if (!isServer) return;
-        m_isSlowed = true;
+        print("slowed apply");
+        ApplySlowToAll();
         m_currentTimerSlowed = m_timerSlowed;
     }
 

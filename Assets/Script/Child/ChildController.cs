@@ -148,11 +148,9 @@ public class ChildController : PlayerControllerCore
 
         foreach (Collider col in hits)
         {
-            print("collider : " + col.gameObject.name);
             var ghost = col.GetComponent<GhostController>();
             if (ghost != null)
             {
-                print("hit");
                 ghost.HitCac();
             }
             if (col.transform.parent) 
