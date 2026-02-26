@@ -19,6 +19,7 @@ public class GhostCameraController : NetworkBehaviour
     private float m_pitch;
 
     private GhostInputController m_ghostInputController;
+    private GhostController m_ghostController;
     private Transform m_target;
 
     protected override void OnSpawned()
@@ -27,7 +28,7 @@ public class GhostCameraController : NetworkBehaviour
 
         enabled = isOwner;
     }
-    
+
     /*
      * @brief   Initializes references and locks the cursor
      * @return  void
@@ -35,6 +36,7 @@ public class GhostCameraController : NetworkBehaviour
     private void Awake()
     {
         m_ghostInputController = GetComponentInParent<GhostInputController>();
+        m_ghostController = GetComponentInParent<GhostController>();
         m_target = transform.parent;
 
         UnityEngine.Cursor.lockState = CursorLockMode.Locked;
@@ -51,8 +53,11 @@ public class GhostCameraController : NetworkBehaviour
         Vector3 desiredOffset;
         float finalDistance = m_distance;
 
-        // Do not move the camera if the wheel is open
-        if (m_ghostInputController.m_wheelController != null && m_ghostInputController.m_wheelController.IsWheelOpen())
+        // Do not move the camera if the wheel is open or if reviving
+        bool blockLookInput = (m_ghostInputController.m_wheelController != null && m_ghostInputController.m_wheelController.IsWheelOpen())
+            || (m_ghostController != null && m_ghostController.m_isReviving);
+
+        if (blockLookInput)
         {
             rotation = Quaternion.Euler(m_pitch, m_yaw, 0f);
             desiredOffset = rotation * Vector3.back * m_distance;

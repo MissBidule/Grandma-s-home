@@ -14,10 +14,9 @@ public class GhostController : PlayerControllerCore
 
     public bool m_isSlowed = false;
     public bool m_isStopped = false;
+    public bool m_isReviving = false;
     public float m_timerSlowed = 5f;
-    public float m_timerStop = 5f;
     public float m_currentTimerSlowed = 5f;
-    public float m_currentTimerStop = 5f;
 
     [Header("Canva")]
     public GameObject m_stoppedLabel;
@@ -52,9 +51,13 @@ public class GhostController : PlayerControllerCore
         enabled = isOwner;
     }
 
-    private void Start()
+    private void Awake()
     {
         m_rigidbody = GetComponent<Rigidbody>();
+    }
+
+    private void Start()
+    {
         m_ghostInputController = GetComponent<GhostInputController>();
         m_ghostMorph = GetComponent<GhostMorph>();
 
@@ -70,15 +73,11 @@ public class GhostController : PlayerControllerCore
         if (m_isStopped)
         {
             m_rigidbody.constraints = RigidbodyConstraints.FreezeAll;
-            m_currentTimerStop -= Time.deltaTime;
             m_slowedLabel.SetActive(false);
-            if (m_currentTimerStop <= 0f)
-            {
-                m_rigidbody.constraints = RigidbodyConstraints.None; 
-                m_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
-                m_isStopped = false;
-                m_stoppedLabel.SetActive(false);
-            }
+        }
+        else if (m_isReviving)
+        {
+            m_rigidbody.constraints = RigidbodyConstraints.FreezeAll;
         }
         else if (m_isSlowed)
         {
@@ -91,7 +90,7 @@ public class GhostController : PlayerControllerCore
         }
 
         m_speedModifier = m_isSlowed ? 0.5f : 1f;
-        m_speedModifier = m_isStopped ? 0f : m_speedModifier;
+        m_speedModifier = (m_isStopped || m_isReviving) ? 0f : m_speedModifier;
 
         bool isDead = m_isStopped;
         if (isDead != m_wasDead)
@@ -104,6 +103,17 @@ public class GhostController : PlayerControllerCore
         {
             m_ghostMorph.RevertToOriginal();
         }
+    }
+
+    /**
+    @brief      Revive this ghost (called from network RPC)
+    */
+    public void Revive()
+    {
+        m_rigidbody.constraints = RigidbodyConstraints.None;
+        m_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        m_isStopped = false;
+        m_stoppedLabel.SetActive(false);
     }
 
     /**
@@ -148,7 +158,7 @@ public class GhostController : PlayerControllerCore
         if (movementInput.sqrMagnitude > 0.0001f)
             wishDir = (forward * movementInput.y + right * movementInput.x).normalized;
 
-        if (wishDir.sqrMagnitude > 0.0001f && !m_isStopped && !m_rigidbody.constraints.HasFlag(RigidbodyConstraints.FreezeRotationY))
+        if (wishDir.sqrMagnitude > 0.0001f && !m_isStopped && !m_isReviving && !m_rigidbody.constraints.HasFlag(RigidbodyConstraints.FreezeRotationY))
         {            
             Quaternion targetRotation = Quaternion.LookRotation(wishDir, Vector3.up);
 
@@ -162,7 +172,7 @@ public class GhostController : PlayerControllerCore
             
         }
 
-        if (!m_isStopped &&
+        if (!m_isStopped && !m_isReviving &&
             m_canClimbThisFrame &&
             wishDir.sqrMagnitude > 0.0001f)
         {

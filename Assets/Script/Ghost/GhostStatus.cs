@@ -9,11 +9,22 @@ public class GhostStatus : NetworkBehaviour, IInteractable
 {
     private GhostController ghost;
 
+    [Header("Revive")]
+    [SerializeField] private float m_baseReviveTime = 5f;
+    [SerializeField] private float m_maxReviveTime = 30f;
+    private int m_deathCount = 0;
+
+    public bool IsStopped => ghost.m_isStopped;
+
+    public float GetReviveTime()
+    {
+        return Mathf.Min(m_baseReviveTime * m_deathCount, m_maxReviveTime);
+    }
+
     private void Awake()
     {
         ghost = GetComponent<GhostController>();
     }
-
 
     protected override void OnSpawned()
     {
@@ -59,28 +70,46 @@ public class GhostStatus : NetworkBehaviour, IInteractable
     public void GhostHitCloseCombat()
     {
         Debug.Log("Ghost hit");
+        m_deathCount++;
         ghost.m_isStopped = true;
         ghost.m_stoppedLabel.SetActive(true);
-        ghost.m_currentTimerStop = ghost.m_timerStop;
     }
+    [ServerRpc]
+    public void RequestRevive()
+    {
+        if (ghost.m_isStopped)
+            DoRevive();
+    }
+
+    [ObserversRpc]
+    private void DoRevive()
+    {
+        ghost.Revive();
+    }
+
     public void OnFocus()
     {
-        // Do nothing
+        if (ghost.m_isStopped && InteractPromptUI.m_Instance != null)
+        {
+            InteractPromptUI.m_Instance.Show("Maintenir E : R\u00e9animer");
+        }
     }
 
     public void OnUnfocus()
-    { 
-        // Do nothing
+    {
+        if (InteractPromptUI.m_Instance != null)
+        {
+            InteractPromptUI.m_Instance.Hide();
+        }
     }
-    
+
     public void OnInteract(GhostInteract _who)
     {
-        // ghost.m_isStopped = false;
-        // ghost.m_stoppedLabel.SetActive(false);
-        ghost.m_currentTimerStop = 0;
+        // Revive is handled by GhostInteract hold logic
     }
-    
-    public void OnStopInteract(GhostInteract _who) {
+
+    public void OnStopInteract(GhostInteract _who)
+    {
         // Do nothing
     }
 }

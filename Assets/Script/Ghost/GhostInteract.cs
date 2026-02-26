@@ -1,6 +1,4 @@
-using NUnit.Framework;
 using PurrNet;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,12 +9,27 @@ using UnityEngine;
 public class GhostInteract : NetworkBehaviour
 {
     [Header("Detection")]
-    //unused
-    //[SerializeField] private float m_radius = 2.0f;
     [SerializeField] private LayerMask m_interactableMask;
     private List<IInteractable> m_interactable = new List<IInteractable>();
 
     public IInteractable m_onFocus; // Can be either GhostStatus or SabotageObject
+
+    private GhostController m_ghostController;
+    private Rigidbody m_rigidbody;
+    private ReviveBarUI m_reviveBarUI;
+
+    // Revive state
+    private bool m_isReviving = false;
+    private GhostStatus m_reviveTarget;
+    private float m_reviveTimer = 0f;
+    private float m_reviveDuration = 0f;
+
+    private void Awake()
+    {
+        m_ghostController = GetComponentInParent<GhostController>();
+        m_rigidbody = GetComponentInParent<Rigidbody>();
+        m_reviveBarUI = m_ghostController.GetComponentInChildren<ReviveBarUI>(true);
+    }
 
     protected override void OnSpawned()
     {
@@ -27,8 +40,15 @@ public class GhostInteract : NetworkBehaviour
 
     private void Update()
     {
-        if (m_interactable.Count <= 0) { 
-            
+        // Handle ongoing revive
+        if (m_isReviving)
+        {
+            UpdateRevive();
+            return;
+        }
+
+        if (m_interactable.Count <= 0) {
+
             if (m_onFocus != null)
             {
                 m_onFocus.OnUnfocus();
@@ -36,7 +56,7 @@ public class GhostInteract : NetworkBehaviour
             }
             return;
         }
-                
+
         IInteractable closest = CheckClosest();
 
         if (closest != m_onFocus)
@@ -48,6 +68,27 @@ public class GhostInteract : NetworkBehaviour
                 m_onFocus.OnUnfocus();
             }
             m_onFocus = closest;
+        }
+    }
+
+    private void UpdateRevive()
+    {
+        // Cancel if reviver got stopped or target no longer valid
+        if (m_ghostController.m_isStopped || m_reviveTarget == null || !m_reviveTarget.IsStopped)
+        {
+            CancelRevive();
+            return;
+        }
+
+        m_reviveTimer += Time.deltaTime;
+        float progress = m_reviveTimer / m_reviveDuration;
+
+        if (m_reviveBarUI != null)
+            m_reviveBarUI.SetProgress(progress);
+
+        if (m_reviveTimer >= m_reviveDuration)
+        {
+            CompleteRevive();
         }
     }
 
@@ -81,18 +122,98 @@ public class GhostInteract : NetworkBehaviour
 
     /*
      * @brief Interact with the current target if available
+     * @details If the target is a downed ghost, starts a hold-to-revive process.
+     *          Otherwise, delegates to the target's OnInteract (sabotage QTE, etc.)
      * @return void
      */
     public void Interact()
     {
+        if (m_isReviving) return;
         if (m_onFocus == null) return;
+
+        // Check if target is a downed ghost -> start revive
+        if (m_onFocus is GhostStatus gs && gs.IsStopped)
+        {
+            StartRevive(gs);
+            return;
+        }
+
+        // Otherwise, normal interact (sabotage, etc.)
         m_onFocus.OnInteract(this);
+    }
+
+    /**
+    @brief      Start reviving a downed ghost
+    @param      _target: The downed ghost's GhostStatus
+    */
+    private void StartRevive(GhostStatus _target)
+    {
+        if (m_ghostController.m_isStopped) return;
+
+        m_reviveTarget = _target;
+        m_reviveDuration = _target.GetReviveTime();
+        m_reviveTimer = 0f;
+        m_isReviving = true;
+
+        // Freeze reviver
+        m_ghostController.m_isReviving = true;
+        m_rigidbody.constraints = RigidbodyConstraints.FreezeAll;
+
+        // Show revive bar, hide interact prompt
+        if (m_reviveBarUI != null)
+        {
+            m_reviveBarUI.SetProgress(0f);
+            m_reviveBarUI.Show();
+        }
+
+        if (InteractPromptUI.m_Instance != null)
+            InteractPromptUI.m_Instance.Hide();
+    }
+
+    /**
+    @brief      Complete the revive and notify the server
+    */
+    private void CompleteRevive()
+    {
+        m_reviveTarget.RequestRevive();
+        CancelRevive();
+    }
+
+    /**
+    @brief      Cancel revive and restore reviver state
+    */
+    private void CancelRevive()
+    {
+        m_isReviving = false;
+        m_reviveTarget = null;
+        m_reviveTimer = 0f;
+
+        m_ghostController.m_isReviving = false;
+
+        // Only unfreeze rigidbody if not stopped (dead)
+        if (!m_ghostController.m_isStopped)
+        {
+            m_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        }
+
+        if (m_reviveBarUI != null)
+            m_reviveBarUI.Hide();
+    }
+
+    /**
+    @brief      Called when the interact button is released
+    */
+    public void StopInteract()
+    {
+        if (m_isReviving)
+        {
+            CancelRevive();
+        }
     }
 
     public void OnSabotageOver(bool success)
     {
-        Rigidbody rb = GetComponentInParent<Rigidbody>();
-        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        m_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
         if (success)
         {
             m_interactable.Remove(m_onFocus);
@@ -122,6 +243,12 @@ public class GhostInteract : NetworkBehaviour
         if (_other.GetComponentInParent<IInteractable>() is IInteractable interactable)
         {
             m_interactable.Remove(interactable);
+
+            // Cancel revive if target left range
+            if (m_isReviving && interactable is GhostStatus gs && gs == m_reviveTarget)
+            {
+                CancelRevive();
+            }
         }
     }
 }

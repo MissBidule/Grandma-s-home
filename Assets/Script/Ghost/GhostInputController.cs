@@ -119,6 +119,10 @@ public class GhostInputController : NetworkBehaviour
         {
             m_ghostInteract.Interact();
         }
+        else if (_context.canceled)
+        {
+            m_ghostInteract.StopInteract();
+        }
     }
 
 
