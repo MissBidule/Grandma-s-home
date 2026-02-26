@@ -9,19 +9,19 @@ using UnityEngine;
 public class GhostController : PlayerControllerCore, IInteractable
 {
     // Network Variables
-    public SyncVar<Vector3> m_wishDir; // I dont think SyncVar is needed for this.
-    public SyncVar<bool> m_isSlowed = new(false);
-    public SyncVar<bool> m_isStopped = new(false);
+    [NonSerialized] public Vector3 m_wishDir;
+    public bool m_isSlowed = false;
+    public bool m_isStopped = false;
 
 
     [Header("Ghost references")]
     private GhostMorph m_ghostMorph;
 
     [Header("Status Timers")]
-    [SerializeField] private float m_timerSlowed = 5f;
-    [SerializeField] private float m_timerStop = 5f;
-    private float m_currentTimerSlowed = 5f;
-    private float m_currentTimerStop = 5f;
+    [SerializeField] private float m_timerSlowed;
+    [SerializeField] private float m_timerStop;
+    private float m_currentTimerSlowed;
+    private float m_currentTimerStop;
 
     [Header("Movement")]
     [SerializeField] private float m_walkSpeed = 4f;
@@ -67,7 +67,7 @@ public class GhostController : PlayerControllerCore, IInteractable
         SetSpeedModifier();
 
         // Casting to Vector2 to ignore falling movement
-        if ((Vector2)m_wishDir.value != Vector2.zero)
+        if ((Vector2)m_wishDir != Vector2.zero)
         {
             m_ghostMorph.RevertToOriginal();
         }
@@ -82,12 +82,12 @@ public class GhostController : PlayerControllerCore, IInteractable
         if (!isServer) return;
         if (m_isStopped) return;
 
-        if (m_wishDir.value.sqrMagnitude > 0.0001f
+        if (m_wishDir.sqrMagnitude > 0.0001f
             && !m_isStopped
             && !m_rigidbody.constraints.HasFlag(RigidbodyConstraints.FreezeRotationY)
         )
         {
-            Quaternion targetRotation = Quaternion.LookRotation(m_wishDir.value, Vector3.up);
+            Quaternion targetRotation = Quaternion.LookRotation(m_wishDir, Vector3.up);
 
             m_rigidbody.MoveRotation(
                 Quaternion.Slerp(
@@ -104,7 +104,7 @@ public class GhostController : PlayerControllerCore, IInteractable
         }
 
         if (m_canClimbThisFrame &&
-            m_wishDir.value.sqrMagnitude > 0.0001f)
+            m_wishDir.sqrMagnitude > 0.0001f)
         {
             Vector3 vel = m_rigidbody.linearVelocity;
 
@@ -117,7 +117,7 @@ public class GhostController : PlayerControllerCore, IInteractable
             return;
         }
 
-        Vector3 targetVel = m_speedModifier * m_walkSpeed * m_wishDir.value;
+        Vector3 targetVel = m_speedModifier * m_walkSpeed * m_wishDir;
 
         Vector3 currentVel = m_rigidbody.linearVelocity;
         Vector3 currentHorizontal = new Vector3(currentVel.x, 0f, currentVel.z);
@@ -138,9 +138,8 @@ public class GhostController : PlayerControllerCore, IInteractable
             m_currentTimerStop -= Time.deltaTime;
             if (m_currentTimerStop <= 0f)
             {
-                m_rigidbody.constraints = RigidbodyConstraints.None;
                 m_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
-                m_isStopped.value = false;
+                RemoveStopToAll();
             }
         }
         
@@ -149,7 +148,7 @@ public class GhostController : PlayerControllerCore, IInteractable
             m_currentTimerSlowed -= Time.deltaTime;
             if (m_currentTimerSlowed <= 0f)
             {
-                m_isSlowed.value = false;
+                RemoveSlowToAll();
             }
         }
     }
@@ -207,8 +206,21 @@ public class GhostController : PlayerControllerCore, IInteractable
     */
     public void HitRanged()
     {
-        if (!isOwner) return;
-        ApplySlowedRPC();
+        if (!isServer) return;
+        m_isSlowed = true;
+        m_currentTimerSlowed = m_timerSlowed;
+    }
+
+    [ObserversRpc(runLocally:true)]
+    public void ApplySlowToAll()
+    {
+        m_isSlowed = true;
+    }
+
+    [ObserversRpc(runLocally:true)]
+    public void RemoveSlowToAll()
+    {
+        m_isSlowed = false;
     }
 
     /**
@@ -216,23 +228,27 @@ public class GhostController : PlayerControllerCore, IInteractable
     */
     public void HitCac()
     {
-        if (!isOwner) return;
-        ApplyStoppedRPC();
+        if (!isServer) return;
+        ApplyStopToAll();
+        m_currentTimerStop = m_timerStop;
     }
 
-    public void OnFocus()
+    [ObserversRpc(runLocally:true)]
+    public void ApplyStopToAll()
     {
-        // Do nothing
+        m_isStopped = true;
     }
 
-    public void OnUnfocus()
+    [ObserversRpc(runLocally:true)]
+    public void RemoveStopToAll()
     {
-        // Do nothing
+        m_isStopped = false;
     }
+
 
     public void OnInteract(GhostInteract _who)
     {
-        if (!isOwner) return;
+        if (!isServer) return;
         ResetStoppedRPC();
     }
 
@@ -241,25 +257,10 @@ public class GhostController : PlayerControllerCore, IInteractable
         // Do nothing
     }
 
-
-    [ServerRpc]
-    private void ApplySlowedRPC()
-    {
-        m_isSlowed.value = true;
-        m_currentTimerSlowed = m_timerSlowed;
-    }
-
-    [ServerRpc]
-    private void ApplyStoppedRPC()
-    {
-        m_isStopped.value = true;
-        m_currentTimerStop = m_timerStop;
-    }
-
     [ServerRpc]
     private void ResetStoppedRPC()
     {
-        m_isStopped.value = false;
+        m_isStopped = false;
         m_currentTimerStop = 0f;
     }
 

@@ -44,6 +44,8 @@ public class GhostClientController : NetworkBehaviour
     {
         if (!isOwner) return;
 
+        UpdateLabels();
+
         if (m_ghostInputController.m_movementInputVector != Vector2.zero)
         {
             Vector3 wishDirection = GetDirectionIntention(m_ghostInputController.m_movementInputVector);
@@ -63,8 +65,26 @@ public class GhostClientController : NetworkBehaviour
         }
     }
 
-    // quand tu revert to original
-    // m_wheel.ClearSelection();
+    void UpdateLabels()
+    {
+        if (m_ghostController.m_isStopped)
+        {
+            if (!m_stoppedLabel.activeSelf) m_stoppedLabel.SetActive(true);
+        }
+        else
+        {
+            if (m_stoppedLabel.activeSelf) m_stoppedLabel.SetActive(false);
+        }
+
+        if (m_ghostController.m_isSlowed)
+        {
+            if (!m_slowedLabel.activeSelf) m_slowedLabel.SetActive(true);
+        }
+        else
+        {
+            if (m_slowedLabel.activeSelf) m_slowedLabel.SetActive(false);
+        }
+    }
 
 
     public void OnScan()
@@ -88,7 +108,7 @@ public class GhostClientController : NetworkBehaviour
 
         if (m_wheel.IsWheelOpen()) m_wheel.Toggle();
 
-        m_wheel.m_selectedPrefab = null;
+        m_wheel.ClearSelection();
         MorphRPC(m_ghostMorphPreview.m_currentPrefab, m_ghostMorphPreview.transform.localPosition);
         m_ghostMorphPreview.HidePreview();
     }
@@ -120,7 +140,7 @@ public class GhostClientController : NetworkBehaviour
     [ServerRpc]
     public void UpdateDirectionIntentionRPC(Vector3 _movement)
     {
-        m_ghostController.m_wishDir.value = _movement;
+        m_ghostController.m_wishDir = _movement;
     }
 
     [ServerRpc]

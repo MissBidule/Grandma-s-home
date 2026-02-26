@@ -11,8 +11,8 @@ public class ChildController : PlayerControllerCore
 {
     private Rigidbody m_rigidbody;
 
-    public SyncVar<Vector3> m_wishDir; // I dont think SyncVar is needed for this.
-    public SyncVar<Vector3> m_lookDir; // Same
+    public Vector3 m_wishDir;
+    public Vector3 m_lookDir; 
     private Vector3 lastLookDir;
 
     private float m_attackRange = 0.5f;
@@ -72,7 +72,7 @@ public class ChildController : PlayerControllerCore
 
 
         m_rigidbody.MovePosition(
-            m_rigidbody.position + m_wishDir.value * m_speed * Time.fixedDeltaTime
+            m_rigidbody.position + m_wishDir * m_speed * Time.fixedDeltaTime
         );
     }
 
@@ -141,43 +141,32 @@ public class ChildController : PlayerControllerCore
      * @brief Enables the attack collider to detect hits, asked on the server
      * @return void
      */
+    [ServerRpc]
     private void Cac()
     {
         Collider[] hits = Physics.OverlapSphere(m_bulletSpawnTransform.position, m_attackRange);
 
         foreach (Collider col in hits)
         {
+            print("collider : " + col.gameObject.name);
             var ghost = col.GetComponent<GhostController>();
             if (ghost != null)
             {
-                HitOpponent();
+                print("hit");
                 ghost.HitCac();
             }
             if (col.transform.parent) 
             {
-                Debug.Log(col.transform.parent.gameObject.layer);
                 if (col.transform.parent.gameObject.layer == LayerMask.NameToLayer("Ghost"))
                 {
-                    var ghost2 = col.transform.parent.gameObject.GetComponent<GhostMorph>();
-                    if (ghost2 != null)
-                        {   
-                            ghost2.RevertToOriginal();
+                    var ghostMorph = col.transform.parent.gameObject.GetComponent<GhostMorph>();
+                    if (ghostMorph != null)
+                        {
+                            ghostMorph.RevertToOriginal();
                         }
                 }
             }
         }
-
-        
-    }
-
-    /*
-     * @brief Logic executed when hitting an opponent.
-     * TODO: Implement actual hit logic
-     * @return void
-     */
-    private void HitOpponent()
-    {
-        //anim only
     }
 
 

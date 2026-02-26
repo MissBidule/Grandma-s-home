@@ -107,13 +107,13 @@ public class ChildClientController : NetworkBehaviour
     [ServerRpc]
     private void UpdateDirectionIntentionRPC(Vector3 _wishDirection)
     {
-        m_childController.m_wishDir.value = _wishDirection;
+        m_childController.m_wishDir = _wishDirection;
     }
 
     [ServerRpc]
     private void LookRPC(Vector3 _forward)
     {
-        m_childController.m_lookDir.value = _forward;
+        m_childController.m_lookDir = _forward;
     }
 
     [ServerRpc]
