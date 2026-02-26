@@ -49,8 +49,6 @@ public class GhostController : PlayerControllerCore, IInteractable
     // --- Everything Down Here is Server-Side ---
     // ---  And should be checked by isServer  ---
     // -------------------------------------------
-    private CameraEffect m_cameraEffect;
-    private bool m_wasDead = false;
 
     protected override void OnSpawned()
     {

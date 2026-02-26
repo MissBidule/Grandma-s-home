@@ -235,6 +235,8 @@ MonoBehaviour:
   _directChildren: []
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
+  m_playerCamera: {fileID: 0}
+  m_cameraEffect: {fileID: 0}
   m_uiHolder_prefab: {fileID: 8327913135893314490, guid: 62417d2e3b649440abf79d70a9cb310e, type: 3}
   m_uiHolder: {fileID: 0}
   m_wheel: {fileID: 0}
@@ -1186,6 +1188,7 @@ GameObject:
   - component: {fileID: 2006095374527097124}
   - component: {fileID: 696320938370797279}
   - component: {fileID: 3634603608265032635}
+  - component: {fileID: 5672217555966921683}
   m_Layer: 0
   m_Name: CinemachineCamera
   m_TagString: Untagged
@@ -1272,8 +1275,21 @@ MonoBehaviour:
   m_collisionOffset: 0.2
   m_collisionMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1
   m_pivotOffset: {x: 0, y: 1.6, z: 0}
+--- !u!114 &5672217555966921683
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4025885425943346226}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 420d1edbd8fcfa34787efbb73b2ca55e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraEffect
+  saturationValue: -60
 --- !u!1 &5516181086441010449
 GameObject:
   m_ObjectHideFlags: 0
@@ -1415,7 +1431,7 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
+  m_RenderPostProcessing: 1
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
@@ -1569,6 +1585,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7de7a3b999fcfa4583aee014a16c38f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   m_scanRange: 10
   m_scanLayerMask:
     serializedVersion: 2
@@ -1577,6 +1602,10 @@ MonoBehaviour:
   m_wheel: {fileID: 0}
   m_validColor: {r: 1, g: 1, b: 1, a: 0.3}
   m_invalidColor: {r: 1, g: 0, b: 0, a: 0.3}
+  m_highlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  m_pulseSpeed: 3
+  m_minIntensity: 0.2
+  m_maxIntensity: 0.6
 --- !u!1 &6256087797766208245
 GameObject:
   m_ObjectHideFlags: 0

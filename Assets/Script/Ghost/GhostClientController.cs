@@ -10,7 +10,7 @@ public class GhostClientController : NetworkBehaviour
     private GhostMorphPreview m_ghostMorphPreview;
 
     public CinemachineCamera m_playerCamera;
-    public CameraEffect m_cameraEffect;
+    public DeathEffect m_cameraEffect;
 
     private bool last_stopped = false;
 
@@ -41,7 +41,7 @@ public class GhostClientController : NetworkBehaviour
         m_playerCamera = GetComponentInChildren<CinemachineCamera>();
         m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
         m_wheel = m_uiHolder.GetComponentInChildren<WheelController>();
-        m_cameraEffect = m_playerCamera.GetComponent<CameraEffect>();
+        m_cameraEffect = m_playerCamera.GetComponent<DeathEffect>();
 
         m_wheel.LinkWithGhost(this);
     }
@@ -53,8 +53,9 @@ public class GhostClientController : NetworkBehaviour
 
         if (last_stopped != m_ghostController.m_isStopped)
         {
-            m_cameraEffect?.SetDeathEffect(m_ghostController.m_isStopped);
-            last_stopped = !m_ghostController.m_isStopped;
+            print("dead: " + m_ghostController.m_isStopped);
+            m_cameraEffect.SetDeathEffect(m_ghostController.m_isStopped);
+            last_stopped = m_ghostController.m_isStopped;
         }
 
 
