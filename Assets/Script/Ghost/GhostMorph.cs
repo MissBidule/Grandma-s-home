@@ -6,11 +6,12 @@ using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
-
+using System.Collections;
 
 public class GhostMorph : NetworkBehaviour
 {
     public bool m_isMorphed = false;
+    public PlayerID m_localPlayer;
 
 
     [SerializeField] private GameObject m_mesh;
@@ -25,6 +26,25 @@ public class GhostMorph : NetworkBehaviour
     {
         base.OnSpawned();
     }
+    
+
+    [SerializeField] private Color m_highlightColor = Color.yellow;
+    [SerializeField] private float m_pulseSpeed = 3f;
+    [SerializeField] private float m_minIntensity = 0.2f;
+    [SerializeField] private float m_maxIntensity = 0.6f;
+
+    private GameObject m_currentHighlightedObject = null;
+    private Coroutine m_pulseCoroutine = null;
+    private MaterialPropertyBlock m_propertyBlock;
+
+    protected override void OnSpawned()
+    {
+        base.OnSpawned();
+
+        // Move Start code to OnSpawned for proper network Initialisation
+
+        m_playerCollider = GetComponent<BoxCollider>();
+        m_renderers = m_mesh.GetComponentsInChildren<MeshRenderer>();
 
     void Start()
     {
@@ -38,16 +58,18 @@ public class GhostMorph : NetworkBehaviour
         {
             m_originalMaterials[i] = m_renderers[i].sharedMaterials;
         }
+        m_propertyBlock = new MaterialPropertyBlock();
+    }
 
         // I'm so disappointed by this line that I will not even remove it as a proof of my own failure.
         if (!isServer) return; 
-
     }
 
     /*
      * @brief Copies mesh, materials, and collider from the given prefab to the player
      * Applies the components from the prefab if they exist.
      * @param _prefab: The prefab GameObject to copy from.
+     * @param _position: The local position to place the instantiated prefab.
      * @return void
      */
     public void Morphing(GameObject _prefab, Vector3 _position)

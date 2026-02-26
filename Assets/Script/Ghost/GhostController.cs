@@ -49,6 +49,8 @@ public class GhostController : PlayerControllerCore, IInteractable
     // --- Everything Down Here is Server-Side ---
     // ---  And should be checked by isServer  ---
     // -------------------------------------------
+    private CameraEffect m_cameraEffect;
+    private bool m_wasDead = false;
 
     protected override void OnSpawned()
     {
@@ -57,6 +59,9 @@ public class GhostController : PlayerControllerCore, IInteractable
         if (!isServer) return;
         m_rigidbody = GetComponent<Rigidbody>();
         m_ghostMorph = GetComponent<GhostMorph>();
+
+        if (m_playerCamera != null)
+            m_cameraEffect = m_playerCamera.GetComponent<CameraEffect>();
     }
 
     private void Update()
@@ -66,6 +71,12 @@ public class GhostController : PlayerControllerCore, IInteractable
         UpdateTimers();
 
         SetSpeedModifier();
+
+        if (m_isStopped != m_wasDead)
+        {
+            m_cameraEffect?.SetDeathEffect(isDead);
+            m_wasDead = m_isStopped;
+        }
 
         // Casting to Vector2 to ignore falling movement
         if ((Vector2)m_wishDir != Vector2.zero)

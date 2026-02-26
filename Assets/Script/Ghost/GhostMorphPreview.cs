@@ -157,7 +157,8 @@ public class GhostMorphPreview : MonoBehaviour
      */
     void OnTriggerEnter(Collider _other)
     {
-        if (_other.CompareTag("Ground") || _other.gameObject.layer == 9)
+        if (_other.CompareTag("Ground") || _other.gameObject.layer == 9
+            || _other.gameObject.layer == LayerMask.NameToLayer("Control"))
         {
             return;
         }
@@ -174,7 +175,8 @@ public class GhostMorphPreview : MonoBehaviour
      */
     void OnTriggerExit(Collider _other)
     {
-        if (_other.CompareTag("Ground") || _other.gameObject.layer == 9)
+        if (_other.CompareTag("Ground") || _other.gameObject.layer == 9
+        || _other.gameObject.layer == LayerMask.NameToLayer("Control"))
         {
             return;
         }
