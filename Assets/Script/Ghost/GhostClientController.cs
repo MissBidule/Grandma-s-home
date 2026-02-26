@@ -9,7 +9,11 @@ public class GhostClientController : NetworkBehaviour
     private GhostMorph m_ghostMorph;
     private GhostMorphPreview m_ghostMorphPreview;
 
-    private CinemachineCamera m_playerCamera;
+    public CinemachineCamera m_playerCamera;
+    public CameraEffect m_cameraEffect;
+
+    private bool last_stopped = false;
+
 
     [Header("Canva")]
     [SerializeField] private GameObject m_uiHolder_prefab;
@@ -37,6 +41,7 @@ public class GhostClientController : NetworkBehaviour
         m_playerCamera = GetComponentInChildren<CinemachineCamera>();
         m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
         m_wheel = m_uiHolder.GetComponentInChildren<WheelController>();
+        m_cameraEffect = m_playerCamera.GetComponent<CameraEffect>();
 
         m_wheel.LinkWithGhost(this);
     }
@@ -46,7 +51,14 @@ public class GhostClientController : NetworkBehaviour
 
         UpdateLabels();
 
-        DebugPrintTrafic();
+        if (last_stopped != m_ghostController.m_isStopped)
+        {
+            m_cameraEffect?.SetDeathEffect(m_ghostController.m_isStopped);
+            last_stopped = !m_ghostController.m_isStopped;
+        }
+
+
+        // DebugPrintTrafic();
 
         SendGhostRPC(
             GetDirectionIntention(m_ghostInputController.m_movementInputVector),

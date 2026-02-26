@@ -11,7 +11,7 @@ using UnityEngine.Rendering;
  * @brief Contains class declaration for TransformPreviewGhost
  * @details The TransformPreviewGhost class handles the preview of transformations, checking for collisions and updating materials accordingly.
  */
-public class GhostMorphPreview : MonoBehaviour
+public class GhostMorphPreview : NetworkBehaviour
 {
     [SerializeField] private float m_scanRange = 10f;
     [SerializeField] private LayerMask m_scanLayerMask;
@@ -37,16 +37,26 @@ public class GhostMorphPreview : MonoBehaviour
     private Coroutine m_pulseCoroutine = null;
     private MaterialPropertyBlock m_propertyBlock;
 
+    private Transform m_cameraTransform;
+
     /*
      * Initializes the mesh renderer and collider, sets the collider as a trigger, and updates the material.
      * @return void
      */
     void Start()
     {
+        if (!isOwner) return;
         m_meshRenderer = GetComponent<MeshRenderer>();
         m_previewCollider = GetComponent<Collider>();
         m_meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
         m_propertyBlock = new MaterialPropertyBlock();
+        m_cameraTransform = transform.parent.GetComponent<GhostClientController>().m_playerCamera.transform;
+    }
+
+    private void Update()
+    {
+        if (!isOwner) return;
+        CheckForScannableObject();
     }
 
     /*
@@ -57,10 +67,9 @@ public class GhostMorphPreview : MonoBehaviour
     public void ScanForPrefab()
     {
         Debug.Log("Scan");
-        CinemachineCamera mainCamera = GetComponentInParent<PlayerControllerCore>().m_playerCamera;
 
-        Vector3 rayOrigin = mainCamera.transform.position;
-        Vector3 rayDirection = mainCamera.transform.forward;
+        Vector3 rayOrigin = m_cameraTransform.transform.position;
+        Vector3 rayDirection = m_cameraTransform.transform.forward;
 
         if (!Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, m_scanRange, m_scanLayerMask))
         {
@@ -204,6 +213,7 @@ public class GhostMorphPreview : MonoBehaviour
      */
     void UpdateMaterial()
     {
+        if (!isOwner) return;
         Material[] mats = m_meshRenderer.materials;
         Color targetColor = m_canMorph ? m_validColor : m_invalidColor;
         foreach (Material mat in mats)
@@ -219,27 +229,21 @@ public class GhostMorphPreview : MonoBehaviour
         }
     }
 
-
-    void Update()
-    {
-        CheckForScannableObject();
-    }
-
     /*
      * @brief Checks for scannable objects in view and highlights them
      * @return void
      */
     private void CheckForScannableObject()
     {
-        CinemachineCamera mainCamera = GetComponent<PlayerControllerCore>().m_playerCamera;
-        if (mainCamera == null)
+        if (!isOwner) return;
+        if (m_cameraTransform == null)
         {
             ClearHighlight();
             return;
         }
 
-        Vector3 rayOrigin = mainCamera.transform.position;
-        Vector3 rayDirection = mainCamera.transform.forward;
+        Vector3 rayOrigin = m_cameraTransform.transform.position;
+        Vector3 rayDirection = m_cameraTransform.transform.forward;
 
         if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, m_scanRange, m_scanLayerMask))
         {
