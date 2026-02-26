@@ -22,7 +22,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 953e8a1142e514e4bb12470c0424b49c, type: 2}
   - {fileID: 11400000, guid: be7fb27b864278f4db1782d36ee52f16, type: 2}
   - {fileID: 11400000, guid: 9c8418ab66b53de41a341150591d714e, type: 2}
+  - {fileID: 11400000, guid: b0e0d0823301ab6408aefd4b30df783a, type: 2}
   _availableTypeNames:
+  - PurrNet.Voice.PurrAudioFilter, PurrVoice.Runtime, Version=0.0.0.0, Culture=neutral,
+    PublicKeyToken=null
   - UnityEngine.AnimationClip, UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral,
     PublicKeyToken=null
   - UnityEngine.Animator, UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral,
@@ -41,7 +44,13 @@ MonoBehaviour:
     Culture=neutral, PublicKeyToken=null
   - UnityEditor.Rendering.Universal.AssetVersion, Unity.RenderPipelines.Universal.Editor,
     Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-  - UnityEngine.EventSystems.BaseInputModule, UnityEngine.UI, Version=1.0.0.0, Culture=neutral,
+  - UnityEngine.AudioBehaviour, UnityEngine.AudioModule, Version=0.0.0.0, Culture=neutral,
+    PublicKeyToken=null
+  - UnityEngine.AudioListener, UnityEngine.AudioModule, Version=0.0.0.0, Culture=neutral,
+    PublicKeyToken=null
+  - UnityEngine.AudioSource, UnityEngine.AudioModule, Version=0.0.0.0, Culture=neutral,
+    PublicKeyToken=null
+  - PurrNet.Voice.AudioSourceVoiceProvider, PurrVoice.Runtime, Version=0.0.0.0, Culture=neutral,
     PublicKeyToken=null
   - UnityEngine.EventSystems.BaseRaycaster, UnityEngine.UI, Version=1.0.0.0, Culture=neutral,
     PublicKeyToken=null
@@ -93,11 +102,11 @@ MonoBehaviour:
     Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - UnityEngine.Rendering.Universal.DecalRendererFeature, Unity.RenderPipelines.Universal.Runtime,
     Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - PurrNet.Voice.DefaultInputProvider, PurrVoice.Runtime, Version=0.0.0.0, Culture=neutral,
+    PublicKeyToken=null
   - UnityEngine.Rendering.Universal.DepthOfField, Unity.RenderPipelines.Universal.Runtime,
     Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - PurrNet.Voice.DuckingFilter, PurrVoice.Runtime, Version=0.0.0.0, Culture=neutral,
-    PublicKeyToken=null
-  - UnityEngine.EventSystems.EventSystem, UnityEngine.UI, Version=1.0.0.0, Culture=neutral,
     PublicKeyToken=null
   - UnityEngine.EventSystems.EventTrigger, UnityEngine.UI, Version=1.0.0.0, Culture=neutral,
     PublicKeyToken=null
@@ -125,8 +134,8 @@ MonoBehaviour:
     Culture=neutral, PublicKeyToken=null
   - UnityEngine.InputSystem.InputActionReference, Unity.InputSystem, Version=1.18.0.0,
     Culture=neutral, PublicKeyToken=null
-  - UnityEngine.InputSystem.UI.InputSystemUIInputModule, Unity.InputSystem, Version=1.18.0.0,
-    Culture=neutral, PublicKeyToken=null
+  - PurrNet.Voice.InputProvider, PurrVoice.Runtime, Version=0.0.0.0, Culture=neutral,
+    PublicKeyToken=null
   - UnityEngine.Rendering.Universal.LensDistortion, Unity.RenderPipelines.Universal.Runtime,
     Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - UnityEngine.Rendering.Universal.LiftGammaGain, Unity.RenderPipelines.Universal.Runtime,
@@ -164,12 +173,16 @@ MonoBehaviour:
     PublicKeyToken=null
   - UnityEngine.Object, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
     PublicKeyToken=null
+  - PurrNet.Voice.OutputProvider, PurrVoice.Runtime, Version=0.0.0.0, Culture=neutral,
+    PublicKeyToken=null
   - UnityEngine.Rendering.Universal.PaniniProjection, Unity.RenderPipelines.Universal.Runtime,
     Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - ParrelSync.ParrelSyncProjectSettings, ParrelSync, Version=0.0.0.0, Culture=neutral,
     PublicKeyToken=null
   - PurrNet.Voice.LipSync.PhonemeSpritePreset, PurrVoice.Runtime, Version=0.0.0.0,
     Culture=neutral, PublicKeyToken=null
+  - UnityEngine.PhysicsMaterial, UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral,
+    PublicKeyToken=null
   - PlayerControllerCore, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - UnityEngine.InputSystem.PlayerInput, Unity.InputSystem, Version=1.18.0.0, Culture=neutral,
     PublicKeyToken=null
@@ -178,7 +191,10 @@ MonoBehaviour:
   - UnityEngine.Rendering.ProbeVolumesOptions, Unity.RenderPipelines.Core.Runtime,
     Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - uLipSync.Profile, uLipSync.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-  - PurrNet.Voice.PurrAudioFilter, PurrVoice.Runtime, Version=0.0.0.0, Culture=neutral,
+  - PurrAudioReader, PurrVoice.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - PurrNet.Voice.PurrVoicePlayer, PurrVoice.Runtime, Version=0.0.0.0, Culture=neutral,
+    PublicKeyToken=null
+  - PurrNet.Voice.PurrVoicePlayerDebug, PurrVoice.Runtime, Version=0.0.0.0, Culture=neutral,
     PublicKeyToken=null
   - QteCircle, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - UnityEngine.UI.RawImage, UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
@@ -275,9 +291,10 @@ MonoBehaviour:
   - WheelSliceHit, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - UnityEngine.Rendering.Universal.WhiteBalance, Unity.RenderPipelines.Universal.Runtime,
     Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-  _bakedIds: 00000000010000000200000003000000
+  _bakedIds: 0000000001000000020000000300000004000000
   _bakedAssets:
   - {fileID: 11400000, guid: a7b7606450e3b6a4c9096812c86aff37, type: 2}
   - {fileID: 11400000, guid: 953e8a1142e514e4bb12470c0424b49c, type: 2}
   - {fileID: 11400000, guid: be7fb27b864278f4db1782d36ee52f16, type: 2}
   - {fileID: 11400000, guid: 9c8418ab66b53de41a341150591d714e, type: 2}
+  - {fileID: 11400000, guid: b0e0d0823301ab6408aefd4b30df783a, type: 2}
