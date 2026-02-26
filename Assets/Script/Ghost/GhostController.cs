@@ -1,6 +1,8 @@
 ﻿using PurrNet;
 using PurrNet.Logging;
+using Script.UI.Views;
 using System.Collections;
+using UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -59,6 +61,12 @@ public class GhostController : PlayerControllerCore
         base.OnSpawned();
 
         enabled = isOwner;
+
+        if (!isOwner)
+            return;
+        
+        if (InstanceHandler.TryGetInstance(out UIsManager uisManager))
+            uisManager.ShowView<GhostHUDView>(false);
     }
 
     private void Start()
@@ -238,7 +246,10 @@ public class GhostController : PlayerControllerCore
         if (!m_canSprint) return;
         m_canSprint = false;
         m_isSprinting = true;
-        PurrLogger.Log("Sprint Start", this);
+        
+        if (InstanceHandler.TryGetInstance(out GhostHUDView  ghostHUDView))
+            ghostHUDView.SprintActivate();
+        
         StartCoroutine(SprintDuration(m_sprintDuration));
     }
 
@@ -249,7 +260,10 @@ public class GhostController : PlayerControllerCore
     {
         yield return new WaitForSeconds(_duration);
         m_isSprinting = false;
-        PurrLogger.Log("Sprint End", this);
+        
+        if (InstanceHandler.TryGetInstance(out GhostHUDView  ghostHUDView))
+            ghostHUDView.ShowMessage("Sprint End");
+        
         StartCoroutine(SprintCoolingDown());
     }
     
@@ -258,8 +272,11 @@ public class GhostController : PlayerControllerCore
      */
     private IEnumerator SprintCoolingDown()
     {
+        if (InstanceHandler.TryGetInstance(out GhostHUDView  ghostHUDView))
+            ghostHUDView.StartSprintCooldown(m_sprintCooldown);
+        
         yield return new WaitForSeconds(m_sprintCooldown);
-        PurrLogger.Log("Sprint Cooldown End", this);
+        
         m_canSprint = true;
     }
 
