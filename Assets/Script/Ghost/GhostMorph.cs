@@ -60,6 +60,8 @@ public class GhostMorph : NetworkBehaviour
     {
         m_playerCollider.enabled = false;
         m_mesh.SetActive(false);
+        InteractPromptUI.m_Instance.Hide();
+        
 
         m_currentPrefab = UnityProxy.InstantiateDirectly(_prefab, transform);
         m_currentPrefab.transform.localPosition = _position;
@@ -76,7 +78,7 @@ public class GhostMorph : NetworkBehaviour
         {
             return;
         }
-
+        InteractPromptUI.m_Instance.Hide();
         m_isMorphed = false;
         DestroyForAll();
     }

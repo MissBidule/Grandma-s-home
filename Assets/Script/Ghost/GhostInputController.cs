@@ -20,6 +20,8 @@ public class GhostInputController : MonoBehaviour
 
     private bool isOwner => m_ghostClientController != null && m_ghostClientController.isOwner;
 
+    [SerializeField] private string m_promptMessageValid = "E : Valid";
+
     /*
      * @brief Awake is called when the script instance is being loaded
      * Gets the PlayerController component.
@@ -69,6 +71,7 @@ public class GhostInputController : MonoBehaviour
         if (_context.performed)
         {
             m_ghostClientController.OnScan();
+            InteractPromptUI.m_Instance.Show(m_promptMessageValid);
         }
     }
 
@@ -96,7 +99,10 @@ public class GhostInputController : MonoBehaviour
         if (!isOwner) return;
         if (_context.performed)
         {
+            
+            
             m_ghostClientController.OnMorph();
+
         }
     }
 
