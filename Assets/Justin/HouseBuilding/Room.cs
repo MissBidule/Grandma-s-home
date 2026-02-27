@@ -24,6 +24,8 @@ public class Room : MonoBehaviour
             var randomIndex = Random.Range(0, m_mediumPropsAnchors.Count);
             (m_mediumPropsAnchors[i], m_mediumPropsAnchors[randomIndex]) = (m_mediumPropsAnchors[randomIndex], m_mediumPropsAnchors[i]);
         }
+        
+        // Initialize the given proportion of the room props
 
         for (var index = 0; index < m_smallPropsAnchors.Count * _smallPropsPercentage; index++)
         {
