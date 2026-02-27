@@ -32,6 +32,7 @@ public class ChildController : PlayerControllerCore
     {
         base.OnSpawned();
         m_rigidbody = GetComponent<Rigidbody>();
+
         if (!isServer) return;
         m_lastShot = m_cdGun;
         m_switchingTime = m_cdSwitch;
@@ -50,7 +51,6 @@ public class ChildController : PlayerControllerCore
         
 
         transform.rotation = Quaternion.Euler(0, m_cameraYaw, 0);
-
 
 
 
