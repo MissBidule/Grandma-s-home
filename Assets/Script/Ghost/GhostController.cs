@@ -1,34 +1,28 @@
 ﻿using PurrNet;
-using PurrNet.Logging;
-using Script.UI.Views;
-using System.Collections;
-using UI;
+using System;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 /**
 @brief       Controller for the Ghost character
 @details     Handles movement, rotation and wall climbing
 */
-public class GhostController : PlayerControllerCore
+public class GhostController : PlayerControllerCore, IInteractable
 {
+    // Network Variables
+    [NonSerialized] public Vector3 m_wishDir;
+    public bool m_isSlowed = false;
+    public bool m_isSprinting = false;
+    public bool m_isStopped = false;
+
+
     [Header("Ghost references")]
-    private GhostInputController m_ghostInputController;
     private GhostMorph m_ghostMorph;
 
-    public bool m_isSlowed = false;
-    public bool m_isStopped = false;
-    private bool m_isSprinting = false;
-    private bool m_canSprint = true;
-    public float m_timerSlowed = 5f;
-    public float m_timerStop = 5f;
-    public float m_currentTimerSlowed = 5f;
-    public float m_currentTimerStop = 5f;
-
-    [Header("Canva")]
-    public GameObject m_stoppedLabel;
-    public GameObject m_slowedLabel;
-
+    [Header("Status Timers")]
+    [SerializeField] private float m_timerSlowed;
+    [SerializeField] private float m_timerStop;
+    private float m_currentTimerSlowed;
+    private float m_currentTimerStop;
 
     [Header("Movement")]
     [SerializeField] private float m_walkSpeed = 4f;
@@ -44,7 +38,10 @@ public class GhostController : PlayerControllerCore
 
     [Header("Auto Climb")]
     [SerializeField] private float m_climbSpeed = 3.5f;
-    [SerializeField] private float m_wallNormalMaxY = 0.4f;
+    [SerializeField] private float m_climbCheckDistance = 0.6f;
+    [SerializeField] private float m_wallNormalMaxY = 0.4f; 
+    [SerializeField] private float m_raycastHeightOffset = 0.5f;
+    [SerializeField] private LayerMask m_climbableLayerMask = ~0;
 
     private Rigidbody m_rigidbody;
 
@@ -53,125 +50,52 @@ public class GhostController : PlayerControllerCore
 
     private float m_speedModifier = 1f;
 
-    private CameraEffect m_cameraEffect;
-    private bool m_wasDead = false;
+
+    // -------------------------------------------
+    // --- Everything Down Here is Server-Side ---
+    // ---  And should be checked by isServer  ---
+    // -------------------------------------------
 
     protected override void OnSpawned()
     {
         base.OnSpawned();
 
-        enabled = isOwner;
-
-        if (!isOwner)
-            return;
-        
-        if (InstanceHandler.TryGetInstance(out UIsManager uisManager))
-            uisManager.ShowView<GhostHUDView>(false);
-    }
-
-    private void Start()
-    {
+        if (!isServer) return;
         m_rigidbody = GetComponent<Rigidbody>();
-        m_ghostInputController = GetComponent<GhostInputController>();
         m_ghostMorph = GetComponent<GhostMorph>();
 
-        if (m_playerCamera != null)
-            m_cameraEffect = m_playerCamera.GetComponent<CameraEffect>();
     }
 
-    /**
-    @brief      Update timers and movement modifiers
-    */
     private void Update()
     {
-        if (m_isStopped)
-        {
-            m_rigidbody.constraints = RigidbodyConstraints.FreezeAll;
-            m_currentTimerStop -= Time.deltaTime;
-            m_slowedLabel.SetActive(false);
-            if (m_currentTimerStop <= 0f)
-            {
-                m_rigidbody.constraints = RigidbodyConstraints.None; 
-                m_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
-                m_isStopped = false;
-                m_stoppedLabel.SetActive(false);
-            }
-        }
-        else if (m_isSlowed)
-        {
-            m_currentTimerSlowed -= Time.deltaTime;
-            if (m_currentTimerSlowed <= 0f)
-            {
-                m_isSlowed = false;
-                m_slowedLabel.SetActive(false);
-            }
-        }
-        
-        // Doing it not in one line might help clarity but eh
-        m_speedModifier = m_isStopped ? 0f : m_isSlowed ? m_slowAmplitude : m_isSprinting ? m_sprintAmplitude : 1.0f;  
-        
-        // Old code commented just in case. The new one should do things better (less var assignment & sprint)
-        //m_speedModifier = m_isSlowed ? 0.5f : 1f;
-        //m_speedModifier = m_isStopped ? 0f : m_speedModifier;
+        if (!isServer) return;
+     
+        UpdateTimers();
 
-        bool isDead = m_isStopped;
-        if (isDead != m_wasDead)
-        {
-            m_cameraEffect?.SetDeathEffect(isDead);
-            m_wasDead = isDead;
-        }
+        SetSpeedModifier();
 
-        if (m_ghostInputController.m_movementInputVector != Vector2.zero)
+        // Casting to Vector2 to ignore falling movement
+        if ((Vector2)m_wishDir != Vector2.zero)
         {
             m_ghostMorph.RevertToOriginal();
         }
     }
 
     /**
-    @brief      Check if the ghost is grounded
-    @return     True if a surface is detected below the character
-    */
-    public bool IsGrounded()
-    {
-        if (m_rigidbody == null) return false;
-
-        if (Physics.Raycast(transform.position, Vector3.down, out _, 1.0f))
-            return true;
-
-        return false;
-    }
-
-    /**
     @brief      Physics update handling movement and climbing
-    @details    Applies camera-relative movement, rotation and automatic climbing
-                when colliding with a wal
+    @details    Applies camera-relative movement, rotation and automatic climbing when facing a wall
     */
     private void FixedUpdate()
     {
-        if (m_rigidbody == null) return;
-        if (m_ghostInputController == null) return;
-        if (m_playerCamera == null) return;
+        if (!isServer) return;
+        if (m_isStopped) return;
 
-        Transform cam = m_playerCamera.transform;
-
-        Vector3 forward = cam.forward;
-        Vector3 right = cam.right;
-
-        forward.y = 0f;
-        right.y = 0f;
-
-        forward.Normalize();
-        right.Normalize();
-
-        Vector2 movementInput = m_ghostInputController.m_movementInputVector;
-
-        Vector3 wishDir = Vector3.zero;
-        if (movementInput.sqrMagnitude > 0.0001f)
-            wishDir = (forward * movementInput.y + right * movementInput.x).normalized;
-
-        if (wishDir.sqrMagnitude > 0.0001f && !m_isStopped && !m_rigidbody.constraints.HasFlag(RigidbodyConstraints.FreezeRotationY))
-        {            
-            Quaternion targetRotation = Quaternion.LookRotation(wishDir, Vector3.up);
+        if (m_wishDir.sqrMagnitude > 0.0001f
+            && !m_isStopped
+            && !m_rigidbody.constraints.HasFlag(RigidbodyConstraints.FreezeRotationY)
+        )
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(m_wishDir, Vector3.up);
 
             m_rigidbody.MoveRotation(
                 Quaternion.Slerp(
@@ -180,12 +104,15 @@ public class GhostController : PlayerControllerCore
                     m_rotationSpeed * Time.fixedDeltaTime
                 )
             );
-            
         }
 
-        if (!m_isStopped &&
-            m_canClimbThisFrame &&
-            wishDir.sqrMagnitude > 0.0001f)
+        if (CheckForClimbableWall())
+        {
+            m_canClimbThisFrame = true;
+        }
+
+        if (m_canClimbThisFrame &&
+            m_wishDir.sqrMagnitude > 0.0001f)
         {
             Vector3 vel = m_rigidbody.linearVelocity;
 
@@ -198,7 +125,7 @@ public class GhostController : PlayerControllerCore
             return;
         }
 
-        Vector3 targetVel = wishDir * m_walkSpeed * m_speedModifier;
+        Vector3 targetVel = m_speedModifier * m_walkSpeed * m_wishDir;
 
         Vector3 currentVel = m_rigidbody.linearVelocity;
         Vector3 currentHorizontal = new Vector3(currentVel.x, 0f, currentVel.z);
@@ -211,23 +138,68 @@ public class GhostController : PlayerControllerCore
         ResetClimbFlags();
     }
 
-    /**
-    @brief      Detect climbable wall during collision
-    */
-    private void OnCollisionStay(Collision _collision)
+    void UpdateTimers()
     {
-        for (int i = 0; i < _collision.contactCount; i++)
+        if (m_isStopped)
         {
-            Vector3 normal = _collision.GetContact(i).normal;
-
-            if (normal.y <= m_wallNormalMaxY)
+            m_rigidbody.constraints = RigidbodyConstraints.FreezeAll;
+            m_currentTimerStop -= Time.deltaTime;
+            if (m_currentTimerStop <= 0f)
             {
-                m_canClimbThisFrame = true;
-                m_wallNormal = normal;
-                return;
+                m_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+                RemoveStopToAll();
+            }
+        }
+        
+        if (m_isSlowed)
+        {
+            m_currentTimerSlowed -= Time.deltaTime;
+            if (m_currentTimerSlowed <= 0f)
+            {
+                RemoveSlowToAll();
             }
         }
     }
+
+    void SetSpeedModifier()
+    {
+        m_speedModifier = 1f;
+        if (m_isSlowed) m_speedModifier *= m_slowAmplitude;
+        if (m_isDashing) m_speedModifier *= m_sprintAmplitude; 
+        // Place between those lines the speedModifier change for when the player will "dash" / "sprint"
+        if (m_isStopped) m_speedModifier = 0f;
+    }
+
+    /**
+    @brief      Check if the ghost is grounded
+    @return     True if a surface is detected below the character
+    */
+    public bool IsGrounded()
+    {
+        return Physics.Raycast(transform.position, Vector3.down, out _, 1.0f);
+    }
+
+    /**
+    @brief      Check for climbable wall in front of the player using raycast
+    @return     True if a climbable wall is detected
+    */
+    private bool CheckForClimbableWall()
+    {
+        Vector3 rayOrigin = transform.position + Vector3.up * m_raycastHeightOffset;
+        Vector3 rayDirection = transform.forward;
+
+        if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, m_climbCheckDistance, m_climbableLayerMask))
+        {
+            if (hit.normal.y <= m_wallNormalMaxY)
+            {
+                m_wallNormal = hit.normal;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    
 
     /**
     @brief      Reset climb flags
@@ -237,10 +209,84 @@ public class GhostController : PlayerControllerCore
         m_canClimbThisFrame = false;
         m_wallNormal = Vector3.zero;
     }
-    
+
     /**
-     * @brief   Activate Sprint speed modifier and Start duration Timer
-     */
+    @brief      Apply slow effect from projectile hit
+    */
+    public void HitRanged()
+    {
+        if (!isServer) return;
+        ApplySlowToAll();
+        m_currentTimerSlowed = m_timerSlowed;
+    }
+
+    [ObserversRpc(runLocally:true)]
+    public void ApplySlowToAll()
+    {
+        m_isSlowed = true;
+    }
+
+    [ObserversRpc(runLocally:true)]
+    public void RemoveSlowToAll()
+    {
+        m_isSlowed = false;
+    }
+
+    /**
+    @brief      Apply stop effect from close combat hit
+    */
+    public void HitCac()
+    {
+        if (!isServer) return;
+        ApplyStopToAll();
+        m_currentTimerStop = m_timerStop;
+    }
+
+    [ObserversRpc(runLocally:true)]
+    public void ApplyStopToAll()
+    {
+        m_isStopped = true;
+    }
+
+    [ObserversRpc(runLocally:true)]
+    public void RemoveStopToAll()
+    {
+        m_isStopped = false;
+    }
+
+
+    public void OnInteract(GhostInteract _who)
+    {
+        if (!isServer) return;
+        ResetStoppedRPC();
+    }
+
+    public void OnStopInteract(GhostInteract _who)
+    {
+        // Do nothing
+    }
+
+    [ServerRpc]
+    private void ResetStoppedRPC()
+    {
+        m_isStopped = false;
+        m_currentTimerStop = 0f;
+    }
+
+    public void OnFocus(GhostInteract who)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void OnUnfocus(GhostInteract who)
+    {
+        throw new NotImplementedException();
+    }
+    
+    
+    // Sprint Code to Move
+    /*
+     
     public void StartSprint()
     {
         if (!m_canSprint) return;
@@ -253,9 +299,6 @@ public class GhostController : PlayerControllerCore
         StartCoroutine(SprintDuration(m_sprintDuration));
     }
 
-    /**
-     * @brief   Sprint Duration Timer.
-     */
     private IEnumerator SprintDuration(float _duration)
     {
         yield return new WaitForSeconds(_duration);
@@ -267,9 +310,6 @@ public class GhostController : PlayerControllerCore
         StartCoroutine(SprintCoolingDown());
     }
     
-    /**
-     * @brief   Sprint Cooldown Timer.
-     */
     private IEnumerator SprintCoolingDown()
     {
         if (InstanceHandler.TryGetInstance(out GhostHUDView  ghostHUDView))
@@ -279,5 +319,5 @@ public class GhostController : PlayerControllerCore
         
         m_canSprint = true;
     }
-
+    */
 }

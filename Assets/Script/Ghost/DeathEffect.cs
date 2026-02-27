@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
-public class CameraEffect : MonoBehaviour
+public class DeathEffect : MonoBehaviour
 {
     private Volume volume;
     private ColorAdjustments colorAdjustments;
