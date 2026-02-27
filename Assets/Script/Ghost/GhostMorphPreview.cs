@@ -127,7 +127,7 @@ public class GhostMorphPreview : NetworkBehaviour
         if (prefabRenderer != null)
         {
             m_meshRenderer.sharedMaterials = prefabRenderer.sharedMaterials;
-            Debug.Log("ok");
+            
             InteractPromptUI.m_Instance.Show(m_promptMessageValid);
             m_save =true;
 
@@ -281,7 +281,7 @@ public class GhostMorphPreview : NetworkBehaviour
                 {
                     if(!GetComponentInParent<GhostMorph>().m_isMorphed)
                     {
-                        Debug.Log(hitObject.gameObject.name);
+                       // There is a clone...
                     InteractPromptUI.m_Instance.Show(m_promptMessageSCAN);
                     }
                     ClearHighlight();
@@ -291,12 +291,9 @@ public class GhostMorphPreview : NetworkBehaviour
             }
             else
             {
-                Debug.Log("L");
+               
                 ClearHighlight();
-                if(m_save != true){
-                InteractPromptUI.m_Instance.Hide();
-                Debug.Log("e");
-                }
+                
               
             }
         }
@@ -305,14 +302,11 @@ public class GhostMorphPreview : NetworkBehaviour
              
             ClearHighlight();
             InteractPromptUI.m_Instance.Hide();
+
             
-            if(m_save != true){
-            InteractPromptUI.m_Instance.Hide();
-            Debug.Log("e");
-            }
             if(m_save == true){
             InteractPromptUI.m_Instance.Show(m_promptMessageValid);
-            Debug.Log("what");
+            
             }
             
             

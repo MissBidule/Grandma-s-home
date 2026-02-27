@@ -79,13 +79,12 @@ public class SabotageObject : NetworkBehaviour, IInteractable
             if (!m_isSabotaged)
             {
                 InteractPromptUI.m_Instance.Show(m_promptMessageSABOTE);
-                Debug.Log("il est apparut");
+                
             }
             if (m_isSabotaged)
             {
                 InteractPromptUI.m_Instance.Hide();
-                Debug.Log("il s est cache");
-                Debug.Log("b");
+                
             }
         }
         m_saboteurs.Add(_ghost);
@@ -101,7 +100,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
 
         m_saboteurs.Remove(_ghost);
         InteractPromptUI.m_Instance.Hide();
-        Debug.Log("c");
+        
     
         SetHighlight(false);
         
@@ -140,7 +139,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
 
         //InteractPromptUI.m_Instance.Hide();
         InteractPromptUI.m_Instance.Show(m_promptMessageESPACE);
-        Debug.Log("il doit faire space");
+        
 
 
         m_saboteur = _sabo;
@@ -162,7 +161,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         if (_success)
         {
             InteractPromptUI.m_Instance.Hide();
-            Debug.Log("a");
+            
             SabotageRPC();
             
             m_saboteur = null;

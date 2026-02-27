@@ -127,7 +127,7 @@ public class GhostClientController : NetworkBehaviour
 
         morphPressed = true;
         InteractPromptUI.m_Instance.Hide();
-        Debug.Log("d");
+        
 
     }
 
