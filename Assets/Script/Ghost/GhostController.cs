@@ -19,7 +19,7 @@ public class GhostController : PlayerControllerCore, IInteractable
 
     [Header("Status Timers")]
     [SerializeField] private float m_timerSlowed;
-    [SerializeField] private float m_timerStop;
+    public float m_timerStop;
     private float m_currentTimerSlowed;
     private float m_currentTimerStop;
 
@@ -43,6 +43,7 @@ public class GhostController : PlayerControllerCore, IInteractable
     private Vector3 m_wallNormal;
 
     private float m_speedModifier = 1f;
+    private GhostDeathIndicator m_deathIndicator;
 
 
     // -------------------------------------------
@@ -57,6 +58,7 @@ public class GhostController : PlayerControllerCore, IInteractable
         if (!isServer) return;
         m_rigidbody = GetComponent<Rigidbody>();
         m_ghostMorph = GetComponent<GhostMorph>();
+        m_deathIndicator = GetComponent<GhostDeathIndicator>();
 
     }
 
@@ -233,6 +235,8 @@ public class GhostController : PlayerControllerCore, IInteractable
         if (!isServer) return;
         ApplyStopToAll();
         m_currentTimerStop = m_timerStop;
+        if (m_deathIndicator != null)
+            m_deathIndicator.OnGhostDied();
     }
 
     [ObserversRpc(runLocally:true)]

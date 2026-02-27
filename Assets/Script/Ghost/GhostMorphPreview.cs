@@ -355,7 +355,7 @@ public class GhostMorphPreview : NetworkBehaviour
      * @brief Clears the current highlight by restoring the original materials
      * @return void
      */
-    private void ClearHighlight()
+    public void ClearHighlight()
     {
         if (m_currentHighlightedObject != null)
         {

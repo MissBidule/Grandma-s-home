@@ -1,3 +1,4 @@
+using PurrNet;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,7 +8,7 @@ using UnityEngine.UI;
              Attach to the Ghost prefab alongside GhostController.
              Requires a child Canvas (World Space) with an Image as the indicator.
 */
-public class GhostDeathIndicator : MonoBehaviour
+public class GhostDeathIndicator : NetworkBehaviour
 {
     [Header("References")]
     [SerializeField] private Canvas m_indicatorCanvas;
@@ -18,6 +19,15 @@ public class GhostDeathIndicator : MonoBehaviour
     private float m_deathTimer;
     private bool m_isDying;
     private Transform m_cameraTransform;
+    private 
+
+
+    protected override void OnSpawned()
+    {
+        base.OnSpawned();
+        
+    }
+
 
     private void Start()
     {
@@ -47,7 +57,6 @@ public class GhostDeathIndicator : MonoBehaviour
     {
         if (!m_initialized)
         {
-            GameObject localPlayer = GameObject.FindWithTag("Player");
             if (localPlayer != null)
             {
                 m_isLocalPlayerGhost = localPlayer.GetComponent<GhostController>() != null;

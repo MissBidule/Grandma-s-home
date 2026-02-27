@@ -124,6 +124,7 @@ public class GhostClientController : NetworkBehaviour
         if (m_wheel.IsWheelOpen()) m_wheel.Toggle();
 
         m_wheel.ClearSelection();
+        m_ghostMorphPreview.ClearHighlight();
 
         morphPressed = true;
 
