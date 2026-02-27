@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 789027138663167752}
   - component: {fileID: 7633499938314106427}
   - component: {fileID: 3021170015786929515}
+  - component: {fileID: 6430208566435160159}
   - component: {fileID: 7768122281030254856}
   - component: {fileID: 4070617992133892133}
   - component: {fileID: 644141223156931177}
@@ -56,7 +57,7 @@ MonoBehaviour:
   _transport: {fileID: 3021170015786929515}
   _networkPrefabs: {fileID: 11400000, guid: 5726c24b19a0f47df8d40d3a49706c25, type: 2}
   _networkAssets: {fileID: 11400000, guid: faf0989f52e5ba84985e8c9b97fcd3d1, type: 2}
-  _networkRules: {fileID: 11400000, guid: d8799083b96579a42b8b2d03e4ceae98, type: 2}
+  _networkRules: {fileID: 11400000, guid: 57ad4cc976c21074181652c4f7179d44, type: 2}
   _visibilityRules: {fileID: 11400000, guid: 8f014a5bd8dc68646a2a3c0b18c5bbd8, type: 2}
   _authenticator: {fileID: 0}
   _tickRate: 20
@@ -80,6 +81,30 @@ MonoBehaviour:
   _address: 127.0.0.1
   _timeoutInSeconds: 5
   _pollEventsInUpdate: 0
+--- !u!114 &6430208566435160159
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6883493468967853042}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 088a9d42c84754aed9c112d52871a9dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PurrNet.SpawnerManager
+  childPrefab: {fileID: 0}
+  m_childPrefab: {fileID: 2220852981099475913, guid: ee7beb71280d04a86ad95d7c94c5add9, type: 3}
+  m_childSpawnPoints:
+  - {fileID: 0}
+  - {fileID: 0}
+  ghostPrefab: {fileID: 0}
+  m_ghostPrefab: {fileID: 919132149155446097, guid: b4fec74994de0094883aeea53d778ca6, type: 3}
+  m_ghostSpawnPoints:
+  - {fileID: 0}
+  - {fileID: 0}
+  m_ignoreNetworkRules: 0
+  ghostSpawn: 1
 --- !u!114 &7768122281030254856
 MonoBehaviour:
   m_ObjectHideFlags: 0

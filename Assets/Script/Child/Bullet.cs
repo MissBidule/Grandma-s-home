@@ -25,47 +25,42 @@ public class Bullet : NetworkBehaviour
     [Header("Slime")]      
     [SerializeField] private float m_offsetFromSurface = 0.01f;
     [SerializeField] private GameObject m_slimePrefab;
-
     
-    //private static Dictionary<Collider, GameObject> m_slimeOnCollider = new Dictionary<Collider, GameObject>();
+    [SerializeField] float m_impactTimeBeforeDespawn = 1f;
 
-    protected override void OnSpawned()
-    {
-        //to init those var that keep bugging
-        m_currentLife = m_lifeTime;
-        base.OnSpawned();
-    }
+    public bool m_amIServerSide = false; 
 
-    void Awake()
+    void Start()
     {
-        //for the pool made by purrnet
-        m_currentLife = m_lifeTime;
+        Destroy(gameObject, m_lifeTime);
     }
 
     void Update()
     {
-        transform.position += transform.forward * m_speed * Time.deltaTime;
-
-        m_currentLife -= Time.deltaTime;
-        if (m_currentLife <= 0f)
-        {
-            Debug.Log("dead");
-            Destroy(gameObject);
-        }
+        transform.position += m_speed * Time.deltaTime * transform.forward;
     }
 
     /**
     * @brief  This function allows you to show or hide a Decal and define for how long.
     * 
-    * If the ball hits a Collider that has a "Wall" tag, The Slime Decal appears for the duration "timeSlimeWall" before disappearing., then the ball.
+    * If the ball hits, The Slime ppears for the duration "timeSlimeWall" before disappearing.
     */
     private void OnTriggerEnter(Collider _other)
     {
-        float size = 1.5f;
-        float timeSlimeWall = 1f;
+        if (_other.transform.parent) 
+        {
+            if (_other.transform.parent.gameObject.layer == LayerMask.NameToLayer("Ghost"))
+            {
+                var ghost = _other.transform.parent.gameObject.GetComponent<GhostMorph>();
+                if (ghost != null)
+                {   
+                    ghost.RevertToOriginal();
+                }
+            }
+        }
 
 
-        // We check if the collider is a ghost player by checking if it has the GhostMovement component
+        // We check if the collider is a ghost player by checking if it has the GhostController component
         GameObject gameobject = _other.gameObject;
         if (gameObject != null) {
             if (_other.CompareTag("Player") && gameobject.layer == LayerMask.NameToLayer("Child"))
@@ -75,20 +70,21 @@ public class Bullet : NetworkBehaviour
 
             if (gameobject.layer == LayerMask.NameToLayer("Ghost"))
             {
-                var ghost = gameobject.GetComponent<GhostStatus>();
+                var ghost = gameobject.GetComponent<GhostController>();
                 if (ghost != null)
-                {   
-                    if (isServer) ghost.GotHitByProjectile();
+                {
+                    if (m_amIServerSide) // Only calling HitRanged on the server side
+                    {
+                        ghost.HitRanged();
+                    }
                 }
             }
-            //Use if needed, to check that we only have one slime
-            //m_slimeOnCollider[_other] = slime;
-            GameObject slime = SpawnSlimePrefab(_other, size);
-            //prevents from skipping the hit on other clients
-            Destroy(slime, timeSlimeWall);
+            else
+            {
+                SpawnSlimePrefab(_other);
+            }
         }
-        gameObject.SetActive(false);
-        Destroy(gameObject, timeSlimeWall);
+        Destroy(gameObject);
     }
 
     /**
@@ -100,18 +96,18 @@ public class Bullet : NetworkBehaviour
     *
     * @return Returns the instance
     */
-    GameObject SpawnSlimePrefab(Collider _target, float _size)
+    void SpawnSlimePrefab(Collider _target)
     {
         Vector3 spawnPos = _target.ClosestPoint(transform.position);
-
         spawnPos.z -= 0.3f;
         spawnPos.y += m_offsetFromSurface;
+        SpawnForAll(spawnPos);
+    }
 
-        GameObject slime = Instantiate(m_slimePrefab, spawnPos, Quaternion.Euler(0, 0, 1));
-
-        slime.transform.localScale = Vector3.one * _size;
-
-        slime.transform.SetParent(_target.transform);
-        return slime;
+    [ObserversRpc(runLocally:true)]
+    void SpawnForAll(Vector3 _spawnPos)
+    {
+        GameObject slime = UnityProxy.InstantiateDirectly(m_slimePrefab, _spawnPos, Quaternion.Euler(0, 0, 1));
+        Destroy(slime, m_impactTimeBeforeDespawn);
     }
 }

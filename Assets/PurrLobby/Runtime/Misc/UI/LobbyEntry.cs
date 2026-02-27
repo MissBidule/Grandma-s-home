@@ -17,6 +17,8 @@ namespace PurrLobby
             playersText.text = $"{room.Members.Count}/{room.MaxPlayers}";
             _room = room;
             _lobbyManager = lobbyManager;
+            //WHEN LEAVE GO BACK PROBLEM
+            //TODO
         }
 
         public void OnClick()

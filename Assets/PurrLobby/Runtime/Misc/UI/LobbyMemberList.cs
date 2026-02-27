@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using PurrNet.Logging;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace PurrLobby
 {
@@ -9,6 +10,13 @@ namespace PurrLobby
     {
         [SerializeField] private MemberEntry memberEntryPrefab;
         [SerializeField] private Transform content;
+        [SerializeField] private Button readyButton;
+        private RoleKeeper m_roleKeeper;
+
+        void Start()
+        {
+            m_roleKeeper = FindAnyObjectByType<RoleKeeper>();  
+        }
 
         public void LobbyDataUpdate(Lobby room)
         {
@@ -22,6 +30,7 @@ namespace PurrLobby
 
         public void OnLobbyLeave()
         {
+            m_roleKeeper.DeleteList();
             foreach (Transform child in content)
                 Destroy(child.gameObject);
         }
@@ -37,11 +46,12 @@ namespace PurrLobby
                 if (!string.IsNullOrEmpty(matchingMember.Id))
                 {
                     member.SetReady(matchingMember.IsReady);
+                    member.SetRole(matchingMember.IsGhost);
                 }
             }
         }
 
-        private void HandleNewMembers(Lobby room)
+        private async void HandleNewMembers(Lobby room)
         {
             var existingMembers = content.GetComponentsInChildren<MemberEntry>();
     
@@ -51,7 +61,10 @@ namespace PurrLobby
                     continue;
 
                 var entry = Instantiate(memberEntryPrefab, content);
-                entry.Init(member);
+                entry.readyButton = readyButton;
+                await entry.Init(member);
+                string ownId = await FindAnyObjectByType<LobbyManager>().GetPlayer();
+                m_roleKeeper.AddRole(entry.MemberId, entry._isGhost, ownId == entry.MemberId);
             }
         }
 
@@ -67,6 +80,7 @@ namespace PurrLobby
 
                 if (!room.Members.Exists(x => x.Id == member.MemberId))
                 {
+                    m_roleKeeper.RemoveRole(member.MemberId);
                     childrenToRemove.Add(child);
                 }
             }
@@ -76,6 +90,5 @@ namespace PurrLobby
                 Destroy(child.gameObject);
             }
         }
-
     }
 }
