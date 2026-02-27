@@ -6,6 +6,8 @@ using PurrNet.Modules;
 using PurrLobby;
 using System;
 using PurrNet.Transports;
+using Script.UI.Views;
+using UI;
 
 /*
  * @brief  Contains class declaration for the state PlayerSpawningState
@@ -84,10 +86,9 @@ public class PlayerSpawningState : StateNode
     [ObserversRpc]
     void DisableWaitInterface()
     {
-        if (InstanceHandler.TryGetInstance(out DisableWaitOnStart disableWaitOnStart))
-        {
-            disableWaitOnStart.DisableWaitInterface();
-        }
+        if (!InstanceHandler.TryGetInstance(out UIsManager uisManager))
+            return;
+        uisManager.HideView<WaitForPlayerView>();
     }
     
     private void DespawnPlayers()

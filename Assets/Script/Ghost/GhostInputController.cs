@@ -119,16 +119,16 @@ public class GhostInputController : MonoBehaviour
     
     
     /*
-     * @brief OnSprint is called by the Input System when Sprint input is detected
+     * @brief OnDash is called by the Input System when dash input is detected
      * @param _context: The context of the input action
      * @return void
      */
-    public void OnSprint(InputAction.CallbackContext _context)
+    public void OnDash(InputAction.CallbackContext _context)
     {
+        if (!isOwner) return;
         if (_context.performed)
         {
-            PurrLogger.Log("Sprint Input", this);
-            m_ghostController.StartSprint();
+            m_ghostClientController.OnDash();
         }
     }
     
@@ -139,9 +139,9 @@ public class GhostInputController : MonoBehaviour
      */
     public void OnHint(InputAction.CallbackContext _context)
     {
+        if (!isOwner) return;
         if (_context.performed)
         {
-            PurrLogger.Log("Hint Input", this);
             if (!InstanceHandler.TryGetInstance(out UIsManager uisManager))
                 return;
             

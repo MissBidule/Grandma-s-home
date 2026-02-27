@@ -1,4 +1,7 @@
+using System.Collections;
 using PurrNet;
+using Script.UI.Views;
+using UI;
 using Unity.Cinemachine;
 using UnityEngine;
 
@@ -25,6 +28,7 @@ public class GhostClientController : NetworkBehaviour
     public GameObject randomPrefab;
 
     private bool morphPressed = false;
+    private bool dashPressed = false;
 
     protected override void OnSpawned()
     {
@@ -44,6 +48,9 @@ public class GhostClientController : NetworkBehaviour
         m_cameraEffect = m_playerCamera.GetComponent<DeathEffect>();
 
         m_wheel.LinkWithGhost(this);
+        
+        if (InstanceHandler.TryGetInstance(out UIsManager  uisManager))
+            uisManager.ShowView<GhostHUDView>();
     }
     void Update()
     {
@@ -64,12 +71,16 @@ public class GhostClientController : NetworkBehaviour
         SendGhostRPC(
             GetDirectionIntention(m_ghostInputController.m_movementInputVector),
             morphPressed ? m_ghostMorphPreview.m_currentPrefab : null,                  // Morph Parameters
-            m_ghostMorphPreview.transform.localPosition                                 // Morph Parameters
+            m_ghostMorphPreview.transform.localPosition,                                 // Morph Parameters
+            dashPressed
         );
 
         // Reset values after sending to server
         if (morphPressed) m_ghostMorphPreview.HidePreview();
         morphPressed = false;
+        
+        // Dash 
+        dashPressed = false;
     }
 
     void DebugPrintTrafic()
@@ -101,6 +112,20 @@ public class GhostClientController : NetworkBehaviour
         {
             if (m_slowedLabel.activeSelf) m_slowedLabel.SetActive(false);
         }
+
+        if (m_ghostController.m_isDashing)
+        {
+            if (InstanceHandler.TryGetInstance(out GhostHUDView  ghostHUDView)) 
+                ghostHUDView.DashActivate();
+        }
+
+        if (m_ghostController.m_dashDisabled)
+        {
+            if (InstanceHandler.TryGetInstance(out GhostHUDView ghostHUDView))
+            {
+                ghostHUDView.DashDisabled();
+            }
+        }
     }
 
 
@@ -129,6 +154,14 @@ public class GhostClientController : NetworkBehaviour
 
     }
 
+    /*
+     * @brief call the server to dash
+     */
+    public void OnDash()
+    {
+        dashPressed = true;
+    }
+
     /**
      * From Input Vector to Movement Intention, based on camera placement.
      */
@@ -153,11 +186,16 @@ public class GhostClientController : NetworkBehaviour
     }
 
     [ServerRpc]
-    private void SendGhostRPC(Vector3 _movement, GameObject _prefab, Vector3 _pos)
+    private void SendGhostRPC(Vector3 _movement, GameObject _prefab, Vector3 _pos, bool _dashPressed)
     {
         m_ghostController.m_wishDir = _movement;
         // Prefab is not null only when morphPressed is true.
         // This method helps reduce the network traffic by not sending that bool "morphPressed"
         if (_prefab) m_ghostMorph.Morphing(_prefab, _pos);
+        
+        if (_dashPressed)
+        {
+            m_ghostController.StartDash();
+        }
     }
 }

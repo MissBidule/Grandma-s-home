@@ -12,8 +12,8 @@ namespace Script.UI.Views
         [Header("HUD Parameters")]
         [SerializeField] private TMP_Text m_hudMessage;
         [SerializeField] private GameObject m_hudMessagePanel;
-        [SerializeField] private Image m_sprintIcon;
-        [SerializeField] private Image m_sprintCooldownOverlay;
+        [SerializeField] private Image m_dashIcon;
+        [SerializeField] private Image m_dashCooldownOverlay;
         
         
         private void Awake()
@@ -40,27 +40,35 @@ namespace Script.UI.Views
             m_hudMessage.text = "";
         }
 
-        public void SprintActivate()
+        public void DashActivate()
         {
-            if (m_sprintIcon.TryGetComponent(out Image sprintIcon))
-                sprintIcon.color = Color.red;
-            ShowMessage("Sprint Start");
+            if (m_dashIcon.TryGetComponent(out Image dashIcon))
+                dashIcon.color = Color.red;
+            ShowMessage("Dash Start");
+        }
+        
+        public void DashDisabled()
+        {
+            if (m_dashIcon.TryGetComponent(out Image dashIcon))
+                dashIcon.color = Color.white;
+            ShowMessage("Dash End");
+            m_dashCooldownOverlay.fillAmount = 1f;
         }
 
         /*
-         * @brief Start the cooldown effect of the sprint thing
+         * @brief Start the cooldown effect of the dash thing
          * @param the time in seconds
          */
-        public void StartSprintCooldown(float _time)
+        public void StartDashCooldown(float _time)
         {
-            if (m_sprintIcon.TryGetComponent(out Image sprintIcon))
-                sprintIcon.color = Color.white;
+            if (m_dashIcon.TryGetComponent(out Image dashIcon))
+                dashIcon.color = Color.white;
             
-            m_sprintCooldownOverlay.fillAmount = 1f;
-            StartCoroutine(SprintCooldown(_time));
+            m_dashCooldownOverlay.fillAmount = 1f;
+            StartCoroutine(DashCooldown(_time));
         }
 
-        private IEnumerator SprintCooldown(float _timer)
+        private IEnumerator DashCooldown(float _timer)
         {
             float elapsed = 0f;
             float startFill = 1.0f;
@@ -68,13 +76,13 @@ namespace Script.UI.Views
             while (elapsed < _timer)
             {
                 elapsed += Time.deltaTime;
-                m_sprintCooldownOverlay.fillAmount = Mathf.Lerp(startFill, 0f, elapsed / _timer);
+                m_dashCooldownOverlay.fillAmount = Mathf.Lerp(startFill, 0f, elapsed / _timer);
                 yield return null;
             }
             
-            m_sprintCooldownOverlay.fillAmount = 0f;
+            m_dashCooldownOverlay.fillAmount = 0f;
             
-            ShowMessage("Sprint cooled-down");
+            ShowMessage("Dash cooled-down");
         }
     }
 }

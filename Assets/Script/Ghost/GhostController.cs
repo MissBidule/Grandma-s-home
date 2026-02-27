@@ -1,6 +1,8 @@
 ﻿using PurrNet;
 using System;
+using System.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 /**
 @brief       Controller for the Ghost character
@@ -11,8 +13,12 @@ public class GhostController : PlayerControllerCore, IInteractable
     // Network Variables
     [NonSerialized] public Vector3 m_wishDir;
     public bool m_isSlowed = false;
-    public bool m_isSprinting = false;
+    public bool m_isDashing = false;
     public bool m_isStopped = false;
+    
+    private bool m_CanDash = true;
+    public int m_dashCounters = 1;
+    public bool m_dashDisabled = false;
 
 
     [Header("Ghost references")]
@@ -28,9 +34,9 @@ public class GhostController : PlayerControllerCore, IInteractable
     [SerializeField] private float m_walkSpeed = 4f;
     [SerializeField] private float m_acceleration = 25f;
     [SerializeField] private float m_slowAmplitude = 0.5f;
-    [SerializeField] private float m_sprintAmplitude = 1.5f;
-    [SerializeField] [Tooltip("In seconds")] private float m_sprintDuration = 2.5f;
-    [SerializeField] [Tooltip("In seconds")] private float m_sprintCooldown = 30.0f;
+    [SerializeField] private float m_dashAmplitude = 1.5f;
+    [SerializeField] [Tooltip("In seconds")] private float m_dashDuration = 2.5f;
+    [SerializeField] [Tooltip("In seconds")] private float m_dashCooldown = 30.0f;
     
 
     [Header("Rotation")]
@@ -47,6 +53,7 @@ public class GhostController : PlayerControllerCore, IInteractable
 
     private bool m_canClimbThisFrame;
     private Vector3 m_wallNormal;
+    
 
     private float m_speedModifier = 1f;
 
@@ -165,7 +172,7 @@ public class GhostController : PlayerControllerCore, IInteractable
     {
         m_speedModifier = 1f;
         if (m_isSlowed) m_speedModifier *= m_slowAmplitude;
-        if (m_isDashing) m_speedModifier *= m_sprintAmplitude; 
+        if (m_isDashing) m_speedModifier *= m_dashAmplitude; 
         // Place between those lines the speedModifier change for when the player will "dash" / "sprint"
         if (m_isStopped) m_speedModifier = 0f;
     }
@@ -284,40 +291,23 @@ public class GhostController : PlayerControllerCore, IInteractable
     }
     
     
-    // Sprint Code to Move
-    /*
-     
-    public void StartSprint()
+    public void StartDash()
     {
-        if (!m_canSprint) return;
-        m_canSprint = false;
-        m_isSprinting = true;
+        if (!m_CanDash && !m_dashDisabled)
+        {
+            // case when can't dash
+            return;
+        }
+        m_isDashing = true;
+        m_CanDash = false;
         
-        if (InstanceHandler.TryGetInstance(out GhostHUDView  ghostHUDView))
-            ghostHUDView.SprintActivate();
-        
-        StartCoroutine(SprintDuration(m_sprintDuration));
-    }
-
-    private IEnumerator SprintDuration(float _duration)
-    {
-        yield return new WaitForSeconds(_duration);
-        m_isSprinting = false;
-        
-        if (InstanceHandler.TryGetInstance(out GhostHUDView  ghostHUDView))
-            ghostHUDView.ShowMessage("Sprint End");
-        
-        StartCoroutine(SprintCoolingDown());
+        StartCoroutine(DashDuration(m_dashDuration));
     }
     
-    private IEnumerator SprintCoolingDown()
+    private IEnumerator DashDuration(float _duration)
     {
-        if (InstanceHandler.TryGetInstance(out GhostHUDView  ghostHUDView))
-            ghostHUDView.StartSprintCooldown(m_sprintCooldown);
-        
-        yield return new WaitForSeconds(m_sprintCooldown);
-        
-        m_canSprint = true;
+        yield return new WaitForSeconds(_duration);
+        m_isDashing = false;
+        m_dashDisabled = true;
     }
-    */
 }
