@@ -7,6 +7,7 @@ using PurrNet.Transports;
 using UnityEngine;
 using TMPro;
 using UnityEngine.Serialization;
+using PurrNet.StateMachine;
 
 public class CustomConnectedText : MonoBehaviour
 {
@@ -33,6 +34,10 @@ public class CustomConnectedText : MonoBehaviour
             PurrLogger.LogError($"Failed to get {nameof(LobbyDataHolder)} component.", this);
             return;
         }
+
+        string[] messages = m_messageContent.Split("\n");
+        messages[2] = "Currently 0 out of " + m_lobbyDataHolder.GetNumber_of_player_in_lobby();
+        m_playerText.text = messages[2];
 
         m_networkManager.onPlayerJoined += OnPlayerJoined;
     }
@@ -71,7 +76,7 @@ public class CustomConnectedText : MonoBehaviour
     {
         if (!gameObject.activeInHierarchy) 
             return;
-        OnNumberOfPlayersChanged(m_networkManager.playerCount, m_lobbyDataHolder.GetNumber_of_player_in_loby());
+        OnNumberOfPlayersChanged(m_networkManager.playerCount, m_lobbyDataHolder.GetNumber_of_player_in_lobby());
     }
 
     private void OnNumberOfPlayersChanged(int _playerNumber, int _maxPlayerNumber)
@@ -85,6 +90,17 @@ public class CustomConnectedText : MonoBehaviour
             StopCoroutine(m_typewriterEffect2);
         }
         m_typewriterEffect2 = StartCoroutine(TypewriterEffect(2));
+
+        if (_playerNumber == _maxPlayerNumber)
+        {
+            StateMachine stateMachine = FindFirstObjectByType<StateMachine>();
+            if (!stateMachine)
+            {
+                PurrLogger.LogError($"Failed to get {nameof(StateMachine)} component.", this);
+                return;
+            }
+            else ((PlayerSpawningState)stateMachine.states[1]).StartMachine();
+        }
     }
 
     private WaitForSeconds m_wait = new(0.005f);

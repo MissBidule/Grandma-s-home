@@ -8,10 +8,11 @@ using UnityEngine.InputSystem;
  * @brief Contains class declaration for WheelController
  * @details The WheelController class manages the transformation wheel UI and handles input to open/close it.
  */
-public class WheelController : NetworkBehaviour
+public class WheelController : MonoBehaviour
 {
     [SerializeField] private Animator m_anim;
-    [SerializeField] private GhostMorph m_ghostTransform;
+    [NonSerialized] private GhostMorph m_ghostMorph;
+    [NonSerialized] private GhostMorphPreview m_ghostMorphPreview;
     [SerializeField] private List<WheelButtonController> m_wheelButtons;
 
     [NonSerialized] public GameObject m_selectedPrefab;
@@ -19,7 +20,6 @@ public class WheelController : NetworkBehaviour
 
     private GameObject m_pendingPrefabToAdd;
     private Sprite m_pendingIconToAdd;
-    public PlayerID m_localPlayer;
 
     /*
      * @brief Awake is called when the script instance is being loaded
@@ -33,6 +33,16 @@ public class WheelController : NetworkBehaviour
             m_anim = GetComponent<Animator>();
         }
     }
+
+    // Forced to link this way cause of cross reference bug and multiplayer spawning timing issues.
+    public void LinkWithGhost(GhostClientController ghost)
+    {
+        m_ghostMorph = ghost.GetComponent<GhostMorph>();
+        m_ghostMorphPreview = ghost.GetComponentInChildren<GhostMorphPreview>();
+
+        m_ghostMorphPreview.m_wheel = this;
+    }
+
 
     /*
      * @brief Toggle is called by the GhostInputController
@@ -182,24 +192,18 @@ public class WheelController : NetworkBehaviour
      */
     public void SelectPrefab(GameObject _prefab)
     {
-        m_selectedPrefab = _prefab;
-        if (m_ghostTransform == null)
+        // It will be better with a StateMachine I guess cause all the states variable will be centralized.
+        if (!m_ghostMorphPreview.transform.parent.GetComponent<GhostMorph>().m_isMorphed) 
         {
-            // Will break in multi I guess, cause there will be multiple instances of <<GhostMorph>> ?
-            // We would need an other way to get reference to it
-            //there should not as there can only be one per session open I guess
-            foreach (GhostMorph ghostMorph in FindObjectsByType<GhostMorph>(FindObjectsSortMode.None))
-            {
-                if (ghostMorph.owner == m_localPlayer)
-                {
-                    m_ghostTransform = ghostMorph;
-                }
-            }
+            m_selectedPrefab = _prefab;
+            m_ghostMorphPreview.SetPreview(_prefab);
+            Cursor.lockState = CursorLockMode.Locked;
         }
-        m_ghostTransform.SetPreview(_prefab);
-        Cursor.lockState = CursorLockMode.Locked;
-
-        m_anim.SetBool("OpenWheel", false);
+        else
+        {
+            Debug.Log("Cannot select a new prefab while already transformed");
+        }
+            m_anim.SetBool("OpenWheel", false);
     }
 
     /*
@@ -215,10 +219,5 @@ public class WheelController : NetworkBehaviour
         {
             eventSystem.SetSelectedGameObject(null);
         }
-    }
-
-    public static implicit operator WheelController(PlayerID? v)
-    {
-        throw new NotImplementedException();
     }
 }

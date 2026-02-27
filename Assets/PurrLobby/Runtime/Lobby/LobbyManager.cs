@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using PurrNet;
 using PurrNet.Logging;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 namespace PurrLobby
 {
@@ -15,6 +17,9 @@ namespace PurrLobby
 
         private readonly Queue<Action> _delayedActions = new Queue<Action>();
         private int _taskLock;
+
+        [SerializeField] private TextMeshProUGUI m_usernameField;
+
 
         public CreateRoomArgs createRoomArgs = new();
         public SerializableDictionary<string, string> searchRoomArgs = new();
@@ -55,6 +60,8 @@ namespace PurrLobby
 
         private bool IsStarting = false;
 
+        [SerializeField] private Button m_readyButton;
+
         private void Awake()
         {
             _lastKnownState = new Lobby { IsValid = false };
@@ -69,6 +76,12 @@ namespace PurrLobby
             {
                 PurrLogger.LogWarning("No lobby provider assigned to LobbyManager.");
             }
+        }
+
+        void Start()
+        {
+            m_usernameField.text = FindAnyObjectByType<PersistentDataManager>().LoadUsername();  
+            EnsureProviderSet();
         }
 
         private void SetupDataHolder()
@@ -139,6 +152,7 @@ namespace PurrLobby
             _currentProvider.OnLobbyJoinFailed += message => InvokeDelayed(() => OnRoomJoinFailed.Invoke(message));
             _currentProvider.OnLobbyLeft += () => InvokeDelayed(() =>
             {
+                _lastKnownState = default;
                 _currentLobby = default;
                 OnRoomLeft?.Invoke();
             });
@@ -154,7 +168,7 @@ namespace PurrLobby
                 if (_lobbyDataHolder != null)
                 {
                     PurrLogger.Log($"Updating player count: {room.Members.Count}", this);
-                    _lobbyDataHolder.setNumber_of_player_in_loby(room.Members.Count);
+                    _lobbyDataHolder.setNumber_of_player_in_lobby(room.Members.Count);
                 }
                 
                 OnRoomUpdated?.Invoke(room);
@@ -233,23 +247,29 @@ namespace PurrLobby
             });
         }
 
+        public async Task<string> GetPlayer()
+        {
+            EnsureProviderSet();
+            return await _currentProvider.GetPlayer();
+        }
+
         /// <summary>
         /// Creates a room using the inspector CreateRoomArgs values.
         /// </summary>
-        public void CreateRoom()
+        public void CreateRoom(string _lobbyName)
         {
-            CreateRoom(createRoomArgs.maxPlayers, createRoomArgs.roomProperties.ToDictionary());
+            CreateRoom(_lobbyName, createRoomArgs.maxPlayers, createRoomArgs.roomProperties.ToDictionary());
         }
         
         /// <summary>
         /// Creates a room using custom settings set through code
         /// </summary>
-        public void CreateRoom(int maxPlayers, Dictionary<string, string> roomProperties = null)
+        public void CreateRoom(string _lobbyName, int maxPlayers, Dictionary<string, string> roomProperties = null)
         {
             RunTask(async () =>
             {
                 EnsureProviderSet();
-                var room = await _currentProvider.CreateLobbyAsync(maxPlayers, roomProperties);
+                var room = await _currentProvider.CreateLobbyAsync(_lobbyName, maxPlayers, roomProperties);
                 _currentLobby = room;
                 OnRoomUpdated?.Invoke(room);
             });
@@ -339,6 +359,20 @@ namespace PurrLobby
                 await _currentProvider.SetIsReadyAsync(userId, isReady);
             });
         }
+
+        /// <summary>
+        /// Set the given User to Ghost
+        /// </summary>
+        /// <param name="userId">User ID of player</param>
+        /// <param name="isGhost">Role state to set</param>
+        public void SetIsGhost(string userId, bool isGhost)
+        {
+            RunTask(async () =>
+            {
+                EnsureProviderSet();
+                await _currentProvider.SetIsGhostAsync(userId, isGhost);
+            });
+        }
         
         /// <summary>
         /// Sets meta data on the current lobby we're in
@@ -352,6 +386,27 @@ namespace PurrLobby
                 EnsureProviderSet();
                 await _currentProvider.SetLobbyDataAsync(key, value);
             });
+        }
+        
+        /// <summary>
+        /// Update Lobby Type
+        /// </summary>
+        public void UpdateLobbyType(bool _isPrivate)
+        {
+            EnsureProviderSet();
+            _currentProvider.UpdateLobbyType(_isPrivate);
+        }
+
+        /// <summary>
+        /// Update max players
+        /// </summary>
+        public void UpdateLobbyMaxPlayer(int _maxPlayers)
+        {
+            if (!_lobbyDataHolder)
+                return;
+            _lobbyDataHolder.SetMaxPlayer(_maxPlayers);
+            EnsureProviderSet();
+            _currentProvider.UpdateLobbyMaxPlayers(_maxPlayers);
         }
         
         /// <summary>
@@ -387,6 +442,28 @@ namespace PurrLobby
             SetIsReady(localUserId, !localLobbyUser.IsReady);
         }
 
+        /// <summary>
+        /// Toggles the local users role state automatically
+        /// </summary>
+        public void ToggleLocalRole()
+        {
+            if (!_currentLobby.IsValid)
+            {
+                PurrLogger.LogError($"Can't toggle role state, current lobby is invalid.");
+                return;
+            }
+            
+            var localUserId = _currentProvider.GetLocalUserIdAsync().Result;
+            if (string.IsNullOrEmpty(localUserId))
+            {
+                PurrLogger.LogError($"Can't toggle role state, local user ID is null or empty.");
+                return;
+            }
+            
+            var localLobbyUser = _currentLobby.Members.Find(x => x.Id == localUserId);
+            SetIsGhost(localUserId, !localLobbyUser.IsGhost);
+        }
+
         private void OnDestroy()
         {
             _currentProvider = null;
@@ -398,10 +475,16 @@ namespace PurrLobby
             await WaitForAllTasksAsync();
             if(_currentLobby.IsValid && _currentLobby.Members.TrueForAll(x => x.IsReady))
             {
+                LockReady();
                 await _currentProvider.SetAllReadyAsync();
 
                 OnAllReady?.Invoke();
             }
+        }
+
+        public void LockReady()
+        {
+            m_readyButton.interactable = false;
         }
         
         public async Task WaitForAllTasksAsync()

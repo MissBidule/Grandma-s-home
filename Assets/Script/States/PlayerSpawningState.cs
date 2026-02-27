@@ -3,7 +3,14 @@ using System.Collections.Generic;
 using PurrNet.StateMachine;
 using UnityEngine;
 using PurrNet.Modules;
+using PurrLobby;
+using System;
+using PurrNet.Transports;
 
+/*
+ * @brief  Contains class declaration for the state PlayerSpawningState
+ * @details Script that will handle the correct spawning of each player element
+ */
 public class PlayerSpawningState : StateNode
 {
     [Header("Child spawner")]
@@ -14,13 +21,18 @@ public class PlayerSpawningState : StateNode
     [SerializeField] private GhostController m_ghostPrefab;
     [Tooltip("Even if rules are to not despawn on disconnect, this will ignore that and always spawn a player.")]
     [SerializeField] private List<Transform> m_ghostSpawnPoints = new List<Transform>();
+    private bool m_isServer = false;
     
     public override void Enter(bool _asServer)
     {
         base.Enter(_asServer);
 
-        if (!_asServer)
-            return;
+        m_isServer = _asServer;
+    }
+
+    public void StartMachine()
+    {
+        if(!m_isServer) return;
 
         DespawnPlayers();
 
@@ -33,32 +45,49 @@ public class PlayerSpawningState : StateNode
     private List<PlayerControllerCore> SpawnPlayers()
     {
         var spawnedPlayers = new List<PlayerControllerCore>();
+        var roleKeeper = FindAnyObjectByType<RoleKeeper>();
         
-        int currentSpawnIndex = 0;
+        int currentSpawnChildIndex = 0;
+        int currentSpawnGhostIndex = 0;
         foreach (var player in networkManager.players)
         {
-            bool isChild = currentSpawnIndex % 2 == 0;
+            if (NetworkManager.main.TryGetModule(out GlobalOwnershipModule ownership, true) && ownership.PlayerOwnsSomething(player))
+                continue;
+                
+            //CONNECTION
+            networkManager.GetModule<PlayersManager>(m_isServer).TryGetConnection(player, out Connection conn);
+
+            bool isGhost = roleKeeper.IsGhost(conn.connectionId);
 
             Transform spawnPoint;
             PlayerControllerCore newPlayer;
 
-            if (isChild)
+            if (isGhost)
             {
-                spawnPoint = m_childSpawnPoints[(currentSpawnIndex / 2) % m_childSpawnPoints.Count];
-                newPlayer = UnityProxy.Instantiate(m_childPrefab, spawnPoint.position, spawnPoint.rotation);
+                spawnPoint = m_ghostSpawnPoints[currentSpawnGhostIndex++ %  m_ghostSpawnPoints.Count];
+                newPlayer = UnityProxy.Instantiate(m_ghostPrefab, spawnPoint.position, spawnPoint.rotation);
             }
             else
             {
-                spawnPoint = m_ghostSpawnPoints[(currentSpawnIndex / 2) %  m_ghostSpawnPoints.Count];
-                newPlayer = UnityProxy.Instantiate(m_ghostPrefab, spawnPoint.position, spawnPoint.rotation);
+                spawnPoint = m_childSpawnPoints[currentSpawnChildIndex++ % m_childSpawnPoints.Count];
+                newPlayer = UnityProxy.Instantiate(m_childPrefab, spawnPoint.position, spawnPoint.rotation);
             } 
             newPlayer.GiveOwnership(player);
             spawnedPlayers.Add(newPlayer);
-            
-            currentSpawnIndex = currentSpawnIndex + 1;
         }
 
+        DisableWaitInterface();
+
         return spawnedPlayers;
+    }
+
+    [ObserversRpc]
+    void DisableWaitInterface()
+    {
+        if (InstanceHandler.TryGetInstance(out DisableWaitOnStart disableWaitOnStart))
+        {
+            disableWaitOnStart.DisableWaitInterface();
+        }
     }
     
     private void DespawnPlayers()
