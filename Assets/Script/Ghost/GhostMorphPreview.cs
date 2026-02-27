@@ -161,7 +161,7 @@ public class GhostMorphPreview : NetworkBehaviour
     public void HidePreview()
     {
         m_meshRenderer.enabled = false;
-        //m_save=false;//
+        m_save=false;//
         m_currentPrefab = null;
     }
 
@@ -283,12 +283,6 @@ public class GhostMorphPreview : NetworkBehaviour
                     {
                         Debug.Log(hitObject.gameObject.name);
                     InteractPromptUI.m_Instance.Show(m_promptMessageSCAN);
-                    if (IsPartOfPlayer(hitObject))
-                    {
-                        //InteractPromptUI.m_Instance.Show(m_promptMessageValid);
-                        InteractPromptUI.m_Instance.Hide();
-                        Debug.Log("if part of player");
-                    }
                     }
                     ClearHighlight();
                     
@@ -297,7 +291,6 @@ public class GhostMorphPreview : NetworkBehaviour
             }
             else
             {
-                //InteractPromptUI.m_Instance.Hide();
                 Debug.Log("L");
                 ClearHighlight();
                 if(m_save != true){
@@ -311,10 +304,15 @@ public class GhostMorphPreview : NetworkBehaviour
         {
              
             ClearHighlight();
+            InteractPromptUI.m_Instance.Hide();
             
             if(m_save != true){
             InteractPromptUI.m_Instance.Hide();
             Debug.Log("e");
+            }
+            if(m_save == true){
+            InteractPromptUI.m_Instance.Show(m_promptMessageValid);
+            Debug.Log("what");
             }
             
             
