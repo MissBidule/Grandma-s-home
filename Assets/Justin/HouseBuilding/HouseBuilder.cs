@@ -3,6 +3,7 @@ using PurrNet.Logging;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using UnityEditor;
 using UnityEngine;
 
 public class HouseBuilder : NetworkBehaviour
@@ -31,32 +32,6 @@ public class HouseBuilder : NetworkBehaviour
         Office,
         GameRoom
     }
-    
-    /*
-       Room Types:
-     
-       Living room (2 joined rooms)
-       Dining room
-       Solarium
-       
-       Children's bedroom
-       Grandmother's bedroom
-       Bathroom
-       Dressing room
-       
-       Pantry
-       Toilets (2)
-       Laundry room
-       Closet (Cleaning room) (2)
-       Garage
-       
-       Art workshop
-       Music workshop
-       Inventions workshop
-       Library
-       Office
-       Game room
-     */
     
     
     [Header("Rooms References")]
@@ -125,9 +100,9 @@ public class HouseBuilder : NetworkBehaviour
     [SerializeField] private List<Room> m_gameRoomLayouts;
     
     [Header("Props Parameters")]
-    [SerializeField] private float m_smallPropsPercentage;
-    [SerializeField] private float m_mediumPropsPercentage;
-
+    [SerializeField, Range(0f, 1f)] private float m_smallPropsPercentage;
+    [SerializeField, Range(0f, 1f)] private float m_mediumPropsPercentage;
+    
     protected override void OnSpawned(bool _asServer)
     {
         base.OnSpawned(_asServer);
