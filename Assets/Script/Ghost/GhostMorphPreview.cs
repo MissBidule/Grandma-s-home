@@ -39,6 +39,12 @@ public class GhostMorphPreview : NetworkBehaviour
 
     private Transform m_cameraTransform;
 
+    [SerializeField] private string m_promptMessageSCAN = "F : SCAN";
+    [SerializeField] private string m_promptMessageValid = "E : Valid";
+
+    [SerializeField] private bool m_save;
+    
+
     /*
      * Initializes the mesh renderer and collider, sets the collider as a trigger, and updates the material.
      * @return void
@@ -66,6 +72,7 @@ public class GhostMorphPreview : NetworkBehaviour
      */
     public void ScanForPrefab()
     {
+        
         Debug.Log("Scan");
 
         Vector3 rayOrigin = m_cameraTransform.transform.position;
@@ -79,6 +86,8 @@ public class GhostMorphPreview : NetworkBehaviour
 
         GameObject scannedObject = hit.collider.gameObject;
         Debug.Log($"Object detected: {scannedObject.name}");
+
+        
 
         ScannableObject scannableComponent = scannedObject.GetComponent<ScannableObject>();
         if (scannableComponent == null)
@@ -118,6 +127,10 @@ public class GhostMorphPreview : NetworkBehaviour
         if (prefabRenderer != null)
         {
             m_meshRenderer.sharedMaterials = prefabRenderer.sharedMaterials;
+            Debug.Log("ok");
+            InteractPromptUI.m_Instance.Show(m_promptMessageValid);
+            m_save =true;
+
         }
         m_colliders.Clear();
         ReplaceCollider(collider);
@@ -148,6 +161,7 @@ public class GhostMorphPreview : NetworkBehaviour
     public void HidePreview()
     {
         m_meshRenderer.enabled = false;
+        //m_save=false;//
         m_currentPrefab = null;
     }
 
@@ -236,9 +250,10 @@ public class GhostMorphPreview : NetworkBehaviour
     private void CheckForScannableObject()
     {
         if (!isOwner) return;
-        if (m_cameraTransform == null)
+        if (m_cameraTransform == null || GetComponentInParent<GhostMorph>().m_isMorphed)
         {
             ClearHighlight();
+            
             return;
         }
 
@@ -251,7 +266,10 @@ public class GhostMorphPreview : NetworkBehaviour
 
             if (IsPartOfPlayer(hitObject))
             {
+                //InteractPromptUI.m_Instance.Show(m_promptMessageValid);
+                InteractPromptUI.m_Instance.Hide();
                 ClearHighlight();
+                
                 return;
             }
 
@@ -261,18 +279,47 @@ public class GhostMorphPreview : NetworkBehaviour
             {
                 if (m_currentHighlightedObject != hitObject)
                 {
+                    if(!GetComponentInParent<GhostMorph>().m_isMorphed)
+                    {
+                        Debug.Log(hitObject.gameObject.name);
+                    InteractPromptUI.m_Instance.Show(m_promptMessageSCAN);
+                    if (IsPartOfPlayer(hitObject))
+                    {
+                        //InteractPromptUI.m_Instance.Show(m_promptMessageValid);
+                        InteractPromptUI.m_Instance.Hide();
+                        Debug.Log("if part of player");
+                    }
+                    }
                     ClearHighlight();
+                    
                     HighlightObject(hitObject);
                 }
             }
             else
             {
+                //InteractPromptUI.m_Instance.Hide();
+                Debug.Log("L");
                 ClearHighlight();
+                if(m_save != true){
+                InteractPromptUI.m_Instance.Hide();
+                Debug.Log("e");
+                }
+              
             }
         }
         else
         {
+             
             ClearHighlight();
+            
+            if(m_save != true){
+            InteractPromptUI.m_Instance.Hide();
+            Debug.Log("e");
+            }
+            
+            
+            
+           
         }
     }
 

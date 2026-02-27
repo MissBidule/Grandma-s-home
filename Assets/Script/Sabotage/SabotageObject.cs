@@ -24,7 +24,8 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     [SerializeField] private float m_maxIntensity = 0.6f;
 
     [Header("Interaction")]
-    [SerializeField] private string m_promptMessage = "E : Sabotage";
+    [SerializeField] private string m_promptMessageSABOTE = "E : Sabotage";
+    [SerializeField] private string m_promptMessageESPACE = "ESPACE : Valid";
     [SerializeField] private GhostInteract m_saboteur;
 
     public bool m_isSabotaged;
@@ -72,13 +73,22 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     {
         m_isFocused = true;
         SetHighlight(true);
-       
-        m_saboteurs.Add(_ghost);
-
-        if (InteractPromptUI.m_Instance != null)
+        if (m_sabotagedMesh != null)
         {
-            InteractPromptUI.m_Instance.Show(m_promptMessage);
+            var r = m_sabotagedMesh.GetComponent<Renderer>();
+            if (!m_isSabotaged)
+            {
+                InteractPromptUI.m_Instance.Show(m_promptMessageSABOTE);
+                Debug.Log("il est apparut");
+            }
+            if (m_isSabotaged)
+            {
+                InteractPromptUI.m_Instance.Hide();
+                Debug.Log("il s est cache");
+                Debug.Log("b");
+            }
         }
+        m_saboteurs.Add(_ghost);
     }
 
     /*
@@ -90,13 +100,11 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         m_isFocused = false;
 
         m_saboteurs.Remove(_ghost);
+        InteractPromptUI.m_Instance.Hide();
+        Debug.Log("c");
     
         SetHighlight(false);
-
-        if (InteractPromptUI.m_Instance != null)
-        {
-            InteractPromptUI.m_Instance.Hide();
-        }
+        
     }
 
     /*
@@ -126,13 +134,14 @@ public class SabotageObject : NetworkBehaviour, IInteractable
      */
     public void StartQte(GhostInteract _sabo)
     {
+        
         m_isQteRunning = true;
         SetHighlight(false);
 
-        if (InteractPromptUI.m_Instance != null)
-        {
-            InteractPromptUI.m_Instance.Hide();
-        }
+        //InteractPromptUI.m_Instance.Hide();
+        InteractPromptUI.m_Instance.Show(m_promptMessageESPACE);
+        Debug.Log("il doit faire space");
+
 
         m_saboteur = _sabo;
         QteCircle qte = FindAnyObjectByType<QteCircle>();
@@ -148,23 +157,28 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     private void OnQteFinished(bool _success)
     {
         m_isQteRunning = false;
-
+        
         m_saboteur.OnSabotageOver(_success);
         if (_success)
         {
+            InteractPromptUI.m_Instance.Hide();
+            Debug.Log("a");
             SabotageRPC();
+            
             m_saboteur = null;
             return;
         }
+        else
+        {
+            InteractPromptUI.m_Instance.Show(m_promptMessageSABOTE);
+        }
+        
         m_saboteur = null;
 
         if (m_isFocused)
         {
             SetHighlight(true);
-            if (InteractPromptUI.m_Instance != null)
-            {
-                InteractPromptUI.m_Instance.Show(m_promptMessage);
-            }
+
         }
     }
 
@@ -181,10 +195,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         ApplyState();
         SetHighlight(false);
 
-        if (InteractPromptUI.m_Instance != null)
-        {
-            InteractPromptUI.m_Instance.Hide();
-        }
+       
 
         if (ScoreManager.m_Instance != null)
         {
@@ -208,6 +219,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         {
             
               ghostinteract.OnSabotageOver( true);
+
               Debug.Log("iteration");       
         }
         var c = m_normalMesh.GetComponent<Collider>();
