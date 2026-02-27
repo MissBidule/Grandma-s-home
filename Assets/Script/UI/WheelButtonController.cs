@@ -1,4 +1,3 @@
-using PurrNet;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,8 +11,6 @@ public class WheelButtonController : MonoBehaviour
     private Image m_iconImage;
     private Button m_button;
 
-    private WheelController m_wheelController;
-
     /*
      * @brief Awake is called when the script instance is being loaded
      * Finds the icon transform and sets its sprite from the TransformOption.
@@ -24,11 +21,6 @@ public class WheelButtonController : MonoBehaviour
         Transform iconTransform = transform.Find("icone");
         m_iconImage = iconTransform.GetComponent<Image>();
         m_button = GetComponent<Button>();
-        
-        
-        m_wheelController = GetComponentInParent<WheelController>();
-        
-        
         UpdateIcon();
     }
 
@@ -40,9 +32,9 @@ public class WheelButtonController : MonoBehaviour
     {
         if (m_iconImage != null)
         {
-            if (m_transformOption != null && m_transformOption.m_icon != null)
+            if (m_transformOption != null && m_transformOption.icon != null)
             {
-                m_iconImage.sprite = m_transformOption.m_icon;
+                m_iconImage.sprite = m_transformOption.icon;
                 m_iconImage.enabled = true;
             }
             else
@@ -64,23 +56,23 @@ public class WheelButtonController : MonoBehaviour
      */
     public void Select()
     {
-        if (IsEmpty() && !m_wheelController.m_isWaitingForSlotSelection)
+        if (IsEmpty() && !WheelController.m_Instance.m_isWaitingForSlotSelection)
         {
             return;
         }
 
-        if (m_wheelController.m_isWaitingForSlotSelection)  
+        if (WheelController.m_Instance.m_isWaitingForSlotSelection)
         {
             OnSlotSelectedForReplacement();
             return;
         }
 
-        if (m_transformOption == null || m_transformOption.m_prefab == null)
+        if (m_transformOption == null || m_transformOption.prefab == null)
         {
-            m_wheelController.ClearSelection();
+            WheelController.m_Instance.ClearSelection();
             return;
         }
-        m_wheelController.SelectPrefab(m_transformOption.m_prefab);
+        WheelController.m_Instance.SelectPrefab(m_transformOption.prefab);
     }
 
     /*
@@ -119,6 +111,6 @@ public class WheelButtonController : MonoBehaviour
      */
     public void OnSlotSelectedForReplacement()
     {
-        m_wheelController.OnSlotChosenForReplacement(this);
+        WheelController.m_Instance.OnSlotChosenForReplacement(this);
     }
 }

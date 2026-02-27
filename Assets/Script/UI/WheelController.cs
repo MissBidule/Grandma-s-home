@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using PurrNet;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -10,9 +9,10 @@ using UnityEngine.InputSystem;
  */
 public class WheelController : MonoBehaviour
 {
+    public static WheelController m_Instance;
+
     [SerializeField] private Animator m_anim;
-    [NonSerialized] private GhostMorph m_ghostMorph;
-    [NonSerialized] private GhostMorphPreview m_ghostMorphPreview;
+    [SerializeField] private GhostMorph m_ghostTransform;
     [SerializeField] private List<WheelButtonController> m_wheelButtons;
 
     [NonSerialized] public GameObject m_selectedPrefab;
@@ -28,21 +28,16 @@ public class WheelController : MonoBehaviour
      */
     void Awake()
     {
+        m_Instance = this;
         if (m_anim == null)
         {
             m_anim = GetComponent<Animator>();
         }
+
+        // Will break in multi I guess, cause there will be multiple instances of <<GhostMorph>> ?
+        // We would need an other way to get reference to it
+        m_ghostTransform = FindAnyObjectByType<GhostMorph>();
     }
-
-    // Forced to link this way cause of cross reference bug and multiplayer spawning timing issues.
-    public void LinkWithGhost(GhostClientController ghost)
-    {
-        m_ghostMorph = ghost.GetComponent<GhostMorph>();
-        m_ghostMorphPreview = ghost.GetComponentInChildren<GhostMorphPreview>();
-
-        m_ghostMorphPreview.m_wheel = this;
-    }
-
 
     /*
      * @brief Toggle is called by the GhostInputController
@@ -56,9 +51,8 @@ public class WheelController : MonoBehaviour
             return;
         }
 
+        Cursor.lockState = CursorLockMode.Confined;
         bool toggle = !m_anim.GetBool("OpenWheel");
-        Cursor.lockState = toggle ? CursorLockMode.Confined : CursorLockMode.Locked;
-
         m_anim.SetBool("OpenWheel", toggle);
     }
 
@@ -122,7 +116,7 @@ public class WheelController : MonoBehaviour
         foreach (WheelButtonController button in m_wheelButtons)
         {
             TransformOption option = button.GetTransformOption();
-            if (option != null && option.m_icon == _icon)
+            if (option != null && option.icon == _icon)
             {
                 return true;
             }
@@ -176,7 +170,6 @@ public class WheelController : MonoBehaviour
 
         SelectPrefab(m_pendingPrefabToAdd);
 
-        Cursor.lockState = CursorLockMode.Locked;
         m_anim.SetBool("OpenWheel", false);
 
         m_isWaitingForSlotSelection = false;
@@ -192,18 +185,11 @@ public class WheelController : MonoBehaviour
      */
     public void SelectPrefab(GameObject _prefab)
     {
-        // It will be better with a StateMachine I guess cause all the states variable will be centralized.
-        if (!m_ghostMorphPreview.transform.parent.GetComponent<GhostMorph>().m_isMorphed) 
-        {
-            m_selectedPrefab = _prefab;
-            m_ghostMorphPreview.SetPreview(_prefab);
-            Cursor.lockState = CursorLockMode.Locked;
-        }
-        else
-        {
-            Debug.Log("Cannot select a new prefab while already transformed");
-        }
-            m_anim.SetBool("OpenWheel", false);
+        m_selectedPrefab = _prefab;
+        m_ghostTransform.SetPreview(_prefab);
+        Cursor.lockState = CursorLockMode.Locked;
+
+        m_anim.SetBool("OpenWheel", false);
     }
 
     /*

@@ -1,4 +1,3 @@
-using PurrNet;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -18,13 +17,11 @@ public class ChildCameraController : MonoBehaviour
 
     private float m_yaw;
     private float m_pitch;
-    private float m_xOffset;
 
     private ChildInputController m_childInputController;
     private Transform m_target;
     private Rigidbody m_rigidbody;
 
-    
     /*
      * @brief   Initializes references and locks the cursor
      * @return  void
@@ -34,7 +31,6 @@ public class ChildCameraController : MonoBehaviour
         m_childInputController = GetComponentInParent<ChildInputController>();
         m_target = transform.parent;
         m_rigidbody = GetComponentInParent<Rigidbody>();
-        m_xOffset = transform.position.x;
 
         UnityEngine.Cursor.lockState = CursorLockMode.Locked;
     }
@@ -45,18 +41,17 @@ public class ChildCameraController : MonoBehaviour
     */
     private void LateUpdate()
     {
-        Vector3 pivot = m_target.position + m_target.right * m_xOffset + m_pivotOffset;
-        Quaternion rotation;
-        Vector3 desiredOffset;
-
         Vector2 lookInput = m_childInputController.m_lookInputVector;
+
         m_yaw += lookInput.x * m_sensitivity * Time.deltaTime;
         m_pitch -= lookInput.y * m_sensitivity * Time.deltaTime;
         m_pitch = Mathf.Clamp(m_pitch, m_minPitch, m_maxPitch);
 
-        rotation = Quaternion.Euler(m_pitch, m_yaw, 0f);
-        desiredOffset = rotation * Vector3.back * m_distance;
+        Quaternion rotation = Quaternion.Euler(m_pitch, m_yaw, 0f);
+        Vector3 desiredOffset = rotation * Vector3.back * m_distance;
+
         float finalDistance = m_distance;
+        Vector3 pivot = m_target.position + m_pivotOffset;
 
         if (Physics.Raycast(
             pivot,
@@ -67,8 +62,9 @@ public class ChildCameraController : MonoBehaviour
         {
             finalDistance = hit.distance - m_collisionOffset;
         }
-        Vector3 finalOffset2 = rotation * Vector3.back * finalDistance;
-        transform.position = pivot + finalOffset2;
+
+        Vector3 finalOffset = rotation * Vector3.back * finalDistance;
+        transform.position = pivot + finalOffset;
         transform.LookAt(pivot);
     }
 }

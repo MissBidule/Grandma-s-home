@@ -1,27 +1,22 @@
-﻿using PurrNet;
-using System;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /**
 @brief       Controller for the Ghost character
 @details     Handles movement, rotation and wall climbing
 */
-public class GhostController : PlayerControllerCore, IInteractable
+public class GhostController : MonoBehaviour
 {
-    // Network Variables
-    [NonSerialized] public Vector3 m_wishDir;
-    public bool m_isSlowed = false;
-    public bool m_isStopped = false;
-
-
-    [Header("Ghost references")]
+    [Header("References")]
+    private GhostInputController m_ghostInputController;
     private GhostMorph m_ghostMorph;
 
-    [Header("Status Timers")]
-    [SerializeField] private float m_timerSlowed;
-    [SerializeField] private float m_timerStop;
-    private float m_currentTimerSlowed;
-    private float m_currentTimerStop;
+    [SerializeField] private bool m_isSlowed = false;
+    [SerializeField] public bool m_isStopped = false;
+    [SerializeField] private float m_timerSlowed = 5f;
+    [SerializeField] private float m_timerStop = 5f;
+    [SerializeField] private float m_currentTimerSlowed = 5f;
+    [SerializeField] private float m_currentTimerStop = 5f;
 
     [Header("Movement")]
     [SerializeField] private float m_walkSpeed = 4f;
@@ -32,10 +27,11 @@ public class GhostController : PlayerControllerCore, IInteractable
 
     [Header("Auto Climb")]
     [SerializeField] private float m_climbSpeed = 3.5f;
-    [SerializeField] private float m_climbCheckDistance = 0.6f;
-    [SerializeField] private float m_wallNormalMaxY = 0.4f; 
-    [SerializeField] private float m_raycastHeightOffset = 0.5f;
-    [SerializeField] private LayerMask m_climbableLayerMask = ~0;
+    [SerializeField] private float m_wallNormalMaxY = 0.4f;
+
+    [Header("Canva")]
+    [SerializeField] public GameObject m_stopped;
+    [SerializeField] public GameObject m_slowed;
 
     private Rigidbody m_rigidbody;
 
@@ -44,52 +40,94 @@ public class GhostController : PlayerControllerCore, IInteractable
 
     private float m_speedModifier = 1f;
 
-
-    // -------------------------------------------
-    // --- Everything Down Here is Server-Side ---
-    // ---  And should be checked by isServer  ---
-    // -------------------------------------------
-
-    protected override void OnSpawned()
+    private void Start()
     {
-        base.OnSpawned();
-
-        if (!isServer) return;
         m_rigidbody = GetComponent<Rigidbody>();
+        m_ghostInputController = GetComponent<GhostInputController>();
         m_ghostMorph = GetComponent<GhostMorph>();
-
     }
 
+    /**
+    @brief      Update timers and movement modifiers
+    */
     private void Update()
     {
-        if (!isServer) return;
-     
-        UpdateTimers();
+        if (m_isSlowed)
+        {
+            m_currentTimerSlowed -= Time.deltaTime;
+            if (m_currentTimerSlowed <= 0f)
+            {
+                m_isSlowed = false;
+                m_slowed.SetActive(false);
+                m_currentTimerSlowed = m_timerSlowed;
+            }
+        }
 
-        SetSpeedModifier();
+        if (m_isStopped)
+        {
+            m_currentTimerStop -= Time.deltaTime;
+            if (m_currentTimerStop <= 0f)
+            {
+                m_isStopped = false;
+                m_stopped.SetActive(false);
+                m_currentTimerStop = m_timerStop;
+            }
+        }
 
-        // Casting to Vector2 to ignore falling movement
-        if ((Vector2)m_wishDir != Vector2.zero)
+        m_speedModifier = m_isSlowed ? 0.5f : 1f;
+        m_speedModifier = m_isStopped ? 0f : m_speedModifier;
+
+        if (m_ghostInputController.m_movementInputVector != Vector2.zero)
         {
             m_ghostMorph.RevertToOriginal();
         }
     }
 
     /**
+    @brief      Check if the ghost is grounded
+    @return     True if a surface is detected below the character
+    */
+    public bool IsGrounded()
+    {
+        if (m_rigidbody == null) return false;
+
+        if (Physics.Raycast(transform.position, Vector3.down, out _, 1.0f))
+            return true;
+
+        return false;
+    }
+
+    /**
     @brief      Physics update handling movement and climbing
-    @details    Applies camera-relative movement, rotation and automatic climbing when facing a wall
+    @details    Applies camera-relative movement, rotation and automatic climbing
+                when colliding with a wal
     */
     private void FixedUpdate()
     {
-        if (!isServer) return;
-        if (m_isStopped) return;
+        if (m_rigidbody == null) return;
+        if (m_ghostInputController == null) return;
+        if (Camera.main == null) return;
 
-        if (m_wishDir.sqrMagnitude > 0.0001f
-            && !m_isStopped
-            && !m_rigidbody.constraints.HasFlag(RigidbodyConstraints.FreezeRotationY)
-        )
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(m_wishDir, Vector3.up);
+        Transform cam = Camera.main.transform;
+
+        Vector3 forward = cam.forward;
+        Vector3 right = cam.right;
+
+        forward.y = 0f;
+        right.y = 0f;
+
+        forward.Normalize();
+        right.Normalize();
+
+        Vector2 movementInput = m_ghostInputController.m_movementInputVector;
+
+        Vector3 wishDir = Vector3.zero;
+        if (movementInput.sqrMagnitude > 0.0001f)
+            wishDir = (forward * movementInput.y + right * movementInput.x).normalized;
+
+        if (wishDir.sqrMagnitude > 0.0001f && !m_isStopped && !m_rigidbody.constraints.HasFlag(RigidbodyConstraints.FreezeRotationY))
+        {            
+            Quaternion targetRotation = Quaternion.LookRotation(wishDir, Vector3.up);
 
             m_rigidbody.MoveRotation(
                 Quaternion.Slerp(
@@ -98,15 +136,12 @@ public class GhostController : PlayerControllerCore, IInteractable
                     m_rotationSpeed * Time.fixedDeltaTime
                 )
             );
+            
         }
 
-        if (CheckForClimbableWall())
-        {
-            m_canClimbThisFrame = true;
-        }
-
-        if (m_canClimbThisFrame &&
-            m_wishDir.sqrMagnitude > 0.0001f)
+        if (!m_isStopped &&
+            m_canClimbThisFrame &&
+            wishDir.sqrMagnitude > 0.0001f)
         {
             Vector3 vel = m_rigidbody.linearVelocity;
 
@@ -119,7 +154,7 @@ public class GhostController : PlayerControllerCore, IInteractable
             return;
         }
 
-        Vector3 targetVel = m_speedModifier * m_walkSpeed * m_wishDir;
+        Vector3 targetVel = wishDir * m_walkSpeed * m_speedModifier;
 
         Vector3 currentVel = m_rigidbody.linearVelocity;
         Vector3 currentHorizontal = new Vector3(currentVel.x, 0f, currentVel.z);
@@ -132,67 +167,43 @@ public class GhostController : PlayerControllerCore, IInteractable
         ResetClimbFlags();
     }
 
-    void UpdateTimers()
+    /**
+    @brief      Apply slow effect from projectile hit
+    */
+    public void GotHitByProjectile()
     {
-        if (m_isStopped)
-        {
-            m_rigidbody.constraints = RigidbodyConstraints.FreezeAll;
-            m_currentTimerStop -= Time.deltaTime;
-            if (m_currentTimerStop <= 0f)
-            {
-                m_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
-                RemoveStopToAll();
-            }
-        }
-        
-        if (m_isSlowed)
-        {
-            m_currentTimerSlowed -= Time.deltaTime;
-            if (m_currentTimerSlowed <= 0f)
-            {
-                RemoveSlowToAll();
-            }
-        }
-    }
-
-    void SetSpeedModifier()
-    {
-        m_speedModifier = 1f;
-        if (m_isSlowed) m_speedModifier *= 0.5f;
-        // Place between those lines the speedModifier change for when the player will "dash" / "sprint"
-        if (m_isStopped) m_speedModifier = 0f;
+        m_isSlowed = true;
+        m_slowed.SetActive(true);
+        m_currentTimerSlowed = m_timerSlowed;
     }
 
     /**
-    @brief      Check if the ghost is grounded
-    @return     True if a surface is detected below the character
+    @brief      Apply stop effect from close combat hit
     */
-    public bool IsGrounded()
+    public void GotHitByCac()
     {
-        return Physics.Raycast(transform.position, Vector3.down, out _, 1.0f);
+        m_isStopped = true;
+        m_stopped.SetActive(true);
+        m_currentTimerStop = m_timerStop;
     }
 
     /**
-    @brief      Check for climbable wall in front of the player using raycast
-    @return     True if a climbable wall is detected
+    @brief      Detect climbable wall during collision
     */
-    private bool CheckForClimbableWall()
+    private void OnCollisionStay(Collision _collision)
     {
-        Vector3 rayOrigin = transform.position + Vector3.up * m_raycastHeightOffset;
-        Vector3 rayDirection = transform.forward;
-
-        if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, m_climbCheckDistance, m_climbableLayerMask))
+        for (int i = 0; i < _collision.contactCount; i++)
         {
-            if (hit.normal.y <= m_wallNormalMaxY)
+            Vector3 normal = _collision.GetContact(i).normal;
+
+            if (normal.y <= m_wallNormalMaxY)
             {
-                m_wallNormal = hit.normal;
-                return true;
+                m_canClimbThisFrame = true;
+                m_wallNormal = normal;
+                return;
             }
         }
-        return false;
     }
-
-    
 
     /**
     @brief      Reset climb flags
@@ -203,76 +214,12 @@ public class GhostController : PlayerControllerCore, IInteractable
         m_wallNormal = Vector3.zero;
     }
 
-    /**
-    @brief      Apply slow effect from projectile hit
-    */
-    public void HitRanged()
+    /*
+     * @brief  This function allows you to switch to the SampleScene. (DEBUG PURPOSES ONLY)
+     * @return void
+     */
+    public void SwitchScene()
     {
-        if (!isServer) return;
-        ApplySlowToAll();
-        m_currentTimerSlowed = m_timerSlowed;
-    }
-
-    [ObserversRpc(runLocally:true)]
-    public void ApplySlowToAll()
-    {
-        m_isSlowed = true;
-    }
-
-    [ObserversRpc(runLocally:true)]
-    public void RemoveSlowToAll()
-    {
-        m_isSlowed = false;
-    }
-
-    /**
-    @brief      Apply stop effect from close combat hit
-    */
-    public void HitCac()
-    {
-        if (!isServer) return;
-        ApplyStopToAll();
-        m_currentTimerStop = m_timerStop;
-    }
-
-    [ObserversRpc(runLocally:true)]
-    public void ApplyStopToAll()
-    {
-        m_isStopped = true;
-    }
-
-    [ObserversRpc(runLocally:true)]
-    public void RemoveStopToAll()
-    {
-        m_isStopped = false;
-    }
-
-
-    public void OnInteract(GhostInteract _who)
-    {
-        if (!isServer) return;
-        ResetStoppedRPC();
-    }
-
-    public void OnStopInteract(GhostInteract _who)
-    {
-        // Do nothing
-    }
-
-    [ServerRpc]
-    private void ResetStoppedRPC()
-    {
-        m_isStopped = false;
-        m_currentTimerStop = 0f;
-    }
-
-    public void OnFocus(GhostInteract who)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void OnUnfocus(GhostInteract who)
-    {
-        throw new NotImplementedException();
+        SceneManager.LoadScene("Scene_Child_Test");
     }
 }

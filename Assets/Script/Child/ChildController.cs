@@ -1,4 +1,3 @@
-using PurrNet;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -7,20 +6,19 @@ using UnityEngine.SceneManagement;
  * @details The ChildController class handles child actions by reading input from the ChildInputController component.
  *          Movements are camera-relative and physics-based using Rigidbody (may change).
  */
-public class ChildController : PlayerControllerCore
+public class ChildController : MonoBehaviour
 {
+    private ChildInputController m_childInputController;
     private Rigidbody m_rigidbody;
+    private bool m_waitingForInputRelease = false;
 
-    public Vector3 m_wishDir;
-    public float m_cameraYaw; 
-
+    private Vector3 m_moveDirection;
+    private BoxCollider m_boxCollider;
+    private float m_cleanRange = 2f;
     private float m_attackRange = 0.5f;
 
     private bool m_isranged;
-    [SerializeField] private float m_cdGun = 0.2f;
-    private float m_lastShot;
-    [SerializeField] private float m_cdSwitch = 0.2f;
-    private float m_switchingTime;
+    private float m_yaw;
 
 
     [SerializeField] private float m_speed = 5f;
@@ -28,15 +26,15 @@ public class ChildController : PlayerControllerCore
     [SerializeField] private GameObject m_bulletPrefab;
     [SerializeField] private float m_jumpImpulse = 6.0f;
 
-    protected override void OnSpawned()
+    /*
+     * @brief Awake is called when the script instance is being loaded
+     * Gets the ChildInputController component.
+     * @return void
+     */
+    void Awake()
     {
-        base.OnSpawned();
+        m_childInputController = GetComponent<ChildInputController>();
         m_rigidbody = GetComponent<Rigidbody>();
-
-        if (!isServer) return;
-        m_lastShot = m_cdGun;
-        m_switchingTime = m_cdSwitch;
-
     }
 
     /*
@@ -45,20 +43,61 @@ public class ChildController : PlayerControllerCore
      */
     void Update()
     {
-        if (!isServer) return;
-        m_lastShot += Time.deltaTime;
-        m_switchingTime += Time.deltaTime;
-        
+        Vector2 movementInput = m_childInputController.m_movementInputVector;
+        if (m_waitingForInputRelease)
+        {
+            if (movementInput == Vector2.zero)
+            {
+                m_waitingForInputRelease = false;
+            }
+            m_moveDirection = Vector3.zero;
+            return;
+        }
 
-        transform.rotation = Quaternion.Euler(0, m_cameraYaw, 0);
+        if (movementInput.sqrMagnitude < 0.01f)
+        {
+            m_moveDirection = Vector3.zero;
+            return;
+        }
 
+        Transform cameraTransform = Camera.main.transform;
 
+        Vector3 cameraForward = cameraTransform.forward;
+        Vector3 cameraRight = cameraTransform.right;
 
+        cameraForward.y = 0f;
+        cameraRight.y = 0f;
+
+        cameraForward.Normalize();
+        cameraRight.Normalize();
+
+        m_moveDirection =
+            cameraForward * movementInput.y +
+            cameraRight * movementInput.x;
+    }
+
+    /*
+     * @brief   Applies movement using Rigidbody physics
+     * @return  void
+     */
+    void FixedUpdate()
+    {
+        if (m_moveDirection == Vector3.zero) return;
         m_rigidbody.MovePosition(
-            m_rigidbody.position + m_wishDir * m_speed * Time.deltaTime
+            m_rigidbody.position + m_moveDirection * m_speed * Time.fixedDeltaTime
         );
+    }
 
-
+    /*
+     * @brief   Applies rotation using the mouse movement
+     * @return  void
+     */
+    void LateUpdate()
+    {
+        Vector2 lookInput = m_childInputController.m_lookInputVector;
+        m_yaw += lookInput.x * Camera.main.GetComponent<ChildCameraController>().m_sensitivity * Time.deltaTime;
+        Quaternion targetRot = Quaternion.Euler(0f, m_yaw, 0f);
+        m_rigidbody.transform.rotation = targetRot;
     }
 
     /*
@@ -67,7 +106,6 @@ public class ChildController : PlayerControllerCore
      */
     public void Jump()
     {
-        if (!isServer) return;
         if (!IsGrounded()) return;
         m_rigidbody.AddForce(Vector3.up * m_jumpImpulse, ForceMode.Impulse);
     }
@@ -78,39 +116,38 @@ public class ChildController : PlayerControllerCore
      */
     private bool IsGrounded()
     {
-        return Physics.Raycast(transform.position, Vector3.down, out _, 1.0f);
+        if (m_rigidbody == null) return false;
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, 1.0f))
+        {
+            return true;
+        }
+        return false;
     }
+
+
 
     /*
      * @brief function called when the child inputs the hit command
      * @return void
      */
-    public void Attack()
+    public void Attacks()
     {
-        if (!isServer) return;
-        if (m_switchingTime < m_cdSwitch) return;
         if (m_isranged)
         {
-            if (m_lastShot >= m_cdGun)
-            {
-                m_lastShot = 0;
-                Debug.Log("shoot");
-                ShootForAll();
-            }
+            Shoot();
         }
         else
         {
             Cac();
-            Debug.Log("cac");
         }
 
     }
 
     /*
-     * @brief Enables the attack collider to detect hits, asked on the server
+     * @brief Enables the attack collider to detect hits.
      * @return void
      */
-    [ServerRpc]
     private void Cac()
     {
         Collider[] hits = Physics.OverlapSphere(m_bulletSpawnTransform.position, m_attackRange);
@@ -120,20 +157,20 @@ public class ChildController : PlayerControllerCore
             var ghost = col.GetComponent<GhostController>();
             if (ghost != null)
             {
-                ghost.HitCac();
-            }
-            if (col.transform.parent) 
-            {
-                if (col.transform.parent.gameObject.layer == LayerMask.NameToLayer("Ghost"))
-                {
-                    var ghostMorph = col.transform.parent.gameObject.GetComponent<GhostMorph>();
-                    if (ghostMorph != null)
-                        {
-                            ghostMorph.RevertToOriginal();
-                        }
-                }
+                HitOpponent(ghost);
             }
         }
+    }
+
+    /*
+     * @brief Logic executed when hitting an opponent.
+     * TODO: Implement actual hit logic
+     * @return void
+     */
+    private void HitOpponent(GhostController _ghost)
+    {
+        print("tape un fant�me");
+        _ghost.GotHitByCac();
     }
 
 
@@ -142,14 +179,30 @@ public class ChildController : PlayerControllerCore
      * We instantaneously transfer the ball and put the force into impulse mode.
      * @return void
      */
-    [ObserversRpc(runLocally:true)]
-    void ShootForAll()
+
+    void Shoot()
     {
-        GameObject bullet = UnityProxy.InstantiateDirectly(m_bulletPrefab, m_bulletSpawnTransform.position, transform.rotation);
-        if (isServer)
+        print("shoot");
+        GameObject bullet = Instantiate(m_bulletPrefab, m_bulletSpawnTransform.position, transform.rotation);
+        bullet.GetComponent<Rigidbody>().AddForce(m_bulletSpawnTransform.forward, ForceMode.Impulse);
+    }
+
+    /*
+     * @brief  This function allows you to clean the slime
+     * When the child is close to a distance of m_cleanRange and there is a gameObject with the tag "Slime", they destroy the gameObject.
+     * @return void
+     */
+    public void Clean()
+    {
+        Collider[] hits = Physics.OverlapSphere(transform.position, m_cleanRange);
+
+        foreach (Collider col in hits)
         {
-            Bullet bScript = bullet.GetComponent<Bullet>();
-            bScript.m_amIServerSide = true;
+            if (col.CompareTag("Slime"))
+            {
+                Destroy(col.gameObject);
+                break;
+            }
         }
     }
 
@@ -159,8 +212,15 @@ public class ChildController : PlayerControllerCore
      */
     public void SwitchAttackType()
     {
-        if (!isServer) return;
         m_isranged = !m_isranged;
-        m_switchingTime = 0;
+    }
+
+    /*
+     * @brief  This function allows you to switch to the SampleScene. (DEBUG PURPOSES ONLY)
+     * @return void
+     */
+    public void SwitchScene()
+    {
+        SceneManager.LoadScene("Scene_Ghost");
     }
 }

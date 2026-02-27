@@ -1,32 +1,31 @@
-using PurrNet;
 using TMPro;
 using UnityEngine;
 
-/*
- * @brief  Contains class declaration for InteractPromptUI
- * @details Script that handles text interactions
- */
+/**
+@brief       Script pour gérer l'affichage des messages d'interaction dans le jeu
+@details     La classe \c InteractPromptUI gère l'affichage du texte d'interaction.
+*/
 public class InteractPromptUI : MonoBehaviour
 {
-    public static InteractPromptUI m_Instance;
+    public static InteractPromptUI Instance;
 
     [SerializeField] private TMP_Text m_promptText;
 
     private void Awake()
     {
-        if (m_Instance != null && m_Instance != this)
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
             return;
         }
 
-        m_Instance = this;
+        Instance = this;
         Hide();
     }
 
     /**
-    @brief      Shows interaction message
-    @param      _message: text to show
+    @brief      Affiche le message d'interaction
+    @param      _message: texte à afficher
     @return     void
     */
     public void Show(string _message)
@@ -38,7 +37,7 @@ public class InteractPromptUI : MonoBehaviour
     }
 
     /**
-    @brief      Hides interaction message
+    @brief      Masque le message d'interaction
     @return     void
     */
     public void Hide()
