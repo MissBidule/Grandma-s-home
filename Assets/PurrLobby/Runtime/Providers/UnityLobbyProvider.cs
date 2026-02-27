@@ -156,6 +156,7 @@ namespace PurrLobby.Providers {
         }
 
         public async Task<Lobby> CreateLobbyAsync(string _lobbyName, int maxPlayers, Dictionary<string, string> lobbyProperties = null) {
+            playerName = FindAnyObjectByType<PersistentDataManager>().LoadUsername();
             try {
                 if(!IsUnityServiceAvailable) { return default; }
 
