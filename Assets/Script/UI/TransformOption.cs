@@ -7,8 +7,8 @@ using UnityEngine;
 [System.Serializable]
 public class TransformOption
 {
-    public GameObject prefab;
-    public Sprite icon;
+    public GameObject m_prefab;
+    public Sprite m_icon;
 
     /*
      * @brief Constructor for TransformOption
@@ -18,8 +18,8 @@ public class TransformOption
      */
     public TransformOption(GameObject _prefab, Sprite _icon = null)
     {
-        prefab = _prefab;
-        icon = _icon;
+        m_prefab = _prefab;
+        m_icon = _icon;
     }
 
     /*
@@ -29,6 +29,6 @@ public class TransformOption
      */
     public bool IsEmpty()
     {
-        return prefab == null || icon == null;
+        return m_prefab == null || m_icon == null;
     }
 }

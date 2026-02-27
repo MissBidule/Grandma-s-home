@@ -18,8 +18,9 @@ public class GhostCameraController : MonoBehaviour
     private float m_pitch;
 
     private GhostInputController m_ghostInputController;
+    private GhostClientController m_ghostClientController;
     private Transform m_target;
-
+    
     /*
      * @brief   Initializes references and locks the cursor
      * @return  void
@@ -27,6 +28,7 @@ public class GhostCameraController : MonoBehaviour
     private void Awake()
     {
         m_ghostInputController = GetComponentInParent<GhostInputController>();
+        m_ghostClientController = GetComponentInParent<GhostClientController>();
         m_target = transform.parent;
 
         UnityEngine.Cursor.lockState = CursorLockMode.Locked;
@@ -44,7 +46,7 @@ public class GhostCameraController : MonoBehaviour
         float finalDistance = m_distance;
 
         // Do not move the camera if the wheel is open
-        if (WheelController.m_Instance != null && WheelController.m_Instance.IsWheelOpen())
+        if (m_ghostClientController.m_wheel != null && m_ghostClientController.m_wheel.IsWheelOpen())
         {
             rotation = Quaternion.Euler(m_pitch, m_yaw, 0f);
             desiredOffset = rotation * Vector3.back * m_distance;

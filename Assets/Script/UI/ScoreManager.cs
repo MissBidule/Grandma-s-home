@@ -1,37 +1,38 @@
+using PurrNet;
 using TMPro;
 using UnityEngine;
 
-/**
-@brief       Script gérant le score
-@details     La classe \c ScoreManager centralise le score et met à jour le texte UI
-*/
-public class ScoreManager : MonoBehaviour
+/*
+ * @brief  Contains class declaration for ScoreManager
+ * @details Script that handles the score and updates theUI text
+ */
+public class ScoreManager : NetworkBehaviour
 {
-    public static ScoreManager Instance;
+    public static ScoreManager m_Instance;
 
     [SerializeField] private TMP_Text m_scoreText;
 
     private int m_score;
 
     /*
-    @brief      Initialise le singleton et rafraîchit l'UI
+    @brief      Initialise the singleton and refresh the ui
     @return     void
     */
     private void Awake()
     {
-        if (Instance != null && Instance != this)
+        if (m_Instance != null && m_Instance != this)
         {
             Destroy(gameObject);
             return;
         }
 
-        Instance = this;
+        m_Instance = this;
         RefreshUI();
     }
 
     /**
-    @brief      Ajoute des points au score
-    @param      _value: valeur à ajouter
+    @brief      Adds points to the score
+    @param      _value: value to add
     @return     void
     */
     public void Add(int _value)
@@ -41,7 +42,7 @@ public class ScoreManager : MonoBehaviour
     }
 
     /**
-    @brief      Remet le score à zéro
+    @brief      resets score
     @return     void
     */
     public void ResetScore()
@@ -51,7 +52,7 @@ public class ScoreManager : MonoBehaviour
     }
 
     /**
-    @brief      Met à jour l'UI
+    @brief      updates the UI
     @return     void
     */
     private void RefreshUI()

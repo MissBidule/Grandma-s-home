@@ -4,6 +4,7 @@
  * When the player fires a ball, a Slime Decal appears at the point of impact under certain conditions (only one Slime Decal is allowed at a time).
  * 
  * @param  m_lifeTime:  lifespan of the ball before disappearance
+ * @param  m_currentLife:  current life left
  * @param  m_speed:  ball speed
  * @param  m_offsetFromSurface:  offset added
  * @param  m_slimePrefab:  Decal Prefab
@@ -12,89 +13,79 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
+using PurrNet;
 
-public class Bullet : MonoBehaviour
+public class Bullet : NetworkBehaviour
 {
     [Header("Balle")]
     [SerializeField] private float m_lifeTime = 3f;
+    [SerializeField] private float m_currentLife;
     [SerializeField] private float m_speed = 10f; 
 
     [Header("Slime")]      
     [SerializeField] private float m_offsetFromSurface = 0.01f;
     [SerializeField] private GameObject m_slimePrefab;
-
     
-    private static Dictionary<Collider, GameObject> m_slimeOnCollider = new Dictionary<Collider, GameObject>();
+    [SerializeField] float m_impactTimeBeforeDespawn = 1f;
 
+    public bool m_amIServerSide = false; 
+
+    void Start()
+    {
+        Destroy(gameObject, m_lifeTime);
+    }
 
     void Update()
     {
-        
-        transform.position += transform.forward * m_speed * Time.deltaTime;
-
-        m_lifeTime -= Time.deltaTime;
-        if (m_lifeTime <= 0f)
-            Destroy(gameObject);
+        transform.position += m_speed * Time.deltaTime * transform.forward;
     }
 
     /**
     * @brief  This function allows you to show or hide a Decal and define for how long.
     * 
-    * If the ball hits a Collider that has a "Wall" tag, The Slime Decal appears for the duration "timeSlimeWall" before disappearing., then the ball.
-    * If the ball hits an existing Collider that already contains a Decal, then the ball is destroyed and nothing else happens.
-    * Otherwise, a Slime Decal of size "size" appears at the point of impact (using the "SpawnSlimePrefab" function), it is stored in the "m_slimeOnCollider" dictionary, and the ball is destroyed.
-    * 
-    * @param  size:  size of the Decal created
-    * @param  timeSlimeWall:  the duration of slime appearance on the walls
+    * If the ball hits, The Slime ppears for the duration "timeSlimeWall" before disappearing.
     */
-
     private void OnTriggerEnter(Collider _other)
     {
-        float size = 1.5f;
-        float timeSlimeWall = 1f;
-
-
-        // We check if the collider is a ghost player by checking if it has the GhostMovement component
-        GameObject gameobject = _other.gameObject;
-        if (gameObject != null) {
-            var ghost = gameobject.GetComponent<GhostController>();
-            if (ghost != null)
+        if (_other.transform.parent) 
+        {
+            if (_other.transform.parent.gameObject.layer == LayerMask.NameToLayer("Ghost"))
             {
-                GameObject slime2 = SpawnSlimePrefab(_other, size);
-                Destroy(slime2, timeSlimeWall);
-                ghost.GotHitByProjectile();
-                Destroy(gameObject);
-                return;
+                var ghost = _other.transform.parent.gameObject.GetComponent<GhostMorph>();
+                if (ghost != null)
+                {   
+                    ghost.RevertToOriginal();
+                }
             }
         }
 
-        /*if (_other.CompareTag("Wall"))
-        {
-            GameObject slime2 = SpawnSlimePrefab(_other, size);
-            Destroy(slime2, timeSlimeWall);
-            Destroy(gameObject);
-            return;
-        }*/
-        if (_other.CompareTag("Slime"))
-        {
-            return;
+
+        // We check if the collider is a ghost player by checking if it has the GhostController component
+        GameObject gameobject = _other.gameObject;
+        if (gameObject != null) {
+            if (_other.CompareTag("Player") && gameobject.layer == LayerMask.NameToLayer("Child"))
+            {
+                return;
+            }
+
+            if (gameobject.layer == LayerMask.NameToLayer("Ghost"))
+            {
+                var ghost = gameobject.GetComponent<GhostController>();
+                if (ghost != null)
+                {
+                    if (m_amIServerSide) // Only calling HitRanged on the server side
+                    {
+                        ghost.HitRanged();
+                    }
+                }
+            }
+            else
+            {
+                SpawnSlimePrefab(_other);
+            }
         }
-        if (m_slimeOnCollider.ContainsKey(_other) && m_slimeOnCollider[_other] != null)
-        {
-            Destroy(gameObject);
-            return;
-        }
-        
-        GameObject slime = SpawnSlimePrefab(_other, size);
-        Destroy(slime, timeSlimeWall);
-
-
-        m_slimeOnCollider[_other] = slime;
-
         Destroy(gameObject);
-        
     }
-
 
     /**
     * @brief  This code snippet allows you to instantiate a Slime Decal
@@ -105,20 +96,18 @@ public class Bullet : MonoBehaviour
     *
     * @return Returns the instance
     */
-
-    GameObject SpawnSlimePrefab(Collider _target, float _size)
+    void SpawnSlimePrefab(Collider _target)
     {
         Vector3 spawnPos = _target.ClosestPoint(transform.position);
-
         spawnPos.z -= 0.3f;
         spawnPos.y += m_offsetFromSurface;
-
-        GameObject slime = Instantiate(m_slimePrefab, spawnPos, Quaternion.identity);
-
-        slime.transform.localScale = Vector3.one * _size;
-
-        slime.transform.SetParent(_target.transform);
-        return slime;
+        SpawnForAll(spawnPos);
     }
 
+    [ObserversRpc(runLocally:true)]
+    void SpawnForAll(Vector3 _spawnPos)
+    {
+        GameObject slime = UnityProxy.InstantiateDirectly(m_slimePrefab, _spawnPos, Quaternion.Euler(0, 0, 1));
+        Destroy(slime, m_impactTimeBeforeDespawn);
+    }
 }

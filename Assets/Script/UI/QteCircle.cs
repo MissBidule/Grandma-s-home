@@ -1,16 +1,17 @@
 using System;
 using System.Diagnostics;
+using PurrNet;
 using UnityEngine;
+using UnityEngine.UI;
 
-/**
-@brief       Script du QTE cercle à plusieurs phases
-@details     La classe \c QteCircle gère un QTE circulaire en plusieurs niveaux de difficulté
-             avec 3 zones visuelles (grande/moyenne/petite)
-*/
+/*
+ * @brief  Contains class declaration for QteCircle
+ * @details Script that handles a circular QTE with several difficulties
+ */
 public class QteCircle : MonoBehaviour
 {
     [Header("UI")]
-    [SerializeField] private GameObject m_root;
+    [SerializeField] private RectTransform m_circleTransform;
     [SerializeField] private RectTransform m_needlePivot;
     [SerializeField] private RectTransform m_zonePivot;
 
@@ -31,29 +32,44 @@ public class QteCircle : MonoBehaviour
     [Header("Phases")]
     [SerializeField] private float[] m_zoneToleranceByPhase = { 18f, 13f, 8f };
 
-    [Header("Input")]
-    [SerializeField] private KeyCode m_validateKey = KeyCode.Space;
-
-
     private const float c_minVectorSqrMagnitude = 0.0001f;
 
     private int m_currentPhaseIndex;
-    private bool m_isRunning;
+    public bool m_isRunning;
     private Action<bool> m_onFinished;
 
+    private void Start()
+    {
+        SetVisibility(false);
+    }
+
+    private void SetVisibility(bool _visible)
+    {
+        m_circleTransform.GetComponent<Image>().enabled = _visible;
+
+        m_needleMarker.GetComponent<Image>().enabled = _visible;
+
+        m_zoneMarkerLarge.GetComponent<Image>().enabled = _visible;
+        m_zoneMarkerMedium.GetComponent<Image>().enabled = _visible;
+        m_zoneMarkerSmall.GetComponent<Image>().enabled = _visible;
+
+    }
+
     /**
-    @brief      Lance le QTE multi-phase
-    @param      _onFinished: callback true si toutes les phases sont réussies
+    @brief      Starts the QTE
+    @param      _onFinished: callback true if all phases are done
     @return     void
     */
     public void StartQte(Action<bool> _onFinished)
     {
+        SetVisibility(true);
+        enabled = true;
+        
+        
         m_onFinished = _onFinished;
         m_isRunning = true;
         m_currentPhaseIndex = 0;
 
-        if (m_root != null)
-            m_root.SetActive(true);
 
         ResetNeedle();
         PlaceZoneRandomly();
@@ -65,43 +81,19 @@ public class QteCircle : MonoBehaviour
         if (!m_isRunning) return;
 
         RotateNeedle();
-
-        if (Input.GetKeyDown(m_validateKey))
-        {
-            bool success = IsNeedleInZone();
-
-            if (!success)
-            {
-                FinishQte(false);
-                return;
-            }
-
-            m_currentPhaseIndex++;
-
-            if (m_currentPhaseIndex >= m_zoneToleranceByPhase.Length)
-            {
-                FinishQte(true);
-            }
-            else
-            {
-                ResetNeedle();
-                PlaceZoneRandomly();
-                UpdateZoneVisual();
-            }
-        }
     }
 
     /**
-    @brief      Termine le QTE
-    @param      _success: true si toutes les phases sont réussie
+    @brief      Ends the QTE
+    @param      _success: true if all phases are done
     @return     void
     */
     private void FinishQte(bool _success)
     {
         m_isRunning = false;
 
-        if (m_root != null)
-            m_root.SetActive(false);
+        SetVisibility(false);
+        enabled = false;
 
         Action<bool> callback = m_onFinished;
         m_onFinished = null;
@@ -109,7 +101,7 @@ public class QteCircle : MonoBehaviour
     }
 
     /**
-    @brief      Fait tourner l'aiguille
+    @brief      Makes the needle turn
     @return     void
     */
     private void RotateNeedle()
@@ -121,7 +113,7 @@ public class QteCircle : MonoBehaviour
     }
 
     /**
-    @brief      Replace l'aiguille au point de départ 
+    @brief      Replaces the needle at the start
     @return     void
     */
     private void ResetNeedle()
@@ -131,7 +123,7 @@ public class QteCircle : MonoBehaviour
     }
 
     /**
-    @brief      Place la zone de succès à un angle aléatoire
+    @brief      Place the success zone at a random angle
     @return     void
     */
     private void PlaceZoneRandomly()
@@ -143,7 +135,7 @@ public class QteCircle : MonoBehaviour
     }
 
     /**
-    @brief      Active seulement la zone correspondant à la phase courante
+    @brief      Activates only the current zone
     @return     void
     */
     private void UpdateZoneVisual()
@@ -154,8 +146,8 @@ public class QteCircle : MonoBehaviour
     }
 
     /**
-    @brief      Récupère le marker de zone selon la phase courante
-    @return     RectTransform du marker actif
+    @brief     Retrieves the zone marker depending on the current phase
+    @return     RectTransform of the active marker
     */
     private RectTransform GetCurrentZoneMarker()
     {
@@ -165,8 +157,8 @@ public class QteCircle : MonoBehaviour
     }
 
     /**
-    @brief      Vérifie si l'aiguille est dans la zone de succès de la phase courante
-    @return     true si réussite
+    @brief      Checks if the needle is in the active zone marker
+    @return     true if success
     */
     private bool IsNeedleInZone()
     {
@@ -192,8 +184,8 @@ public class QteCircle : MonoBehaviour
     }
 
     /**
-    @brief      Récupère la tolérance de la phase courante
-    @return     tolérance en degrés
+    @brief      Retrieve the actual tolerance
+    @return     tolerance in degrees
     */
     private float GetToleranceForCurrentPhase()
     {
@@ -202,5 +194,29 @@ public class QteCircle : MonoBehaviour
 
         int phaseIndex = Mathf.Clamp(m_currentPhaseIndex, 0, m_zoneToleranceByPhase.Length - 1);
         return m_zoneToleranceByPhase[phaseIndex];
+    }
+
+    public void CheckSuccess()
+    {
+        bool success = IsNeedleInZone();
+
+        if (!success)
+        {
+            FinishQte(false);
+            return;
+        }
+
+        m_currentPhaseIndex++;
+
+        if (m_currentPhaseIndex >= m_zoneToleranceByPhase.Length)
+        {
+            FinishQte(true);
+        }
+        else
+        {
+            ResetNeedle();
+            PlaceZoneRandomly();
+            UpdateZoneVisual();
+        }
     }
 }

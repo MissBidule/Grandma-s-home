@@ -1,3 +1,5 @@
+using PurrNet;
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -9,19 +11,24 @@ public class GhostInputController : MonoBehaviour
 {
     public Vector2 m_movementInputVector { get; private set; }
     public Vector2 m_lookInputVector { get; private set; }
-    private GhostController m_ghostController;
-    private GhostMorph m_ghostTransform;
+
+
+    private GhostClientController m_ghostClientController;
+    private GhostMorph m_ghostMorph;
     private GhostInteract m_ghostInteract;
+    private QteCircle m_qteCircle;
+
+    private bool isOwner => m_ghostClientController != null && m_ghostClientController.isOwner;
 
     /*
      * @brief Awake is called when the script instance is being loaded
      * Gets the PlayerController component.
      * @return void
      */
-    void Awake()
+    void Start()
     {
-        m_ghostController = GetComponent<GhostController>();
-        m_ghostTransform = GetComponent<GhostMorph>();
+        m_ghostClientController = GetComponent<GhostClientController>();
+        m_ghostMorph = GetComponent<GhostMorph>();
         m_ghostInteract = GetComponentInChildren<GhostInteract>();
     }
 
@@ -29,9 +36,11 @@ public class GhostInputController : MonoBehaviour
      * @brief OnMove is called by the Input System when movement input is detected
      * @param _context: The context of the input action.
      * @return void
+     * [SERVER]
      */
     public void OnMove(InputAction.CallbackContext _context)
     {
+        if (!isOwner) return;
         m_movementInputVector = _context.ReadValue<Vector2>();
     }
 
@@ -39,33 +48,27 @@ public class GhostInputController : MonoBehaviour
      * @brief OnLook is called by the Input System when camera movement input is detected
      * @param _context: The context of the input action
      * @return void
+     * [LOCAL]
      */
 
     public void OnLook(InputAction.CallbackContext _context)
     {
+        if (!isOwner) return;
         m_lookInputVector = _context.ReadValue<Vector2>();
-    }
-
-    /*
-     * @brief Resets the movement input to zero
-     * Used when anchoring the player to prevent immediate movement detection.
-     * @return void
-     */
-    public void ResetMovementInput()
-    {
-        m_movementInputVector = Vector2.zero;
     }
 
     /*
      * @brief OnScan is called by the Input System when scan input is detected 
      * @param _context: The context of the input action
      * @return void
+     * [LOCAL]
      */
     public void OnScan(InputAction.CallbackContext _context)
     {
+        if (!isOwner) return;
         if (_context.performed)
         {
-            m_ghostTransform.ScanForPrefab();
+            m_ghostClientController.OnScan();
         }
     }
 
@@ -76,9 +79,10 @@ public class GhostInputController : MonoBehaviour
      */
     public void OnOpenWheel(InputAction.CallbackContext _context)
     {
+        if (!isOwner) return;
         if (_context.performed)
         {
-            WheelController.m_Instance.Toggle();
+            m_ghostClientController.m_wheel.Toggle();
         }
     }
 
@@ -89,9 +93,10 @@ public class GhostInputController : MonoBehaviour
      */
     public void OnTransformConfirm(InputAction.CallbackContext _context)
     {
+        if (!isOwner) return;
         if (_context.performed)
         {
-            m_ghostTransform.ConfirmTransform(_context);
+            m_ghostClientController.OnMorph();
         }
     }
 
@@ -102,22 +107,34 @@ public class GhostInputController : MonoBehaviour
      */
     public void OnInteract(InputAction.CallbackContext _context)
     {
+        if (!isOwner) return;
         if (_context.performed)
         {
             m_ghostInteract.Interact();
         }
     }
 
+
     /*
-     * @brief OnSwitchScene is called by the Input System when switch scene input is detected
+     * @brief OnValidate is called by the Input System when validate input is detected
      * @param _context: The context of the input action
      * @return void
      */
-    public void OnSwitchScene(InputAction.CallbackContext _context)
+    public void OnValidation(InputAction.CallbackContext _context)
     {
+        if (!isOwner) return;
         if (_context.performed)
         {
-            m_ghostController.SwitchScene();
+            if (!m_qteCircle)
+            {
+                // Cant place the reference in start cause we need to wait for GhostClientController to spawn the UIHolder
+                m_qteCircle = FindAnyObjectByType<QteCircle>();
+            }
+
+            if(m_qteCircle.m_isRunning)
+            {
+                m_qteCircle.CheckSuccess();
+            }
         }
     }
 }

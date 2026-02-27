@@ -1,3 +1,4 @@
+using PurrNet;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -9,16 +10,18 @@ public class ChildInputController : MonoBehaviour
 {
     public Vector2 m_movementInputVector { get; private set; }
     public Vector2 m_lookInputVector { get; private set; }
-    private ChildController m_childController;
 
+    public ChildClientController m_childClientController;
+
+    private bool isOwner => m_childClientController != null && m_childClientController.isOwner;
     /*
      * @brief Awake is called when the script instance is being loaded
      * Gets the ChildController component.
      * @return void
      */
-void Awake()
+    void Awake()
     {
-        m_childController = GetComponent<ChildController>();
+        m_childClientController = GetComponent<ChildClientController>();
     }
 
     /*
@@ -28,6 +31,7 @@ void Awake()
      */
     public void OnMove(InputAction.CallbackContext _context)
     {
+        if (!isOwner) return;
         m_movementInputVector = _context.ReadValue<Vector2>();
     }
 
@@ -39,34 +43,37 @@ void Awake()
 
     public void OnLook(InputAction.CallbackContext _context)
     {
+        if (!isOwner) return;
         m_lookInputVector = _context.ReadValue<Vector2>();
     }
 
 
     /*
      * @brief function called when the child inputs the jump command
-     * @param _context: valeur liée à l'input
+     * @param _context: value linked to input
      * @return void
      */
     public void OnJump(InputAction.CallbackContext _context)
     {
+        if (!isOwner) return;
         if (_context.performed)
         {
-            m_childController.Jump();
+            m_childClientController.OnJump();
         }
     }
 
 
     /*
     @brief function called when the child inputs the hit command
-    @param _context: valeur liée à l'input
+    @param _context: value linked to input
     @return void
     */
     public void OnAttack(InputAction.CallbackContext _context)
     {
+        if (!isOwner) return;
         if (_context.performed)
         {
-            m_childController.Attacks();
+            m_childClientController.OnAttack();
         }
     }
 
@@ -77,32 +84,10 @@ void Awake()
      */
     public void OnSwitchWeapon(InputAction.CallbackContext _context)
     {
+        if (!isOwner) return;
         if (_context.performed)
         {
-            m_childController.SwitchAttackType();
-        }
-    }
-
-    /*
-     * @brief OnInteract is called by the Input System when interact input is detected
-     * @param _context: The context of the input action
-     * @return void
-     */
-    public void OnInteract(InputAction.CallbackContext _context)
-    {
-        m_childController.Clean();
-    }
-
-    /*
-     * @brief OnSwitchScene is called by the Input System when switch scene input is detected
-     * @param _context: The context of the input action
-     * @return void
-     */
-    public void OnSwitchScene(InputAction.CallbackContext _context)
-    {
-        if (_context.performed)
-        {
-            m_childController.SwitchScene();
+            m_childClientController.OnSwitchWeapon();
         }
     }
 }
