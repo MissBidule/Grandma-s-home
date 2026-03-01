@@ -16,10 +16,11 @@ public class GhostController : PlayerControllerCore, IInteractable
 
     [Header("Ghost references")]
     private GhostMorph m_ghostMorph;
+    private GhostDeathIndicator m_deathIndicator;
 
     [Header("Status Timers")]
     [SerializeField] private float m_timerSlowed;
-    [SerializeField] private float m_timerStop;
+    public float m_timerStop;
     private float m_currentTimerSlowed;
     private float m_currentTimerStop;
 
@@ -54,10 +55,11 @@ public class GhostController : PlayerControllerCore, IInteractable
     {
         base.OnSpawned();
 
+        m_deathIndicator = GetComponent<GhostDeathIndicator>();
+
         if (!isServer) return;
         m_rigidbody = GetComponent<Rigidbody>();
         m_ghostMorph = GetComponent<GhostMorph>();
-
     }
 
     private void Update()
@@ -239,6 +241,7 @@ public class GhostController : PlayerControllerCore, IInteractable
     public void ApplyStopToAll()
     {
         m_isStopped = true;
+        m_deathIndicator?.OnGhostDied();
     }
 
     [ObserversRpc(runLocally:true)]
