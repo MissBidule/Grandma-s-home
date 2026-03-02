@@ -155,6 +155,8 @@ public class GhostClientController : NetworkBehaviour
         m_wheel.ClearSelection();
 
         morphPressed = true;
+        InteractPromptUI.m_Instance.Hide();
+        
 
     }
 

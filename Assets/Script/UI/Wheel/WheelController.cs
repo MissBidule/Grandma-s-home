@@ -84,6 +84,7 @@ public class WheelController : MonoBehaviour
      */
     public void TryAddPrefabToWheel(GameObject _prefab, Sprite _icon)
     {
+        //
         if (IsIconAlreadyInWheel(_icon))
         {
             Debug.Log($"Object already in the wheel: {_prefab.name}");
@@ -203,6 +204,7 @@ public class WheelController : MonoBehaviour
         {
             Debug.Log("Cannot select a new prefab while already transformed");
         }
+            //InteractPromptUI.m_Instance.Hide();
             m_anim.SetBool("OpenWheel", false);
     }
 
