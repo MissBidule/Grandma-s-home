@@ -39,6 +39,7 @@ public class ChildController : PlayerControllerCore
 
     public override void Initialize()
     {
+        base.Initialize();
         m_lastShot = m_cdGun;
         m_switchingTime = m_cdSwitch;
         GetComponent<ChildClientController>().Initialize();
