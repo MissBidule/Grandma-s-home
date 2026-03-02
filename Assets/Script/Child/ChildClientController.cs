@@ -23,7 +23,9 @@ public class ChildClientController : NetworkBehaviour
 
     public void Initialize()
     {
+        print("ChildClientController " + name);
         if (!isOwner) return;
+        print("2 " + name);
         m_childInputController = GetComponent<ChildInputController>();
         m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
         m_playerCamera = GetComponentInChildren<CinemachineCamera>();

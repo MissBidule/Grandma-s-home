@@ -37,9 +37,9 @@ public class ChildController : PlayerControllerCore
         
     }
 
-    [ObserversRpc(runLocally: true)]
     public override void Initialize()
     {
+        print("ChildController " + name);
         base.Initialize();
         m_lastShot = m_cdGun;
         m_switchingTime = m_cdSwitch;

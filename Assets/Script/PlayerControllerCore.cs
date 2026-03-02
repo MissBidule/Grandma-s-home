@@ -42,11 +42,12 @@ public class PlayerControllerCore : NetworkBehaviour
         print("acac " + player + " " + name);
         this.GiveOwnership(player, silent, propagateToChildren);
         name = $"Player {player}";
+        Initialize();
     }
 
-    [ObserversRpc(runLocally: true)]
     public virtual void Initialize()
     {
+        print("PlayerController " + name);
         GetComponentInChildren<AudioListener>().enabled = isOwner;
         GetComponent<PlayerInput>().enabled = isOwner;
 
