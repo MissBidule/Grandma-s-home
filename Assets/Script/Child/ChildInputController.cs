@@ -36,7 +36,7 @@ public class ChildInputController : MonoBehaviour
      */
     public void OnMove(InputAction.CallbackContext _context)
     {
-        print("pipi");
+        print("pipi " + name);
         if (!isOwner) return;
         m_movementInputVector = _context.ReadValue<Vector2>();
     }
@@ -49,7 +49,7 @@ public class ChildInputController : MonoBehaviour
 
     public void OnLook(InputAction.CallbackContext _context)
     {
-        print("caca");
+        print("caca" + name);
         if (!isOwner) return;
         m_lookInputVector = _context.ReadValue<Vector2>();
     }
