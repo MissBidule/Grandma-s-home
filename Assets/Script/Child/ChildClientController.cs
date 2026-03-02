@@ -15,6 +15,8 @@ public class ChildClientController : NetworkBehaviour
     private bool m_switchWeaponPressed = false;
     private bool m_attackPressed = false;
 
+    public GameObject m_slowedLabel;
+
     protected override void OnSpawned()
     {
         base.OnSpawned();
@@ -29,6 +31,8 @@ public class ChildClientController : NetworkBehaviour
     {
         if (!isOwner) return;
 
+        UpdateLabels();
+
         // DebugPrintTrafic();
 
         SendChildRPC(
@@ -42,6 +46,23 @@ public class ChildClientController : NetworkBehaviour
         m_jumpPressed = false;
         m_switchWeaponPressed = false;
         m_attackPressed = false;
+    }
+
+    /*
+     * @brief   Called when the child collides with a ghost to apply the slowing effect, the collider is quite small to prevent from triggering while trying to hit a ghost with the bat
+     * @return  void
+     */
+    void OnTriggerEnter(Collider _other)
+    {
+        if (_other.gameObject.layer == LayerMask.NameToLayer("Ghost"))
+        {
+            GhostController ghost = _other.gameObject.GetComponent<GhostController>();
+            if (!ghost) return;
+            if (ghost.m_isStopped) return;
+            if (ghost.m_currentTimerCdSlowed > 0) return;
+            ghost.InitSlowedChild();
+            m_childController.GhostTouch();
+        }
     }
 
     public void DebugPrintTrafic()
@@ -102,6 +123,18 @@ public class ChildClientController : NetworkBehaviour
         Vector3 forward = cameraTransform.forward;
         forward.y = 0f;
         return forward.normalized;
+    }
+
+    void UpdateLabels()
+    {
+        if (m_childController.m_isSlowed)
+        {
+            if (!m_slowedLabel.activeSelf) m_slowedLabel.SetActive(true);
+        }
+        else
+        {
+            if (m_slowedLabel.activeSelf) m_slowedLabel.SetActive(false);
+        }
     }
 
     [ServerRpc]

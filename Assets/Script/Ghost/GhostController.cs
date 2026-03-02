@@ -20,8 +20,10 @@ public class GhostController : PlayerControllerCore, IInteractable
     [Header("Status Timers")]
     [SerializeField] private float m_timerSlowed;
     [SerializeField] private float m_timerStop;
+    [SerializeField] private float m_cdChildSlowed = 10f;
     private float m_currentTimerSlowed;
     private float m_currentTimerStop;
+    public float m_currentTimerCdSlowed;
 
     [Header("Movement")]
     [SerializeField] private float m_walkSpeed = 4f;
@@ -132,8 +134,21 @@ public class GhostController : PlayerControllerCore, IInteractable
         ResetClimbFlags();
     }
 
+    /**
+    @brief      Initialize the slowed child timer
+    @details    Sets the cooldown timer for when a child can be slowed again after being hit by the ghost's slowing effect. This prevents the child from being slowed repeatedly in a short time frame.
+    */
+    public void InitSlowedChild()
+    {
+        m_currentTimerCdSlowed = m_cdChildSlowed;
+    }
+
     void UpdateTimers()
     {
+        if (m_currentTimerCdSlowed > 0)
+        {
+            m_currentTimerCdSlowed -= Time.deltaTime;
+        }
         if (m_isStopped)
         {
             m_rigidbody.constraints = RigidbodyConstraints.FreezeAll;

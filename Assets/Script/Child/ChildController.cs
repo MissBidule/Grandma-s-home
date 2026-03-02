@@ -13,20 +13,26 @@ public class ChildController : PlayerControllerCore
 
     public Vector3 m_wishDir;
     public float m_cameraYaw; 
+    public bool m_isSlowed = false;
+    public bool m_isSneaked = false;
 
     private float m_attackRange = 0.5f;
 
+    [SerializeField] private float m_timerSlowed;
     private bool m_isranged;
     [SerializeField] private float m_cdGun = 0.2f;
     private float m_lastShot;
     [SerializeField] private float m_cdSwitch = 0.2f;
     private float m_switchingTime;
+    private float m_currentTimerSlowed;
 
 
     [SerializeField] private float m_speed = 5f;
     [SerializeField] private Transform m_bulletSpawnTransform;
     [SerializeField] private GameObject m_bulletPrefab;
     [SerializeField] private float m_jumpImpulse = 6.0f;
+
+    private float m_speedModifier = 1f;
 
     protected override void OnSpawned()
     {
@@ -46,19 +52,66 @@ public class ChildController : PlayerControllerCore
     void Update()
     {
         if (!isServer) return;
-        m_lastShot += Time.deltaTime;
-        m_switchingTime += Time.deltaTime;
-        
 
+        m_isSneaked = Input.GetKey(KeyCode.LeftShift);
+     
+        UpdateTimers();
+
+        SetSpeedModifier();
+        
         transform.rotation = Quaternion.Euler(0, m_cameraYaw, 0);
 
 
 
         m_rigidbody.MovePosition(
-            m_rigidbody.position + m_wishDir * m_speed * Time.deltaTime
+            m_rigidbody.position + m_wishDir * m_speed * m_speedModifier * Time.deltaTime
         );
 
 
+    }
+
+    void UpdateTimers()
+    {
+        m_lastShot += Time.deltaTime;
+        m_switchingTime += Time.deltaTime;
+        
+        if (m_isSlowed)
+        {
+            m_currentTimerSlowed -= Time.deltaTime;
+            if (m_currentTimerSlowed <= 0f)
+            {
+                RemoveSlowToAll();
+            }
+        }
+    }
+
+    void SetSpeedModifier()
+    {
+        m_speedModifier = 1f;
+        if (m_isSneaked) m_speedModifier *= 0.75f;
+        if (m_isSlowed) m_speedModifier *= 0.5f;
+    }
+
+    /**
+    @brief      Apply slow effect from ghost
+    */
+    public void GhostTouch()
+    {
+        if (!isServer) return;
+        ApplySlowToAll();
+        m_currentTimerSlowed = m_timerSlowed;
+    }
+
+    [ObserversRpc(runLocally:true)]
+    public void ApplySlowToAll()
+    {
+        m_isSlowed = true;
+    }
+
+    [ObserversRpc(runLocally:true)]
+    public void RemoveSlowToAll()
+    {
+        m_isSlowed = false;
     }
 
     /*
@@ -87,7 +140,7 @@ public class ChildController : PlayerControllerCore
      */
     public void Attack()
     {
-        if (!isServer) return;
+        if (!isServer || m_isSlowed) return;
         if (m_switchingTime < m_cdSwitch) return;
         if (m_isranged)
         {
