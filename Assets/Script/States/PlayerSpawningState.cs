@@ -74,8 +74,8 @@ public class PlayerSpawningState : StateNode
                 spawnPoint = m_childSpawnPoints[currentSpawnChildIndex++ % m_childSpawnPoints.Count];
                 newPlayer = UnityProxy.Instantiate(m_childPrefab, spawnPoint.position, spawnPoint.rotation);
             } 
-            newPlayer.GiveOwnership(player);
             newPlayer.name = $"Player {caca} {player}";
+            newPlayer.GiveOwnershipBetter(player);
             newPlayer.Initialize();
             spawnedPlayers.Add(newPlayer);
         }
