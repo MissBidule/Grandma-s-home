@@ -21,7 +21,7 @@ public class ChildClientController : NetworkBehaviour
         m_childController = GetComponent<ChildController>();
     }
 
-    public override void Initialize()
+    public void Initialize()
     {
         if (!isOwner) return;
         m_childInputController = GetComponent<ChildInputController>();
