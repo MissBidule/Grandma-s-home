@@ -37,6 +37,7 @@ public class ChildController : PlayerControllerCore
         
     }
 
+    [ObserversRpc(runLocally: true)]
     public override void Initialize()
     {
         base.Initialize();

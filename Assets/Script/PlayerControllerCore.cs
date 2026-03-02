@@ -36,6 +36,7 @@ public class PlayerControllerCore : NetworkBehaviour
         base.OnSpawned();
     }
 
+    [ObserversRpc(runLocally: true)]
     public virtual void Initialize()
     {
         GetComponentInChildren<AudioListener>().enabled = isOwner;
