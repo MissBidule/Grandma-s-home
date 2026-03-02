@@ -36,7 +36,7 @@ public class PlayerControllerCore : NetworkBehaviour
         base.OnSpawned();
     }
 
-    [ObserversRpc(runLocally: true)]
+    
     public void GiveOwnershipBetter(PlayerID player, bool silent = false, bool? propagateToChildren = null)
     {
         print("acac " + player + " " + name);
