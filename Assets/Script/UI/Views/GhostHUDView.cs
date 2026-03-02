@@ -1,3 +1,4 @@
+using System;
 using PurrNet;
 using System.Collections;
 using TMPro;
@@ -15,6 +16,7 @@ namespace Script.UI.Views
         [SerializeField] private Image m_dashIcon;
         [SerializeField] private Image m_dashCooldownOverlay;
         
+        // TODO find way to unserielize
         public bool m_dash_disabled = false;
         
         private void Awake()
