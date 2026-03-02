@@ -13,7 +13,6 @@ public class GhostController : PlayerControllerCore, IInteractable
     public bool m_isSlowed = false;
     public bool m_isStopped = false;
 
-
     [Header("Ghost references")]
     private GhostMorph m_ghostMorph;
 
@@ -43,7 +42,6 @@ public class GhostController : PlayerControllerCore, IInteractable
     private Vector3 m_wallNormal;
 
     private float m_speedModifier = 1f;
-
 
     // -------------------------------------------
     // --- Everything Down Here is Server-Side ---
@@ -192,8 +190,6 @@ public class GhostController : PlayerControllerCore, IInteractable
         return false;
     }
 
-    
-
     /**
     @brief      Reset climb flags
     */
@@ -246,7 +242,6 @@ public class GhostController : PlayerControllerCore, IInteractable
     {
         m_isStopped = false;
     }
-
 
     public void OnInteract(GhostInteract _who)
     {
