@@ -15,8 +15,6 @@ public class GhostDeathIndicator : MonoBehaviour
     private GhostController m_ghostController;
     private bool m_isLocalPlayerGhost;
     private bool m_initialized;
-    private float m_deathTimer;
-    private bool m_isDying;
     private Transform m_cameraTransform;
 
     private void Start()
@@ -37,11 +35,7 @@ public class GhostDeathIndicator : MonoBehaviour
     /**
     @brief      Called by GhostController.ApplyStopToAll on all clients when this ghost is hit
     */
-    public void OnGhostDied()
-    {
-        m_isDying = true;
-        m_deathTimer = m_ghostController.m_timerStop;
-    }
+    public void OnGhostDied() { }
 
     private void LateUpdate()
     {
@@ -82,14 +76,7 @@ public class GhostDeathIndicator : MonoBehaviour
             if (!m_initialized) return;
         }
 
-        if (m_isDying)
-        {
-            m_deathTimer -= Time.deltaTime;
-            if (m_deathTimer <= 0f || !m_ghostController.m_isStopped)
-                m_isDying = false;
-        }
-
-        bool shouldShow = m_isLocalPlayerGhost && m_isDying;
+        bool shouldShow = m_isLocalPlayerGhost && m_ghostController.m_isStopped;
         m_indicatorCanvas.gameObject.SetActive(shouldShow);
 
         if (shouldShow && m_cameraTransform != null)

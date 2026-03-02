@@ -12,6 +12,7 @@ public class GhostController : PlayerControllerCore, IInteractable
     [NonSerialized] public Vector3 m_wishDir;
     public bool m_isSlowed = false;
     public bool m_isStopped = false;
+    public bool m_isReviving = false;
 
 
     [Header("Ghost references")]
@@ -23,6 +24,11 @@ public class GhostController : PlayerControllerCore, IInteractable
     public float m_timerStop;
     private float m_currentTimerSlowed;
     private float m_currentTimerStop;
+
+    [Header("Revive")]
+    [SerializeField] private float m_baseReviveTime = 5f;
+    [SerializeField] private float m_maxReviveTime = 30f;
+    private int m_deathCount = 0;
 
     [Header("Movement")]
     [SerializeField] private float m_walkSpeed = 4f;
@@ -88,6 +94,7 @@ public class GhostController : PlayerControllerCore, IInteractable
 
         if (m_wishDir.sqrMagnitude > 0.0001f
             && !m_isStopped
+            && !m_isReviving
             && !m_rigidbody.constraints.HasFlag(RigidbodyConstraints.FreezeRotationY)
         )
         {
@@ -108,6 +115,7 @@ public class GhostController : PlayerControllerCore, IInteractable
         }
 
         if (m_canClimbThisFrame &&
+            !m_isReviving &&
             m_wishDir.sqrMagnitude > 0.0001f)
         {
             Vector3 vel = m_rigidbody.linearVelocity;
@@ -139,12 +147,12 @@ public class GhostController : PlayerControllerCore, IInteractable
         if (m_isStopped)
         {
             m_rigidbody.constraints = RigidbodyConstraints.FreezeAll;
-            m_currentTimerStop -= Time.deltaTime;
-            if (m_currentTimerStop <= 0f)
-            {
-                m_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
-                RemoveStopToAll();
-            }
+            // m_currentTimerStop -= Time.deltaTime;
+            // if (m_currentTimerStop <= 0f)
+            // {
+            //     m_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+            //     RemoveStopToAll();
+            // }
         }
         
         if (m_isSlowed)
@@ -162,7 +170,7 @@ public class GhostController : PlayerControllerCore, IInteractable
         m_speedModifier = 1f;
         if (m_isSlowed) m_speedModifier *= 0.5f;
         // Place between those lines the speedModifier change for when the player will "dash" / "sprint"
-        if (m_isStopped) m_speedModifier = 0f;
+        if (m_isStopped || m_isReviving) m_speedModifier = 0f;
     }
 
     /**
@@ -244,10 +252,22 @@ public class GhostController : PlayerControllerCore, IInteractable
         m_deathIndicator?.OnGhostDied();
     }
 
+    public float GetReviveTime()
+    {
+        return Mathf.Min(m_baseReviveTime * (m_deathCount + 1), m_maxReviveTime);
+    }
+
+    public void ForceRevive()
+    {
+        m_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        RemoveStopToAll();
+    }
+
     [ObserversRpc(runLocally:true)]
     public void RemoveStopToAll()
     {
         m_isStopped = false;
+        m_deathCount++;
     }
 
 

@@ -118,6 +118,10 @@ public class GhostInputController : MonoBehaviour
         {
             m_ghostInteract.Interact();
         }
+        else if (_context.canceled)
+        {
+            m_ghostInteract.StopInteract();
+        }
     }
 
 
