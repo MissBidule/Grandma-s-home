@@ -19,12 +19,16 @@ public class ChildClientController : NetworkBehaviour
     {
         base.OnSpawned();
         m_childController = GetComponent<ChildController>();
+    }
 
+    public override void Initialize()
+    {
         if (!isOwner) return;
         m_childInputController = GetComponent<ChildInputController>();
         m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
         m_playerCamera = GetComponentInChildren<CinemachineCamera>();
     }
+
     void Update()
     {
         if (!isOwner) return;

@@ -34,9 +34,14 @@ public class ChildController : PlayerControllerCore
         m_rigidbody = GetComponent<Rigidbody>();
 
         if (!isServer) return;
+        
+    }
+
+    public override void Initialize()
+    {
         m_lastShot = m_cdGun;
         m_switchingTime = m_cdSwitch;
-
+        GetComponent<ChildClientController>().Initialize();
     }
 
     /*
