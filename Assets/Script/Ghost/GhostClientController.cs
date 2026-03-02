@@ -29,6 +29,7 @@ public class GhostClientController : NetworkBehaviour
 
     private bool morphPressed = false;
     private bool dashPressed = false;
+    private bool sneakPressed = false;
 
     protected override void OnSpawned()
     {
@@ -72,7 +73,8 @@ public class GhostClientController : NetworkBehaviour
             GetDirectionIntention(m_ghostInputController.m_movementInputVector),
             morphPressed ? m_ghostMorphPreview.m_currentPrefab : null,                  // Morph Parameters
             m_ghostMorphPreview.transform.localPosition,                                 // Morph Parameters
-            dashPressed
+            dashPressed,
+            sneakPressed
         );
 
         // Reset values after sending to server
@@ -115,16 +117,18 @@ public class GhostClientController : NetworkBehaviour
 
         if (m_ghostController.m_isDashing)
         {
-            if (InstanceHandler.TryGetInstance(out GhostHUDView  ghostHUDView)) 
-                ghostHUDView.DashActivate();
+            if (!InstanceHandler.TryGetInstance(out GhostHUDView ghostHUDView))
+                return;
+            ghostHUDView.DashActivate();
         }
 
-        if (m_ghostController.m_dashDisabled)
+        if (!m_ghostController.m_isDashing && !m_ghostController.m_CanDash)
         {
-            if (InstanceHandler.TryGetInstance(out GhostHUDView ghostHUDView))
-            {
-                ghostHUDView.DashDisabled();
-            }
+            if (!InstanceHandler.TryGetInstance(out GhostHUDView ghostHUDView)) 
+                return;
+            if (ghostHUDView.m_dash_disabled)
+                return;
+            ghostHUDView.DashDisabled();
         }
     }
 
@@ -161,6 +165,14 @@ public class GhostClientController : NetworkBehaviour
     {
         dashPressed = true;
     }
+    
+    /*
+     * @brief call the server to sneak
+     */
+    public void Sneak(bool _sneakStatus)
+    {
+        sneakPressed = _sneakStatus;
+    }
 
     /**
      * From Input Vector to Movement Intention, based on camera placement.
@@ -186,7 +198,7 @@ public class GhostClientController : NetworkBehaviour
     }
 
     [ServerRpc]
-    private void SendGhostRPC(Vector3 _movement, GameObject _prefab, Vector3 _pos, bool _dashPressed)
+    private void SendGhostRPC(Vector3 _movement, GameObject _prefab, Vector3 _pos, bool _dashPressed, bool _sneakPressed)
     {
         m_ghostController.m_wishDir = _movement;
         // Prefab is not null only when morphPressed is true.
@@ -194,8 +206,8 @@ public class GhostClientController : NetworkBehaviour
         if (_prefab) m_ghostMorph.Morphing(_prefab, _pos);
         
         if (_dashPressed)
-        {
             m_ghostController.StartDash();
-        }
+        
+        m_ghostController.m_isSneaking = _sneakPressed;
     }
 }

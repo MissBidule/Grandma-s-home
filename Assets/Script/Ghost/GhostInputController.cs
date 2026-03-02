@@ -133,6 +133,26 @@ public class GhostInputController : MonoBehaviour
     }
     
     /*
+     * @brief OnSneak  is called by the Input System when sneak input is detected
+     * @param _context: The context of the input action
+     * @return void
+     */
+    public void OnSneak(InputAction.CallbackContext _context)
+    {
+        if (!isOwner) return;
+        if (_context.started)
+        {
+            // On press
+            m_ghostClientController.Sneak(true);
+        }
+        else if (_context.canceled)
+        {
+            // On release
+            m_ghostClientController.Sneak(false);
+        }
+    }
+    
+    /*
      * @brief OnHint is called by the Input System when hint input is detected used to display the controls hint
      * @param _context: The context of the input action
      * @return void

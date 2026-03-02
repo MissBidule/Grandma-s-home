@@ -15,6 +15,7 @@ namespace Script.UI.Views
         [SerializeField] private Image m_dashIcon;
         [SerializeField] private Image m_dashCooldownOverlay;
         
+        public bool m_dash_disabled = false;
         
         private void Awake()
         {
@@ -53,6 +54,7 @@ namespace Script.UI.Views
                 dashIcon.color = Color.white;
             ShowMessage("Dash End");
             m_dashCooldownOverlay.fillAmount = 1f;
+            m_dash_disabled = true;
         }
 
         /*

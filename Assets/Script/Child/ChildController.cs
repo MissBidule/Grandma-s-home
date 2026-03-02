@@ -21,12 +21,15 @@ public class ChildController : PlayerControllerCore
     private float m_lastShot;
     [SerializeField] private float m_cdSwitch = 0.2f;
     private float m_switchingTime;
-
-
+    
+    
     [SerializeField] private float m_speed = 5f;
     [SerializeField] private Transform m_bulletSpawnTransform;
     [SerializeField] private GameObject m_bulletPrefab;
     [SerializeField] private float m_jumpImpulse = 6.0f;
+    [SerializeField] private float m_sneakAmplitude = 0.5f;
+    public bool m_isSneaking = false;
+    private float m_SpeedModifier = 1.0f;
 
     protected override void OnSpawned()
     {
@@ -52,13 +55,19 @@ public class ChildController : PlayerControllerCore
 
         transform.rotation = Quaternion.Euler(0, m_cameraYaw, 0);
 
-
+        SetSpeedModifier();
 
         m_rigidbody.MovePosition(
-            m_rigidbody.position + m_wishDir * m_speed * Time.deltaTime
+            m_rigidbody.position + m_wishDir * (m_speed * Time.deltaTime * m_SpeedModifier)
         );
 
 
+    }
+    
+    void SetSpeedModifier()
+    {
+        m_SpeedModifier = 1f;
+        if (m_isSneaking) m_SpeedModifier *= m_sneakAmplitude;
     }
 
     /*

@@ -1,4 +1,6 @@
 using PurrNet;
+using Script.UI.Views;
+using UI;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -14,7 +16,8 @@ public class ChildClientController : NetworkBehaviour
     private bool m_jumpPressed = false;
     private bool m_switchWeaponPressed = false;
     private bool m_attackPressed = false;
-
+    private bool m_sneakPressed = false;
+    
     protected override void OnSpawned()
     {
         base.OnSpawned();
@@ -24,6 +27,9 @@ public class ChildClientController : NetworkBehaviour
         m_childInputController = GetComponent<ChildInputController>();
         m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
         m_playerCamera = GetComponentInChildren<CinemachineCamera>();
+        
+        if (InstanceHandler.TryGetInstance(out UIsManager  uisManager))
+            uisManager.ShowView<ChildHUDView>();
     }
     void Update()
     {
@@ -36,7 +42,8 @@ public class ChildClientController : NetworkBehaviour
             m_playerCamera.transform.eulerAngles.y,
             m_jumpPressed,
             m_switchWeaponPressed,
-            m_attackPressed
+            m_attackPressed,
+            m_sneakPressed
         );
 
         m_jumpPressed = false;
@@ -72,6 +79,14 @@ public class ChildClientController : NetworkBehaviour
         if (!isOwner) return;
         m_attackPressed = true;
     }
+    
+    /*
+     * @brief call the server to sneak
+     */
+    public void Sneak(bool _sneakStatus)
+    {
+        m_sneakPressed = _sneakStatus;
+    }
 
     private Vector3 GetDirectionIntention(Vector2 _movement)
     {
@@ -105,12 +120,13 @@ public class ChildClientController : NetworkBehaviour
     }
 
     [ServerRpc]
-    private void SendChildRPC(Vector3 _wishDirection, float _cameraYaw, bool _jumpPressed, bool _switchPressed, bool _attackPressed)
+    private void SendChildRPC(Vector3 _wishDirection, float _cameraYaw, bool _jumpPressed, bool _switchPressed, bool _attackPressed, bool _sneakPressed)
     {
         m_childController.m_wishDir = _wishDirection;
         m_childController.m_cameraYaw = _cameraYaw;
         if (_jumpPressed) m_childController.Jump();
         if (_switchPressed) m_childController.SwitchAttackType();
         if (_attackPressed) m_childController.Attack();
+        m_childController.m_isSneaking = _sneakPressed;
     }
 }

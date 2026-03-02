@@ -179,6 +179,8 @@ MonoBehaviour:
   m_bulletSpawnTransform: {fileID: 8286851940836659514}
   m_bulletPrefab: {fileID: 366779594710045177, guid: 90e50898fd15e4755813076e701192cc, type: 3}
   m_jumpImpulse: 6
+  m_sneakAmplitude: 0.5
+  m_isSneaking: 0
 --- !u!114 &30589635987039035
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -440,6 +442,50 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 55397657-de04-43c4-aa9d-3b0ef9651449
     m_ActionName: 'Ghost/Validate[/Keyboard/space]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6565872187536608583}
+        m_TargetAssemblyTypeName: ChildInputController, Assembly-CSharp
+        m_MethodName: OnHint
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: ea2e3932-0535-40f3-9dcc-9236d288a500
+    m_ActionName: 'Child/Hint[/Keyboard/h]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 46160aee-2a43-444d-a6f1-377c688007c1
+    m_ActionName: 'Ghost/Sprint[/Keyboard/leftShift]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 63ac072b-1e83-4270-932d-4bbaf1fdb089
+    m_ActionName: 'Ghost/Hint[/Keyboard/h]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6565872187536608583}
+        m_TargetAssemblyTypeName: ChildInputController, Assembly-CSharp
+        m_MethodName: OnSneak
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 643f7f59-890d-4dfd-bbde-6c698d799d56
+    m_ActionName: 'Child/Sneak[/Keyboard/leftCtrl]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 20a70707-862b-48b5-9a47-d8b9fce4a69a
+    m_ActionName: 'Ghost/Sneak[/Keyboard/leftCtrl]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Child
