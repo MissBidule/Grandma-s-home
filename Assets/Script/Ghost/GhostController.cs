@@ -291,11 +291,11 @@ public class GhostController : PlayerControllerCore, IInteractable
 
     public void OnFocus(GhostInteract who)
     {
-        throw new NotImplementedException();
+        print("Found dead ghost");
     }
 
     public void OnUnfocus(GhostInteract who)
     {
-        throw new NotImplementedException();
+        print("Lost focus on dead ghost");
     }
 }
