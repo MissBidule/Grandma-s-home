@@ -49,8 +49,10 @@ public class PlayerSpawningState : StateNode
         
         int currentSpawnChildIndex = 0;
         int currentSpawnGhostIndex = 0;
+        int caca = 0;
         foreach (var player in networkManager.players)
         {
+            caca += 1;
             if (NetworkManager.main.TryGetModule(out GlobalOwnershipModule ownership, true) && ownership.PlayerOwnsSomething(player))
                 continue;
                 
@@ -73,6 +75,7 @@ public class PlayerSpawningState : StateNode
                 newPlayer = UnityProxy.Instantiate(m_childPrefab, spawnPoint.position, spawnPoint.rotation);
             } 
             newPlayer.GiveOwnership(player);
+            newPlayer.name = $"Player {caca} {player}";
             newPlayer.Initialize();
             spawnedPlayers.Add(newPlayer);
         }
