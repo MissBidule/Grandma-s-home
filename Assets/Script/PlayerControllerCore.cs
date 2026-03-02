@@ -20,18 +20,27 @@ public class PlayerControllerCore : NetworkBehaviour
      */
     protected override void OnSpawned()
     {
-        base.OnSpawned();
         
         Debug.Log($"[{gameObject.name}] OnSpawned - isOwner: {isOwner}, localPlayer: {localPlayer}, owner: {owner}");
 
-        GetComponentInChildren<AudioListener>().enabled = isOwner;
-
-
-        GetComponent<PlayerInput>().enabled = isOwner;
+        
         /*GetComponent<AudioSource>().enabled = !isOwner;
         GetComponentInChildren<CinemachineBrain>().gameObject.SetActive(isOwner);
         */
         // Properly manage camera for ownership
+        
+        /*else
+        {
+            gameObject.tag = "Player";
+        }*/
+        base.OnSpawned();
+    }
+
+    public void Initialize()
+    {
+        GetComponentInChildren<AudioListener>().enabled = isOwner;
+        GetComponent<PlayerInput>().enabled = isOwner;
+
         if (m_playerCamera != null)
         {
             if (isOwner)
@@ -44,20 +53,17 @@ public class PlayerControllerCore : NetworkBehaviour
             }
         }
 
-        if (!isOwner) {
-            
+        if (!isOwner)
+        {
+
             // Change color of non-owned players for better visibility 
             foreach (var renderer in m_renderers)
             {
                 renderer.material.color = Color.HSVToRGB(UnityEngine.Random.Range(0f, 1f), 0.8f, 0.9f);
             }
         }
-        /*else
-        {
-            gameObject.tag = "Player";
-        }*/
     }
-    
+
     private void OnDisable()
     {
         Cursor.lockState = CursorLockMode.None;

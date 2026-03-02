@@ -21,11 +21,6 @@ public class ChildInputController : MonoBehaviour
      */
     private void Start()
     {
-        var input = GetComponent<PlayerInput>();
-        input.actions.Disable();
-        input.actions.FindActionMap("Child").Enable();
-
-
         m_childClientController = GetComponent<ChildClientController>();
     }
 

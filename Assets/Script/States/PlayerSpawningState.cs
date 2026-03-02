@@ -73,6 +73,7 @@ public class PlayerSpawningState : StateNode
                 newPlayer = UnityProxy.Instantiate(m_childPrefab, spawnPoint.position, spawnPoint.rotation);
             } 
             newPlayer.GiveOwnership(player);
+            newPlayer.Initialize();
             spawnedPlayers.Add(newPlayer);
         }
 
