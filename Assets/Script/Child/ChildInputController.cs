@@ -19,8 +19,13 @@ public class ChildInputController : MonoBehaviour
      * Gets the ChildController component.
      * @return void
      */
-    void Awake()
+    private void Start()
     {
+        var input = GetComponent<PlayerInput>();
+        input.actions.Disable();
+        input.actions.FindActionMap("Child").Enable();
+
+
         m_childClientController = GetComponent<ChildClientController>();
     }
 

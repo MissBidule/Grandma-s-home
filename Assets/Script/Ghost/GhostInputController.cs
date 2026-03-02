@@ -29,6 +29,10 @@ public class GhostInputController : MonoBehaviour
      */
     void Start()
     {
+        var input = GetComponent<PlayerInput>();
+        input.actions.Disable();
+        input.actions.FindActionMap("Ghost").Enable();
+
         m_ghostClientController = GetComponent<GhostClientController>();
         m_ghostMorph = GetComponent<GhostMorph>();
         m_ghostInteract = GetComponentInChildren<GhostInteract>();
