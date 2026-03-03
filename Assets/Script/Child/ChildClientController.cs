@@ -31,7 +31,7 @@ public class ChildClientController : NetworkBehaviour
 
     private IEnumerator Initialize()
     {
-        yield return null;
+        yield return new WaitForSeconds(isServer?10f:15f);
         print("Initializing ChildClientController for " + gameObject.name);
         print(gameObject.name+": IsOwner: " + isOwner);
         print(gameObject.name+": localPlayer: " + localPlayer + " " + localPlayerForced + " Owner: " + owner);

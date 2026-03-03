@@ -43,7 +43,7 @@ public class ChildController : PlayerControllerCore
 
     private IEnumerator InitializeChild()
     {
-        yield return null;
+        yield return new WaitForSeconds(isServer?10f:15f);
         m_rigidbody = GetComponent<Rigidbody>();
 
         if (isServer) {
