@@ -41,7 +41,10 @@ public class ChildClientController : NetworkBehaviour
             m_childInputController = GetComponent<ChildInputController>();
             m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
             m_playerCamera = GetComponentInChildren<CinemachineCamera>();
-            Camera.main.tag = "Untagged";
+            if (Camera.main)
+            {
+                Camera.main.tag = "Untagged";
+            }
             m_playerCamera.tag = "MainCamera";
         }
         isInitialized = true;
