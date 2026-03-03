@@ -5,13 +5,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /*
- * @brief  Contains class declaration for GhostInteract
- * @details The GhostInteract class handles interactions with sabotageable objects and downed ghosts for the Ghost player.
+ * @brief  Contains class declaration for Interact
+ * @details The Interact class handles interactions with sabotageable objects for all players and downed ghosts for the Ghost player.
  */
-public class GhostInteract : NetworkBehaviour
+public class Interact : NetworkBehaviour
 {
     [Header("Detection")]
-    [SerializeField] private LayerMask m_interactableMask;
+    [SerializeField] public bool m_isGhost = true;
     public IInteractable m_onFocus; // Can be either GhostStatus or SabotageObject
     private List<IInteractable> m_interactable = new List<IInteractable>();
 
@@ -59,7 +59,7 @@ public class GhostInteract : NetworkBehaviour
             var ghost = interactable as GhostController;
             if (ghost != null)
             {
-                if (!ghost.m_isStopped) continue; // Only interact with downed ghosts
+                if (!m_isGhost || !ghost.m_isStopped) continue; // Only interact with downed ghosts
             }
 
             MonoBehaviour mono = interactable as MonoBehaviour;
@@ -77,7 +77,7 @@ public class GhostInteract : NetworkBehaviour
      * @brief Interact with the current target if available
      * @return void
      */
-    public void Interact()
+    public void OnInteract()
     {
         if (m_onFocus == null) return;
         m_onFocus.OnInteract(this);

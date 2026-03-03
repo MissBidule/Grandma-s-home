@@ -263,13 +263,13 @@ public class GhostController : PlayerControllerCore, IInteractable
     }
 
 
-    public void OnInteract(GhostInteract _who)
+    public void OnInteract(Interact _who)
     {
         if (!isServer) return;
         ResetStoppedRPC();
     }
 
-    public void OnStopInteract(GhostInteract _who)
+    public void OnStopInteract(Interact _who)
     {
         // Do nothing
     }
@@ -281,12 +281,12 @@ public class GhostController : PlayerControllerCore, IInteractable
         m_currentTimerStop = 0f;
     }
 
-    public void OnFocus(GhostInteract who)
+    public void OnFocus(Interact who)
     {
         throw new NotImplementedException();
     }
 
-    public void OnUnfocus(GhostInteract who)
+    public void OnUnfocus(Interact who)
     {
         throw new NotImplementedException();
     }
