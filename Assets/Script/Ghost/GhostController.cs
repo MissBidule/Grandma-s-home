@@ -12,6 +12,7 @@ public class GhostController : PlayerControllerCore, IInteractable
     [NonSerialized] public Vector3 m_wishDir;
     public bool m_isSlowed = false;
     public bool m_isStopped = false;
+    public bool m_beingRevived = false;
     public bool m_isReviving = false;
 
 
@@ -26,9 +27,12 @@ public class GhostController : PlayerControllerCore, IInteractable
     private float m_currentTimerStop;
 
     [Header("Revive")]
-    [SerializeField] private float m_baseReviveTime = 5f;
-    [SerializeField] private float m_maxReviveTime = 30f;
+    public float m_baseReviveTime = 5f;
+    public float m_maxReviveTime = 30f;
     private int m_deathCount = 0;
+    private GhostController m_reviver = null;
+    private float m_reviveTimer = 0f;
+    public float m_reviveDuration = 0f;
 
     [Header("Movement")]
     [SerializeField] private float m_walkSpeed = 4f;
@@ -62,10 +66,13 @@ public class GhostController : PlayerControllerCore, IInteractable
         base.OnSpawned();
 
         m_deathIndicator = GetComponent<GhostDeathIndicator>();
+        m_rigidbody = GetComponent<Rigidbody>();
 
         if (!isServer) return;
-        m_rigidbody = GetComponent<Rigidbody>();
+
         m_ghostMorph = GetComponent<GhostMorph>();
+
+
     }
 
     private void Update()
@@ -75,6 +82,12 @@ public class GhostController : PlayerControllerCore, IInteractable
         UpdateTimers();
 
         SetSpeedModifier();
+
+        if (m_beingRevived)
+        {
+            UpdateRevive();
+            return;
+        }
 
         // Casting to Vector2 to ignore falling movement
         if ((Vector2)m_wishDir != Vector2.zero)
@@ -163,6 +176,18 @@ public class GhostController : PlayerControllerCore, IInteractable
                 RemoveSlowToAll();
             }
         }
+    }
+
+    private void UpdateRevive()
+    {
+        if (!m_isStopped || m_reviver == null || m_reviver.m_isStopped)
+        {
+            CancelRevive();
+            return;
+        }
+        m_reviveTimer += Time.deltaTime;
+        if (m_reviveTimer >= m_reviveDuration)
+            CompleteRevive();
     }
 
     void SetSpeedModifier()
@@ -270,17 +295,94 @@ public class GhostController : PlayerControllerCore, IInteractable
         m_deathCount++;
     }
 
+    [ObserversRpc(runLocally:true)]
+    private void StartRevive(GhostController _reviver)
+    {
+        m_reviver = _reviver;
+        if (m_reviver.m_isStopped) return;
+        m_reviveDuration = GetReviveTime();
+        m_reviveTimer = 0f;
+        m_beingRevived = true;
+        m_reviver.RevivingBuddy(m_reviveDuration);
+        m_reviver.FreezeReviverRpc();
+        if (InteractPromptUI.m_Instance != null) InteractPromptUI.m_Instance.Hide();
+    }
+
+    public void RevivingBuddy(float duration)
+    {
+        m_reviveDuration = duration;
+        m_reviveTimer = 0f;
+        m_isReviving = true;
+    }
+
+    
+    [ObserversRpc(runLocally:true)]
+    private void CancelRevive()
+    {
+        m_beingRevived = false;
+        m_reviver.m_isReviving = false;
+        m_reviveTimer = 0f;
+        m_reviver.UnfreezeReviverRpc();
+        m_reviver = null;
+    }
+
+    /**
+    @brief      Tell the server to freeze the reviver's rigidbody
+    */
+    public void FreezeReviverRpc()
+    {
+        m_rigidbody.constraints = RigidbodyConstraints.FreezeAll;
+    }
+
+    /**
+    @brief      Tell the server to unfreeze the reviver's rigidbody (only if not downed)
+    */
+    private void UnfreezeReviverRpc()
+    {
+        if (!m_isStopped)
+            m_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+    }
+
+
+    /**
+   @brief      Tell the server to revive the target ghost
+   */
+    private void RequestReviveRpc()
+    {
+        if (!m_isStopped) return;
+        ForceRevive();
+        if (!m_reviver.m_isStopped)
+            m_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+    }
+
+    private void CompleteRevive()
+    {
+        RequestReviveRpc();
+        CancelRevive();
+    }
+
 
     public void OnInteract(GhostInteract _who)
     {
         if (!isServer) return;
-        ResetStoppedRPC();
+        if (m_isReviving) return;
+        if (m_isStopped)
+        {
+            m_reviver = _who.GetComponentInParent<GhostController>();
+            StartRevive(m_reviver);
+        }
     }
 
     public void OnStopInteract(GhostInteract _who)
     {
-        // Do nothing
+        if (!isServer) return;
+        if (m_beingRevived)
+        {
+            CancelRevive();
+        }
     }
+
+
 
     [ServerRpc]
     private void ResetStoppedRPC()

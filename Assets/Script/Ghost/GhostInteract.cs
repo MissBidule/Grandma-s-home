@@ -15,37 +15,10 @@ public class GhostInteract : NetworkBehaviour
     public IInteractable m_onFocus;
     private List<IInteractable> m_interactable = new List<IInteractable>();
 
-    private GhostController m_ghostController;
-    private Rigidbody m_rigidbody;
-    private ReviveBarUI m_reviveBarUI;
-
-    // Revive state
-    private bool m_isReviving = false;
-    private GhostController m_reviveTarget;
-    private float m_reviveTimer = 0f;
-    private float m_reviveDuration = 0f;
-
-    private void Awake()
-    {
-        m_ghostController = GetComponentInParent<GhostController>();
-        m_rigidbody = GetComponentInParent<Rigidbody>();
-        m_reviveBarUI = m_ghostController.GetComponentInChildren<ReviveBarUI>(true);
-    }
-
-    protected override void OnSpawned()
-    {
-        base.OnSpawned();
-    }
 
     private void Update()
     {
         if (!isOwner) return;
-
-        if (m_isReviving)
-        {
-            UpdateRevive();
-            return;
-        }
 
         if (m_interactable.Count <= 0) { 
             
@@ -65,6 +38,7 @@ public class GhostInteract : NetworkBehaviour
             m_onFocus?.OnUnfocus(this);
             m_onFocus = closest;
         }
+        print(m_onFocus);
     }
 
     private float SqDistanceTo(Transform _transform)
@@ -99,110 +73,35 @@ public class GhostInteract : NetworkBehaviour
         return best;
     }
 
-    private void UpdateRevive()
-    {
-        if (m_ghostController.m_isStopped || m_reviveTarget == null || !m_reviveTarget.m_isStopped)
-        {
-            CancelRevive();
-            return;
-        }
-        m_reviveTimer += Time.deltaTime;
-        float progress = m_reviveTimer / m_reviveDuration;
-        if (m_reviveBarUI != null)
-            m_reviveBarUI.SetProgress(progress);
-        if (m_reviveTimer >= m_reviveDuration)
-            CompleteRevive();
-    }
-
     /*
      * @brief Interact with the current target if available
      * @details If target is a downed ghost, starts a hold-to-revive. Otherwise delegates to OnInteract.
      * @return void
      */
-    public void Interact()
+    [ServerRpc]
+    public void Interact(IInteractable currentFocus)
     {
-        if (m_isReviving) return;
-        if (m_onFocus == null) return;
-        if (m_onFocus is GhostController gc && gc.m_isStopped)
-        {
-            StartRevive(gc);
-            return;
-        }
-        m_onFocus.OnInteract(this);
+        if (!isServer) return;
+        if (currentFocus == null) return;
+        currentFocus.OnInteract(this);
     }
 
     /**
     @brief      Called when the interact button is released
     */
-    public void StopInteract()
-    {
-        if (m_isReviving)
-            CancelRevive();
-    }
-
-    private void StartRevive(GhostController _target)
-    {
-        if (m_ghostController.m_isStopped) return;
-        m_reviveTarget = _target;
-        m_reviveDuration = _target.GetReviveTime();
-        m_reviveTimer = 0f;
-        m_isReviving = true;
-        m_ghostController.m_isReviving = true;
-        FreezeReviverRpc();
-        if (m_reviveBarUI != null) { m_reviveBarUI.SetProgress(0f); m_reviveBarUI.Show(); }
-        if (InteractPromptUI.m_Instance != null) InteractPromptUI.m_Instance.Hide();
-    }
-
-    private void CompleteRevive()
-    {
-        RequestReviveRpc(m_reviveTarget);
-        CancelRevive();
-    }
-
-    private void CancelRevive()
-    {
-        m_isReviving = false;
-        m_ghostController.m_isReviving = false;
-        m_reviveTarget = null;
-        m_reviveTimer = 0f;
-        UnfreezeReviverRpc();
-        if (m_reviveBarUI != null) m_reviveBarUI.Hide();
-    }
-
-    /**
-    @brief      Tell the server to freeze the reviver's rigidbody
-    */
     [ServerRpc]
-    private void FreezeReviverRpc()
+    public void StopInteract(IInteractable currentFocus)
     {
-        m_rigidbody.constraints = RigidbodyConstraints.FreezeAll;
+        if (currentFocus == null) return;
+        currentFocus?.OnStopInteract(this);
     }
 
-    /**
-    @brief      Tell the server to unfreeze the reviver's rigidbody (only if not downed)
-    */
-    [ServerRpc]
-    private void UnfreezeReviverRpc()
-    {
-        if (!m_ghostController.m_isStopped)
-            m_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
-    }
 
-    /**
-    @brief      Tell the server to revive the target ghost
-    */
-    [ServerRpc]
-    private void RequestReviveRpc(GhostController _target)
-    {
-        if (_target == null || !_target.m_isStopped) return;
-        _target.ForceRevive();
-        if (!m_ghostController.m_isStopped)
-            m_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
-    }
 
     public void OnSabotageOver(bool success)
     {
-        m_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        Rigidbody rb = GetComponentInParent<Rigidbody>();
+        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
         if (success)
         {
             m_interactable.Remove(m_onFocus);
@@ -234,8 +133,6 @@ public class GhostInteract : NetworkBehaviour
         if (_other.GetComponentInParent<IInteractable>() is IInteractable interactable)
         {
             m_interactable.Remove(interactable);
-            if (m_isReviving && interactable is GhostController gc && gc == m_reviveTarget)
-                CancelRevive();
         }
     }
 }
