@@ -13,7 +13,6 @@ public class ChildInputController : MonoBehaviour
 
     public ChildClientController m_childClientController;
 
-    private bool isOwner => m_childClientController != null && m_childClientController.isOwner;
     /*
      * @brief Awake is called when the script instance is being loaded
      * Gets the ChildController component.
@@ -31,8 +30,6 @@ public class ChildInputController : MonoBehaviour
      */
     public void OnMove(InputAction.CallbackContext _context)
     {
-        print("pipi " + name);
-        if (!isOwner) return;
         m_movementInputVector = _context.ReadValue<Vector2>();
     }
 
@@ -44,8 +41,6 @@ public class ChildInputController : MonoBehaviour
 
     public void OnLook(InputAction.CallbackContext _context)
     {
-        print("caca" + name);
-        if (!isOwner) return;
         m_lookInputVector = _context.ReadValue<Vector2>();
     }
 
@@ -57,7 +52,6 @@ public class ChildInputController : MonoBehaviour
      */
     public void OnJump(InputAction.CallbackContext _context)
     {
-        if (!isOwner) return;
         if (_context.performed)
         {
             m_childClientController.OnJump();
@@ -72,7 +66,6 @@ public class ChildInputController : MonoBehaviour
     */
     public void OnAttack(InputAction.CallbackContext _context)
     {
-        if (!isOwner) return;
         if (_context.performed)
         {
             m_childClientController.OnAttack();
@@ -86,7 +79,6 @@ public class ChildInputController : MonoBehaviour
      */
     public void OnSwitchWeapon(InputAction.CallbackContext _context)
     {
-        if (!isOwner) return;
         if (_context.performed)
         {
             m_childClientController.OnSwitchWeapon();

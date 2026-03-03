@@ -31,7 +31,10 @@ public class ChildClientController : NetworkBehaviour
 
     private IEnumerator Initialize()
     {
-        yield return new WaitForSeconds(10f);
+        yield return null;
+        print("Initializing ChildClientController for " + gameObject.name);
+        print(gameObject.name+": IsOwner: " + isOwner);
+        print(gameObject.name+": localPlayer: " + localPlayer + " " + localPlayerForced + " Owner: " + owner);
         m_childController = GetComponent<ChildController>();
         if (isOwner)
         {
@@ -46,6 +49,13 @@ public class ChildClientController : NetworkBehaviour
 
     void Update()
     {
+        if (name == "debug")
+        {
+            print(gameObject.name + ": IsOwner: " + isOwner);
+            print(gameObject.name + ": localPlayer: " + localPlayer + " " + localPlayerForced + " Owner: " + owner);
+        }
+
+
         if (!isInitialized) return;
         if (!isOwner) return;
 

@@ -43,7 +43,7 @@ public class ChildController : PlayerControllerCore
 
     private IEnumerator InitializeChild()
     {
-        yield return new WaitForSeconds(10f);
+        yield return null;
         m_rigidbody = GetComponent<Rigidbody>();
 
         if (isServer) {
@@ -66,8 +66,6 @@ public class ChildController : PlayerControllerCore
         
 
         transform.rotation = Quaternion.Euler(0, m_cameraYaw, 0);
-
-
 
         m_rigidbody.MovePosition(
             m_rigidbody.position + m_wishDir * m_speed * Time.deltaTime
