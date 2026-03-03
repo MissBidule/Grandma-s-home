@@ -33,6 +33,7 @@ public class PlayerControllerCore : NetworkBehaviour
      */
     protected override void OnOwnerChanged(PlayerID? _oldOwner, PlayerID? _newOwner, bool _asServer)
     {
+        if (!isOwner) return;
         base.OnOwnerChanged(_oldOwner, _newOwner, _asServer);
         name = $"{owner} - {localPlayer}";
         PurrLogger.Log($"[{gameObject.name}] Initialize - isOwner: {isOwner}, localPlayer: {localPlayer}, owner: {owner}", this);

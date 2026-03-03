@@ -23,6 +23,7 @@ public class ChildClientController : NetworkBehaviour
 
     protected override void OnOwnerChanged(PlayerID? _oldOwner, PlayerID? _newOwner, bool _asServer)
     {
+        if (!isOwner) return;
         base.OnOwnerChanged(_oldOwner, _newOwner, _asServer);
         
         m_childInputController = GetComponent<ChildInputController>();
