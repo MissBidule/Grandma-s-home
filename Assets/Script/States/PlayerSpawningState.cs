@@ -36,7 +36,7 @@ public class PlayerSpawningState : StateNode
 
         DespawnPlayers();
 
-        List<PlayerControllerCore> spawnedPlayers = SpawnPlayers();
+        var spawnedPlayers = SpawnPlayers();
 
         // We still keep the player list in case for future implementation of round running state.
         machine.Next();
@@ -44,12 +44,12 @@ public class PlayerSpawningState : StateNode
     
     private List<PlayerControllerCore> SpawnPlayers()
     {
-        List<PlayerControllerCore> spawnedPlayers = new List<PlayerControllerCore>();
-        RoleKeeper roleKeeper = FindAnyObjectByType<RoleKeeper>();
+        var spawnedPlayers = new List<PlayerControllerCore>();
+        var roleKeeper = FindAnyObjectByType<RoleKeeper>();
         
         int currentSpawnChildIndex = 0;
         int currentSpawnGhostIndex = 0;
-        foreach (PlayerID player in networkManager.players)
+        foreach (var player in networkManager.players)
         {
             if (NetworkManager.main.TryGetModule(out GlobalOwnershipModule ownership, true) && ownership.PlayerOwnsSomething(player))
                 continue;
@@ -92,9 +92,9 @@ public class PlayerSpawningState : StateNode
     
     private void DespawnPlayers()
     {
-        PlayerControllerCore[] allPlayers = FindObjectsByType<PlayerControllerCore>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        var allPlayers = FindObjectsByType<PlayerControllerCore>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
 
-        foreach (PlayerControllerCore player in allPlayers)
+        foreach (var player in allPlayers)
         {
             Destroy(player.gameObject);
         }
