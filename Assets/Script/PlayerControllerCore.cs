@@ -67,12 +67,12 @@ public class PlayerControllerCore : NetworkBehaviour
     
     private void OnDisable()
     {
-        Cursor.lockState = CursorLockMode.None;
+        //Cursor.lockState = CursorLockMode.None;
     }
 
     private void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.lockState = CursorLockMode.Locked;
         if (m_playerCamera == null)
         {
             return;
