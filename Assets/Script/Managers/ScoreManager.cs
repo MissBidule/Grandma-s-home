@@ -20,6 +20,7 @@ public class ScoreManager : NetworkBehaviour
     }
 
 //
+    //[ObserversRpc(runLocally:true)]
     public void AddPoint(PlayerID playerID)
     {
         CheckForDictonaryEntry(playerID);
@@ -69,6 +70,7 @@ public class ScoreManager : NetworkBehaviour
             return $"{point}/{tranformghost}";
         }
     }
+
     private void RefreshUI()
     {
         if (m_scoreText != null)
