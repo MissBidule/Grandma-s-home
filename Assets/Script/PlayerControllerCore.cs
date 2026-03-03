@@ -25,7 +25,7 @@ public class PlayerControllerCore : NetworkBehaviour
     {
         foreach (var player in FindObjectsByType<PlayerControllerCore>(FindObjectsSortMode.None))
         {
-            StartCoroutine(player.Initialize());
+            player.StartCoroutine(player.Initialize());
         }
 
         base.OnSpawned();

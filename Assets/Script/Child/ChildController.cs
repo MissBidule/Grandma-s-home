@@ -33,7 +33,7 @@ public class ChildController : PlayerControllerCore
     {
         foreach (var player in FindObjectsByType<ChildController>(FindObjectsSortMode.None))
         {
-            StartCoroutine(player.InitializeChild());
+            player.StartCoroutine(player.InitializeChild());
         }
 
 

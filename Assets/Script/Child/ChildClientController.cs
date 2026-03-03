@@ -22,7 +22,7 @@ public class ChildClientController : NetworkBehaviour
     {
         foreach (var player in FindObjectsByType<ChildClientController>(FindObjectsSortMode.None))
         {
-            StartCoroutine(player.Initialize());
+            player.StartCoroutine(player.Initialize());
         }
 
 
