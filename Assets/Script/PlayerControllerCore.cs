@@ -42,7 +42,7 @@ public class PlayerControllerCore : NetworkBehaviour
         name = $"Player {owner} {id} {localPlayer}";
 
 
-        GetComponentInChildren<AudioListener>().enabled = isOwner;
+        //GetComponentInChildren<AudioListener>().enabled = isOwner;
         GetComponent<PlayerInput>().enabled = isOwner;
 
         if (m_playerCamera != null)
