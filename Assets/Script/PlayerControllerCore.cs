@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Cinemachine;
 using PurrNet;
+using System.Collections;
 using UnityEngine.InputSystem;
 
 /*
@@ -15,39 +16,26 @@ public class PlayerControllerCore : NetworkBehaviour
     [SerializeField] private NetworkAnimator m_playerAnimator;
     [SerializeField] private List<Renderer> m_renderers = new();
 
+    protected bool isInitialized = false;
+
     /*
      * @brief Spawning player logic manage ownership, hide rendered to hide if needed
      */
     protected override void OnSpawned()
     {
-        
-        Debug.Log($"[{gameObject.name}] OnSpawned - isOwner: {isOwner}, localPlayer: {localPlayer}, owner: {owner}");
+        StartCoroutine(Initialize());
 
-        
-        /*GetComponent<AudioSource>().enabled = !isOwner;
-        GetComponentInChildren<CinemachineBrain>().gameObject.SetActive(isOwner);
-        */
-        // Properly manage camera for ownership
-        
-        /*else
-        {
-            gameObject.tag = "Player";
-        }*/
         base.OnSpawned();
     }
 
-    
-    public void GiveOwnershipBetter(PlayerID player, bool silent = false, bool? propagateToChildren = null)
-    {
-        print("acac " + player + " " + name);
-        this.GiveOwnership(player, silent, propagateToChildren);
-        name = $"Player {player}";
-        Initialize();
-    }
 
-    public virtual void Initialize()
+    IEnumerator Initialize()
     {
-        print("PlayerController " + name);
+        yield return new WaitForSeconds(10f);
+
+        Debug.Log($"[{gameObject.name}] OnSpawned - isOwner: {isOwner}, localPlayer: {localPlayer}, owner: {owner}");
+
+
         GetComponentInChildren<AudioListener>().enabled = isOwner;
         GetComponent<PlayerInput>().enabled = isOwner;
 
@@ -72,6 +60,9 @@ public class PlayerControllerCore : NetworkBehaviour
                 renderer.material.color = Color.HSVToRGB(UnityEngine.Random.Range(0f, 1f), 0.8f, 0.9f);
             }
         }
+
+        GetComponent<AudioSource>().enabled = !isOwner;
+        GetComponentInChildren<CinemachineBrain>().gameObject.SetActive(isOwner);
     }
 
     private void OnDisable()

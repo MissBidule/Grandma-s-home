@@ -2,6 +2,7 @@ using PurrNet;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using System.Collections;
 
 public class ChildClientController : NetworkBehaviour
 {
@@ -15,24 +16,30 @@ public class ChildClientController : NetworkBehaviour
     private bool m_switchWeaponPressed = false;
     private bool m_attackPressed = false;
 
+    private bool isInitialized = false;
+
     protected override void OnSpawned()
     {
+        StartCoroutine(Initialize());
         base.OnSpawned();
-        m_childController = GetComponent<ChildController>();
     }
 
-    public void Initialize()
+    private IEnumerator Initialize()
     {
-        print("ChildClientController " + name);
-        if (!isOwner) return;
-        print("2 " + name);
-        m_childInputController = GetComponent<ChildInputController>();
-        m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
-        m_playerCamera = GetComponentInChildren<CinemachineCamera>();
+        yield return new WaitForSeconds(10f);
+        m_childController = GetComponent<ChildController>();
+        if (isOwner)
+        {
+            m_childInputController = GetComponent<ChildInputController>();
+            m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
+            m_playerCamera = GetComponentInChildren<CinemachineCamera>();
+        }
+        isInitialized = true;
     }
 
     void Update()
     {
+        if (!isInitialized) return;
         if (!isOwner) return;
 
         // DebugPrintTrafic();

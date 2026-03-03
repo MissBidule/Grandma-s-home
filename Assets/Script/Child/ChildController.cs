@@ -1,6 +1,7 @@
 using PurrNet;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 /*
  * @brief Contains class declaration for ChildController
@@ -30,20 +31,23 @@ public class ChildController : PlayerControllerCore
 
     protected override void OnSpawned()
     {
-        base.OnSpawned();
-        m_rigidbody = GetComponent<Rigidbody>();
+        StartCoroutine(Initialize());
 
-        if (!isServer) return;
+        base.OnSpawned();
+
         
     }
 
-    public override void Initialize()
+    private IEnumerator Initialize()
     {
-        print("ChildController " + name);
-        base.Initialize();
-        m_lastShot = m_cdGun;
-        m_switchingTime = m_cdSwitch;
-        GetComponent<ChildClientController>().Initialize();
+        yield return new WaitForSeconds(10f);
+        m_rigidbody = GetComponent<Rigidbody>();
+
+        if (isServer) {
+            m_lastShot = m_cdGun;
+            m_switchingTime = m_cdSwitch;
+        }
+        isInitialized = true;
     }
 
     /*
@@ -52,6 +56,7 @@ public class ChildController : PlayerControllerCore
      */
     void Update()
     {
+        if (!isInitialized) return;
         if (!isServer) return;
         m_lastShot += Time.deltaTime;
         m_switchingTime += Time.deltaTime;
