@@ -1,4 +1,5 @@
 using PurrNet;
+using PurrNet.Logging;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -25,6 +26,13 @@ public class ChildClientController : NetworkBehaviour
         m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
         m_playerCamera = GetComponentInChildren<CinemachineCamera>();
     }
+    
+    protected override void OnOwnerChanged(PlayerID? _oldOwner, PlayerID? _newOwner, bool _asServer)
+    {
+        base.OnOwnerChanged(_oldOwner, _newOwner, _asServer);
+        PurrLogger.Log($"ChildClientController LocalPlayer: {localPlayer} | OldOwner: {_oldOwner} | NewOwner: {_newOwner} | AsServer: {_asServer}", this);
+    }
+    
     void Update()
     {
         if (!isOwner) return;

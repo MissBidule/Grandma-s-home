@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Cinemachine;
 using PurrNet;
+using PurrNet.Logging;
 using UnityEngine.InputSystem;
 
 /*
@@ -57,7 +58,13 @@ public class PlayerControllerCore : NetworkBehaviour
             gameObject.tag = "Player";
         }*/
     }
-    
+
+    protected override void OnOwnerChanged(PlayerID? _oldOwner, PlayerID? _newOwner, bool _asServer)
+    {
+        base.OnOwnerChanged(_oldOwner, _newOwner, _asServer);
+        PurrLogger.Log($"PlayerControllerCore LocalPlayer: {localPlayer} | OldOwner: {_oldOwner} | NewOwner: {_newOwner} | AsServer: {_asServer}", this);
+    }
+
     private void OnDisable()
     {
         Cursor.lockState = CursorLockMode.None;

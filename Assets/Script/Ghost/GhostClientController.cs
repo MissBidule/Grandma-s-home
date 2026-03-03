@@ -1,4 +1,5 @@
 using PurrNet;
+using PurrNet.Logging;
 using Unity.Cinemachine;
 using UnityEngine;
 
@@ -45,6 +46,13 @@ public class GhostClientController : NetworkBehaviour
 
         m_wheel.LinkWithGhost(this);
     }
+    
+    protected override void OnOwnerChanged(PlayerID? _oldOwner, PlayerID? _newOwner, bool _asServer)
+    {
+        base.OnOwnerChanged(_oldOwner, _newOwner, _asServer);
+        PurrLogger.Log($"GhostClientController LocalPlayer: {localPlayer} | OldOwner: {_oldOwner} | NewOwner: {_newOwner} | AsServer: {_asServer}", this);
+    }
+    
     void Update()
     {
         if (!isOwner) return;
