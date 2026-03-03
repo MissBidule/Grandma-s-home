@@ -20,7 +20,7 @@ public class ChildClientController : NetworkBehaviour
 
     protected override void OnSpawned()
     {
-        foreach (var player in FindObjectsByType<PlayerControllerCore>(FindObjectsSortMode.None))
+        foreach (var player in FindObjectsByType<ChildClientController>(FindObjectsSortMode.None))
         {
             StartCoroutine(player.Initialize());
         }

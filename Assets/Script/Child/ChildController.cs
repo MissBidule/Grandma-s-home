@@ -31,9 +31,9 @@ public class ChildController : PlayerControllerCore
 
     protected override void OnSpawned()
     {
-        foreach (var player in FindObjectsByType<PlayerControllerCore>(FindObjectsSortMode.None))
+        foreach (var player in FindObjectsByType<ChildController>(FindObjectsSortMode.None))
         {
-            StartCoroutine(player.Initialize());
+            StartCoroutine(player.InitializeChild());
         }
 
 
@@ -41,7 +41,7 @@ public class ChildController : PlayerControllerCore
 
     }
 
-    private IEnumerator Initialize()
+    private IEnumerator InitializeChild()
     {
         yield return new WaitForSeconds(5f);
         m_rigidbody = GetComponent<Rigidbody>();
