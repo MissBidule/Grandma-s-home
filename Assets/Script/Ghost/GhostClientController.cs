@@ -38,7 +38,6 @@ public class GhostClientController : NetworkBehaviour
 
     protected override void OnOwnerChanged(PlayerID? _oldOwner, PlayerID? _newOwner, bool _asServer)
     {
-        if (!isOwner) return;
         base.OnOwnerChanged(_oldOwner, _newOwner, _asServer);
         m_ghostInputController = GetComponent<GhostInputController>();
         m_playerCamera = GetComponentInChildren<CinemachineCamera>();
