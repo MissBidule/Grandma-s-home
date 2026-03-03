@@ -31,7 +31,7 @@ public class ChildClientController : NetworkBehaviour
 
     private IEnumerator Initialize()
     {
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(10f);
         m_childController = GetComponent<ChildController>();
         if (isOwner)
         {
