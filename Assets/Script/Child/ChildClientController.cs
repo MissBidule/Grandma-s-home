@@ -20,13 +20,18 @@ public class ChildClientController : NetworkBehaviour
 
     protected override void OnSpawned()
     {
-        StartCoroutine(Initialize());
+        foreach (var player in FindObjectsByType<PlayerControllerCore>(FindObjectsSortMode.None))
+        {
+            StartCoroutine(player.Initialize());
+        }
+
+
         base.OnSpawned();
     }
 
     private IEnumerator Initialize()
     {
-        yield return new WaitForSeconds(10f);
+        yield return new WaitForSeconds(5f);
         m_childController = GetComponent<ChildController>();
         if (isOwner)
         {

@@ -35,7 +35,7 @@ public class PlayerControllerCore : NetworkBehaviour
 
     public IEnumerator Initialize()
     {
-        yield return new WaitForSeconds(10f);
+        yield return new WaitForSeconds(5f);
 
         Debug.Log($"[{gameObject.name}] OnSpawned - isOwner: {isOwner}, localPlayer: {localPlayer}, owner: {owner}");
 
