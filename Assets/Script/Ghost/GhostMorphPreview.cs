@@ -87,7 +87,11 @@ public class GhostMorphPreview : NetworkBehaviour
         GameObject scannedObject = hit.collider.gameObject;
         Debug.Log($"Object detected: {scannedObject.name}");
 
-        
+        if (IsPartOfPlayer(scannedObject))
+        {
+            Debug.Log("Cannot scan yourself");
+            return;
+        }
 
         ScannableObject scannableComponent = scannedObject.GetComponent<ScannableObject>();
         if (scannableComponent == null)

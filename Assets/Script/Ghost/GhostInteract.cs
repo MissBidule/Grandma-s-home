@@ -41,9 +41,7 @@ public class GhostInteract : NetworkBehaviour
 
     private float SqDistanceTo(Transform _transform)
     {
-        Vector3 closest = transform.position;
-        float sqrDistance = (closest - transform.position).sqrMagnitude;
-        return sqrDistance;
+        return (_transform.position - transform.position).sqrMagnitude;
     }
 
     /*
