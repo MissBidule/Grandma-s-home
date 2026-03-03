@@ -29,6 +29,8 @@ public class ChildController : PlayerControllerCore
     [SerializeField] private GameObject m_bulletPrefab;
     [SerializeField] private float m_jumpImpulse = 6.0f;
 
+    private bool isInitializedChild = false;
+
     protected override void OnSpawned()
     {
         foreach (var player in FindObjectsByType<ChildController>(FindObjectsSortMode.None))
@@ -43,6 +45,7 @@ public class ChildController : PlayerControllerCore
 
     private void InitializeChild()
     {
+        if (isInitializedChild) return;
         print("JE SUIS INITIALISER, JE M APPELLE " + owner + " ET JE SUIS UN CHILDCONTROLLER" );
 
         m_rigidbody = GetComponent<Rigidbody>();
@@ -51,7 +54,7 @@ public class ChildController : PlayerControllerCore
             m_lastShot = m_cdGun;
             m_switchingTime = m_cdSwitch;
         }
-        isInitialized = true;
+        isInitializedChild = true;
     }
 
     /*
@@ -60,7 +63,7 @@ public class ChildController : PlayerControllerCore
      */
     void Update()
     {
-        if (!isInitialized) return;
+        if (!isInitializedChild) return;
         if (!isServer) return;
         m_lastShot += Time.deltaTime;
         m_switchingTime += Time.deltaTime;

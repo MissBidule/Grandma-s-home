@@ -31,6 +31,7 @@ public class ChildClientController : NetworkBehaviour
 
     private void Initialize()
     {
+        if (isInitialized) return;
         print("JE SUIS INITIALISER, JE M APPELLE " + owner + " ET JE SUIS UN CLIENTCONTROLLER" );
         print("Initializing ChildClientController for " + gameObject.name);
         print(gameObject.name+": IsOwner: " + isOwner);

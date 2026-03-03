@@ -16,7 +16,7 @@ public class PlayerControllerCore : NetworkBehaviour
     [SerializeField] private NetworkAnimator m_playerAnimator;
     [SerializeField] private List<Renderer> m_renderers = new();
 
-    protected bool isInitialized = false;
+    private bool isInitialized = false;
 
     /*
      * @brief Spawning player logic manage ownership, hide rendered to hide if needed
@@ -34,6 +34,7 @@ public class PlayerControllerCore : NetworkBehaviour
 
     public void Initialize()
     {
+        if (isInitialized) return;
         print("JE SUIS INITIALISER, JE M APPELLE " + owner + " ET JE SUIS UN PLAYERCONTROLLER" );
 
         Debug.Log($"[{gameObject.name}] OnSpawned - isOwner: {isOwner}, localPlayer: {localPlayer}, owner: {owner}");
@@ -43,6 +44,7 @@ public class PlayerControllerCore : NetworkBehaviour
 
         //GetComponentInChildren<AudioListener>().enabled = isOwner;
         GetComponent<PlayerInput>().enabled = isOwner;
+        isInitialized = true;
     }
 
     private void OnDisable()
