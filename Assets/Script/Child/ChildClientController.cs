@@ -41,11 +41,14 @@ public class ChildClientController : NetworkBehaviour
             m_childInputController = GetComponent<ChildInputController>();
             m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
             m_playerCamera = GetComponentInChildren<CinemachineCamera>();
-            if (Camera.main)
+            
+            foreach (var cam in FindObjectsByType<CinemachineCamera>(FindObjectsSortMode.None))
             {
-                Camera.main.tag = "Untagged";
+                cam.Priority = 0;
             }
-            m_playerCamera.tag = "MainCamera";
+
+            m_playerCamera.Priority = 10;
+
         }
         isInitialized = true;
     }
