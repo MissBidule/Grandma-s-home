@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using PurrNet;
 using UnityEngine;
 using System.Collections;
+using UnityEngine.Rendering;
+using UnityEngine.SocialPlatforms.Impl;
 
 /*
  * @brief  Contains class declaration for SabotageObject
@@ -35,6 +37,8 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     [SerializeField] public List<GhostInteract> m_saboteurs = new List<GhostInteract>();
     private Coroutine m_pulseCoroutine;
     private MaterialPropertyBlock m_propertyBlock;
+
+    public  ScoreManager scoreManager;
 
     protected override void OnSpawned()
     {
@@ -182,9 +186,27 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     }
 
     [ServerRpc(requireOwnership:false)]
-    private void SabotageRPC()
+    private void SabotageRPC(RPCInfo info = default)
     {
         SabotageForAll();
+        Debug.Log("line 0");
+        if(InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
+        {
+            Debug.Log("line 1");
+            scoreManager.AddPoint(info.sender);
+            if(owner.HasValue)
+            {
+                scoreManager.AddTransformghost(owner.Value);
+                Debug.Log("line 2");
+            }
+        }
+        else
+        {
+            Debug.Log("ff");
+        }
+
+       
+
     }
 
     [ObserversRpc(runLocally:true, requireServer:true)]
@@ -195,11 +217,11 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         SetHighlight(false);
 
        
-
-        if (ScoreManager.m_Instance != null)
-        {
-            ScoreManager.m_Instance.Add(m_scoreValue);
-        }
+        //scoreManager.Add(m_scoreValue);
+        //if (ScoreManager.m_Instance != null)
+        //{
+          //  ScoreManager.m_Instance.Add(m_scoreValue);
+        //}
     }
 
     /*
