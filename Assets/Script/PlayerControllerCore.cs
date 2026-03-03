@@ -35,6 +35,8 @@ public class PlayerControllerCore : NetworkBehaviour
 
         Debug.Log($"[{gameObject.name}] OnSpawned - isOwner: {isOwner}, localPlayer: {localPlayer}, owner: {owner}");
 
+        name = $"Player {owner} {id}";
+
 
         GetComponentInChildren<AudioListener>().enabled = isOwner;
         GetComponent<PlayerInput>().enabled = isOwner;
