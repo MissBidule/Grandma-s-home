@@ -34,9 +34,11 @@ public class GhostClientController : NetworkBehaviour
         m_ghostController = GetComponent<GhostController>();
         m_ghostMorph = GetComponent<GhostMorph>();
         m_ghostMorphPreview = GetComponentInChildren<GhostMorphPreview>();
+    }
 
-        if (!isOwner) return;
-
+    protected override void OnOwnerChanged(PlayerID? _oldOwner, PlayerID? _newOwner, bool _asServer)
+    {
+        base.OnOwnerChanged(_oldOwner, _newOwner, _asServer);
         m_ghostInputController = GetComponent<GhostInputController>();
         m_playerCamera = GetComponentInChildren<CinemachineCamera>();
         m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
@@ -45,6 +47,7 @@ public class GhostClientController : NetworkBehaviour
 
         m_wheel.LinkWithGhost(this);
     }
+
     void Update()
     {
         if (!isOwner) return;

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Cinemachine;
 using PurrNet;
+using PurrNet.Logging;
 using UnityEngine.InputSystem;
 
 /*
@@ -24,13 +25,22 @@ public class PlayerControllerCore : NetworkBehaviour
         
         Debug.Log($"[{gameObject.name}] OnSpawned - isOwner: {isOwner}, localPlayer: {localPlayer}, owner: {owner}");
 
+        
+    }
+
+    /*
+     * @brief Initialize the player once the owner changed
+     */
+    protected override void OnOwnerChanged(PlayerID? _oldOwner, PlayerID? _newOwner, bool _asServer)
+    {
+        base.OnOwnerChanged(_oldOwner, _newOwner, _asServer);
+        name = $"{owner} - {localPlayer}";
+        PurrLogger.Log($"[{gameObject.name}] Initialize - isOwner: {isOwner}, localPlayer: {localPlayer}, owner: {owner}", this);
         GetComponentInChildren<AudioListener>().enabled = isOwner;
-
-
-        /*GetComponent<PlayerInput>().enabled = isOwner;
-        GetComponent<AudioSource>().enabled = !isOwner;
+        GetComponent<PlayerInput>().enabled = isOwner;
+        // GetComponent<AudioSource>().enabled = !isOwner;
         GetComponentInChildren<CinemachineBrain>().gameObject.SetActive(isOwner);
-        */
+        
         // Properly manage camera for ownership
         if (m_playerCamera != null)
         {
@@ -52,10 +62,6 @@ public class PlayerControllerCore : NetworkBehaviour
                 renderer.material.color = Color.HSVToRGB(UnityEngine.Random.Range(0f, 1f), 0.8f, 0.9f);
             }
         }
-        /*else
-        {
-            gameObject.tag = "Player";
-        }*/
     }
     
     private void OnDisable()
