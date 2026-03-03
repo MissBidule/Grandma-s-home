@@ -20,19 +20,50 @@ public class ChildClientController : NetworkBehaviour
         base.OnSpawned();
         m_childController = GetComponent<ChildController>();
 
-        if (!isOwner) return;
-        m_childInputController = GetComponent<ChildInputController>();
-        m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
-        m_playerCamera = GetComponentInChildren<CinemachineCamera>();
+        if (isOwner) InitOwner();
     }
+
+    protected override void OnOwnerChanged(PurrNet.PlayerID? oldOwner, PurrNet.PlayerID? newOwner, bool asServer)
+    {
+        if (isOwner) InitOwner();
+    }
+
+    private void InitOwner()
+    {
+        m_childInputController = GetComponent<ChildInputController>();
+        if (m_uiHolder == null)
+            m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
+        // Use PlayerControllerCore.m_playerCamera (Inspector-assigned, always valid)
+        // instead of GetComponentInChildren which can fail in multi-instance scenarios
+        var core = GetComponent<PlayerControllerCore>();
+        if (core != null) m_playerCamera = core.m_playerCamera;
+        Debug.Log($"[ChildClientController] InitOwner - m_playerCamera: {m_playerCamera}, m_childInputController: {m_childInputController}");
+    }
+
     void Update()
     {
-        if (!isOwner) return;
+        if (!isOwner)
+        {
+            if (Time.frameCount % 120 == 0)
+                Debug.Log($"[ChildClientController] Update - isOwner FALSE");
+            return;
+        }
+        if (m_childInputController == null || m_playerCamera == null)
+        {
+            Debug.Log($"[ChildClientController] Update - isOwner true mais refs nulles (cam={m_playerCamera}, input={m_childInputController}), retry InitOwner");
+            InitOwner();
+            return;
+        }
 
         // DebugPrintTrafic();
 
+        var moveVec = m_childInputController.m_movementInputVector;
+        var wishDir = GetDirectionIntention(moveVec);
+        if (Time.frameCount % 120 == 0)
+            Debug.Log($"[ChildClientController] Update OK - moveVec: {moveVec}, wishDir: {wishDir}, isOwner: {isOwner}");
+
         SendChildRPC(
-            GetDirectionIntention(m_childInputController.m_movementInputVector),
+            wishDir,
             m_playerCamera.transform.eulerAngles.y,
             m_jumpPressed,
             m_switchWeaponPressed,

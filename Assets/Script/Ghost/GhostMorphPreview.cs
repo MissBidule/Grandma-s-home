@@ -52,11 +52,25 @@ public class GhostMorphPreview : NetworkBehaviour
     void Start()
     {
         if (!isOwner) return;
+        InitOwner();
+    }
+
+    protected override void OnOwnerChanged(PurrNet.PlayerID? oldOwner, PurrNet.PlayerID? newOwner, bool asServer)
+    {
+        if (isOwner && m_cameraTransform == null) InitOwner();
+    }
+
+    private void InitOwner()
+    {
         m_meshRenderer = GetComponent<MeshRenderer>();
         m_previewCollider = GetComponent<Collider>();
         m_meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
         m_propertyBlock = new MaterialPropertyBlock();
-        m_cameraTransform = transform.parent.GetComponent<GhostClientController>().m_playerCamera.transform;
+        // Use PlayerControllerCore.m_playerCamera (Inspector-assigned, always valid)
+        // instead of GhostClientController.m_playerCamera (lazy-initialized, may be null)
+        var core = transform.parent.GetComponent<PlayerControllerCore>();
+        if (core != null && core.m_playerCamera != null)
+            m_cameraTransform = core.m_playerCamera.transform;
     }
 
     private void Update()
@@ -326,16 +340,7 @@ public class GhostMorphPreview : NetworkBehaviour
      */
     private bool IsPartOfPlayer(GameObject _obj)
     {
-        Transform current = _obj.transform;
-        while (current != null)
-        {
-            if (current == transform)
-            {
-                return true;
-            }
-            current = current.parent;
-        }
-        return false;
+        return _obj.transform.IsChildOf(transform.root);
     }
 
     /*
