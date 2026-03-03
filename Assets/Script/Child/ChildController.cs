@@ -1,4 +1,5 @@
 using PurrNet;
+using PurrNet.Logging;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -31,12 +32,13 @@ public class ChildController : PlayerControllerCore
     protected override void OnSpawned()
     {
         base.OnSpawned();
+        PurrLogger.LogWarning($"{localPlayer}-{name} OnSpawned Start", this);
         m_rigidbody = GetComponent<Rigidbody>();
 
         if (!isServer) return;
         m_lastShot = m_cdGun;
         m_switchingTime = m_cdSwitch;
-
+        PurrLogger.LogWarning($"{localPlayer}-{name} OnSpawned End", this);
     }
 
     /*
@@ -45,6 +47,7 @@ public class ChildController : PlayerControllerCore
      */
     void Update()
     {
+        PurrLogger.LogWarning($"{localPlayer}-{name} Update Start", this);
         if (!isServer) return;
         m_lastShot += Time.deltaTime;
         m_switchingTime += Time.deltaTime;
@@ -57,8 +60,8 @@ public class ChildController : PlayerControllerCore
         m_rigidbody.MovePosition(
             m_rigidbody.position + m_wishDir * m_speed * Time.deltaTime
         );
-
-
+        
+        PurrLogger.LogWarning($"{localPlayer}-{name} Update End", this);
     }
 
     /*

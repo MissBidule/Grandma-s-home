@@ -4,6 +4,7 @@ using PurrNet.StateMachine;
 using UnityEngine;
 using PurrNet.Modules;
 using PurrLobby;
+using PurrNet.Logging;
 using System;
 using PurrNet.Transports;
 
@@ -71,11 +72,12 @@ public class PlayerSpawningState : StateNode
             {
                 spawnPoint = m_childSpawnPoints[currentSpawnChildIndex++ % m_childSpawnPoints.Count];
                 newPlayer = UnityProxy.Instantiate(m_childPrefab, spawnPoint.position, spawnPoint.rotation);
-            } 
+            }
+            newPlayer.name = $"{player}";
             newPlayer.GiveOwnership(player);
             spawnedPlayers.Add(newPlayer);
         }
-
+        PurrLogger.LogWarning($"{localPlayer}-{name} Players Spawned", this);
         DisableWaitInterface();
 
         return spawnedPlayers;
@@ -84,10 +86,11 @@ public class PlayerSpawningState : StateNode
     [ObserversRpc]
     void DisableWaitInterface()
     {
-        if (InstanceHandler.TryGetInstance(out DisableWaitOnStart disableWaitOnStart))
-        {
-            disableWaitOnStart.DisableWaitInterface();
-        }
+        PurrLogger.LogWarning($"{localPlayer}-{name} Disabling Wait Interface", this);
+        if (!InstanceHandler.TryGetInstance(out DisableWaitOnStart disableWaitOnStart))
+            return;
+        disableWaitOnStart.DisableWaitInterface();
+        PurrLogger.LogWarning($"{localPlayer}-{name} Disabling Wait Interface DONE", this);
     }
     
     private void DespawnPlayers()

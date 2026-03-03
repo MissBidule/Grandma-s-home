@@ -57,6 +57,8 @@ public class PlayerControllerCore : NetworkBehaviour
         {
             gameObject.tag = "Player";
         }*/
+        
+        PurrLogger.LogWarning($"{localPlayer}-{name} OnSpawned end", this);
     }
 
     protected override void OnOwnerChanged(PlayerID? _oldOwner, PlayerID? _newOwner, bool _asServer)

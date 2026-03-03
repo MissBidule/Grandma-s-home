@@ -1,4 +1,5 @@
 using PurrNet;
+using PurrNet.Logging;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -18,12 +19,14 @@ public class ChildClientController : NetworkBehaviour
     protected override void OnSpawned()
     {
         base.OnSpawned();
+        PurrLogger.LogWarning($"{localPlayer}-{name} OnSpawned Start", this);
         m_childController = GetComponent<ChildController>();
 
         if (!isOwner) return;
         m_childInputController = GetComponent<ChildInputController>();
         m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
         m_playerCamera = GetComponentInChildren<CinemachineCamera>();
+        PurrLogger.LogWarning($"{localPlayer}-{name} OnSpawned End", this);
     }
     void Update()
     {
