@@ -23,13 +23,17 @@ public class PlayerControllerCore : NetworkBehaviour
      */
     protected override void OnSpawned()
     {
-        StartCoroutine(Initialize());
+        foreach (var player in FindObjectsByType<PlayerControllerCore>(FindObjectsSortMode.None))
+        {
+            StartCoroutine(player.Initialize());
+        }
+
 
         base.OnSpawned();
     }
 
 
-    IEnumerator Initialize()
+    public IEnumerator Initialize()
     {
         yield return new WaitForSeconds(10f);
 

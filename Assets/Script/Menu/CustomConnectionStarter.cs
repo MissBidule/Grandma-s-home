@@ -29,8 +29,7 @@ public class CustomConnectionStarter : MonoBehaviour
     private NetworkManager m_networkManager;
     private LobbyDataHolder m_lobbyDataHolder;
     private StateMachine m_stateMachine;
-    
-    
+
     // Prevents duplicate network starts if scene loads multiple times
     private static bool _hasStarted = false;
     private bool _useUnityRelay = false;
