@@ -33,7 +33,7 @@ public class ChildController : PlayerControllerCore
     {
         foreach (var player in FindObjectsByType<ChildController>(FindObjectsSortMode.None))
         {
-            player.StartCoroutine(player.InitializeChild());
+            player.InitializeChild();
         }
 
 
@@ -41,10 +41,9 @@ public class ChildController : PlayerControllerCore
 
     }
 
-    private IEnumerator InitializeChild()
+    private void InitializeChild()
     {
         print("JE SUIS INITIALISER, JE M APPELLE " + owner + " ET JE SUIS UN CHILDCONTROLLER" );
-        yield return new WaitForSeconds(isServer?10f:15f);
 
         m_rigidbody = GetComponent<Rigidbody>();
 

@@ -25,17 +25,16 @@ public class PlayerControllerCore : NetworkBehaviour
     {
         foreach (var player in FindObjectsByType<PlayerControllerCore>(FindObjectsSortMode.None))
         {
-            player.StartCoroutine(player.Initialize());
+            player.Initialize();
         }
 
         base.OnSpawned();
     }
 
 
-    public IEnumerator Initialize()
+    public void Initialize()
     {
         print("JE SUIS INITIALISER, JE M APPELLE " + owner + " ET JE SUIS UN PLAYERCONTROLLER" );
-        yield return new WaitForSeconds(isServer?10f:15f);
 
         Debug.Log($"[{gameObject.name}] OnSpawned - isOwner: {isOwner}, localPlayer: {localPlayer}, owner: {owner}");
 
