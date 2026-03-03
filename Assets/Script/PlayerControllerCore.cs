@@ -28,7 +28,6 @@ public class PlayerControllerCore : NetworkBehaviour
             StartCoroutine(player.Initialize());
         }
 
-
         base.OnSpawned();
     }
 
@@ -44,31 +43,6 @@ public class PlayerControllerCore : NetworkBehaviour
 
         //GetComponentInChildren<AudioListener>().enabled = isOwner;
         GetComponent<PlayerInput>().enabled = isOwner;
-
-        if (m_playerCamera != null)
-        {
-            if (isOwner)
-            {
-                m_playerCamera.gameObject.SetActive(true);
-            }
-            else
-            {
-                m_playerCamera.gameObject.SetActive(false);
-            }
-        }
-
-        if (!isOwner)
-        {
-
-            // Change color of non-owned players for better visibility 
-            foreach (var renderer in m_renderers)
-            {
-                renderer.material.color = Color.HSVToRGB(UnityEngine.Random.Range(0f, 1f), 0.8f, 0.9f);
-            }
-        }
-
-        GetComponent<AudioSource>().enabled = !isOwner;
-        GetComponentInChildren<CinemachineBrain>().gameObject.SetActive(isOwner);
     }
 
     private void OnDisable()
