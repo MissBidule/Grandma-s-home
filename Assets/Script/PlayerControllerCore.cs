@@ -42,7 +42,7 @@ public class PlayerControllerCore : NetworkBehaviour
 
 
         //GetComponentInChildren<AudioListener>().enabled = isOwner;
-        GetComponent<PlayerInput>().enabled = isOwner;
+        GetComponent<PlayerInput>().enabled = true;
     }
 
     private void OnDisable()
