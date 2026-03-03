@@ -34,6 +34,7 @@ public class PlayerControllerCore : NetworkBehaviour
 
     public IEnumerator Initialize()
     {
+        print("JE SUIS INITIALISER, JE M APPELLE " + owner + " ET JE SUIS UN PLAYERCONTROLLER" );
         yield return new WaitForSeconds(isServer?10f:15f);
 
         Debug.Log($"[{gameObject.name}] OnSpawned - isOwner: {isOwner}, localPlayer: {localPlayer}, owner: {owner}");

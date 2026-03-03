@@ -43,7 +43,9 @@ public class ChildController : PlayerControllerCore
 
     private IEnumerator InitializeChild()
     {
+        print("JE SUIS INITIALISER, JE M APPELLE " + owner + " ET JE SUIS UN CHILDCONTROLLER" );
         yield return new WaitForSeconds(isServer?10f:15f);
+
         m_rigidbody = GetComponent<Rigidbody>();
 
         if (isServer) {
