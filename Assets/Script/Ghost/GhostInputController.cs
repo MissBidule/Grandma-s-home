@@ -15,7 +15,7 @@ public class GhostInputController : MonoBehaviour
 
     private GhostClientController m_ghostClientController;
     private GhostMorph m_ghostMorph;
-    private GhostInteract m_ghostInteract;
+    private Interact m_ghostInteract;
     private QteCircle m_qteCircle;
 
     private bool isOwner => m_ghostClientController != null && m_ghostClientController.isOwner;
@@ -31,7 +31,7 @@ public class GhostInputController : MonoBehaviour
     {
         m_ghostClientController = GetComponent<GhostClientController>();
         m_ghostMorph = GetComponent<GhostMorph>();
-        m_ghostInteract = GetComponentInChildren<GhostInteract>();
+        m_ghostInteract = GetComponentInChildren<Interact>();
     }
 
     /*
@@ -116,7 +116,7 @@ public class GhostInputController : MonoBehaviour
         if (!isOwner) return;
         if (_context.performed)
         {
-            m_ghostInteract.Interact();
+            m_ghostInteract.OnInteract();
         }
     }
 
