@@ -1,3 +1,4 @@
+using System;
 using PurrNet;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -30,6 +31,10 @@ public class ChildController : PlayerControllerCore
     [SerializeField] private float m_sneakAmplitude = 0.5f;
     public bool m_isSneaking = false;
     private float m_SpeedModifier = 1.0f;
+    [SerializeField] private float m_shootRange = 50f;
+
+    [NonSerialized] public Vector3 m_cameraPosition;
+    [NonSerialized] public Vector3 m_cameraForward;
 
     protected override void OnSpawned()
     {
@@ -104,7 +109,13 @@ public class ChildController : PlayerControllerCore
             {
                 m_lastShot = 0;
                 Debug.Log("shoot");
-                ShootForAll();
+                Vector3 aimTarget;
+                if (Physics.Raycast(m_cameraPosition, m_cameraForward, out RaycastHit hit, m_shootRange))
+                    aimTarget = hit.point;
+                else
+                    aimTarget = m_cameraPosition + m_cameraForward * m_shootRange;
+                Vector3 shootDir = (aimTarget - m_bulletSpawnTransform.position).normalized;
+                ShootForAll(Quaternion.LookRotation(shootDir));
             }
         }
         else
@@ -147,14 +158,13 @@ public class ChildController : PlayerControllerCore
 
 
     /*
-     * @brief  This function instantiates a ball prefab
-     * We instantaneously transfer the ball and put the force into impulse mode.
+     * @brief  Instantiates a bullet aimed at the camera's target point
      * @return void
      */
     [ObserversRpc(runLocally:true)]
-    void ShootForAll()
+    void ShootForAll(Quaternion rotation)
     {
-        GameObject bullet = UnityProxy.InstantiateDirectly(m_bulletPrefab, m_bulletSpawnTransform.position, transform.rotation);
+        GameObject bullet = UnityProxy.InstantiateDirectly(m_bulletPrefab, m_bulletSpawnTransform.position, rotation);
         if (isServer)
         {
             Bullet bScript = bullet.GetComponent<Bullet>();

@@ -88,7 +88,7 @@ public class GhostInputController : MonoBehaviour
         if (!isOwner) return;
         if (_context.performed)
         {
-            m_ghostClientController.m_wheel.Toggle();
+            m_ghostClientController.OnOpenWheel();
         }
     }
 
@@ -119,7 +119,11 @@ public class GhostInputController : MonoBehaviour
         if (!isOwner) return;
         if (_context.performed)
         {
-            m_ghostInteract.Interact();
+            m_ghostInteract.Interact(m_ghostInteract.m_onFocus);
+        }
+        else if (_context.canceled)
+        {
+            m_ghostInteract.StopInteract(m_ghostInteract.m_onFocus);
         }
     }
     
