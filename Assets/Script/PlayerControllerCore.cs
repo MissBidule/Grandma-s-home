@@ -56,6 +56,8 @@ public class PlayerControllerCore : NetworkBehaviour
 
     private void ApplyOwnership()
     {
+        m_playerCamera = GetComponentInChildren<CinemachineCamera>();
+
         var audioListener = GetComponentInChildren<AudioListener>();
         if (audioListener != null) audioListener.enabled = isOwner;
 
