@@ -272,15 +272,24 @@ MonoBehaviour:
   - {fileID: 7637491092308997559}
   - {fileID: 5763480866988310096}
   m_isSlowed: 0
+  m_isDashing: 0
   m_isStopped: 0
+  m_isSneaking: 0
   m_beingRevived: 0
   m_isReviving: 0
+  m_CanDash: 1
   m_timerSlowed: 5
   m_timerStop: 5
   m_baseReviveTime: 5
   m_maxReviveTime: 30
+  m_reviveDuration: 0
   m_walkSpeed: 4
   m_acceleration: 25
+  m_slowAmplitude: 0.5
+  m_dashAmplitude: 1.5
+  m_dashDuration: 2.5
+  m_dashCooldown: 30
+  m_sneakAmplitude: 0.5
   m_rotationSpeed: 12
   m_climbSpeed: 3.5
   m_climbCheckDistance: 0.9
@@ -599,6 +608,62 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 55397657-de04-43c4-aa9d-3b0ef9651449
     m_ActionName: 'Ghost/Validate[/Keyboard/space]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: ea2e3932-0535-40f3-9dcc-9236d288a500
+    m_ActionName: 'Child/Hint[/Keyboard/h]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 643f7f59-890d-4dfd-bbde-6c698d799d56
+    m_ActionName: 'Child/Sneak[/Keyboard/leftShift]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 8778548429194373776}
+        m_TargetAssemblyTypeName: GhostInputController, Assembly-CSharp
+        m_MethodName: OnDash
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 46160aee-2a43-444d-a6f1-377c688007c1
+    m_ActionName: 'Ghost/Dash[/Keyboard/leftShift]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 8778548429194373776}
+        m_TargetAssemblyTypeName: GhostInputController, Assembly-CSharp
+        m_MethodName: OnHint
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 63ac072b-1e83-4270-932d-4bbaf1fdb089
+    m_ActionName: 'Ghost/Hint[/Keyboard/h]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 8778548429194373776}
+        m_TargetAssemblyTypeName: GhostInputController, Assembly-CSharp
+        m_MethodName: OnSneak
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 20a70707-862b-48b5-9a47-d8b9fce4a69a
+    m_ActionName: 'Ghost/Sneak[/Keyboard/leftCtrl]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Ghost
