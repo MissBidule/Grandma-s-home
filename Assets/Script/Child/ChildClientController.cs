@@ -40,6 +40,7 @@ public class ChildClientController : NetworkBehaviour
 
     void Update()
     {
+        if (!isOwner) return;
         // DebugPrintTrafic();
 
         var moveVec = m_childInputController.m_movementInputVector;
