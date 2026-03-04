@@ -33,7 +33,7 @@ public class GhostController : PlayerControllerCore, IInteractable
     
     [Header("Scarry Parameters")]
     [SerializeField] [Tooltip("In seconds")] private float m_cdChildScare = 10f;
-    [NonSerialized] public bool m_canScareChild = false;
+    [NonSerialized] public bool m_canScareChild = true;
 
     [Header("Revive")]
     public float m_baseReviveTime = 5f;
@@ -410,12 +410,12 @@ public class GhostController : PlayerControllerCore, IInteractable
         m_currentTimerStop = 0f;
     }
 
-    public void OnFocus(GhostInteract who)
+    public void OnFocus(GhostInteract _who)
     {
         print("Found dead ghost");
     }
 
-    public void OnUnfocus(GhostInteract who)
+    public void OnUnfocus(GhostInteract _who)
     {
         print("Lost focus on dead ghost");
     }

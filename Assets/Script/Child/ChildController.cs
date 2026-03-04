@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using PurrNet;
+using PurrNet.Logging;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
@@ -29,6 +30,7 @@ public class ChildController : PlayerControllerCore
     
     [Header("CAC parameters")]
     private float m_attackRange = 0.5f;
+    [SerializeField] private LayerMask m_GhostLayerMask;
     
     [Header("Shooting parameters")]
     [SerializeField] [Tooltip("In seconds")] private float m_cdGun = 0.2f;
@@ -137,13 +139,43 @@ public class ChildController : PlayerControllerCore
 
     }
     
+    
+    
+    /*
+     * @brief   Called when the child collides with a ghost to apply the scared debuff, the collider is quite small to prevent from triggering while trying to hit a ghost with the bat
+     * @return  void
+     */
+    private void OnTriggerEnter(Collider _other)
+    {
+        PurrLogger.Log($"Trigger Enter {_other.gameObject.name} {_other.gameObject.layer.ToString()}", this);
+        if ((m_GhostLayerMask.value & (1 << _other.gameObject.layer)) == 0) return;
+        PurrLogger.Log($"Trigger Good Layer", this);
+        if (!_other.gameObject.TryGetComponent(out GhostController ghost))
+        {
+            foreach (var component in _other.GetComponents<Component>())
+            {
+                PurrLogger.LogWarning($"{_other.gameObject.name} Component: {component.GetType().Name}", this);
+            }
+            return;   
+        }
+        PurrLogger.Log($"Ghost Found", this);
+        if (ghost.m_isStopped) return;
+        PurrLogger.Log($"Ghost Not stopped", this);
+        if (!ghost.m_canScareChild) return;
+        PurrLogger.Log($"Ghost Can Scare", this);
+        PurrLogger.Log("Ghost", this);
+        ghost.StartSpookyScary();
+        GhostTouch();
+    }
+    
     /**
     @brief      Apply scared effect from ghost
     */
-    public void GhostTouch()
+    private void GhostTouch()
     {
         if (!isServer) return;
         m_isScared = true;
+        PurrLogger.Log("Ghost Touch", this);
         UpdateScaredToAll(m_isScared);
         StartCoroutine(ScarredTimer(m_scaredDuration));
     }

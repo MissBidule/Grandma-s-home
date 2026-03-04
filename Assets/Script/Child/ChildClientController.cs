@@ -1,4 +1,5 @@
 using PurrNet;
+using PurrNet.Logging;
 using Script.UI.Views;
 using UI;
 using Unity.Cinemachine;
@@ -91,23 +92,6 @@ public class ChildClientController : NetworkBehaviour
     {
         if (!isOwner) return;
         m_attackPressed = true;
-    }
-    
-    /*
-     * @brief   Called when the child collides with a ghost to apply the scared debuff, the collider is quite small to prevent from triggering while trying to hit a ghost with the bat
-     * @return  void
-     */
-    void OnTriggerEnter(Collider _other)
-    {
-        if (_other.gameObject.layer == LayerMask.NameToLayer("Ghost"))
-        {
-            GhostController ghost = _other.gameObject.GetComponent<GhostController>();
-            if (!ghost) return;
-            if (ghost.m_isStopped) return;
-            if (!ghost.m_canScareChild) return;
-            ghost.StartSpookyScary();
-            m_childController.GhostTouch();
-        }
     }
     
     /*
