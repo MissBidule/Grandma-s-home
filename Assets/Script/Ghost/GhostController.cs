@@ -30,6 +30,10 @@ public class GhostController : PlayerControllerCore, IInteractable
     public float m_timerStop;
     private float m_currentTimerSlowed;
     private float m_currentTimerStop;
+    
+    [Header("Scarry Parameters")]
+    [SerializeField] [Tooltip("In seconds")] private float m_cdChildScare = 10f;
+    [NonSerialized] public bool m_canScareChild = false;
 
     [Header("Revive")]
     public float m_baseReviveTime = 5f;
@@ -239,8 +243,6 @@ public class GhostController : PlayerControllerCore, IInteractable
         return false;
     }
 
-    
-
     /**
     @brief      Reset climb flags
     */
@@ -439,5 +441,30 @@ public class GhostController : PlayerControllerCore, IInteractable
         yield return new WaitForSeconds(_duration);
         m_isDashing = false;
         ApplyDashToAll(m_isDashing, m_CanDash);
+    }
+
+    public void StartSpookyScary()
+    {
+        m_canScareChild = false;
+        ApplyScarryToAll(m_canScareChild);
+        StartCoroutine(ScarryCooldown(m_cdChildScare));
+    }
+    
+    private IEnumerator ScarryCooldown(float _duration)
+    {
+        yield return new WaitForSeconds(_duration);
+        m_canScareChild = true;
+        ApplyScarryToAll(m_canScareChild);
+    }
+    
+    [ObserversRpc(runLocally:true)]
+    public void ApplyScarryToAll(bool _canScarry)
+    {
+        m_canScareChild = _canScarry;
+    }
+
+    public float GetScarryCooldownDuration()
+    {
+        return m_cdChildScare;
     }
 }

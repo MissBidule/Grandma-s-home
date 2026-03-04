@@ -35,6 +35,8 @@ public class ChildClientController : NetworkBehaviour
     {
         if (!isOwner) return;
 
+        UpdateLabels();
+
         // DebugPrintTrafic();
 
         SendChildRPC(
@@ -64,6 +66,15 @@ public class ChildClientController : NetworkBehaviour
         print(m_attackPressed);
     }
 
+    void UpdateLabels()
+    {
+        if (!InstanceHandler.TryGetInstance(out ChildHUDView childHUDView))
+            return;
+        
+        if (m_childController.m_isScared)
+            childHUDView.StartScared(m_childController.GetScaredDuration());
+    }
+
     public void OnJump()
     {
         if (!isOwner) return;
@@ -80,6 +91,23 @@ public class ChildClientController : NetworkBehaviour
     {
         if (!isOwner) return;
         m_attackPressed = true;
+    }
+    
+    /*
+     * @brief   Called when the child collides with a ghost to apply the scared debuff, the collider is quite small to prevent from triggering while trying to hit a ghost with the bat
+     * @return  void
+     */
+    void OnTriggerEnter(Collider _other)
+    {
+        if (_other.gameObject.layer == LayerMask.NameToLayer("Ghost"))
+        {
+            GhostController ghost = _other.gameObject.GetComponent<GhostController>();
+            if (!ghost) return;
+            if (ghost.m_isStopped) return;
+            if (!ghost.m_canScareChild) return;
+            ghost.StartSpookyScary();
+            m_childController.GhostTouch();
+        }
     }
     
     /*

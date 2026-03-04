@@ -136,21 +136,25 @@ public class GhostClientController : NetworkBehaviour
             if (m_slowedLabel.activeSelf) m_slowedLabel.SetActive(false);
         }
 
-        if (m_ghostController.m_isDashing)
+        if (!InstanceHandler.TryGetInstance(out GhostHUDView ghostHUDView))
+            return;
+        
+        switch (m_ghostController.m_isDashing)
         {
-            if (!InstanceHandler.TryGetInstance(out GhostHUDView ghostHUDView))
-                return;
-            ghostHUDView.DashActivate();
+            case true:
+                ghostHUDView.DashActivate();
+                break;
+            case false when !m_ghostController.m_CanDash:
+            {
+                if (ghostHUDView.m_dash_disabled)
+                    return;
+                ghostHUDView.DashDisabled();
+                break;
+            }
         }
-
-        if (!m_ghostController.m_isDashing && !m_ghostController.m_CanDash)
-        {
-            if (!InstanceHandler.TryGetInstance(out GhostHUDView ghostHUDView)) 
-                return;
-            if (ghostHUDView.m_dash_disabled)
-                return;
-            ghostHUDView.DashDisabled();
-        }
+        
+        if (!m_ghostController.m_canScareChild)
+            ghostHUDView.ScaredActivate(m_ghostController.GetScarryCooldownDuration());
     }
 
     void UpdateReviveUI()

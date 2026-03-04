@@ -10,14 +10,20 @@ namespace Script.UI.Views
 {
     public class GhostHUDView : GameView
     {
-        [Header("HUD Parameters")]
+        [Header("Message Panel")]
         [SerializeField] private TMP_Text m_hudMessage;
         [SerializeField] private GameObject m_hudMessagePanel;
+        
+        [Header("Skills Icons")]
         [SerializeField] private Image m_dashIcon;
         [SerializeField] private Image m_dashCooldownOverlay;
+        [SerializeField] private Image m_scarryIcon;
+        [SerializeField] private Image m_scarryCooldownOverlay;
         
         // TODO find way to unserielize
         public bool m_dash_disabled = false;
+        
+        private bool m_canScare = true;
         
         private void Awake()
         {
@@ -45,15 +51,13 @@ namespace Script.UI.Views
 
         public void DashActivate()
         {
-            if (m_dashIcon.TryGetComponent(out Image dashIcon))
-                dashIcon.color = Color.red;
+            m_dashIcon.color = Color.red;
             ShowMessage("Dash Start");
         }
         
         public void DashDisabled()
         {
-            if (m_dashIcon.TryGetComponent(out Image dashIcon))
-                dashIcon.color = Color.white;
+            m_dashIcon.color = Color.white;
             ShowMessage("Dash End");
             m_dashCooldownOverlay.fillAmount = 1f;
             m_dash_disabled = true;
@@ -65,14 +69,21 @@ namespace Script.UI.Views
          */
         public void StartDashCooldown(float _time)
         {
-            if (m_dashIcon.TryGetComponent(out Image dashIcon))
-                dashIcon.color = Color.white;
+            m_dashIcon.color = Color.white;
             
             m_dashCooldownOverlay.fillAmount = 1f;
-            StartCoroutine(DashCooldown(_time));
+            StartCoroutine(IconCooldown(m_dashCooldownOverlay, _time, "Dash cooled-down"));
         }
 
-        private IEnumerator DashCooldown(float _timer)
+        public void ScaredActivate(float _timer)
+        {
+            if (!m_canScare) return;
+            m_canScare = false;
+            m_scarryCooldownOverlay.fillAmount = 1f;
+            StartCoroutine(IconCooldown(m_scarryCooldownOverlay, _timer, "You can scare again"));
+        } 
+
+        private IEnumerator IconCooldown(Image _overlay, float _timer, string _endMessage)
         {
             float elapsed = 0f;
             float startFill = 1.0f;
@@ -80,13 +91,13 @@ namespace Script.UI.Views
             while (elapsed < _timer)
             {
                 elapsed += Time.deltaTime;
-                m_dashCooldownOverlay.fillAmount = Mathf.Lerp(startFill, 0f, elapsed / _timer);
+                _overlay.fillAmount = Mathf.Lerp(startFill, 0f, elapsed / _timer);
                 yield return null;
             }
             
-            m_dashCooldownOverlay.fillAmount = 0f;
+            _overlay.fillAmount = 0f;
             
-            ShowMessage("Dash cooled-down");
+            ShowMessage(_endMessage);
         }
     }
 }

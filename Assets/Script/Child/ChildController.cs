@@ -1,7 +1,9 @@
 using System;
+using System.Collections;
 using PurrNet;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 /*
  * @brief Contains class declaration for ChildController
@@ -13,28 +15,36 @@ public class ChildController : PlayerControllerCore
     private Rigidbody m_rigidbody;
 
     public Vector3 m_wishDir;
-    public float m_cameraYaw; 
-
-    private float m_attackRange = 0.5f;
-
-    private bool m_isranged;
-    [SerializeField] private float m_cdGun = 0.2f;
-    private float m_lastShot;
-    [SerializeField] private float m_cdSwitch = 0.2f;
-    private float m_switchingTime;
     
-    
-    [SerializeField] private float m_speed = 5f;
-    [SerializeField] private Transform m_bulletSpawnTransform;
-    [SerializeField] private GameObject m_bulletPrefab;
-    [SerializeField] private float m_jumpImpulse = 6.0f;
-    [SerializeField] private float m_sneakAmplitude = 0.5f;
-    public bool m_isSneaking = false;
-    private float m_SpeedModifier = 1.0f;
-    [SerializeField] private float m_shootRange = 50f;
-
+    // Camera Parameters
+    public float m_cameraYaw;
     [NonSerialized] public Vector3 m_cameraPosition;
     [NonSerialized] public Vector3 m_cameraForward;
+    
+    [Header("Weapon Switching")]
+    private bool m_isranged;
+    private float m_lastShot;
+    private float m_switchingTime;
+    [SerializeField] private float m_cdSwitch = 0.2f;
+    
+    [Header("CAC parameters")]
+    private float m_attackRange = 0.5f;
+    
+    [Header("Shooting parameters")]
+    [SerializeField] [Tooltip("In seconds")] private float m_cdGun = 0.2f;
+    [SerializeField] private Transform m_bulletSpawnTransform;
+    [SerializeField] private GameObject m_bulletPrefab;
+    [SerializeField] private float m_shootRange = 50f;
+    
+    [Header("Speed Modifiers")]
+    [SerializeField] private float m_speed = 5f;
+    [SerializeField] private float m_jumpImpulse = 6.0f;
+    public bool m_isScared = false;
+    [SerializeField] private float m_scaredAmplitude = 0.5f;
+    [SerializeField] [Tooltip("Duration of scarred by ghost in seconds")] private float m_scaredDuration = 5.0f;
+    public bool m_isSneaking = false;
+    [SerializeField] private float m_sneakAmplitude = 0.5f;
+    private float m_SpeedModifier = 1.0f; // Default speed modifier
 
     protected override void OnSpawned()
     {
@@ -73,6 +83,7 @@ public class ChildController : PlayerControllerCore
     {
         m_SpeedModifier = 1f;
         if (m_isSneaking) m_SpeedModifier *= m_sneakAmplitude;
+        if (m_isScared) m_SpeedModifier *= m_scaredAmplitude;
     }
 
     /*
@@ -101,7 +112,7 @@ public class ChildController : PlayerControllerCore
      */
     public void Attack()
     {
-        if (!isServer) return;
+        if (!isServer || m_isScared) return; // Return if the player is scared
         if (m_switchingTime < m_cdSwitch) return;
         if (m_isranged)
         {
@@ -124,6 +135,38 @@ public class ChildController : PlayerControllerCore
             Debug.Log("cac");
         }
 
+    }
+    
+    /**
+    @brief      Apply scared effect from ghost
+    */
+    public void GhostTouch()
+    {
+        if (!isServer) return;
+        m_isScared = true;
+        UpdateScaredToAll(m_isScared);
+        StartCoroutine(ScarredTimer(m_scaredDuration));
+    }
+    
+    [ObserversRpc(runLocally:true)]
+    public void UpdateScaredToAll(bool _isScared)
+    {
+        m_isScared = _isScared;
+    }
+
+    /*
+     * @brief Timer for scared debuff
+     */
+    private IEnumerator ScarredTimer(float _scaredDuration)
+    {
+        yield return new WaitForSeconds(_scaredDuration);
+        m_isScared = false;
+        UpdateScaredToAll(m_isScared);
+    }
+
+    public float GetScaredDuration()
+    {
+        return m_scaredDuration;
     }
 
     /*
