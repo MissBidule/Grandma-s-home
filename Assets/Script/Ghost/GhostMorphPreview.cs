@@ -39,8 +39,9 @@ public class GhostMorphPreview : NetworkBehaviour
 
     private Transform m_cameraTransform;
 
-    [SerializeField] private string m_promptMessageSCAN = "F : SCAN";
-    [SerializeField] private string m_promptMessageValid = "E : Valid";
+    [SerializeField] private string m_promptMessageSCAN = "T : SCAN";
+    [SerializeField] private string m_promptMessageValid = "F : Valid";
+    [SerializeField] private float m_rotateSpeed = 120f;
 
     [SerializeField] private bool m_save;
     
@@ -77,6 +78,18 @@ public class GhostMorphPreview : NetworkBehaviour
     {
         if (!isOwner) return;
         CheckForScannableObject();
+
+        if (m_currentPrefab != null)
+        {
+            float rotDir = 0f;
+            if (Keyboard.current.qKey.isPressed) rotDir -= 1f;
+            if (Keyboard.current.eKey.isPressed) rotDir += 1f;
+            if (rotDir != 0f)
+            {
+                transform.Rotate(0f, rotDir * m_rotateSpeed * Time.deltaTime, 0f, Space.World);
+                UpdateMaterial();
+            }
+        }
     }
 
     /*

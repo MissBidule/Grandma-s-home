@@ -15,12 +15,13 @@ public class GhostInputController : MonoBehaviour
 
     private GhostClientController m_ghostClientController;
     private GhostMorph m_ghostMorph;
+    private GhostMorphPreview m_ghostMorphPreview;
     private GhostInteract m_ghostInteract;
     private QteCircle m_qteCircle;
 
     private bool isOwner => m_ghostClientController != null && m_ghostClientController.isOwner;
 
-    [SerializeField] private string m_promptMessageValid = "E : Valid";
+    [SerializeField] private string m_promptMessageValid = "F : Valid";
 
     /*
      * @brief Awake is called when the script instance is being loaded
@@ -31,6 +32,7 @@ public class GhostInputController : MonoBehaviour
     {
         m_ghostClientController = GetComponent<GhostClientController>();
         m_ghostMorph = GetComponent<GhostMorph>();
+        m_ghostMorphPreview = GetComponentInChildren<GhostMorphPreview>();
         m_ghostInteract = GetComponentInChildren<GhostInteract>();
     }
 
@@ -105,6 +107,9 @@ public class GhostInputController : MonoBehaviour
 
         }
     }
+
+    public void OnRotatePreviewLeft(InputAction.CallbackContext _context) { }
+    public void OnRotatePreviewRight(InputAction.CallbackContext _context) { }
 
     /*
      * @brief OnInteract is called by the Input System when interact input is detected

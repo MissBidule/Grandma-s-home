@@ -83,8 +83,9 @@ public class GhostClientController : NetworkBehaviour
 
         SendGhostRPC(
             GetDirectionIntention(m_ghostInputController.m_movementInputVector),
-            morphPressed ? m_ghostMorphPreview.m_currentPrefab : null,                  // Morph Parameters
-            m_ghostMorphPreview.transform.localPosition                                 // Morph Parameters
+            morphPressed ? m_ghostMorphPreview.m_currentPrefab : null,
+            m_ghostMorphPreview.transform.localPosition,
+            m_ghostMorphPreview.transform.localRotation
         );
 
         // Reset values after sending to server
@@ -175,11 +176,11 @@ public class GhostClientController : NetworkBehaviour
     }
 
     [ServerRpc]
-    private void SendGhostRPC(Vector3 _movement, GameObject _prefab, Vector3 _pos)
+    private void SendGhostRPC(Vector3 _movement, GameObject _prefab, Vector3 _pos, Quaternion _rot)
     {
         m_ghostController.m_wishDir = _movement;
         // Prefab is not null only when morphPressed is true.
         // This method helps reduce the network traffic by not sending that bool "morphPressed"
-        if (_prefab) m_ghostMorph.Morphing(_prefab, _pos);
+        if (_prefab) m_ghostMorph.Morphing(_prefab, _pos, _rot);
     }
 }
