@@ -11,7 +11,7 @@ public class ScoreManager : NetworkBehaviour
 
     [SerializeField] private SyncDictionary<PlayerID, ScoreData> scores = new();
     [SerializeField] private TMP_Text m_scoreText;
-    [SerializeField] private int m_score;
+    [SerializeField] private int m_score=0;
 
 
     private void Awake()
@@ -19,18 +19,25 @@ public class ScoreManager : NetworkBehaviour
         InstanceHandler.RegisterInstance(this);
     }
 
-//
+    private void Update()
+    {
+        RefreshUI();
+    }
+    //
     //[ObserversRpc(runLocally:true)]
+    [ServerRpc(requireOwnership:false)]
     public void AddPoint(PlayerID playerID)
     {
         CheckForDictonaryEntry(playerID);
 
         var ScoreData = scores[playerID];
-        ScoreData.point++;
-        scores[playerID] = ScoreData;
+        ScoreData.point++;  // ça add par personne donc ça fait genre 
+                                // G1 sabote 2 fois donc Point de G1 et G2 = 2 (fais par G1)
+                                // mais si G1 sabote 1 fois et G2 sabote 1 fois donc Point = 1 (fais par G1) / 1 (fais par G2)
+        scores[playerID] = ScoreData; // ça se fait que sur le server?
 
-        m_score = ScoreData.point;
-        RefreshUI();
+        
+        //RefreshUI();
     }
 
     public void ResetPoint(PlayerID playerID)
@@ -41,8 +48,24 @@ public class ScoreManager : NetworkBehaviour
         ScoreData.point=0;
         scores[playerID] = ScoreData;
 
-        m_score = ScoreData.point;
-        RefreshUI();
+        m_score = ScoreData.point; // faire plutot la sum depuis la liste
+       // RefreshUI();
+    }
+
+    public void SyncPoint()
+    {
+        foreach (var key in scores.Keys){
+          // m_score=scores[key]; 
+        }
+        //for(PlayerID i=0;i<0;i++){
+        //m_score += scores[i];
+        //}
+        //var ScoreData = scores[playerID];
+        //ScoreData.point++;  
+        //foreach( PlayerID playerID in scores){
+        //int sum = scores[playerID].point;
+        //}
+        
     }
 
     public void ResetTransformghost(PlayerID playerID)
