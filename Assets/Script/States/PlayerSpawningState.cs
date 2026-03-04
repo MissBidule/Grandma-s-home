@@ -80,18 +80,10 @@ public class PlayerSpawningState : StateNode
             spawnedPlayers.Add(newPlayer);
         }
 
-        DisableWaitInterface();
+        if (InstanceHandler.TryGetInstance(out DisableWaitOnStart disableWaitOnStart))
+            disableWaitOnStart.DisableWaitInterface();
 
         return spawnedPlayers;
-    }
-
-    [ObserversRpc]
-    void DisableWaitInterface()
-    {
-        if (InstanceHandler.TryGetInstance(out DisableWaitOnStart disableWaitOnStart))
-        {
-            disableWaitOnStart.DisableWaitInterface();
-        }
     }
     
     private void DespawnPlayers()
