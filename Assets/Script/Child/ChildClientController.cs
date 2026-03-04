@@ -46,13 +46,10 @@ public class ChildClientController : NetworkBehaviour
         var wishDir = GetDirectionIntention(moveVec);
         var cameraYaw = m_playerCamera.transform.eulerAngles.y;
 
-        // Set wishDir/cameraYaw directly on the local controller (no round-trip needed for movement)
-        m_childController.m_wishDir = wishDir;
-        m_childController.m_cameraYaw = cameraYaw;
 
         SendChildRPC(
             wishDir,
-            cameraYaw,
+            m_playerCamera.transform.eulerAngles.y,
             m_jumpPressed,
             m_switchWeaponPressed,
             m_attackPressed

@@ -45,18 +45,20 @@ public class ChildController : PlayerControllerCore
      */
     void Update()
     {
-        if (isServer)
-        {
-            m_lastShot += Time.deltaTime;
-            m_switchingTime += Time.deltaTime;
-        }
-
-        if (!isOwner) return;
+        if (!isServer) return;
+        m_lastShot += Time.deltaTime;
+        m_switchingTime += Time.deltaTime;
+        
 
         transform.rotation = Quaternion.Euler(0, m_cameraYaw, 0);
 
-        Vector3 vel = m_rigidbody.linearVelocity;
-        m_rigidbody.linearVelocity = new Vector3(m_wishDir.x * m_speed, vel.y, m_wishDir.z * m_speed);
+
+
+        m_rigidbody.MovePosition(
+            m_rigidbody.position + m_wishDir * m_speed * Time.deltaTime
+        );
+
+
     }
 
     /*
@@ -161,5 +163,4 @@ public class ChildController : PlayerControllerCore
         m_isranged = !m_isranged;
         m_switchingTime = 0;
     }
-
 }
