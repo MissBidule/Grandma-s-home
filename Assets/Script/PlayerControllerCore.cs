@@ -56,7 +56,6 @@ public class PlayerControllerCore : NetworkBehaviour
 
     private void ApplyOwnership()
     {
-        m_playerCamera = GetComponentInChildren<CinemachineCamera>();
 
         var audioListener = GetComponentInChildren<AudioListener>();
         if (audioListener != null) audioListener.enabled = isOwner;
@@ -64,6 +63,7 @@ public class PlayerControllerCore : NetworkBehaviour
         var playerInput = GetComponent<PlayerInput>();
         if (playerInput != null) playerInput.enabled = isOwner;
 
+        if (!m_playerCamera) m_playerCamera = GetComponentInChildren<CinemachineCamera>();
         if (m_playerCamera != null)
             m_playerCamera.gameObject.SetActive(isOwner);
 

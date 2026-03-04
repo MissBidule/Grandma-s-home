@@ -48,6 +48,8 @@ public class GhostClientController : NetworkBehaviour
         m_ghostInputController = GetComponent<GhostInputController>();
         // Use PlayerControllerCore.m_playerCamera (Inspector-assigned, always valid)
         // instead of GetComponentInChildren which can fail in multi-instance scenarios
+        var core = GetComponent<PlayerControllerCore>();
+        if (core != null) m_playerCamera = core.m_playerCamera;
         if (m_uiHolder == null)
             m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
         m_wheel = m_uiHolder.GetComponentInChildren<WheelController>();

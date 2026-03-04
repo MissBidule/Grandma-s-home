@@ -35,6 +35,8 @@ public class ChildClientController : NetworkBehaviour
             m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
         // Use PlayerControllerCore.m_playerCamera (Inspector-assigned, always valid)
         // instead of GetComponentInChildren which can fail in multi-instance scenarios
+        var core = GetComponent<PlayerControllerCore>();
+        if (core != null) m_playerCamera = core.m_playerCamera;
         Debug.Log($"[ChildClientController] InitOwner - m_playerCamera: {m_playerCamera}, m_childInputController: {m_childInputController}");
     }
 
