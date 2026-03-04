@@ -265,6 +265,7 @@ MonoBehaviour:
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
   m_playerCamera: {fileID: 696320938370797279}
+  m_localRenderCamera: {fileID: 0}
   m_playerAnimator: {fileID: 0}
   m_renderers:
   - {fileID: 7637491092308997559}
@@ -319,6 +320,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6385cb8ed63e6054aa73f7bd8e23c822, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GhostInputController
+  m_promptMessageValid: 'E : Valid'
 --- !u!114 &1100208937895637651
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -674,7 +676,7 @@ MonoBehaviour:
   _minBufferSize: 1
   _maxBufferSize: 2
   _characterControllerPatch: 0
-  _ownerAuth: 0
+  _ownerAuth: 1
   _interpolationTiming: 0
 --- !u!82 &3165849117006584195
 AudioSource:
@@ -1606,6 +1608,9 @@ MonoBehaviour:
   m_pulseSpeed: 3
   m_minIntensity: 0.2
   m_maxIntensity: 0.6
+  m_promptMessageSCAN: 'F : SCAN'
+  m_promptMessageValid: 'E : Valid'
+  m_save: 0
 --- !u!1 &6256087797766208245
 GameObject:
   m_ObjectHideFlags: 0

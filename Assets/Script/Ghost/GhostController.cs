@@ -54,8 +54,9 @@ public class GhostController : PlayerControllerCore, IInteractable
     {
         base.OnSpawned();
 
-        if (!isServer) return;
         m_rigidbody = GetComponent<Rigidbody>();
+
+        if (!isServer) return;
         m_ghostMorph = GetComponent<GhostMorph>();
 
     }
@@ -81,11 +82,13 @@ public class GhostController : PlayerControllerCore, IInteractable
     */
     private void FixedUpdate()
     {
-        if (!isServer) return;
+        if (!isServer && !isOwner) return;
         if (m_isStopped) return;
 
+        // m_speedModifier is only set server-side; compute it locally for the owner client
+        float speedMod = isServer ? m_speedModifier : (m_isSlowed ? 0.5f : 1f);
+
         if (m_wishDir.sqrMagnitude > 0.0001f
-            && !m_isStopped
             && !m_rigidbody.constraints.HasFlag(RigidbodyConstraints.FreezeRotationY)
         )
         {
@@ -110,7 +113,7 @@ public class GhostController : PlayerControllerCore, IInteractable
         {
             Vector3 vel = m_rigidbody.linearVelocity;
 
-            float targetUp = m_climbSpeed * m_speedModifier;
+            float targetUp = m_climbSpeed * speedMod;
             vel.y = Mathf.Max(vel.y, targetUp);
 
             m_rigidbody.linearVelocity = vel;
@@ -119,13 +122,13 @@ public class GhostController : PlayerControllerCore, IInteractable
             return;
         }
 
-        Vector3 targetVel = m_speedModifier * m_walkSpeed * m_wishDir;
+        Vector3 targetVel = speedMod * m_walkSpeed * m_wishDir;
 
         Vector3 currentVel = m_rigidbody.linearVelocity;
         Vector3 currentHorizontal = new Vector3(currentVel.x, 0f, currentVel.z);
 
         Vector3 delta = targetVel - currentHorizontal;
-        Vector3 accel = Vector3.ClampMagnitude(delta * (m_acceleration * m_speedModifier), m_acceleration);
+        Vector3 accel = Vector3.ClampMagnitude(delta * (m_acceleration * speedMod), m_acceleration);
 
         m_rigidbody.AddForce(new Vector3(accel.x, 0f, accel.z), ForceMode.Acceleration);
 
@@ -275,4 +278,5 @@ public class GhostController : PlayerControllerCore, IInteractable
     {
         throw new NotImplementedException();
     }
+
 }

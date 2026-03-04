@@ -74,8 +74,13 @@ public class GhostClientController : NetworkBehaviour
 
         // DebugPrintTrafic();
 
+        var wishDir = GetDirectionIntention(m_ghostInputController.m_movementInputVector);
+
+        // Set wishDir directly on the local controller (no round-trip needed for movement)
+        m_ghostController.m_wishDir = wishDir;
+
         SendGhostRPC(
-            GetDirectionIntention(m_ghostInputController.m_movementInputVector),
+            wishDir,
             morphPressed ? m_ghostMorphPreview.m_currentPrefab : null,                  // Morph Parameters
             m_ghostMorphPreview.transform.localPosition                                 // Morph Parameters
         );
