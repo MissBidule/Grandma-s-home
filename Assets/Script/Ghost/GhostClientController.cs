@@ -26,6 +26,11 @@ public class GhostClientController : NetworkBehaviour
 
     private bool morphPressed = false;
 
+    private bool m_reviveUIActive = false;
+    private ReviveBarUI m_reviveBarUI;
+    private float m_reviveTimer = 0f;
+    private float m_reviveDuration = 0f;
+
     protected override void OnSpawned()
     {
         base.OnSpawned();
@@ -40,6 +45,8 @@ public class GhostClientController : NetworkBehaviour
         m_ghostInputController = GetComponent<GhostInputController>();
         m_playerCamera = GetComponentInChildren<CinemachineCamera>();
         m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
+
+        m_reviveBarUI = m_uiHolder.GetComponentInChildren<ReviveBarUI>(true);
         m_wheel = m_uiHolder.GetComponentInChildren<WheelController>();
         m_cameraEffect = m_playerCamera.GetComponent<DeathEffect>();
 
@@ -70,6 +77,20 @@ public class GhostClientController : NetworkBehaviour
         // Reset values after sending to server
         if (morphPressed) m_ghostMorphPreview.HidePreview();
         morphPressed = false;
+
+        if (m_reviveUIActive)
+        {
+            UpdateReviveUI();
+        }
+
+        if (!m_reviveUIActive && (m_ghostController.m_beingRevived || m_ghostController.m_isReviving))
+        {
+            OnReviveStart();
+        }
+        else if (m_reviveUIActive && !(m_ghostController.m_beingRevived || m_ghostController.m_isReviving))
+        {
+            OnReviveEnd();
+        }
     }
 
     void DebugPrintTrafic()
@@ -103,6 +124,30 @@ public class GhostClientController : NetworkBehaviour
         }
     }
 
+    void UpdateReviveUI()
+    {
+        m_reviveTimer += Time.deltaTime;
+        float progress = m_reviveTimer / m_reviveDuration;
+        if (m_reviveBarUI != null)
+        {
+            m_reviveBarUI.SetProgress(progress);
+        }
+
+    }
+
+    void OnReviveStart()
+    {
+        m_reviveUIActive = true;
+        m_reviveDuration = m_ghostController.m_reviveDuration;
+        m_reviveTimer = 0f;
+        if (m_reviveBarUI != null) { m_reviveBarUI.SetProgress(0f); m_reviveBarUI.Show(); }
+    }
+
+    void OnReviveEnd()
+    {
+        m_reviveUIActive = false;
+        if (m_reviveBarUI != null) m_reviveBarUI.Hide();
+    }
 
     public void OnScan()
     {
