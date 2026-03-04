@@ -42,9 +42,8 @@ public class GhostMorphPreview : NetworkBehaviour
     [SerializeField] private string m_promptMessageSCAN = "F : SCAN";
     [SerializeField] private string m_promptMessageValid = "E : Valid";
 
-    [SerializeField] private bool m_save;
+    [SerializeField] private bool m_GhostPreviewOn;
     
-
     /*
      * Initializes the mesh renderer and collider, sets the collider as a trigger, and updates the material.
      * @return void
@@ -87,8 +86,6 @@ public class GhostMorphPreview : NetworkBehaviour
         GameObject scannedObject = hit.collider.gameObject;
         Debug.Log($"Object detected: {scannedObject.name}");
 
-        
-
         ScannableObject scannableComponent = scannedObject.GetComponent<ScannableObject>();
         if (scannableComponent == null)
         {
@@ -127,10 +124,9 @@ public class GhostMorphPreview : NetworkBehaviour
         if (prefabRenderer != null)
         {
             m_meshRenderer.sharedMaterials = prefabRenderer.sharedMaterials;
-            
-            InteractPromptUI.m_Instance.Show(m_promptMessageValid);
-            m_save =true;
 
+            InteractPromptUI.m_Instance.Show(m_promptMessageValid);
+            m_GhostPreviewOn =true;
         }
         m_colliders.Clear();
         ReplaceCollider(collider);
@@ -161,7 +157,7 @@ public class GhostMorphPreview : NetworkBehaviour
     public void HidePreview()
     {
         m_meshRenderer.enabled = false;
-        m_save=false;//
+        m_GhostPreviewOn=false;//
         m_currentPrefab = null;
     }
 
@@ -266,10 +262,9 @@ public class GhostMorphPreview : NetworkBehaviour
 
             if (IsPartOfPlayer(hitObject))
             {
-                //InteractPromptUI.m_Instance.Show(m_promptMessageValid);
                 InteractPromptUI.m_Instance.Hide();
+
                 ClearHighlight();
-                
                 return;
             }
 
@@ -281,20 +276,16 @@ public class GhostMorphPreview : NetworkBehaviour
                 {
                     if(!GetComponentInParent<GhostMorph>().m_isMorphed)
                     {
-                       // There is a clone...
+                       // There is a clone for few seconds...
                     InteractPromptUI.m_Instance.Show(m_promptMessageSCAN);
                     }
                     ClearHighlight();
-                    
                     HighlightObject(hitObject);
                 }
             }
             else
             {
-               
                 ClearHighlight();
-                
-              
             }
         }
         else
@@ -303,15 +294,10 @@ public class GhostMorphPreview : NetworkBehaviour
             ClearHighlight();
             InteractPromptUI.m_Instance.Hide();
 
-            
-            if(m_save == true){
+            if(m_GhostPreviewOn == true){
             InteractPromptUI.m_Instance.Show(m_promptMessageValid);
             
-            }
-            
-            
-            
-           
+            } 
         }
     }
 

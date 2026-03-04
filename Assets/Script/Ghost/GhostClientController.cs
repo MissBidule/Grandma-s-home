@@ -19,10 +19,6 @@ public class GhostClientController : NetworkBehaviour
     [SerializeField] private GameObject m_uiHolder_prefab;
     public GameObject m_uiHolder;
     public WheelController m_wheel;
-    public GameObject m_stoppedLabel;
-    public GameObject m_slowedLabel;
-
-    public GameObject randomPrefab;
 
     private bool morphPressed = false;
 
@@ -55,9 +51,6 @@ public class GhostClientController : NetworkBehaviour
     void Update()
     {
         if (!isOwner) return;
-
-        UpdateLabels();
-
         if (last_stopped != m_ghostController.m_isStopped)
         {
             print("dead: " + m_ghostController.m_isStopped);
@@ -103,27 +96,6 @@ public class GhostClientController : NetworkBehaviour
         print(m_ghostMorphPreview.transform.localPosition);
     }
 
-    void UpdateLabels()
-    {
-        if (m_ghostController.m_isStopped)
-        {
-            if (!m_stoppedLabel.activeSelf) m_stoppedLabel.SetActive(true);
-        }
-        else
-        {
-            if (m_stoppedLabel.activeSelf) m_stoppedLabel.SetActive(false);
-        }
-
-        if (m_ghostController.m_isSlowed)
-        {
-            if (!m_slowedLabel.activeSelf) m_slowedLabel.SetActive(true);
-        }
-        else
-        {
-            if (m_slowedLabel.activeSelf) m_slowedLabel.SetActive(false);
-        }
-    }
-
     void UpdateReviveUI()
     {
         m_reviveTimer += Time.deltaTime;
@@ -161,19 +133,15 @@ public class GhostClientController : NetworkBehaviour
         if (!isOwner) return;
         m_wheel.Toggle();
     }
-
     public void OnMorph()
     {
         if (!isOwner) return;
         if (!m_ghostMorphPreview.m_canMorph || !m_ghostMorphPreview.m_currentPrefab || m_ghostMorph.m_isMorphed) return;
         if (m_wheel.IsWheelOpen()) m_wheel.Toggle();
-
+        
         m_wheel.ClearSelection();
-
         morphPressed = true;
         InteractPromptUI.m_Instance.Hide();
-        
-
     }
 
     /**
