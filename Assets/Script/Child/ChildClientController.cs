@@ -35,33 +35,16 @@ public class ChildClientController : NetworkBehaviour
             m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
         // Use PlayerControllerCore.m_playerCamera (Inspector-assigned, always valid)
         // instead of GetComponentInChildren which can fail in multi-instance scenarios
-        var core = GetComponent<PlayerControllerCore>();
-        if (core != null) m_playerCamera = core.m_playerCamera;
         Debug.Log($"[ChildClientController] InitOwner - m_playerCamera: {m_playerCamera}, m_childInputController: {m_childInputController}");
     }
 
     void Update()
     {
-        if (!isOwner)
-        {
-            if (Time.frameCount % 120 == 0)
-                Debug.Log($"[ChildClientController] Update - isOwner FALSE");
-            return;
-        }
-        if (m_childInputController == null || m_playerCamera == null)
-        {
-            Debug.Log($"[ChildClientController] Update - isOwner true mais refs nulles (cam={m_playerCamera}, input={m_childInputController}), retry InitOwner");
-            InitOwner();
-            return;
-        }
-
         // DebugPrintTrafic();
 
         var moveVec = m_childInputController.m_movementInputVector;
         var wishDir = GetDirectionIntention(moveVec);
         var cameraYaw = m_playerCamera.transform.eulerAngles.y;
-        if (Time.frameCount % 120 == 0)
-            Debug.Log($"[ChildClientController] Update OK - moveVec: {moveVec}, wishDir: {wishDir}, isOwner: {isOwner}");
 
         // Set wishDir/cameraYaw directly on the local controller (no round-trip needed for movement)
         m_childController.m_wishDir = wishDir;

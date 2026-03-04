@@ -40,6 +40,7 @@ public class GhostClientController : NetworkBehaviour
     protected override void OnOwnerChanged(PurrNet.PlayerID? oldOwner, PurrNet.PlayerID? newOwner, bool asServer)
     {
         if (isOwner && (m_ghostInputController == null || m_playerCamera == null)) InitOwner();
+        if (!isOwner) DestroyUI();
     }
 
     private void InitOwner()
@@ -47,8 +48,6 @@ public class GhostClientController : NetworkBehaviour
         m_ghostInputController = GetComponent<GhostInputController>();
         // Use PlayerControllerCore.m_playerCamera (Inspector-assigned, always valid)
         // instead of GetComponentInChildren which can fail in multi-instance scenarios
-        var core = GetComponent<PlayerControllerCore>();
-        if (core != null) m_playerCamera = core.m_playerCamera;
         if (m_uiHolder == null)
             m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
         m_wheel = m_uiHolder.GetComponentInChildren<WheelController>();
@@ -57,10 +56,16 @@ public class GhostClientController : NetworkBehaviour
         Debug.Log($"[GhostClientController] InitOwner - m_playerCamera: {m_playerCamera}");
     }
 
+    private void DestroyUI()
+    {
+        if (m_uiHolder) UnityProxy.DestroyDirectly(m_uiHolder);
+        m_uiHolder = null;
+    }
+
     void Update()
     {
         if (!isOwner) return;
-        if (m_ghostController == null || m_ghostInputController == null || m_playerCamera == null) return;
+        if (m_ghostController == null || m_ghostInputController == null || m_playerCamera == null) return; // "just in case"
 
         UpdateLabels();
 

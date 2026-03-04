@@ -41,7 +41,7 @@ public class PlayerControllerCore : NetworkBehaviour
             // Change color of non-owned players for better visibility
             foreach (var renderer in m_renderers)
             {
-                renderer.material.color = Color.HSVToRGB(UnityEngine.Random.Range(0f, 1f), 0.8f, 0.9f);
+                renderer.material.color = Color.HSVToRGB(Random.Range(0f, 1f), 0.8f, 0.9f);
             }
         }
     }
