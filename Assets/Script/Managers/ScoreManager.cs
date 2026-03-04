@@ -33,6 +33,28 @@ public class ScoreManager : NetworkBehaviour
         RefreshUI();
     }
 
+    public void ResetPoint(PlayerID playerID)
+    {
+        CheckForDictonaryEntry(playerID);
+
+        var ScoreData = scores[playerID];
+        ScoreData.point=0;
+        scores[playerID] = ScoreData;
+
+        m_score = ScoreData.point;
+        RefreshUI();
+    }
+
+    public void ResetTransformghost(PlayerID playerID)
+    {
+        CheckForDictonaryEntry(playerID);
+
+        var ScoreData = scores[playerID];
+        ScoreData.tranformghost=0;
+        scores[playerID] = ScoreData;
+        //RefreshUI();
+    }
+
     public void AddTransformghost(PlayerID playerID)
     {
         Debug.Log("line 3");
