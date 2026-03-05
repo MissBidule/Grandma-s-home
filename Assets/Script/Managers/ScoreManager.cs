@@ -21,7 +21,8 @@ public class ScoreManager : NetworkBehaviour
 
     private void Update()
     {
-        RefreshUI();
+        SyncPoint();
+      //  RefreshUI();
     }
     //
     //[ObserversRpc(runLocally:true)]
@@ -54,9 +55,15 @@ public class ScoreManager : NetworkBehaviour
 
     public void SyncPoint()
     {
-        foreach (var key in scores.Keys){
-          // m_score=scores[key]; 
+
+        foreach (var entry in scores)
+        {
+            m_score += entry.Value.point;
         }
+        RefreshUI();
+        //foreach (var key in scores.Keys){
+          // m_score=scores[key]; 
+        //}
         //for(PlayerID i=0;i<0;i++){
         //m_score += scores[i];
         //}
