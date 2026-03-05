@@ -8,22 +8,27 @@ namespace PurrLobby
         [SerializeField] private Lobby serializedLobby;
         public Lobby CurrentLobby { get; private set; }
 
-        private int number_of_player_in_loby =-1;
+        private int number_of_player_in_lobby =-1;
 
-        public void SetCurrentLobby(Lobby newLobby)
+        public void SetCurrentLobby(Lobby _newLobby)
         {
-            CurrentLobby = newLobby;
-            serializedLobby = newLobby;
+            CurrentLobby = _newLobby;
+            serializedLobby = _newLobby;
         }
 
-        public void setNumber_of_player_in_loby(int number_of_player_in_loby)
+        public void SetMaxPlayer(int _max_players)
         {
-            this.number_of_player_in_loby = number_of_player_in_loby;
+            serializedLobby.MaxPlayers = _max_players;
         }
 
-        public int GetNumber_of_player_in_loby()
+        public void setNumber_of_player_in_lobby(int number_of_player_in_lobby)
         {
-            return number_of_player_in_loby;
+            this.number_of_player_in_lobby = number_of_player_in_lobby;
+        }
+
+        public int GetNumber_of_player_in_lobby()
+        {
+            return number_of_player_in_lobby;
         }
         
         private void Awake()

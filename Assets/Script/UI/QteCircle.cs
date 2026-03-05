@@ -8,7 +8,7 @@ using UnityEngine.UI;
  * @brief  Contains class declaration for QteCircle
  * @details Script that handles a circular QTE with several difficulties
  */
-public class QteCircle : NetworkBehaviour
+public class QteCircle : MonoBehaviour
 {
     [Header("UI")]
     [SerializeField] private RectTransform m_circleTransform;
@@ -32,22 +32,11 @@ public class QteCircle : NetworkBehaviour
     [Header("Phases")]
     [SerializeField] private float[] m_zoneToleranceByPhase = { 18f, 13f, 8f };
 
-    [Header("Input")]
-    [SerializeField] private KeyCode m_validateKey = KeyCode.Space;
-
-
     private const float c_minVectorSqrMagnitude = 0.0001f;
 
     private int m_currentPhaseIndex;
-    private bool m_isRunning;
+    public bool m_isRunning;
     private Action<bool> m_onFinished;
-
-    protected override void OnSpawned()
-    {
-        base.OnSpawned();
-
-        enabled = isOwner;
-    }
 
     private void Start()
     {

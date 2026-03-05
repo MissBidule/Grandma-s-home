@@ -11,27 +11,20 @@ using UnityEngine;
 public class GhostInteract : NetworkBehaviour
 {
     [Header("Detection")]
-    //unused
-    //[SerializeField] private float m_radius = 2.0f;
     [SerializeField] private LayerMask m_interactableMask;
+    public IInteractable m_onFocus;
     private List<IInteractable> m_interactable = new List<IInteractable>();
 
-    public IInteractable m_onFocus; // Can be either GhostStatus or SabotageObject
-
-    protected override void OnSpawned()
-    {
-        base.OnSpawned();
-
-        enabled = isOwner;
-    }
 
     private void Update()
     {
+        if (!isOwner) return;
+
         if (m_interactable.Count <= 0) { 
             
             if (m_onFocus != null)
             {
-                m_onFocus.OnUnfocus();
+                m_onFocus.OnUnfocus(this);
                 m_onFocus = null;
             }
             return;
@@ -41,21 +34,16 @@ public class GhostInteract : NetworkBehaviour
 
         if (closest != m_onFocus)
         {
-            closest.OnFocus();
-
-            if (m_onFocus != null)
-            {
-                m_onFocus.OnUnfocus();
-            }
+            closest?.OnFocus(this);
+            m_onFocus?.OnUnfocus(this);
             m_onFocus = closest;
         }
+        print(m_onFocus);
     }
 
     private float SqDistanceTo(Transform _transform)
     {
-        Vector3 closest = transform.position;
-        float sqrDistance = (closest - transform.position).sqrMagnitude;
-        return sqrDistance;
+        return (transform.position - _transform.position).sqrMagnitude;
     }
 
     /*
@@ -68,6 +56,12 @@ public class GhostInteract : NetworkBehaviour
 
         foreach (IInteractable interactable in m_interactable)
         {
+            var ghost = interactable as GhostController;
+            if (ghost != null)
+            {
+                if (!ghost.m_isStopped) continue; // Only interact with downed ghosts
+            }
+
             MonoBehaviour mono = interactable as MonoBehaviour;
             float sqrDistance = SqDistanceTo(mono.transform);
             if (sqrDistance < bestSqrDistance)
@@ -81,13 +75,28 @@ public class GhostInteract : NetworkBehaviour
 
     /*
      * @brief Interact with the current target if available
+     * @details If target is a downed ghost, starts a hold-to-revive. Otherwise delegates to OnInteract.
      * @return void
      */
-    public void Interact()
+    [ServerRpc]
+    public void Interact(IInteractable currentFocus)
     {
-        if (m_onFocus == null) return;
-        m_onFocus.OnInteract(this);
+        if (!isServer) return;
+        if (currentFocus == null) return;
+        currentFocus.OnInteract(this);
     }
+
+    /**
+    @brief      Called when the interact button is released
+    */
+    [ServerRpc]
+    public void StopInteract(IInteractable currentFocus)
+    {
+        if (currentFocus == null) return;
+        currentFocus?.OnStopInteract(this);
+    }
+
+
 
     public void OnSabotageOver(bool success)
     {
@@ -107,6 +116,7 @@ public class GhostInteract : NetworkBehaviour
      */
     void OnTriggerEnter(Collider _other)
     {
+        if (!isOwner) return;
         if (_other.GetComponentInParent<IInteractable>() is IInteractable interactable)
         {
             m_interactable.Add(interactable);
@@ -119,6 +129,7 @@ public class GhostInteract : NetworkBehaviour
      */
     void OnTriggerExit(Collider _other)
     {
+        if (!isOwner) return;
         if (_other.GetComponentInParent<IInteractable>() is IInteractable interactable)
         {
             m_interactable.Remove(interactable);

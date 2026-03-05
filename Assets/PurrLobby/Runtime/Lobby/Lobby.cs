@@ -21,7 +21,7 @@ namespace PurrLobby {
                 var newMember = @new.Members[i];
                 var oldMember = Members[i];
 
-                if(newMember.Id != oldMember.Id || newMember.IsReady != oldMember.IsReady || newMember.DisplayName != oldMember.DisplayName || newMember.Avatar != oldMember.Avatar)
+                if(newMember.Id != oldMember.Id || newMember.IsReady != oldMember.IsReady || newMember.DisplayName != oldMember.DisplayName || newMember.Avatar != oldMember.Avatar || newMember.IsGhost != oldMember.IsGhost)
                     return true;
             }
 

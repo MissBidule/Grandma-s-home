@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
  * @brief       Contains class declaration for PlayerCameraController
  * @details     Handles third-person orbital camera controlled by mouse input with collision handling.
  */
-public class ChildCameraController : NetworkBehaviour
+public class ChildCameraController : MonoBehaviour
 {
     public float m_sensitivity = 120f;
     public float m_distance = 4f;
@@ -24,12 +24,6 @@ public class ChildCameraController : NetworkBehaviour
     private Transform m_target;
     private Rigidbody m_rigidbody;
 
-    protected override void OnSpawned()
-    {
-        base.OnSpawned();
-
-        enabled = isOwner;
-    }
     
     /*
      * @brief   Initializes references and locks the cursor
@@ -54,7 +48,6 @@ public class ChildCameraController : NetworkBehaviour
         Vector3 pivot = m_target.position + m_target.right * m_xOffset + m_pivotOffset;
         Quaternion rotation;
         Vector3 desiredOffset;
-        float finalDistance = m_distance;
 
         Vector2 lookInput = m_childInputController.m_lookInputVector;
         m_yaw += lookInput.x * m_sensitivity * Time.deltaTime;
@@ -63,7 +56,7 @@ public class ChildCameraController : NetworkBehaviour
 
         rotation = Quaternion.Euler(m_pitch, m_yaw, 0f);
         desiredOffset = rotation * Vector3.back * m_distance;
-        finalDistance = m_distance;
+        float finalDistance = m_distance;
 
         if (Physics.Raycast(
             pivot,

@@ -72,7 +72,27 @@ namespace PurrLobby.Providers
             }
         }
 
-        public async Task<Lobby> CreateLobbyAsync(int maxPlayers, Dictionary<string, string> lobbyProperties = null)
+        public async Task<string> GetPlayer() {
+            string steamId = await GetLocalUserIdAsync();
+            return steamId;
+        }
+        
+        public async Task UpdateLobbyMaxPlayers(int _maxPlayers)
+        {
+            if (!IsSteamClientAvailable)
+                return;
+            Steamworks.SteamMatchmaking.SetLobbyMemberLimit(lobbyId, _maxPlayers);
+        }
+
+        public async Task UpdateLobbyType(bool _isPrivate)
+        {
+            if (!IsSteamClientAvailable)
+                return;
+            lobbyType = _isPrivate ? LobbyType.Private : LobbyType.Public;
+            Steamworks.SteamMatchmaking.SetLobbyType(lobbyId, _isPrivate ? (Steamworks.ELobbyType)LobbyType.Private : (Steamworks.ELobbyType)LobbyType.Public);
+        }
+
+        public async Task<Lobby> CreateLobbyAsync(string _lobbyName, int maxPlayers, Dictionary<string, string> lobbyProperties = null)
         {
             if (!IsSteamClientAvailable)
                 return default;
@@ -81,7 +101,7 @@ namespace PurrLobby.Providers
 
             var tcs = new TaskCompletionSource<bool>();
             Steamworks.CSteamID lobbyId = Steamworks.CSteamID.Nil;
-            var lobbyName = $"{Steamworks.SteamFriends.GetPersonaName()}'s Lobby";
+            var lobbyName = _lobbyName == null ? $"{Steamworks.SteamFriends.GetPersonaName()}'s Lobby" : _lobbyName;
 
             var handle = Steamworks.SteamMatchmaking.CreateLobby((Steamworks.ELobbyType)lobbyType, maxPlayers);
             _LobbyCreated.Set(handle, (result, ioError) =>
@@ -225,7 +245,6 @@ namespace PurrLobby.Providers
                 return default;
 
             _LobbyEnter ??= Steamworks.CallResult<Steamworks.LobbyEnter_t>.Create();
-
             var tcs = new TaskCompletionSource<bool>();
             var cLobbyId = new Steamworks.CSteamID(ulong.Parse(lobbyId));
             var handle = Steamworks.SteamMatchmaking.JoinLobby(cLobbyId);
@@ -248,6 +267,8 @@ namespace PurrLobby.Providers
                 OnLobbyJoinFailed?.Invoke($"Failed to join lobby {lobbyId}.");
                 return new Lobby { IsValid = false };
             }
+
+            Steamworks.SteamMatchmaking.SetLobbyMemberData(_currentLobby, "IsGhost", (Random.Range(0, 2) == 0).ToString());
 
             var lobby = LobbyFactory.Create(
                 Steamworks.SteamMatchmaking.GetLobbyData(_currentLobby, "Name"),
@@ -344,6 +365,18 @@ namespace PurrLobby.Providers
             return Task.FromResult(Task.CompletedTask);
         }
 
+        public async Task SetIsGhostAsync(string userId, bool isGhost) {
+            //You can only set the role state for your own user
+            if (IsSteamClientAvailable && !string.IsNullOrEmpty(userId) && ulong.TryParse(userId, out var id)
+                && Steamworks.SteamUser.GetSteamID().m_SteamID == id)
+            {
+                Steamworks.SteamMatchmaking.SetLobbyMemberData(_currentLobby, "IsGhost", _isGhost.ToString());
+                Steamworks.SteamMatchmaking.SetLobbyData(_currentLobby, "UpdateTrigger", DateTime.UtcNow.Ticks.ToString());
+            }
+
+            return Task.FromResult(Task.CompletedTask);
+        }
+
         public Task SetLobbyDataAsync(string key, string value)
         {
             if (IsSteamClientAvailable)
@@ -428,6 +461,8 @@ namespace PurrLobby.Providers
             var displayName = Steamworks.SteamFriends.GetFriendPersonaName(steamId);
             var isReadyString = Steamworks.SteamMatchmaking.GetLobbyMemberData(lobbyId, steamId, "IsReady");
             var isReady = !string.IsNullOrEmpty(isReadyString) && isReadyString == "True";
+            var isGhostString = Steamworks.SteamMatchmaking.GetLobbyMemberData(lobbyId, steamId, "IsGhost");
+            var isGhost = !string.IsNullOrEmpty(isGhostString) && isGhostString == "True";
 
             var avatarHandle = Steamworks.SteamFriends.GetLargeFriendAvatar(steamId);
             Texture2D avatar = null;
@@ -450,6 +485,7 @@ namespace PurrLobby.Providers
                 DisplayName = displayName,
                 IsReady = isReady,
                 Avatar = avatar
+                IsGhost = isGhost;
             };
         }
 

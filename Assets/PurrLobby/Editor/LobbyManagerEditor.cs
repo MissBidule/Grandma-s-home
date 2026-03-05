@@ -17,6 +17,21 @@ namespace PurrLobby.Editor
 
         public override void OnInspectorGUI()
         {
+            var serializedObject = new SerializedObject(target);
+            var eventProperty = serializedObject.FindProperty("m_readyButton");
+            if (eventProperty != null)
+            {
+                EditorGUILayout.PropertyField(eventProperty, true);
+            }
+            var eventProperty2 = serializedObject.FindProperty("m_usernameField");
+            if (eventProperty2 != null)
+            {
+                EditorGUILayout.PropertyField(eventProperty2, true);
+            }
+            serializedObject.ApplyModifiedProperties();
+            
+            EditorGUILayout.Space();
+
             var lobbyManager = (LobbyManager)target;
 
             DrawProviderDropdown(lobbyManager);

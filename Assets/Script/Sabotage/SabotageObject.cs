@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using PurrNet;
 using UnityEngine;
 using System.Collections;
@@ -23,15 +24,15 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     [SerializeField] private float m_maxIntensity = 0.6f;
 
     [Header("Interaction")]
-    [SerializeField] private string m_promptMessage = "E : Sabotage";
+    [SerializeField] private string m_promptMessageSABOTE = "E : Sabotage";
+    [SerializeField] private string m_promptMessageESPACE = "ESPACE : Valid";
     [SerializeField] private GhostInteract m_saboteur;
-
-    public QteCircle m_qteCircle;
 
     public bool m_isSabotaged;
     private bool m_isQteRunning;
     private bool m_isFocused;
 
+    [SerializeField] public List<GhostInteract> m_saboteurs = new List<GhostInteract>();
     private Coroutine m_pulseCoroutine;
     private MaterialPropertyBlock m_propertyBlock;
 
@@ -59,43 +60,48 @@ public class SabotageObject : NetworkBehaviour, IInteractable
                 }
             }
         }
-
         ApplyState();
         SetHighlight(false);
-
-        m_qteCircle = FindAnyObjectByType<QteCircle>();
     }
 
     /*
      * @brief Activates the highlight effect and displays the interaction prompt
      * @return void
      */
-    public void OnFocus()
+    public void OnFocus(GhostInteract _ghost)
     {
         m_isFocused = true;
         SetHighlight(true);
-
-        if (InteractPromptUI.m_Instance != null)
+        if (m_sabotagedMesh != null)
         {
-            InteractPromptUI.m_Instance.Show(m_promptMessage);
+            if (!m_isSabotaged)
+            {
+                InteractPromptUI.m_Instance.Show(m_promptMessageSABOTE);
+                
+            }
+            if (m_isSabotaged)
+            {
+                InteractPromptUI.m_Instance.Hide();
+                
+            }
         }
+        m_saboteurs.Add(_ghost);
     }
 
     /*
      * @brief Deactivates the highlight effect and hides the interaction prompt
      * @return void
      */
-    public void OnUnfocus()
+    public void OnUnfocus(GhostInteract _ghost)
     {
         m_isFocused = false;
+
+        m_saboteurs.Remove(_ghost);
+        InteractPromptUI.m_Instance.Hide();
+        
+    
         SetHighlight(false);
-
-        if (InteractPromptUI.m_Instance != null)
-        {
-            InteractPromptUI.m_Instance.Hide();
-        }
     }
-
     /*
      * @brief Handles player interaction with the sabotage object
      * Freezes the interacting ghost's rigidbody and starts the QTE if the object is not already sabotaged or busy
@@ -126,13 +132,14 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         m_isQteRunning = true;
         SetHighlight(false);
 
-        if (InteractPromptUI.m_Instance != null)
-        {
-            InteractPromptUI.m_Instance.Hide();
-        }
+        //InteractPromptUI.m_Instance.Hide();
+        InteractPromptUI.m_Instance.Show(m_promptMessageESPACE);
+        
+
 
         m_saboteur = _sabo;
-        m_qteCircle.StartQte(OnQteFinished);
+        QteCircle qte = FindAnyObjectByType<QteCircle>();
+        qte.StartQte(OnQteFinished);
     }
 
     /*
@@ -144,41 +151,43 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     private void OnQteFinished(bool _success)
     {
         m_isQteRunning = false;
-
+        
         m_saboteur.OnSabotageOver(_success);
         if (_success)
         {
-            Sabotage();
+            InteractPromptUI.m_Instance.Hide();
+            
+            SabotageRPC();
+            
             m_saboteur = null;
             return;
         }
+        else
+        {
+            InteractPromptUI.m_Instance.Show(m_promptMessageSABOTE);
+        }
+        
         m_saboteur = null;
 
         if (m_isFocused)
         {
             SetHighlight(true);
-            if (InteractPromptUI.m_Instance != null)
-            {
-                InteractPromptUI.m_Instance.Show(m_promptMessage);
-            }
+
         }
     }
 
-    /*
-     * @brief Marks the object as sabotaged, updates its visual state and increments the score
-     * @return void
-     */
-    private void Sabotage()
+    [ServerRpc(requireOwnership:false)]
+    private void SabotageRPC()
+    {
+        SabotageForAll();
+    }
+
+    [ObserversRpc(runLocally:true, requireServer:true)]
+    private void SabotageForAll()
     {
         m_isSabotaged = true;
         ApplyState();
         SetHighlight(false);
-
-        if (InteractPromptUI.m_Instance != null)
-        {
-            InteractPromptUI.m_Instance.Hide();
-        }
-
         if (ScoreManager.m_Instance != null)
         {
             ScoreManager.m_Instance.Add(m_scoreValue);
@@ -193,11 +202,25 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     {
         if (m_normalMesh != null)
         {
-            m_normalMesh.SetActive(!m_isSabotaged);
+            var r = m_normalMesh.GetComponent<Renderer>();
+            if (r != null)
+                r.enabled = !m_isSabotaged;
+            foreach (GhostInteract ghostinteract in m_saboteurs)
+            {
+                ghostinteract.OnSabotageOver( true);  
+            }
+            var c = m_normalMesh.GetComponent<Collider>();
+            if (c != null)
+                c.enabled = !m_isSabotaged;
         }
         if (m_sabotagedMesh != null)
         {
-            m_sabotagedMesh.SetActive(m_isSabotaged);
+            var r = m_sabotagedMesh.GetComponent<Renderer>();
+            if (r != null)
+                r.enabled = m_isSabotaged;
+            var c = m_sabotagedMesh.GetComponent<Collider>();
+            if (c != null)
+                c.enabled = m_isSabotaged;
         }
     }
 
