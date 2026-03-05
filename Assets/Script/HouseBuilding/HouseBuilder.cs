@@ -8,97 +8,45 @@ using UnityEngine;
 
 namespace Script.HouseBuilding
 {
+    public enum RoomType
+    {
+        LivingRoom,
+        LivingRoom2,
+        DiningRoom,
+        Solarium,
+        ChildrenBedroom,
+        GrandmotherBedroom,
+        Bathroom,
+        DressingRoom,
+        Pantry,
+        Toilet1,
+        Toilet2,
+        LaundryRoom,
+        Closet1,
+        Closet2,
+        Garage,
+        ArtWorkshop,
+        MusicWorkshop,
+        InventionsWorkshop,
+        Library,
+        Office,
+        GameRoom
+    }
+    
+    [System.Serializable]
+    public class RoomConfig
+    {
+        public RoomType m_roomType;
+        public Transform m_roomAnchor;
+        public List<Room> m_roomLayouts;
+    }
+    
     public class HouseBuilder : NetworkBehaviour
     {
-        private enum RoomType
-        {
-            LivingRoom,
-            LivingRoom2,
-            DiningRoom,
-            Solarium,
-            ChildrenBedroom,
-            GrandmotherBedroom,
-            Bathroom,
-            DressingRoom,
-            Pantry,
-            Toilet1,
-            Toilet2,
-            LaundryRoom,
-            Closet1,
-            Closet2,
-            Garage,
-            ArtWorkshop,
-            MusicWorkshop,
-            InventionsWorkshop,
-            Library,
-            Office,
-            GameRoom
-        }
         
         [Header("Rooms References")]
         
-        [SerializeField] private Transform m_livingRoomAnchor;
-        [SerializeField] private List<Room> m_livingRoomLayouts;
-        
-        [SerializeField] private Transform m_livingRoom2Anchor;
-        [SerializeField] private List<Room> m_livingRoom2Layouts;
-
-        [SerializeField] private Transform m_diningRoomAnchor;
-        [SerializeField] private List<Room> m_diningRoomLayouts;
-        
-        [SerializeField] private Transform m_solariumAnchor;
-        [SerializeField] private List<Room> m_solariumLayouts;
-        
-        [SerializeField] private Transform m_childrenBedroomAnchor;
-        [SerializeField] private List<Room> m_childrenBedroomLayouts;
-        
-        [SerializeField] private Transform m_grandmotherBedroomAnchor;
-        [SerializeField] private List<Room> m_grandmotherBedroomLayouts;
-        
-        [SerializeField] private Transform m_bathroomAnchor;
-        [SerializeField] private List<Room> m_bathroomLayouts;
-        
-        [SerializeField] private Transform m_dressingRoomAnchor;
-        [SerializeField] private List<Room> m_dressingRoomLayouts;
-        
-        [SerializeField] private Transform m_pantryAnchor;
-        [SerializeField] private List<Room> m_pantryLayouts;
-        
-        [SerializeField] private Transform m_toilet1Anchor;
-        [SerializeField] private List<Room> m_toilet1Layouts;
-        
-        [SerializeField] private Transform m_toilet2Anchor;
-        [SerializeField] private List<Room> m_toilet2Layouts;
-        
-        [SerializeField] private Transform m_laundryRoomAnchor;
-        [SerializeField] private List<Room> m_laundryRoomLayouts;
-        
-        [SerializeField] private Transform m_closet1Anchor;
-        [SerializeField] private List<Room> m_closet1Layouts;
-        
-        [SerializeField] private Transform m_closet2Anchor;
-        [SerializeField] private List<Room> m_closet2Layouts;
-        
-        [SerializeField] private Transform m_garageAnchor;
-        [SerializeField] private List<Room> m_garageLayouts;
-        
-        [SerializeField] private Transform m_artWorkshopAnchor;
-        [SerializeField] private List<Room> m_artWorkshopLayouts;
-        
-        [SerializeField] private Transform m_musicWorkshopAnchor;
-        [SerializeField] private List<Room> m_musicWorkshopLayouts;
-        
-        [SerializeField] private Transform m_inventionsWorkshopAnchor;
-        [SerializeField] private List<Room> m_inventionsWorkshopLayouts;
-        
-        [SerializeField] private Transform m_libraryAnchor;
-        [SerializeField] private List<Room> m_libraryLayouts;
-        
-        [SerializeField] private Transform m_officeAnchor;
-        [SerializeField] private List<Room> m_officeLayouts;
-        
-        [SerializeField] private Transform m_gameRoomAnchor;
-        [SerializeField] private List<Room> m_gameRoomLayouts;
+        [SerializeField] private List<RoomConfig> m_rooms;
         
         [Header("Props Parameters")]
         [SerializeField, Range(0f, 1f)] private float m_smallPropsPercentage;
@@ -115,64 +63,6 @@ namespace Script.HouseBuilding
             }
 
             SeedHouse();
-        }
-
-        private List<Room> GetLayoutsForRoomType(RoomType _roomType)
-        {
-            switch (_roomType)
-            {
-                case RoomType.LivingRoom: return m_livingRoomLayouts;
-                case RoomType.LivingRoom2: return m_livingRoom2Layouts;
-                case RoomType.DiningRoom: return m_diningRoomLayouts;
-                case RoomType.Solarium: return m_solariumLayouts;
-                case RoomType.ChildrenBedroom: return m_childrenBedroomLayouts;
-                case RoomType.GrandmotherBedroom: return m_grandmotherBedroomLayouts;
-                case RoomType.Bathroom: return m_bathroomLayouts;
-                case RoomType.DressingRoom: return m_dressingRoomLayouts;
-                case RoomType.Pantry: return m_pantryLayouts;
-                case RoomType.Toilet1: return m_toilet1Layouts;
-                case RoomType.Toilet2: return m_toilet2Layouts;
-                case RoomType.LaundryRoom: return m_laundryRoomLayouts;
-                case RoomType.Closet1: return m_closet1Layouts;
-                case RoomType.Closet2: return m_closet2Layouts;
-                case RoomType.Garage: return m_garageLayouts;
-                case RoomType.ArtWorkshop: return m_artWorkshopLayouts;
-                case RoomType.MusicWorkshop: return m_musicWorkshopLayouts;
-                case RoomType.InventionsWorkshop: return m_inventionsWorkshopLayouts;
-                case RoomType.Library: return m_libraryLayouts;
-                case RoomType.Office: return m_officeLayouts;
-                case RoomType.GameRoom: return m_gameRoomLayouts;
-                default: return null;
-            }
-        }
-
-        private Transform GetAnchorForRoomType(RoomType _roomType)
-        {
-            switch (_roomType)
-            {
-                case RoomType.LivingRoom: return m_livingRoomAnchor;
-                case RoomType.LivingRoom2: return m_livingRoom2Anchor;
-                case RoomType.DiningRoom: return m_diningRoomAnchor;
-                case RoomType.Solarium: return m_solariumAnchor;
-                case RoomType.ChildrenBedroom: return m_childrenBedroomAnchor;
-                case RoomType.GrandmotherBedroom: return m_grandmotherBedroomAnchor;
-                case RoomType.Bathroom: return m_bathroomAnchor;
-                case RoomType.DressingRoom: return m_dressingRoomAnchor;
-                case RoomType.Pantry: return m_pantryAnchor;
-                case RoomType.Toilet1: return m_toilet1Anchor;
-                case RoomType.Toilet2: return m_toilet2Anchor;
-                case RoomType.LaundryRoom: return m_laundryRoomAnchor;
-                case RoomType.Closet1: return m_closet1Anchor;
-                case RoomType.Closet2: return m_closet2Anchor;
-                case RoomType.Garage: return m_garageAnchor;
-                case RoomType.ArtWorkshop: return m_artWorkshopAnchor;
-                case RoomType.MusicWorkshop: return m_musicWorkshopAnchor;
-                case RoomType.InventionsWorkshop: return m_inventionsWorkshopAnchor;
-                case RoomType.Library: return m_libraryAnchor;
-                case RoomType.Office: return m_officeAnchor;
-                case RoomType.GameRoom: return m_gameRoomAnchor;
-                default: return null;
-            }
         }
 
         /*
@@ -193,29 +83,51 @@ namespace Script.HouseBuilding
         [ObserversRpc(bufferLast:true)]
         private void BuildHouse(int  _masterSeed)
         {
-            
+            BuildHouseInternal(_masterSeed, false);
+        }
+        
+        private void BuildHouseInternal(int _masterSeed, bool _editorMode)
+        {
             Random.InitState(_masterSeed);
 
-            int masterSeedIterator = 0;
-            foreach (RoomType room in System.Enum.GetValues(typeof(RoomType)))
-            {
-                // Double the validity check
-                List<Room> roomLayouts = GetLayoutsForRoomType(room);
-                Transform roomAnchor = GetAnchorForRoomType(room);
+            int seedIterator = 0;
 
-                if (roomLayouts is { Count: > 0 } && roomAnchor != null)
+            foreach (RoomConfig room in m_rooms)
+            {
+                if (room.m_roomAnchor == null || room.m_roomLayouts == null || room.m_roomLayouts.Count == 0)
+                    continue;
+
+                int layoutIndex = Random.Range(0, room.m_roomLayouts.Count);
+
+                Room newRoom;
+
+#if UNITY_EDITOR
+                if (_editorMode)
                 {
-                    int layoutIndex = Random.Range(0, roomLayouts.Count);
-                    PurrLogger.Log($"Spawning {room.GetType()} with index {layoutIndex}", this);
-                    Room newRoom = UnityProxy.Instantiate(roomLayouts[layoutIndex], roomAnchor);
-                    newRoom.PopulateRoom(m_smallPropsPercentage, m_mediumPropsPercentage, _masterSeed + masterSeedIterator);
+                    GameObject go = (GameObject)PrefabUtility.InstantiatePrefab(
+                        room.m_roomLayouts[layoutIndex].gameObject,
+                        room.m_roomAnchor
+                    );
+
+                    newRoom = go.GetComponent<Room>();
+                    m_spawnedRooms.Add(go);
                 }
                 else
+#endif
                 {
-                    PurrLogger.Log($"{room.GetType()} Parameters invalid", this);
+                    newRoom = UnityProxy.Instantiate(room.m_roomLayouts[layoutIndex], room.m_roomAnchor);
                 }
-                
-                masterSeedIterator++;
+
+                if (newRoom != null)
+                {
+                    newRoom.PopulateRoom(
+                        m_smallPropsPercentage,
+                        m_mediumPropsPercentage,
+                        _masterSeed + seedIterator
+                    );
+                }
+
+                seedIterator++;
             }
         }
         
@@ -239,7 +151,7 @@ namespace Script.HouseBuilding
             ClearEditorHouse();
 
             int seed = m_useEditorSeed ? m_editorSeed : System.DateTime.Now.Millisecond;;
-            BuildHouseEditor(seed);
+            BuildHouseInternal(seed, true);
         }
 
         public void RandomizeSeed()
@@ -256,31 +168,6 @@ namespace Script.HouseBuilding
             }
 
             m_spawnedRooms.Clear();
-        }
-        
-        private void BuildHouseEditor(int _masterSeed)
-        {
-            Random.InitState(_masterSeed);
-
-            int masterSeedIterator = 0;
-
-            foreach (RoomType room in System.Enum.GetValues(typeof(RoomType)))
-            {
-                List<Room> roomLayouts = GetLayoutsForRoomType(room);
-                Transform roomAnchor = GetAnchorForRoomType(room);
-
-                if (roomLayouts is { Count: > 0 } && roomAnchor != null)
-                {
-                    int layoutIndex = Random.Range(0, roomLayouts.Count);
-
-                    Room newRoom = (Room)PrefabUtility.InstantiatePrefab(roomLayouts[layoutIndex], roomAnchor);
-                    m_spawnedRooms.Add(newRoom.gameObject);
-
-                    newRoom.PopulateRoom(m_smallPropsPercentage, m_mediumPropsPercentage, _masterSeed + masterSeedIterator);
-                }
-
-                masterSeedIterator++;
-            }
         }
         #endif
 
