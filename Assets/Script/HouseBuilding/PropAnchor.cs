@@ -1,11 +1,14 @@
 using UnityEngine;
 
-public class PropAnchor : MonoBehaviour
+namespace Script.HouseBuilding
 {
-    [SerializeField] private GameObject m_propPrefab;
-
-    public void Initialize()
+    public class PropAnchor : MonoBehaviour
     {
-        Instantiate(m_propPrefab, transform);
+        [SerializeField] private GameObject m_propPrefab;
+
+        public void Initialize()
+        {
+            Instantiate(m_propPrefab, transform);
+        }
     }
 }
