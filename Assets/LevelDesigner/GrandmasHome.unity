@@ -46731,7 +46731,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2873181202271193540, guid: 3fdd37937cc60aa4b8364329b03757cf, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 18.740002
+      value: 38.01
       objectReference: {fileID: 0}
     - target: {fileID: 2873181202271193540, guid: 3fdd37937cc60aa4b8364329b03757cf, type: 3}
       propertyPath: m_LocalRotation.w
@@ -48045,13 +48045,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1438634455}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.5, y: 0, z: -0, w: -0.8660254}
+  m_LocalRotation: {x: 0.5, y: 0, z: 0, w: 0.8660254}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 60, y: 360, z: 0}
+  m_LocalEulerAnglesHint: {x: 60, y: 0, z: 0}
 --- !u!114 &1438634459
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -48064,6 +48064,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 163d7e96d92caf73db0db50c0eea3a91, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DayNightSystem
+  gameTime: 480
+  sunInitialX: 60
+  sunInitialY: 0
+  isRandomSunY: 1
+  timeBetweenUpdates: 1
+  additiveAngle: 10
 --- !u!1 &1442788749
 GameObject:
   m_ObjectHideFlags: 0
