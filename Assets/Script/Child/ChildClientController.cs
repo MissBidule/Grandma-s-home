@@ -15,6 +15,14 @@ public class ChildClientController : NetworkBehaviour
     private bool m_switchWeaponPressed = false;
     private bool m_attackPressed = false;
 
+    //Animations
+    private Animator m_animator;
+    private bool m_isMovingForward;
+    private bool m_isMovingBackward;
+    private bool m_isAttacking;
+    [SerializeField]private float m_attackTimer = 10f;
+    private float m_attackTime;
+
     protected override void OnSpawned()
     {
         base.OnSpawned();
@@ -24,11 +32,11 @@ public class ChildClientController : NetworkBehaviour
         m_childInputController = GetComponent<ChildInputController>();
         m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
         m_playerCamera = GetComponentInChildren<CinemachineCamera>();
+        m_animator = GetComponentInChildren<Animator>();
     }
     void Update()
     {
         if (!isOwner) return;
-
         // DebugPrintTrafic();
 
         SendChildRPC(
@@ -73,12 +81,34 @@ public class ChildClientController : NetworkBehaviour
     {
         if (!isOwner) return;
         m_attackPressed = true;
+        m_animator.SetTrigger("OnAttack");
+        print("KABOOM");
     }
 
     private Vector3 GetDirectionIntention(Vector2 _movement)
     {
-        if (_movement == Vector2.zero) return Vector3.zero;
-
+        if (_movement == Vector2.zero)
+        {
+            if (m_isMovingForward || m_isMovingBackward)
+            {
+                m_isMovingForward = false;
+                m_isMovingBackward = false;
+                m_animator.CrossFadeInFixedTime("cac_idle",0.2f,0);
+            }
+            return Vector3.zero;
+        }
+        if (m_isMovingForward == false && _movement.y > 0)
+        {
+            m_isMovingForward = true;
+            m_isMovingBackward = false;
+            m_animator.CrossFadeInFixedTime("cac_run",0.2f,0);
+        }
+        else if(m_isMovingBackward == false && _movement.y < 1)
+        {
+            m_isMovingForward = false;
+            m_isMovingBackward = true;
+            m_animator.CrossFadeInFixedTime("cac_brun",0.2f,0);
+        }
         var wishDir = Vector3.zero;
 
         if (_movement.sqrMagnitude < 0.001f) return wishDir;

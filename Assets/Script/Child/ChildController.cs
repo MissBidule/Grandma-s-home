@@ -33,6 +33,9 @@ public class ChildController : PlayerControllerCore
     [NonSerialized] public Vector3 m_cameraPosition;
     [NonSerialized] public Vector3 m_cameraForward;
 
+
+    
+
     protected override void OnSpawned()
     {
         base.OnSpawned();

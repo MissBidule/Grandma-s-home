@@ -133,6 +133,7 @@ MonoBehaviour:
   _visitiblityRules: {fileID: 0}
   m_uiHolder_prefab: {fileID: 377348635625698099, guid: b651665fc18bb9743b016c9975896383, type: 3}
   m_uiHolder: {fileID: 0}
+  m_attackTimer: 0.5
 --- !u!114 &6565872187536608583
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -179,6 +180,7 @@ MonoBehaviour:
   m_bulletSpawnTransform: {fileID: 8286851940836659514}
   m_bulletPrefab: {fileID: 366779594710045177, guid: 90e50898fd15e4755813076e701192cc, type: 3}
   m_jumpImpulse: 6
+  m_shootRange: 50
 --- !u!114 &30589635987039035
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -842,8 +844,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2479407354322227593}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.95, y: 1.4499999, z: -3.4}
+  m_LocalRotation: {x: 0.47798848, y: 0.45278573, z: -0.317044, w: 0.6826384}
+  m_LocalPosition: {x: 3.921609, y: 7.0342255, z: -0.81355584}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1067,6 +1069,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: child_racket
       objectReference: {fileID: 0}
+    - target: {fileID: 5990990282872756330, guid: 9032e93c4a784a640b9d04cc692082ef, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: b9a6099e76feeb2479c4063d13813631, type: 2}
     - target: {fileID: 5990990282872756330, guid: 9032e93c4a784a640b9d04cc692082ef, type: 3}
       propertyPath: m_ApplyRootMotion
       value: 0
