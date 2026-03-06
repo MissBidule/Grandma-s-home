@@ -108,6 +108,15 @@ public class ScoreManager : NetworkBehaviour
         
     }
 
+// debuter un chronos qui fait : 
+            //foreach (var entry2 in scoresSecNotRes)
+           // {
+             //   m_scoreSabotage += entry2.Value.pointBroken*0.03f; 
+           // }
+           //    entry2+=entry1.Value.pointBroken*0.03f
+           // la liste 2 fait la list 1 *0.03f tout les x sec 
+           // 
+// arreter le chronos
     public void SyncPoint()
     {
         m_scoreSabotage=0;
@@ -116,7 +125,7 @@ public class ScoreManager : NetworkBehaviour
             m_scoreSabotage += entry.Value.pointBroken;
             foreach (var entry2 in scoresSecNotRes)
             {
-                m_scoreSabotage += entry2.Value.pointBroken*0.03f; 
+                m_scoreSabotage += entry2.Value.pointBroken;//*0.03f;  // c nul ca choque et decu
             }
         }
         m_scoreBroken=0;
