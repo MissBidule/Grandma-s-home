@@ -7,7 +7,7 @@ public class DayNightSystem : MonoBehaviour
     private GameObject sun; // référence au soleil dans la scène
 
     public float gameTime = 480f; // 8 minutes de jeu, à changer ou prendre la valeur vers une autre référence si ça change
-    private float currentTime = 0f; // temps actuel dans le cycle jour/nuit
+    [SerializeField] private float currentTime = 0f; // temps actuel dans le cycle jour/nuit
     
     // positions des axes du soleil par défaut
     public float sunInitialX = 60f;
@@ -49,10 +49,10 @@ public class DayNightSystem : MonoBehaviour
         currentTime = 0f;
         sun.GetComponent<Light>().intensity = sunIntensity; // intensité maximale du soleil au début
 
+        // Position initiale du soleil
         if (isRandomSunY){//random de l'angle y
         sunInitialY = Random.Range(0f, 360f);
         }
-
         sun.transform.rotation = Quaternion.Euler(sunInitialX, sunInitialY, 0f);
     }
 
