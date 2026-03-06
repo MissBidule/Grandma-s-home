@@ -56,15 +56,15 @@ public class GhostMorph : NetworkBehaviour
     
 
     [ObserversRpc(requireServer: true, runLocally: true)]
-    public void InstantiateForAll(GameObject _prefab, Vector3 _position)
+    public void InstantiateForAll(GameObject _prefab, Vector3 _position, Quaternion _rotation)
     {
         m_playerCollider.enabled = false;
         m_mesh.SetActive(false);
         InteractPromptUI.m_Instance.Hide();
-        
 
         m_currentPrefab = UnityProxy.InstantiateDirectly(_prefab, transform);
         m_currentPrefab.transform.localPosition = _position;
+        m_currentPrefab.transform.localRotation = _rotation;
     }
 
     /*
@@ -108,7 +108,7 @@ public class GhostMorph : NetworkBehaviour
      * @param _position: The local position to place the instantiated prefab.
      * @return void
      */
-    public void Morphing(GameObject _prefab, Vector3 _position)
+    public void Morphing(GameObject _prefab, Vector3 _position, Quaternion _rotation)
     {
         Rigidbody rb = GetComponent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.FreezeRotation;
@@ -121,7 +121,7 @@ public class GhostMorph : NetworkBehaviour
             return;
         }
 
-        InstantiateForAll(_prefab, _position);
+        InstantiateForAll(_prefab, _position, _rotation);
 
         m_isMorphed = true;
     }

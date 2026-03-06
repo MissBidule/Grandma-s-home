@@ -40,29 +40,48 @@ public class GhostClientController : NetworkBehaviour
     {
         base.OnSpawned();
 
-
         m_ghostController = GetComponent<GhostController>();
         m_ghostMorph = GetComponent<GhostMorph>();
         m_ghostMorphPreview = GetComponentInChildren<GhostMorphPreview>();
 
-        if (!isOwner) return;
+        if (isOwner) InitOwner();
+    }
 
+    protected override void OnOwnerChanged(PurrNet.PlayerID? oldOwner, PurrNet.PlayerID? newOwner, bool asServer)
+    {
+        if (isOwner && (m_ghostInputController == null || m_playerCamera == null)) InitOwner();
+        if (!isOwner) DestroyUI();
+    }
+
+    private void InitOwner()
+    {
         m_ghostInputController = GetComponent<GhostInputController>();
-        m_playerCamera = GetComponentInChildren<CinemachineCamera>();
-        m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
-
+        // Use PlayerControllerCore.m_playerCamera (Inspector-assigned, always valid)
+        // instead of GetComponentInChildren which can fail in multi-instance scenarios
+        var core = GetComponent<PlayerControllerCore>();
+        if (core != null) m_playerCamera = core.m_playerCamera;
+        if (m_uiHolder == null)
+            m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
         m_reviveBarUI = m_uiHolder.GetComponentInChildren<ReviveBarUI>(true);
         m_wheel = m_uiHolder.GetComponentInChildren<WheelController>();
-        m_cameraEffect = m_playerCamera.GetComponent<DeathEffect>();
-
+        if (m_playerCamera != null) m_cameraEffect = m_playerCamera.GetComponent<DeathEffect>();
         m_wheel.LinkWithGhost(this);
+        Debug.Log($"[GhostClientController] InitOwner - m_playerCamera: {m_playerCamera}");
         
         if (InstanceHandler.TryGetInstance(out UIsManager  uisManager))
             uisManager.ShowView<GhostHUDView>();
     }
+
+    private void DestroyUI()
+    {
+        if (m_uiHolder) UnityProxy.DestroyDirectly(m_uiHolder);
+        m_uiHolder = null;
+    }
+
     void Update()
     {
         if (!isOwner) return;
+        if (m_ghostController == null || m_ghostInputController == null || m_playerCamera == null) return; // "just in case"
 
         UpdateLabels();
 
@@ -82,6 +101,7 @@ public class GhostClientController : NetworkBehaviour
             m_ghostMorphPreview.transform.localPosition,                                 // Morph Parameters
             dashPressed,
             sneakPressed
+            m_ghostMorphPreview.transform.localRotation
         );
 
         // Reset values after sending to server

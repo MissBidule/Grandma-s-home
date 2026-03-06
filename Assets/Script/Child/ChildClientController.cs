@@ -24,14 +24,28 @@ public class ChildClientController : NetworkBehaviour
         base.OnSpawned();
         m_childController = GetComponent<ChildController>();
 
-        if (!isOwner) return;
+        if (isOwner) InitOwner();
+    }
+
+    protected override void OnOwnerChanged(PurrNet.PlayerID? oldOwner, PurrNet.PlayerID? newOwner, bool asServer)
+    {
+        if (isOwner) InitOwner();
+    }
+
+    private void InitOwner()
+    {
         m_childInputController = GetComponent<ChildInputController>();
-        m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
-        m_playerCamera = GetComponentInChildren<CinemachineCamera>();
-        
+        if (m_uiHolder == null)
+            m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
+        // Use PlayerControllerCore.m_playerCamera (Inspector-assigned, always valid)
+        // instead of GetComponentInChildren which can fail in multi-instance scenarios
+        var core = GetComponent<PlayerControllerCore>();
+        if (core != null) m_playerCamera = core.m_playerCamera;
+        Debug.Log($"[ChildClientController] InitOwner - m_playerCamera: {m_playerCamera}, m_childInputController: {m_childInputController}");
         if (InstanceHandler.TryGetInstance(out UIsManager  uisManager))
             uisManager.ShowView<ChildHUDView>();
     }
+
     void Update()
     {
         if (!isOwner) return;
@@ -40,8 +54,13 @@ public class ChildClientController : NetworkBehaviour
 
         // DebugPrintTrafic();
 
+        var moveVec = m_childInputController.m_movementInputVector;
+        var wishDir = GetDirectionIntention(moveVec);
+        var cameraYaw = m_playerCamera.transform.eulerAngles.y;
+
+
         SendChildRPC(
-            GetDirectionIntention(m_childInputController.m_movementInputVector),
+            wishDir,
             m_playerCamera.transform.eulerAngles.y,
             m_playerCamera.transform.position,
             m_playerCamera.transform.forward,

@@ -24,17 +24,21 @@ public class PlayerSpawningState : StateNode
     [Tooltip("Even if rules are to not despawn on disconnect, this will ignore that and always spawn a player.")]
     [SerializeField] private List<Transform> m_ghostSpawnPoints = new List<Transform>();
     private bool m_isServer = false;
-    
+    private bool m_hasStarted = false;
+
     public override void Enter(bool _asServer)
     {
         base.Enter(_asServer);
 
         m_isServer = _asServer;
+        m_hasStarted = false;
     }
 
     public void StartMachine()
     {
         if(!m_isServer) return;
+        if(m_hasStarted) return;
+        m_hasStarted = true;
 
         DespawnPlayers();
 
@@ -78,7 +82,8 @@ public class PlayerSpawningState : StateNode
             spawnedPlayers.Add(newPlayer);
         }
 
-        DisableWaitInterface();
+        if (InstanceHandler.TryGetInstance(out DisableWaitOnStart disableWaitOnStart))
+            disableWaitOnStart.DisableWaitInterface();
 
         return spawnedPlayers;
     }
