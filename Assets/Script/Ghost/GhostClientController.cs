@@ -16,12 +16,15 @@ public class GhostClientController : NetworkBehaviour
     public DeathEffect m_cameraEffect;
 
     private bool last_stopped = false;
+    private bool last_slowed = false;
 
 
     [Header("Canva")]
     [SerializeField] private GameObject m_uiHolder_prefab;
     public GameObject m_uiHolder;
     public WheelController m_wheel;
+
+    private GhostHUDView m_ghostHUDView;
 
     private bool morphPressed = false;
     private bool dashPressed = false;
@@ -41,6 +44,8 @@ public class GhostClientController : NetworkBehaviour
         m_ghostMorphPreview = GetComponentInChildren<GhostMorphPreview>();
 
         if (isOwner) InitOwner();
+
+        InstanceHandler.TryGetInstance(out m_ghostHUDView);
     }
 
     protected override void OnOwnerChanged(PurrNet.PlayerID? oldOwner, PurrNet.PlayerID? newOwner, bool asServer)
@@ -84,10 +89,17 @@ public class GhostClientController : NetworkBehaviour
         if (last_stopped != m_ghostController.m_isStopped)
         {
             print("dead: " + m_ghostController.m_isStopped);
+            m_ghostHUDView.ShowMessage(m_ghostController.m_isStopped ? "You've been stopped!" : "You're no longer stopped.");
             m_cameraEffect.SetDeathEffect(m_ghostController.m_isStopped);
             last_stopped = m_ghostController.m_isStopped;
         }
 
+        if (last_slowed != m_ghostController.m_isSlowed)
+        {
+            print("slowed: " + m_ghostController.m_isSlowed);
+            m_ghostHUDView.ShowMessage(m_ghostController.m_isSlowed ? "You've been slowed!" : "You're no longer slowed.");
+            last_slowed = m_ghostController.m_isSlowed;
+        }
 
         // DebugPrintTrafic();
 
@@ -134,44 +146,26 @@ public class GhostClientController : NetworkBehaviour
 
     void UpdateLabels()
     {
-        if (m_ghostController.m_isStopped)
-        {
-            if (!m_stoppedLabel.activeSelf) m_stoppedLabel.SetActive(true);
-        }
-        else
-        {
-            if (m_stoppedLabel.activeSelf) m_stoppedLabel.SetActive(false);
-        }
-
-        if (m_ghostController.m_isSlowed)
-        {
-            if (!m_slowedLabel.activeSelf) m_slowedLabel.SetActive(true);
-        }
-        else
-        {
-            if (m_slowedLabel.activeSelf) m_slowedLabel.SetActive(false);
-        }
-
-        if (!InstanceHandler.TryGetInstance(out GhostHUDView ghostHUDView))
+        if (m_ghostHUDView == null)
             return;
-        
+
         switch (m_ghostController.m_isDashing)
         {
             case true:
-                ghostHUDView.DashActivate();
+                m_ghostHUDView.DashActivate();
                 break;
             case false when !m_ghostController.m_CanDash:
             {
-                if (ghostHUDView.m_dash_disabled)
+                if (m_ghostHUDView.m_dash_disabled)
                     return;
-                ghostHUDView.DashDisabled();
+                m_ghostHUDView.DashDisabled();
                 break;
             }
         }
         
         if (!m_ghostController.m_canScareChild)
-            ghostHUDView.ScaredActivate(m_ghostController.GetScaryCooldownDuration());
-        else ghostHUDView.m_canScare = true;
+            m_ghostHUDView.ScaredActivate(m_ghostController.GetScaryCooldownDuration());
+        else m_ghostHUDView.m_canScare = true;
     }
 
     void UpdateReviveUI()
