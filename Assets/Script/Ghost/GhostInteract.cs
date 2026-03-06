@@ -43,7 +43,7 @@ public class GhostInteract : NetworkBehaviour
 
     private float SqDistanceTo(Transform _transform)
     {
-        return (transform.position - _transform.position).sqrMagnitude;
+        return (_transform.position - transform.position).sqrMagnitude;
     }
 
     /*

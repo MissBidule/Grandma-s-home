@@ -1,4 +1,6 @@
 using PurrNet;
+using Script.UI.Views;
+using UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -14,6 +16,7 @@ public class ChildInputController : MonoBehaviour
     public ChildClientController m_childClientController;
 
     private bool isOwner => m_childClientController != null && m_childClientController.isOwner;
+    
     /*
      * @brief Awake is called when the script instance is being loaded
      * Gets the ChildController component.
@@ -88,6 +91,43 @@ public class ChildInputController : MonoBehaviour
         if (_context.performed)
         {
             m_childClientController.OnSwitchWeapon();
+        }
+    }
+    
+    /*
+     * @brief OnHint is called by the Input System when hint input is detected used to display the controls hint
+     * @param _context: The context of the input action
+     * @return void
+     */
+    public void OnHint(InputAction.CallbackContext _context)
+    {
+        if (!isOwner) return;
+        if (_context.performed)
+        {
+            if (!InstanceHandler.TryGetInstance(out UIsManager uisManager))
+                return;
+            
+            uisManager.ToggleView<InstructionsView>();
+        }
+    }
+    
+    /*
+     * @brief OnSneak  is called by the Input System when sneak input is detected
+     * @param _context: The context of the input action
+     * @return void
+     */
+    public void OnSneak(InputAction.CallbackContext _context)
+    {
+        if (!isOwner) return;
+        if (_context.started)
+        {
+            // On press
+            m_childClientController.Sneak(true);
+        }
+        else if (_context.canceled)
+        {
+            // On release
+            m_childClientController.Sneak(false);
         }
     }
 }
