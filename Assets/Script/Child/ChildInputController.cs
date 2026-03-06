@@ -79,7 +79,7 @@ public class ChildInputController : MonoBehaviour
         if (!isOwner) return;
         if (_context.performed)
         {
-            m_childInteract.OnInteract();
+            m_childInteract.OnInteract(m_childInteract.m_onFocus);
         }
     }
 
@@ -161,7 +161,7 @@ public class ChildInputController : MonoBehaviour
         {
             if (!m_qteCircle)
             {
-                // Cant place the reference in start cause we need to wait for GhostClientController to spawn the UIHolder
+                // Cant place the reference in start cause we need to wait for ChildClientController to spawn the UIHolder
                 m_qteCircle = FindAnyObjectByType<QteCircle>();
             }
 

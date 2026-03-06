@@ -20,7 +20,7 @@ public class GhostInputController : MonoBehaviour
     private GhostMorph m_ghostMorph;
     private GhostMorphPreview m_ghostMorphPreview;
     private Interact m_ghostInteract;
-    private QteCircle m_qteCircle;
+    public QteCircle m_qteCircle;
 
     private bool isOwner => m_ghostClientController != null && m_ghostClientController.isOwner;
 
@@ -124,7 +124,7 @@ public class GhostInputController : MonoBehaviour
         if (!isOwner) return;
         if (_context.performed)
         {
-            m_ghostInteract.OnInteract();
+            m_ghostInteract.OnInteract(m_ghostInteract.m_onFocus);
         }
         else if (_context.canceled)
         {

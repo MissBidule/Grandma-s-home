@@ -43,12 +43,10 @@ public class ChildController : PlayerControllerCore
     [SerializeField] private float m_jumpImpulse = 6.0f;
     public bool m_isScared = false;
     [SerializeField] private float m_scaredAmplitude = 0.5f;
-    [SerializeField] [Tooltip("Duration of scarred by ghost in seconds")] private float m_scaredDuration = 5.0f;
+    [SerializeField] [Tooltip("Duration of scared by ghost in seconds")] private float m_scaredDuration = 5.0f;
     public bool m_isSneaking = false;
     [SerializeField] private float m_sneakAmplitude = 0.5f;
-    private float m_SpeedModifier = 1.0f; // Default speed modifier
-
-    private float m_speedModifier = 1f;
+    private float m_speedModifier = 1.0f; // Default speed modifier
 
     protected override void OnSpawned()
     {
@@ -68,19 +66,15 @@ public class ChildController : PlayerControllerCore
     void Update()
     {
         if (!isServer) return;
-
-        m_isSneaked = Input.GetKey(KeyCode.LeftShift);
      
         UpdateTimers();
-
-        SetSpeedModifier();
         
         transform.rotation = Quaternion.Euler(0, m_cameraYaw, 0);
 
         SetSpeedModifier();
 
         m_rigidbody.MovePosition(
-            m_rigidbody.position + m_wishDir * (m_speed * Time.deltaTime * m_SpeedModifier)
+            m_rigidbody.position + m_wishDir * (m_speed * Time.deltaTime * m_speedModifier)
         );
 
 
@@ -88,53 +82,15 @@ public class ChildController : PlayerControllerCore
     
     void SetSpeedModifier()
     {
-        m_SpeedModifier = 1f;
-        if (m_isSneaking) m_SpeedModifier *= m_sneakAmplitude;
-        if (m_isScared) m_SpeedModifier *= m_scaredAmplitude;
+        m_speedModifier = 1f;
+        if (m_isSneaking) m_speedModifier *= m_sneakAmplitude;
+        if (m_isScared) m_speedModifier *= m_scaredAmplitude;
     }
 
     void UpdateTimers()
     {
         m_lastShot += Time.deltaTime;
         m_switchingTime += Time.deltaTime;
-        
-        if (m_isSlowed)
-        {
-            m_currentTimerSlowed -= Time.deltaTime;
-            if (m_currentTimerSlowed <= 0f)
-            {
-                RemoveSlowToAll();
-            }
-        }
-    }
-
-    void SetSpeedModifier()
-    {
-        m_speedModifier = 1f;
-        if (m_isSneaked) m_speedModifier *= 0.75f;
-        if (m_isSlowed) m_speedModifier *= 0.5f;
-    }
-
-    /**
-    @brief      Apply slow effect from ghost
-    */
-    public void GhostTouch()
-    {
-        if (!isServer) return;
-        ApplySlowToAll();
-        m_currentTimerSlowed = m_timerSlowed;
-    }
-
-    [ObserversRpc(runLocally:true)]
-    public void ApplySlowToAll()
-    {
-        m_isSlowed = true;
-    }
-
-    [ObserversRpc(runLocally:true)]
-    public void RemoveSlowToAll()
-    {
-        m_isSlowed = false;
     }
 
     /*
@@ -227,7 +183,7 @@ public class ChildController : PlayerControllerCore
         m_isScared = true;
         PurrLogger.Log("Ghost Touch", this);
         UpdateScaredToAll(m_isScared);
-        StartCoroutine(ScarredTimer(m_scaredDuration));
+        StartCoroutine(ScaredTimer(m_scaredDuration));
     }
     
     [ObserversRpc(runLocally:true)]
@@ -239,7 +195,7 @@ public class ChildController : PlayerControllerCore
     /*
      * @brief Timer for scared debuff
      */
-    private IEnumerator ScarredTimer(float _scaredDuration)
+    private IEnumerator ScaredTimer(float _scaredDuration)
     {
         yield return new WaitForSeconds(_scaredDuration);
         m_isScared = false;

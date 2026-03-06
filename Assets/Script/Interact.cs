@@ -78,22 +78,31 @@ public class Interact : NetworkBehaviour
      * @details If target is a downed ghost, starts a hold-to-revive. Otherwise delegates to OnInteract.
      * @return void
      */
+    public void OnInteract(IInteractable _currentFocus)
+    {
+        if (_currentFocus == null) return;
+        if (_currentFocus is GhostController ghost)
+        {
+            OnRevive(_currentFocus);
+            return;
+        }
+        _currentFocus.OnInteract(this);
+    }
+
     [ServerRpc]
-    public void OnInteract()
+    public void OnRevive(IInteractable _currentFocus)
     {
         if (!isServer) return;
-        if (currentFocus == null) return;
-        currentFocus.OnInteract(this);
+        _currentFocus.OnInteract(this);
     }
 
     /**
     @brief      Called when the interact button is released
     */
-    [ServerRpc]
-    public void StopInteract(IInteractable currentFocus)
+    public void StopInteract(IInteractable _currentFocus)
     {
-        if (currentFocus == null) return;
-        currentFocus?.OnStopInteract(this);
+        if (_currentFocus == null) return;
+        _currentFocus?.OnStopInteract(this);
     }
 
 

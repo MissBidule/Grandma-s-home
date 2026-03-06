@@ -68,22 +68,6 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         SetHighlight(false);
     }
 
-    void OnDestroy()
-    {
-        if (m_highlightRenderers.Count > 0)
-        {
-            foreach(Renderer r in m_highlightRenderers) {
-                foreach (Material mat in r.sharedMaterials)
-                {
-                    if (mat != null)
-                    {
-                        mat.DisableKeyword("_EMISSION");
-                    }
-                }
-            }
-        }
-    }
-
     /*
      * @brief Activates the highlight effect and displays the interaction prompt
      * @return void
@@ -133,12 +117,10 @@ public class SabotageObject : NetworkBehaviour, IInteractable
      */
     public void OnInteract(Interact _player)
     {
-        Debug.Log("a");
         if ((m_isSabotaged && _player.m_isGhost) || (!_player.m_isGhost && !m_isSabotaged) || m_isQteRunning)
         {
             return;
         }
-        Debug.Log("b");
         Rigidbody rb = _player.GetComponentInParent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.FreezeAll;
         StartQte(_player);
@@ -154,6 +136,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
      */
     public void StartQte(Interact _sabo)
     {
+        Debug.Log(_sabo.transform.parent.name + " started sabotage");
         m_isQteRunning = true;
         SetHighlight(false);
 
