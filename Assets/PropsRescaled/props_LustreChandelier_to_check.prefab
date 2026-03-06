@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 870816656136405164}
   - component: {fileID: 6478204255236361449}
   - component: {fileID: 6153990638123000705}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Spot Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 4489349930612691732}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.16364142, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -43,11 +43,11 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 0
-  m_Color: {r: 1, g: 1, b: 0.39215687, a: 1}
-  m_Intensity: 50
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Intensity: 25
   m_Range: 20
   m_SpotAngle: 179
-  m_InnerSpotAngle: 179
+  m_InnerSpotAngle: 108.97361
   m_CookieSize2D: {x: 0.5, y: 0.5}
   m_Shadows:
     m_Type: 0
@@ -81,14 +81,14 @@ Light:
   m_RenderMode: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 3967
   m_RenderingLayerMask: 1
-  m_Lightmapping: 4
+  m_Lightmapping: 2
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
-  m_BounceIntensity: 1
-  m_ColorTemperature: 6570
-  m_UseColorTemperature: 0
+  m_BounceIntensity: 0
+  m_ColorTemperature: 3537
+  m_UseColorTemperature: 1
   m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
@@ -149,15 +149,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a1c84b1dbf290962eadd05fa409d83e6, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 7.122814
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a1c84b1dbf290962eadd05fa409d83e6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 3.1301684
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a1c84b1dbf290962eadd05fa409d83e6, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 3.970416
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a1c84b1dbf290962eadd05fa409d83e6, type: 3}
       propertyPath: m_LocalRotation.w
@@ -191,9 +191,29 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -8243464063097670679, guid: a1c84b1dbf290962eadd05fa409d83e6, type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: a1c84b1dbf290962eadd05fa409d83e6, type: 3}
       propertyPath: m_Name
       value: props_LustreChandelier_to_check
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: a1c84b1dbf290962eadd05fa409d83e6, type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 1042028861997385299, guid: a1c84b1dbf290962eadd05fa409d83e6, type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 8147619789107735056, guid: a1c84b1dbf290962eadd05fa409d83e6, type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 8225870465836609775, guid: a1c84b1dbf290962eadd05fa409d83e6, type: 3}
+      propertyPath: m_Layer
+      value: 12
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
