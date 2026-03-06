@@ -189,16 +189,14 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     private void SabotageRPC(RPCInfo info = default)
     {
         SabotageForAll();
-        Debug.Log("line 0");
+
         if(InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
         {
-            Debug.Log("line 1");
             scoreManager.AddPoint(info.sender);
-            if(owner.HasValue)
-            {
-                scoreManager.AddTransformghost(owner.Value);
-                Debug.Log("line 2");
-            }
+            //if(owner.HasValue)
+            //{
+              //  scoreManager.AddTransformghost(owner.Value);
+            //}
         }
         else
         {
