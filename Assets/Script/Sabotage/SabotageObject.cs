@@ -38,8 +38,6 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     private Coroutine m_pulseCoroutine;
     private MaterialPropertyBlock m_propertyBlock;
 
-    public  ScoreManager scoreManager;
-
     protected override void OnSpawned()
     {
         base.OnSpawned();
@@ -185,6 +183,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         }
     }
 
+// le [] sert vraiment? a verifier
     [ServerRpc(requireOwnership:false)]
     private void SabotageRPC(RPCInfo info = default)
     {
@@ -192,7 +191,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
 
         if(InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
         {
-            scoreManager.AddPoint(info.sender);
+            scoreManager.AddPointBroken(info.sender);
             //if(owner.HasValue)
             //{
               //  scoreManager.AddTransformghost(owner.Value);
