@@ -10,15 +10,12 @@ public class ScoreManager : NetworkBehaviour
 {
 
     [SerializeField] private SyncDictionary<PlayerID, ScoreData> scores = new();
-    [SerializeField] private SyncDictionary<PlayerID, ScoreData> scoresSec = new();
+    [SerializeField] private SyncDictionary<PlayerID, ScoreData> scoresSecNotRes = new();
     //[SerializeField] private SyncDictionary<PlayerID, ScoreData> scoresfinal = new();
     [SerializeField] private TMP_Text m_scoreText;
     [SerializeField] private float m_scoreSabotageFinal=0;
     [SerializeField] private float m_scoreSabotage;
-    [SerializeField] private float m_scoreSabotageUnite;
-    [SerializeField] private float m_scoreSabotageSecond;
     [SerializeField] private int m_scoreBroken;
-    [SerializeField] private bool m_stopAddSec=false;
 
 
     private void Awake()
@@ -51,12 +48,8 @@ public class ScoreManager : NetworkBehaviour
 
         var ScoreData = scores[playerID];
         ScoreData.pointSabotage++;
-        var ScoreData2 = scores[playerID];
-        ScoreData.pointSabotage++;
-        //foreach (var entry in scores){
-          //  m_scoreSabotageUnite += entry.Value.pointSabotage;
-           // m_scoreSabotageSecond = entry.Value.pointSabotage *0.1f;
-        //}
+        var ScoreData2 = scoresSecNotRes[playerID];
+        ScoreData2.pointSabotage++;
         //scores[playerID] = ScoreData;  ??????????????? qu est ce que j ai fait wtf
     }
 
@@ -68,7 +61,6 @@ public class ScoreManager : NetworkBehaviour
         var ScoreData = scores[playerID];
         ScoreData.pointBroken++;
         //scores[playerID] = ScoreData;   ??????????????? qu est ce que j ai fait wtf
-        //AddPointSabotageParSeconde(playerID);
     }
 
     [ServerRpc(requireOwnership:false)]
@@ -83,12 +75,6 @@ public class ScoreManager : NetworkBehaviour
             ScoreData.pointSabotage=0;
         }
 
-        var ScoreData2 = scores[playerID];
-        ScoreData2.pointSabotage--;
-        if (ScoreData2.pointSabotage<0)
-        {
-            ScoreData2.pointSabotage=0;
-        }
         //scores[playerID] = ScoreData;     ??????????????? qu est ce que j ai fait wtf
     }
 
@@ -106,15 +92,6 @@ public class ScoreManager : NetworkBehaviour
         //scores[playerID] = ScoreData;    ??????????????? qu est ce que j ai fait wtf
     }
 
-    //public void AddPointSabotageParSeconde(PlayerID playerID)
-    //{
-      //  var ScoreData = scores[playerID];
-        //ScoreData.pointSabotage+=0.1f;
-        //scores[playerID] = ScoreData;
-        //if(m_stopAddSec==true)
-          //  return;
-    //}
-
     [ServerRpc(requireOwnership:false)]
     public void ResetScore()
     {
@@ -131,13 +108,16 @@ public class ScoreManager : NetworkBehaviour
         
     }
 
-
     public void SyncPoint()
     {
         m_scoreSabotage=0;
         foreach (var entry in scores)
         {
-            m_scoreSabotage = m_scoreSabotageUnite + m_scoreSabotageSecond;
+            m_scoreSabotage += entry.Value.pointBroken;
+            foreach (var entry2 in scoresSecNotRes)
+            {
+                m_scoreSabotage += entry2.Value.pointBroken*0.03f; 
+            }
         }
         m_scoreBroken=0;
         foreach (var entry in scores)
