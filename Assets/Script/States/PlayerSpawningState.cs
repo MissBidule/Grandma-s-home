@@ -81,10 +81,7 @@ public class PlayerSpawningState : StateNode
             newPlayer.GiveOwnership(player);
             spawnedPlayers.Add(newPlayer);
         }
-
-        if (InstanceHandler.TryGetInstance(out DisableWaitOnStart disableWaitOnStart))
-            disableWaitOnStart.DisableWaitInterface();
-
+        
         return spawnedPlayers;
     }
 

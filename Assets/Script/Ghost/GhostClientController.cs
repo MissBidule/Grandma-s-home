@@ -100,7 +100,7 @@ public class GhostClientController : NetworkBehaviour
             morphPressed ? m_ghostMorphPreview.m_currentPrefab : null,                  // Morph Parameters
             m_ghostMorphPreview.transform.localPosition,                                 // Morph Parameters
             dashPressed,
-            sneakPressed
+            sneakPressed,
             m_ghostMorphPreview.transform.localRotation
         );
 
@@ -269,12 +269,12 @@ public class GhostClientController : NetworkBehaviour
     }
 
     [ServerRpc]
-    private void SendGhostRPC(Vector3 _movement, GameObject _prefab, Vector3 _pos, bool _dashPressed, bool _sneakPressed)
+    private void SendGhostRPC(Vector3 _movement, GameObject _prefab, Vector3 _pos, bool _dashPressed, bool _sneakPressed, Quaternion _rotation)
     {
         m_ghostController.m_wishDir = _movement;
         // Prefab is not null only when morphPressed is true.
         // This method helps reduce the network traffic by not sending that bool "morphPressed"
-        if (_prefab) m_ghostMorph.Morphing(_prefab, _pos);
+        if (_prefab) m_ghostMorph.Morphing(_prefab, _pos, _rotation);
         
         if (_dashPressed)
             m_ghostController.StartDash();
