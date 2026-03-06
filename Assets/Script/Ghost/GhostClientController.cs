@@ -22,10 +22,6 @@ public class GhostClientController : NetworkBehaviour
     [SerializeField] private GameObject m_uiHolder_prefab;
     public GameObject m_uiHolder;
     public WheelController m_wheel;
-    public GameObject m_stoppedLabel;
-    public GameObject m_slowedLabel;
-
-    public GameObject randomPrefab;
 
     private bool morphPressed = false;
     private bool dashPressed = false;
@@ -215,19 +211,15 @@ public class GhostClientController : NetworkBehaviour
         if (!isOwner) return;
         m_wheel.Toggle();
     }
-
     public void OnMorph()
     {
         if (!isOwner) return;
         if (!m_ghostMorphPreview.m_canMorph || !m_ghostMorphPreview.m_currentPrefab || m_ghostMorph.m_isMorphed) return;
         if (m_wheel.IsWheelOpen()) m_wheel.Toggle();
-
+        
         m_wheel.ClearSelection();
-
         morphPressed = true;
         InteractPromptUI.m_Instance.Hide();
-        
-
     }
 
     /*

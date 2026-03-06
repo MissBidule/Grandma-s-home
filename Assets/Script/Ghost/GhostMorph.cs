@@ -10,8 +10,6 @@ using UnityEngine.UIElements;
 public class GhostMorph : NetworkBehaviour
 {
     public bool m_isMorphed = false;
-    public PlayerID m_localPlayer;
-
 
     [SerializeField] private GameObject m_mesh;
     [SerializeField] private GhostMorphPreview m_previewGhost;
@@ -31,11 +29,6 @@ public class GhostMorph : NetworkBehaviour
         m_renderers = m_mesh.GetComponentsInChildren<MeshRenderer>();
     }
 
-
-    
-
-
-
     void Start()
     {
         m_playerCollider = GetComponent<BoxCollider>();
@@ -52,8 +45,6 @@ public class GhostMorph : NetworkBehaviour
         // I'm so disappointed by this line that I will not even remove it as a proof of my own failure.
         if (!isServer) return;
     }
-
-    
 
     [ObserversRpc(requireServer: true, runLocally: true)]
     public void InstantiateForAll(GameObject _prefab, Vector3 _position, Quaternion _rotation)
@@ -82,9 +73,6 @@ public class GhostMorph : NetworkBehaviour
         m_isMorphed = false;
         DestroyForAll();
     }
-
-
-
 
     [ObserversRpc(requireServer: true, runLocally: true)]
     public void DestroyForAll()

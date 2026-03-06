@@ -1,4 +1,4 @@
-﻿using PurrNet;
+using PurrNet;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -19,7 +19,6 @@ public class GhostController : PlayerControllerCore, IInteractable
     public bool m_beingRevived = false;
     public bool m_isReviving = false;
     public bool m_CanDash = true;
-
 
     [Header("Ghost references")]
     private GhostMorph m_ghostMorph;
@@ -69,7 +68,6 @@ public class GhostController : PlayerControllerCore, IInteractable
     private Vector3 m_wallNormal;
 
     private float m_speedModifier = 1f;
-
 
     // -------------------------------------------
     // --- Everything Down Here is Server-Side ---
