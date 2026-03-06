@@ -12,6 +12,7 @@ public class GhostController : PlayerControllerCore, IInteractable
     [NonSerialized] public Vector3 m_wishDir;
     public bool m_isSlowed = false;
     public bool m_isStopped = false;
+    public bool m_morphInputReleased = true;
 
 
     [Header("Ghost references")]
@@ -69,7 +70,7 @@ public class GhostController : PlayerControllerCore, IInteractable
         SetSpeedModifier();
 
         // Casting to Vector2 to ignore falling movement
-        if ((Vector2)m_wishDir != Vector2.zero)
+        if (m_morphInputReleased && (Vector2)m_wishDir != Vector2.zero)
         {
             m_ghostMorph.RevertToOriginal();
         }

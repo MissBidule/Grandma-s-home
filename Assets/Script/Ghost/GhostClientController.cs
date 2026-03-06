@@ -178,9 +178,23 @@ public class GhostClientController : NetworkBehaviour
     [ServerRpc]
     private void SendGhostRPC(Vector3 _movement, GameObject _prefab, Vector3 _pos, Quaternion _rot)
     {
-        m_ghostController.m_wishDir = _movement;
-        // Prefab is not null only when morphPressed is true.
-        // This method helps reduce the network traffic by not sending that bool "morphPressed"
-        if (_prefab) m_ghostMorph.Morphing(_prefab, _pos, _rot);
+        if (_prefab)
+        {
+            // On morph: freeze movement and require input release before allowing revert
+            m_ghostController.m_wishDir = Vector3.zero;
+            m_ghostController.m_morphInputReleased = false;
+            m_ghostMorph.Morphing(_prefab, _pos, _rot);
+        }
+        else if (!m_ghostController.m_morphInputReleased)
+        {
+            // Keep frozen until player actually releases all movement input
+            if ((Vector2)_movement == Vector2.zero)
+                m_ghostController.m_morphInputReleased = true;
+            m_ghostController.m_wishDir = Vector3.zero;
+        }
+        else
+        {
+            m_ghostController.m_wishDir = _movement;
+        }
     }
 }
