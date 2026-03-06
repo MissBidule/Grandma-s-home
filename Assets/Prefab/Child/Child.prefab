@@ -168,6 +168,7 @@ MonoBehaviour:
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
   m_playerCamera: {fileID: 3116613213369430143}
+  m_localRenderCamera: {fileID: 0}
   m_playerAnimator: {fileID: 0}
   m_renderers:
   - {fileID: 3144909238071061404}
@@ -200,7 +201,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
-  m_Actions: {fileID: 0}
+  m_Actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_NotificationBehavior: 2
   m_UIInputModule: {fileID: 0}
   m_DeviceLostEvent:
@@ -493,6 +494,14 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 20a70707-862b-48b5-9a47-d8b9fce4a69a
     m_ActionName: 'Ghost/Sneak[/Keyboard/leftCtrl]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: a1b2c3d4-e5f6-7890-abcd-ef1234567891
+    m_ActionName: 'Ghost/RotatePreviewLeft[/Keyboard/a]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: b2c3d4e5-f6a7-8901-bcde-f12345678902
+    m_ActionName: 'Ghost/RotatePreviewRight[/Keyboard/e]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Child

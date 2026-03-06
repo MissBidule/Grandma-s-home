@@ -11614,6 +11614,51 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 273584832}
   m_Mesh: {fileID: -1550514412580984892, guid: 7fec04796b55b9848a7562e8b0ce2110, type: 3}
+--- !u!1 &276189003
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 276189005}
+  - component: {fileID: 276189004}
+  m_Layer: 0
+  m_Name: PromptUI
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &276189004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 276189003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43081f0bf9d391a498d819d65652fe2b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractPromptUI
+  m_canvasPrefab: {fileID: 492682312804705504, guid: 6c61ace0adc1c3d4184534396d586c13, type: 3}
+--- !u!4 &276189005
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 276189003}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 6.15227, y: 0, z: -7.87399}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &276656815
 GameObject:
   m_ObjectHideFlags: 0
@@ -77739,19 +77784,24 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5702410711834580610, guid: c723b0cf66be3834399b84734d9916c9, type: 3}
+      propertyPath: m_UIAudioListener
+      value: 
+      objectReference: {fileID: 3696505308150173803}
     - target: {fileID: 8150731659243261195, guid: c723b0cf66be3834399b84734d9916c9, type: 3}
       propertyPath: m_networkManager
       value: 
       objectReference: {fileID: 104676488}
-    - target: {fileID: 8423077393004730765, guid: c723b0cf66be3834399b84734d9916c9, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c723b0cf66be3834399b84734d9916c9, type: 3}
+--- !u!81 &3696505308150173803 stripped
+AudioListener:
+  m_CorrespondingSourceObject: {fileID: 3160964044365400356, guid: c723b0cf66be3834399b84734d9916c9, type: 3}
+  m_PrefabInstance: {fileID: 3696505308150173802}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &3797009236798463491
 Transform:
   m_ObjectHideFlags: 0
@@ -78136,3 +78186,4 @@ SceneRoots:
   - {fileID: 428545956}
   - {fileID: 1573086070}
   - {fileID: 3797009236798463491}
+  - {fileID: 276189005}

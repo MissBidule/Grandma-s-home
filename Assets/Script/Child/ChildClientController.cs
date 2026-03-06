@@ -93,6 +93,7 @@ public class ChildClientController : NetworkBehaviour
         
         if (m_childController.m_isScared)
             childHUDView.StartScared(m_childController.GetScaredDuration());
+        else childHUDView.m_isScared = false;
     }
 
     public void OnJump()

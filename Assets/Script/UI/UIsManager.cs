@@ -14,6 +14,7 @@ namespace UI
         [Header("Camera and Listener")]
         [SerializeField] private Camera m_UICamera;
         [SerializeField] private AudioListener m_UIAudioListener;
+        private bool m_UIAlreadyToggled = false;
 
         [Header("Fade Parameters")]
         [SerializeField] private bool m_fadeViews;
@@ -47,6 +48,9 @@ namespace UI
          */
         public void ToggleUIVision()
         {
+            if (m_UIAlreadyToggled) return;
+            m_UIAlreadyToggled = true;
+            Debug.Log("Toggling UI Vision");
             m_UICamera.enabled = !m_UICamera.enabled;
             m_UIAudioListener.enabled = !m_UIAudioListener.enabled;
         }

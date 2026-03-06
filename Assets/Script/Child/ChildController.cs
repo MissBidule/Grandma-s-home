@@ -161,6 +161,7 @@ public class ChildController : PlayerControllerCore
         PurrLogger.Log($"Ghost Found", this);
         if (ghost.m_isStopped) return;
         PurrLogger.Log($"Ghost Not stopped", this);
+        Debug.Log(ghost.m_canScareChild + " from ChildController OnTriggerEnter");
         if (!ghost.m_canScareChild) return;
         PurrLogger.Log($"Ghost Can Scare", this);
         PurrLogger.Log("Ghost", this);

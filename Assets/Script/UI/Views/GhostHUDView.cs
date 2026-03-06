@@ -17,13 +17,13 @@ namespace Script.UI.Views
         [Header("Skills Icons")]
         [SerializeField] private Image m_dashIcon;
         [SerializeField] private Image m_dashCooldownOverlay;
-        [SerializeField] private Image m_scarryIcon;
-        [SerializeField] private Image m_scarryCooldownOverlay;
+        [SerializeField] private Image m_scaryIcon;
+        [SerializeField] private Image m_scaryCooldownOverlay;
         
         // TODO find way to unserielize
         public bool m_dash_disabled = false;
         
-        private bool m_canScare = true;
+        public bool m_canScare = true;
         
         private void Awake()
         {
@@ -79,8 +79,8 @@ namespace Script.UI.Views
         {
             if (!m_canScare) return;
             m_canScare = false;
-            m_scarryCooldownOverlay.fillAmount = 1f;
-            StartCoroutine(IconCooldown(m_scarryCooldownOverlay, _timer, "You can scare again"));
+            m_scaryCooldownOverlay.fillAmount = 1f;
+            StartCoroutine(IconCooldown(m_scaryCooldownOverlay, _timer, "You can scare again"));
         } 
 
         private IEnumerator IconCooldown(Image _overlay, float _timer, string _endMessage)

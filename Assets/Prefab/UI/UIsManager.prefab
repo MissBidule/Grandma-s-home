@@ -592,9 +592,10 @@ MonoBehaviour:
   m_hudMessagePanel: {fileID: 6140425672946638327}
   m_dashIcon: {fileID: 7063903146665554016}
   m_dashCooldownOverlay: {fileID: 6524227008687079916}
-  m_scarryIcon: {fileID: 9003723499128249719}
-  m_scarryCooldownOverlay: {fileID: 7734685205695107396}
+  m_scaryIcon: {fileID: 9003723499128249719}
+  m_scaryCooldownOverlay: {fileID: 7734685205695107396}
   m_dash_disabled: 0
+  m_canScare: 1
 --- !u!225 &32339546516924330
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -1059,7 +1060,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: 2}
+  m_AnchoredPosition: {x: 0, y: -250}
   m_SizeDelta: {x: 500, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &561227008337588188
@@ -1175,10 +1176,10 @@ GameObject:
   - component: {fileID: 5702410711834580610}
   - component: {fileID: 4489390191042272805}
   - component: {fileID: 2018825118248134651}
-  - component: {fileID: 7380173602839584148}
   - component: {fileID: 520198345913064832}
   - component: {fileID: 1122084747658265913}
   - component: {fileID: 5736693804141250608}
+  - component: {fileID: 3160964044365400356}
   m_Layer: 0
   m_Name: UIsManager
   m_TagString: Untagged
@@ -1228,7 +1229,7 @@ MonoBehaviour:
   - {fileID: 6208481841556508813}
   m_defaultView: {fileID: 8644699868070397178}
   m_UICamera: {fileID: 4489390191042272805}
-  m_UIAudioListener: {fileID: 7380173602839584148}
+  m_UIAudioListener: {fileID: 0}
   m_fadeViews: 0
   m_fadeDuration: 0.75
 --- !u!20 &4489390191042272805
@@ -1326,14 +1327,6 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
---- !u!81 &7380173602839584148
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4710377327962833195}
-  m_Enabled: 1
 --- !u!223 &520198345913064832
 Canvas:
   m_ObjectHideFlags: 0
@@ -1397,6 +1390,14 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!81 &3160964044365400356
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4710377327962833195}
+  m_Enabled: 1
 --- !u!1 &5997706324750171604
 GameObject:
   m_ObjectHideFlags: 0
@@ -2290,7 +2291,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8423077393004730765}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 

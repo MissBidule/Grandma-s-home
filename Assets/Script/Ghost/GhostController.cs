@@ -31,9 +31,9 @@ public class GhostController : PlayerControllerCore, IInteractable
     private float m_currentTimerSlowed;
     private float m_currentTimerStop;
     
-    [Header("Scarry Parameters")]
+    [Header("Scary Parameters")]
     [SerializeField] [Tooltip("In seconds")] private float m_cdChildScare = 10f;
-    [NonSerialized] public bool m_canScareChild = true;
+    public bool m_canScareChild = true;
 
     [Header("Revive")]
     public float m_baseReviveTime = 5f;
@@ -446,24 +446,25 @@ public class GhostController : PlayerControllerCore, IInteractable
     public void StartSpookyScary()
     {
         m_canScareChild = false;
-        ApplyScarryToAll(m_canScareChild);
-        StartCoroutine(ScarryCooldown(m_cdChildScare));
+        ApplyScaryToAll(m_canScareChild);
+        StartCoroutine(ScaryCooldown(m_cdChildScare));
     }
     
-    private IEnumerator ScarryCooldown(float _duration)
+    private IEnumerator ScaryCooldown(float _duration)
     {
         yield return new WaitForSeconds(_duration);
         m_canScareChild = true;
-        ApplyScarryToAll(m_canScareChild);
+        ApplyScaryToAll(m_canScareChild);
     }
     
     [ObserversRpc(runLocally:true)]
-    public void ApplyScarryToAll(bool _canScarry)
+    public void ApplyScaryToAll(bool _canScare)
     {
-        m_canScareChild = _canScarry;
+        m_canScareChild = _canScare;
+        Debug.Log(m_canScareChild + " from ApplyScaryToAll in GhostController");
     }
 
-    public float GetScarryCooldownDuration()
+    public float GetScaryCooldownDuration()
     {
         return m_cdChildScare;
     }

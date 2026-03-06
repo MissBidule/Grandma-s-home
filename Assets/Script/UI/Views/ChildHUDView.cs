@@ -15,7 +15,7 @@ public class ChildHUDView : GameView
     [Header("Scarred Debuff")]
     [SerializeField] private Image m_scaredIcon;
     [SerializeField] private Image m_scaredCooldownOverlay;
-    private bool m_isScared = false;
+    public bool m_isScared = false;
     
     private void Awake()
     {
@@ -67,7 +67,6 @@ public class ChildHUDView : GameView
         m_scaredCooldownOverlay.fillAmount = 0f;
             
         ShowMessage("You are not scared!");
-        m_isScared = false;
         m_scaredIcon.enabled = false;
         m_scaredCooldownOverlay.enabled = false;
     }

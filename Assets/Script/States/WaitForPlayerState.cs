@@ -52,6 +52,7 @@ public class WaitForPlayerState : StateNode
         if (!InstanceHandler.TryGetInstance(out UIsManager uisManager))
             return;
         uisManager.HideView<WaitForPlayerView>();
+        Debug.Log("WaitForPlayerState: Disabling WaitForPlayerView");
         uisManager.ToggleUIVision();
     }
 }

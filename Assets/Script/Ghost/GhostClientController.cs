@@ -174,7 +174,8 @@ public class GhostClientController : NetworkBehaviour
         }
         
         if (!m_ghostController.m_canScareChild)
-            ghostHUDView.ScaredActivate(m_ghostController.GetScarryCooldownDuration());
+            ghostHUDView.ScaredActivate(m_ghostController.GetScaryCooldownDuration());
+        else ghostHUDView.m_canScare = true;
     }
 
     void UpdateReviveUI()
