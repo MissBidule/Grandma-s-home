@@ -167,8 +167,21 @@ public class GhostController : PlayerControllerCore, IInteractable
         ResetClimbFlags();
     }
 
+    /**
+    @brief      Initialize the slowed child timer
+    @details    Sets the cooldown timer for when a child can be slowed again after being hit by the ghost's slowing effect. This prevents the child from being slowed repeatedly in a short time frame.
+    */
+    public void InitSlowedChild()
+    {
+        m_currentTimerCdSlowed = m_cdChildSlowed;
+    }
+
     void UpdateTimers()
     {
+        if (m_currentTimerCdSlowed > 0)
+        {
+            m_currentTimerCdSlowed -= Time.deltaTime;
+        }
         if (m_isStopped)
         {
             m_rigidbody.constraints = RigidbodyConstraints.FreezeAll;
@@ -380,8 +393,7 @@ public class GhostController : PlayerControllerCore, IInteractable
         m_CanDash = _canDash;
     }
 
-
-    public void OnInteract(GhostInteract _who)
+    public void OnInteract(Interact _who)
     {
         if (!isServer) return;
         if (m_isReviving) return;
@@ -392,7 +404,7 @@ public class GhostController : PlayerControllerCore, IInteractable
         }
     }
 
-    public void OnStopInteract(GhostInteract _who)
+    public void OnStopInteract(Interact _who)
     {
         if (!isServer) return;
         if (m_beingRevived)
@@ -408,12 +420,12 @@ public class GhostController : PlayerControllerCore, IInteractable
         m_currentTimerStop = 0f;
     }
 
-    public void OnFocus(GhostInteract _who)
+    public void OnFocus(Interact who)
     {
         print("Found dead ghost");
     }
 
-    public void OnUnfocus(GhostInteract _who)
+    public void OnUnfocus(Interact who)
     {
         print("Lost focus on dead ghost");
     }

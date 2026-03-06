@@ -12,8 +12,11 @@ public class ChildInputController : MonoBehaviour
 {
     public Vector2 m_movementInputVector { get; private set; }
     public Vector2 m_lookInputVector { get; private set; }
+    private Interact m_childInteract;
 
     public ChildClientController m_childClientController;
+    private QteCircle m_qteCircle;
+
 
     private bool isOwner => m_childClientController != null && m_childClientController.isOwner;
     
@@ -25,6 +28,7 @@ public class ChildInputController : MonoBehaviour
     void Awake()
     {
         m_childClientController = GetComponent<ChildClientController>();
+        m_childInteract = GetComponentInChildren<Interact>();
     }
 
     /*
@@ -62,6 +66,20 @@ public class ChildInputController : MonoBehaviour
         if (_context.performed)
         {
             m_childClientController.OnJump();
+        }
+    }
+
+    /*
+     * @brief OnInteract is called by the Input System when interact input is detected
+     * @param _context: The context of the input action
+     * @return void
+     */
+    public void OnInteract(InputAction.CallbackContext _context)
+    {
+        if (!isOwner) return;
+        if (_context.performed)
+        {
+            m_childInteract.OnInteract();
         }
     }
 
@@ -128,6 +146,29 @@ public class ChildInputController : MonoBehaviour
         {
             // On release
             m_childClientController.Sneak(false);
+        }
+    }
+
+    /*
+     * @brief OnValidate is called by the Input System when validate input is detected
+     * @param _context: The context of the input action
+     * @return void
+     */
+    public void OnValidation(InputAction.CallbackContext _context)
+    {
+        if (!isOwner) return;
+        if (_context.performed)
+        {
+            if (!m_qteCircle)
+            {
+                // Cant place the reference in start cause we need to wait for GhostClientController to spawn the UIHolder
+                m_qteCircle = FindAnyObjectByType<QteCircle>();
+            }
+
+            if(m_qteCircle.m_isRunning)
+            {
+                m_qteCircle.CheckSuccess();
+            }
         }
     }
 }

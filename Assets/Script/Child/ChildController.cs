@@ -48,6 +48,8 @@ public class ChildController : PlayerControllerCore
     [SerializeField] private float m_sneakAmplitude = 0.5f;
     private float m_SpeedModifier = 1.0f; // Default speed modifier
 
+    private float m_speedModifier = 1f;
+
     protected override void OnSpawned()
     {
         base.OnSpawned();
@@ -66,10 +68,13 @@ public class ChildController : PlayerControllerCore
     void Update()
     {
         if (!isServer) return;
-        m_lastShot += Time.deltaTime;
-        m_switchingTime += Time.deltaTime;
-        
 
+        m_isSneaked = Input.GetKey(KeyCode.LeftShift);
+     
+        UpdateTimers();
+
+        SetSpeedModifier();
+        
         transform.rotation = Quaternion.Euler(0, m_cameraYaw, 0);
 
         SetSpeedModifier();
@@ -86,6 +91,50 @@ public class ChildController : PlayerControllerCore
         m_SpeedModifier = 1f;
         if (m_isSneaking) m_SpeedModifier *= m_sneakAmplitude;
         if (m_isScared) m_SpeedModifier *= m_scaredAmplitude;
+    }
+
+    void UpdateTimers()
+    {
+        m_lastShot += Time.deltaTime;
+        m_switchingTime += Time.deltaTime;
+        
+        if (m_isSlowed)
+        {
+            m_currentTimerSlowed -= Time.deltaTime;
+            if (m_currentTimerSlowed <= 0f)
+            {
+                RemoveSlowToAll();
+            }
+        }
+    }
+
+    void SetSpeedModifier()
+    {
+        m_speedModifier = 1f;
+        if (m_isSneaked) m_speedModifier *= 0.75f;
+        if (m_isSlowed) m_speedModifier *= 0.5f;
+    }
+
+    /**
+    @brief      Apply slow effect from ghost
+    */
+    public void GhostTouch()
+    {
+        if (!isServer) return;
+        ApplySlowToAll();
+        m_currentTimerSlowed = m_timerSlowed;
+    }
+
+    [ObserversRpc(runLocally:true)]
+    public void ApplySlowToAll()
+    {
+        m_isSlowed = true;
+    }
+
+    [ObserversRpc(runLocally:true)]
+    public void RemoveSlowToAll()
+    {
+        m_isSlowed = false;
     }
 
     /*
