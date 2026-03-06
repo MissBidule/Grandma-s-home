@@ -5,14 +5,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /*
- * @brief  Contains class declaration for GhostInteract
- * @details The GhostInteract class handles interactions with sabotageable objects and downed ghosts for the Ghost player.
+ * @brief  Contains class declaration for Interact
+ * @details The Interact class handles interactions with sabotageable objects for all players and downed ghosts for the Ghost player.
  */
-public class GhostInteract : NetworkBehaviour
+public class Interact : NetworkBehaviour
 {
     [Header("Detection")]
-    [SerializeField] private LayerMask m_interactableMask;
-    public IInteractable m_onFocus;
+    [SerializeField] public bool m_isGhost = true;
+    public IInteractable m_onFocus; // Can be either GhostStatus or SabotageObject
     private List<IInteractable> m_interactable = new List<IInteractable>();
 
 
@@ -43,7 +43,7 @@ public class GhostInteract : NetworkBehaviour
 
     private float SqDistanceTo(Transform _transform)
     {
-        return (transform.position - _transform.position).sqrMagnitude;
+        return (_transform.position - transform.position).sqrMagnitude;
     }
 
     /*
@@ -59,7 +59,7 @@ public class GhostInteract : NetworkBehaviour
             var ghost = interactable as GhostController;
             if (ghost != null)
             {
-                if (!ghost.m_isStopped) continue; // Only interact with downed ghosts
+                if (!m_isGhost || !ghost.m_isStopped) continue; // Only interact with downed ghosts
             }
 
             MonoBehaviour mono = interactable as MonoBehaviour;
@@ -78,22 +78,31 @@ public class GhostInteract : NetworkBehaviour
      * @details If target is a downed ghost, starts a hold-to-revive. Otherwise delegates to OnInteract.
      * @return void
      */
+    public void OnInteract(IInteractable _currentFocus)
+    {
+        if (_currentFocus == null) return;
+        if (_currentFocus is GhostController ghost)
+        {
+            OnRevive(_currentFocus);
+            return;
+        }
+        _currentFocus.OnInteract(this);
+    }
+
     [ServerRpc]
-    public void Interact(IInteractable currentFocus)
+    public void OnRevive(IInteractable _currentFocus)
     {
         if (!isServer) return;
-        if (currentFocus == null) return;
-        currentFocus.OnInteract(this);
+        _currentFocus.OnInteract(this);
     }
 
     /**
     @brief      Called when the interact button is released
     */
-    [ServerRpc]
-    public void StopInteract(IInteractable currentFocus)
+    public void StopInteract(IInteractable _currentFocus)
     {
-        if (currentFocus == null) return;
-        currentFocus?.OnStopInteract(this);
+        if (_currentFocus == null) return;
+        _currentFocus?.OnStopInteract(this);
     }
 
 

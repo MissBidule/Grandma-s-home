@@ -75,9 +75,7 @@ MonoBehaviour:
   _directChildren: []
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
-  m_interactableMask:
-    serializedVersion: 2
-    m_Bits: 8
+  m_isGhost: 1
 --- !u!1 &1617015087184929927
 GameObject:
   m_ObjectHideFlags: 0
@@ -264,20 +262,31 @@ MonoBehaviour:
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
   m_playerCamera: {fileID: 696320938370797279}
+  m_localRenderCamera: {fileID: 0}
   m_playerAnimator: {fileID: 0}
   m_renderers:
   - {fileID: 7637491092308997559}
   - {fileID: 5763480866988310096}
   m_isSlowed: 0
+  m_isDashing: 0
   m_isStopped: 0
+  m_isSneaking: 0
   m_beingRevived: 0
   m_isReviving: 0
+  m_CanDash: 1
   m_timerSlowed: 5
   m_timerStop: 5
+  m_cdChildScare: 10
+  m_canScareChild: 1
   m_baseReviveTime: 5
   m_maxReviveTime: 30
+  m_reviveDuration: 0
   m_walkSpeed: 4
   m_acceleration: 25
+  m_slowAmplitude: 0.5
+  m_dashAmplitude: 1.5
+  m_dashDuration: 2.5
+  m_sneakAmplitude: 0.5
   m_rotationSpeed: 12
   m_climbSpeed: 3.5
   m_climbCheckDistance: 0.9
@@ -322,6 +331,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6385cb8ed63e6054aa73f7bd8e23c822, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GhostInputController
+  m_qteCircle: {fileID: 0}
   m_promptMessageValid: 'E : Valid'
 --- !u!114 &1100208937895637651
 MonoBehaviour:
@@ -507,7 +517,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
     m_ActionId: 0186a95d-96d3-4abe-bc9f-fa31a60ef209
-    m_ActionName: 'Ghost/TransformConfirm[/Keyboard/e]'
+    m_ActionName: 'Ghost/TransformConfirm[/Keyboard/f]'
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 8778548429194373776}
@@ -523,7 +533,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
     m_ActionId: d95e7042-3d8f-4ac7-bf47-176814891df1
-    m_ActionName: 'Ghost/Scan[/Keyboard/f]'
+    m_ActionName: 'Ghost/Scan[/Keyboard/t]'
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 8778548429194373776}
@@ -596,6 +606,70 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 55397657-de04-43c4-aa9d-3b0ef9651449
     m_ActionName: 'Ghost/Validate[/Keyboard/space]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: ea2e3932-0535-40f3-9dcc-9236d288a500
+    m_ActionName: 'Child/Hint[/Keyboard/h]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 643f7f59-890d-4dfd-bbde-6c698d799d56
+    m_ActionName: 'Child/Sneak[/Keyboard/leftShift]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 8778548429194373776}
+        m_TargetAssemblyTypeName: GhostInputController, Assembly-CSharp
+        m_MethodName: OnDash
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 46160aee-2a43-444d-a6f1-377c688007c1
+    m_ActionName: 'Ghost/Dash[/Keyboard/leftShift]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 8778548429194373776}
+        m_TargetAssemblyTypeName: GhostInputController, Assembly-CSharp
+        m_MethodName: OnHint
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 63ac072b-1e83-4270-932d-4bbaf1fdb089
+    m_ActionName: 'Ghost/Hint[/Keyboard/h]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 8778548429194373776}
+        m_TargetAssemblyTypeName: GhostInputController, Assembly-CSharp
+        m_MethodName: OnSneak
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 20a70707-862b-48b5-9a47-d8b9fce4a69a
+    m_ActionName: 'Ghost/Sneak[/Keyboard/leftCtrl]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: a1b2c3d4-e5f6-7890-abcd-ef1234567891
+    m_ActionName: 'Ghost/RotatePreviewLeft[/Keyboard/a]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: b2c3d4e5-f6a7-8901-bcde-f12345678902
+    m_ActionName: 'Ghost/RotatePreviewRight[/Keyboard/e]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Ghost
@@ -1819,6 +1893,7 @@ MonoBehaviour:
   m_maxIntensity: 0.6
   m_promptMessageSCAN: 'F : SCAN'
   m_promptMessageValid: 'E : Valid'
+  m_rotateSpeed: 120
   m_GhostPreviewOn: 0
 --- !u!1 &6245523746651433690
 GameObject:
