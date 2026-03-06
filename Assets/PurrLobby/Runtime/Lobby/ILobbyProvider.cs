@@ -31,6 +31,7 @@ namespace PurrLobby {
         Task UpdateLobbyMaxPlayers(int _maxPlayers);
         Task UpdateLobbyType(bool _isPrivate);
         Task<string> GetPlayer();
+        Task TriggerLobbyUpdated();
 
         // Events
         event UnityAction<string> OnLobbyJoinFailed;
