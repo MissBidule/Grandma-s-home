@@ -12,8 +12,9 @@ public class GhostInteract : NetworkBehaviour
 {
     [Header("Detection")]
     [SerializeField] private LayerMask m_interactableMask;
-    public IInteractable m_onFocus; // Can be either GhostStatus or SabotageObject
+    public IInteractable m_onFocus;
     private List<IInteractable> m_interactable = new List<IInteractable>();
+
 
     private void Update()
     {
@@ -37,6 +38,7 @@ public class GhostInteract : NetworkBehaviour
             m_onFocus?.OnUnfocus(this);
             m_onFocus = closest;
         }
+        print(m_onFocus);
     }
 
     private float SqDistanceTo(Transform _transform)
@@ -73,13 +75,28 @@ public class GhostInteract : NetworkBehaviour
 
     /*
      * @brief Interact with the current target if available
+     * @details If target is a downed ghost, starts a hold-to-revive. Otherwise delegates to OnInteract.
      * @return void
      */
-    public void Interact()
+    [ServerRpc]
+    public void Interact(IInteractable currentFocus)
     {
-        if (m_onFocus == null) return;
-        m_onFocus.OnInteract(this);
+        if (!isServer) return;
+        if (currentFocus == null) return;
+        currentFocus.OnInteract(this);
     }
+
+    /**
+    @brief      Called when the interact button is released
+    */
+    [ServerRpc]
+    public void StopInteract(IInteractable currentFocus)
+    {
+        if (currentFocus == null) return;
+        currentFocus?.OnStopInteract(this);
+    }
+
+
 
     public void OnSabotageOver(bool success)
     {

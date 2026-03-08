@@ -53,6 +53,8 @@ public class ChildClientController : NetworkBehaviour
         SendChildRPC(
             wishDir,
             m_playerCamera.transform.eulerAngles.y,
+            m_playerCamera.transform.position,
+            m_playerCamera.transform.forward,
             m_jumpPressed,
             m_switchWeaponPressed,
             m_attackPressed
@@ -124,10 +126,12 @@ public class ChildClientController : NetworkBehaviour
     }
 
     [ServerRpc]
-    private void SendChildRPC(Vector3 _wishDirection, float _cameraYaw, bool _jumpPressed, bool _switchPressed, bool _attackPressed)
+    private void SendChildRPC(Vector3 _wishDirection, float _cameraYaw, Vector3 _cameraPosition, Vector3 _cameraForward, bool _jumpPressed, bool _switchPressed, bool _attackPressed)
     {
         m_childController.m_wishDir = _wishDirection;
         m_childController.m_cameraYaw = _cameraYaw;
+        m_childController.m_cameraPosition = _cameraPosition;
+        m_childController.m_cameraForward = _cameraForward;
         if (_jumpPressed) m_childController.Jump();
         if (_switchPressed) m_childController.SwitchAttackType();
         if (_attackPressed) m_childController.Attack();

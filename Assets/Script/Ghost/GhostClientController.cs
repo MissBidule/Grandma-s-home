@@ -19,12 +19,13 @@ public class GhostClientController : NetworkBehaviour
     [SerializeField] private GameObject m_uiHolder_prefab;
     public GameObject m_uiHolder;
     public WheelController m_wheel;
-    public GameObject m_stoppedLabel;
-    public GameObject m_slowedLabel;
-
-    public GameObject randomPrefab;
 
     private bool morphPressed = false;
+
+    private bool m_reviveUIActive = false;
+    private ReviveBarUI m_reviveBarUI;
+    private float m_reviveTimer = 0f;
+    private float m_reviveDuration = 0f;
 
     protected override void OnSpawned()
     {
@@ -52,6 +53,7 @@ public class GhostClientController : NetworkBehaviour
         if (core != null) m_playerCamera = core.m_playerCamera;
         if (m_uiHolder == null)
             m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
+        m_reviveBarUI = m_uiHolder.GetComponentInChildren<ReviveBarUI>(true);
         m_wheel = m_uiHolder.GetComponentInChildren<WheelController>();
         if (m_playerCamera != null) m_cameraEffect = m_playerCamera.GetComponent<DeathEffect>();
         m_wheel.LinkWithGhost(this);
@@ -69,7 +71,6 @@ public class GhostClientController : NetworkBehaviour
         if (!isOwner) return;
         if (m_ghostController == null || m_ghostInputController == null || m_playerCamera == null) return; // "just in case"
 
-        UpdateLabels();
 
         if (last_stopped != m_ghostController.m_isStopped)
         {
@@ -91,6 +92,20 @@ public class GhostClientController : NetworkBehaviour
         // Reset values after sending to server
         if (morphPressed) m_ghostMorphPreview.HidePreview();
         morphPressed = false;
+
+        if (m_reviveUIActive)
+        {
+            UpdateReviveUI();
+        }
+
+        if (!m_reviveUIActive && (m_ghostController.m_beingRevived || m_ghostController.m_isReviving))
+        {
+            OnReviveStart();
+        }
+        else if (m_reviveUIActive && !(m_ghostController.m_beingRevived || m_ghostController.m_isReviving))
+        {
+            OnReviveEnd();
+        }
     }
 
     void DebugPrintTrafic()
@@ -103,31 +118,35 @@ public class GhostClientController : NetworkBehaviour
         print(m_ghostMorphPreview.transform.localPosition);
     }
 
-    void UpdateLabels()
+    void UpdateReviveUI()
     {
-        if (m_ghostController.m_isStopped)
+        m_reviveTimer += Time.deltaTime;
+        float progress = m_reviveTimer / m_reviveDuration;
+        if (m_reviveBarUI != null)
         {
-            if (!m_stoppedLabel.activeSelf) m_stoppedLabel.SetActive(true);
-        }
-        else
-        {
-            if (m_stoppedLabel.activeSelf) m_stoppedLabel.SetActive(false);
+            m_reviveBarUI.SetProgress(progress);
         }
 
-        if (m_ghostController.m_isSlowed)
-        {
-            if (!m_slowedLabel.activeSelf) m_slowedLabel.SetActive(true);
-        }
-        else
-        {
-            if (m_slowedLabel.activeSelf) m_slowedLabel.SetActive(false);
-        }
     }
 
+    void OnReviveStart()
+    {
+        m_reviveUIActive = true;
+        m_reviveDuration = m_ghostController.m_reviveDuration;
+        m_reviveTimer = 0f;
+        if (m_reviveBarUI != null) { m_reviveBarUI.SetProgress(0f); m_reviveBarUI.Show(); }
+    }
+
+    void OnReviveEnd()
+    {
+        m_reviveUIActive = false;
+        if (m_reviveBarUI != null) m_reviveBarUI.Hide();
+    }
 
     public void OnScan()
     {
         if (!isOwner) return;
+        if (m_ghostController.m_isStopped) return;
         if (m_ghostMorph.m_isMorphed) return; // Prevent scanning if already morphed
         m_ghostMorphPreview.ScanForPrefab();
     }
@@ -135,21 +154,19 @@ public class GhostClientController : NetworkBehaviour
     public void OnOpenWheel()
     {
         if (!isOwner) return;
+        if (m_ghostController.m_isStopped) return;
         m_wheel.Toggle();
     }
-
     public void OnMorph()
     {
         if (!isOwner) return;
+        if (m_ghostController.m_isStopped) return;
         if (!m_ghostMorphPreview.m_canMorph || !m_ghostMorphPreview.m_currentPrefab || m_ghostMorph.m_isMorphed) return;
         if (m_wheel.IsWheelOpen()) m_wheel.Toggle();
-
+        
         m_wheel.ClearSelection();
-
         morphPressed = true;
         InteractPromptUI.m_Instance.Hide();
-        
-
     }
 
     /**

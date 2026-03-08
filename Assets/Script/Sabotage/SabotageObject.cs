@@ -60,7 +60,6 @@ public class SabotageObject : NetworkBehaviour, IInteractable
                 }
             }
         }
-
         ApplyState();
         SetHighlight(false);
     }
@@ -75,7 +74,6 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         SetHighlight(true);
         if (m_sabotagedMesh != null)
         {
-            var r = m_sabotagedMesh.GetComponent<Renderer>();
             if (!m_isSabotaged)
             {
                 InteractPromptUI.m_Instance.Show(m_promptMessageSABOTE);
@@ -103,9 +101,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         
     
         SetHighlight(false);
-        
     }
-
     /*
      * @brief Handles player interaction with the sabotage object
      * Freezes the interacting ghost's rigidbody and starts the QTE if the object is not already sabotaged or busy
@@ -133,7 +129,6 @@ public class SabotageObject : NetworkBehaviour, IInteractable
      */
     public void StartQte(GhostInteract _sabo)
     {
-        
         m_isQteRunning = true;
         SetHighlight(false);
 
@@ -193,9 +188,6 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         m_isSabotaged = true;
         ApplyState();
         SetHighlight(false);
-
-       
-
         if (ScoreManager.m_Instance != null)
         {
             ScoreManager.m_Instance.Add(m_scoreValue);
@@ -207,38 +199,30 @@ public class SabotageObject : NetworkBehaviour, IInteractable
      * @return void
      */
     private void ApplyState()
-{
-    if (m_normalMesh != null)
     {
-        var r = m_normalMesh.GetComponent<Renderer>();
-        if (r != null)
-            r.enabled = !m_isSabotaged;
-
-        foreach (GhostInteract ghostinteract in m_saboteurs)
+        if (m_normalMesh != null)
         {
-            
-              ghostinteract.OnSabotageOver( true);
-
-              Debug.Log("iteration");       
+            var r = m_normalMesh.GetComponent<Renderer>();
+            if (r != null)
+                r.enabled = !m_isSabotaged;
+            foreach (GhostInteract ghostinteract in m_saboteurs)
+            {
+                ghostinteract.OnSabotageOver( true);  
+            }
+            var c = m_normalMesh.GetComponent<Collider>();
+            if (c != null)
+                c.enabled = !m_isSabotaged;
         }
-        var c = m_normalMesh.GetComponent<Collider>();
-        if (c != null)
-            c.enabled = !m_isSabotaged;
+        if (m_sabotagedMesh != null)
+        {
+            var r = m_sabotagedMesh.GetComponent<Renderer>();
+            if (r != null)
+                r.enabled = m_isSabotaged;
+            var c = m_sabotagedMesh.GetComponent<Collider>();
+            if (c != null)
+                c.enabled = m_isSabotaged;
+        }
     }
-    
-
-    if (m_sabotagedMesh != null)
-    {
-        var r = m_sabotagedMesh.GetComponent<Renderer>();
-        if (r != null)
-            r.enabled = m_isSabotaged;
-            
-        var c = m_sabotagedMesh.GetComponent<Collider>();
-        if (c != null)
-            c.enabled = m_isSabotaged;
-    }
-}
-
 
     /*
      * @brief Starts or stops the pulsing highlight coroutine on the highlight renderer
