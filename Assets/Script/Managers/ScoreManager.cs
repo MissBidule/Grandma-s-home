@@ -10,12 +10,14 @@ public class ScoreManager : NetworkBehaviour
 {
 
     [SerializeField] private SyncDictionary<PlayerID, ScoreData> scores = new();
-    [SerializeField] private SyncDictionary<PlayerID, ScoreData> scoresSecNotRes = new();
+    [SerializeField] private SyncDictionary<PlayerID, ScoreData> scoresSecNotRes = new(); // il sert a rien pour l'instant
     //[SerializeField] private SyncDictionary<PlayerID, ScoreData> scoresfinal = new();
     [SerializeField] private TMP_Text m_scoreText;
-    [SerializeField] private float m_scoreSabotageFinal=0;
+    //[SerializeField] private float m_scoreSabotageFinal=0;
     [SerializeField] private float m_scoreSabotage;
     [SerializeField] private int m_scoreBroken;
+    [SerializeField] private float sabotageBonusTotal = 0f; // point timer
+    private float timer;
 
 
     private void Awake()
@@ -25,7 +27,16 @@ public class ScoreManager : NetworkBehaviour
 
     private void Update()
     {
-        SyncPoint();
+        if (!isServer) return;
+
+        timer += Time.deltaTime;
+
+        if (timer >= 1f)
+        {
+            timer = 0f;
+            AddSabotageBonus();
+        }
+        //SyncPoint();
         RefreshUI();
     }
 
@@ -41,6 +52,29 @@ public class ScoreManager : NetworkBehaviour
         }
     }
 
+    private void AddSabotageBonus()
+    {
+        float totalSabotage = 0;
+
+        foreach (var entry in scores)
+        {
+            totalSabotage += entry.Value.pointSabotage;
+        }
+
+        sabotageBonusTotal += totalSabotage * 0.3f;
+    }
+    private float GetFinalScore() //c le return qui est important
+    {
+        float sabotagePoints = 0;
+
+        foreach (var entry in scores)
+        {
+            sabotagePoints += entry.Value.pointSabotage;
+        }
+
+        return sabotagePoints + sabotageBonusTotal;
+    }
+
     [ServerRpc(requireOwnership:false)]
     public void AddPointSabotage(PlayerID playerID)
     {
@@ -48,9 +82,12 @@ public class ScoreManager : NetworkBehaviour
 
         var ScoreData = scores[playerID];
         ScoreData.pointSabotage++;
+        scores[playerID] = ScoreData; 
+
         var ScoreData2 = scoresSecNotRes[playerID];
         ScoreData2.pointSabotage++;
-        //scores[playerID] = ScoreData;  ??????????????? qu est ce que j ai fait wtf
+        scoresSecNotRes[playerID] = ScoreData2;
+         
     }
 
     [ServerRpc(requireOwnership:false)]
@@ -60,7 +97,7 @@ public class ScoreManager : NetworkBehaviour
 
         var ScoreData = scores[playerID];
         ScoreData.pointBroken++;
-        //scores[playerID] = ScoreData;   ??????????????? qu est ce que j ai fait wtf
+        scores[playerID] = ScoreData;  
     }
 
     [ServerRpc(requireOwnership:false)]
@@ -69,13 +106,18 @@ public class ScoreManager : NetworkBehaviour
         CheckForDictonaryEntry(playerID);
 
         var ScoreData = scores[playerID];
-        ScoreData.pointSabotage--;
-        if (ScoreData.pointSabotage<0)
+        //ScoreData.pointSabotage--;
+        //if (ScoreData.pointSabotage<0)
+        //{
+        //  ScoreData.pointSabotage=0;
+        //}
+
+        if (ScoreData.pointSabotage > 0)   // a voir
         {
-            ScoreData.pointSabotage=0;
+            ScoreData.pointSabotage--;
         }
 
-        //scores[playerID] = ScoreData;     ??????????????? qu est ce que j ai fait wtf
+        scores[playerID] = ScoreData;     
     }
 
     [ServerRpc(requireOwnership:false)]
@@ -84,12 +126,16 @@ public class ScoreManager : NetworkBehaviour
         CheckForDictonaryEntry(playerID);
 
         var ScoreData = scores[playerID];
-        ScoreData.pointBroken--;
-        if (ScoreData.pointBroken<0)
+        //ScoreData.pointBroken--;
+        if (ScoreData.pointBroken > 0)
         {
-            ScoreData.pointBroken=0;
+            ScoreData.pointBroken--; // a voir
         }
-        //scores[playerID] = ScoreData;    ??????????????? qu est ce que j ai fait wtf
+        //if (ScoreData.pointBroken<0)
+        //{
+          //  ScoreData.pointBroken=0;
+        //}
+        scores[playerID] = ScoreData;    
     }
 
     [ServerRpc(requireOwnership:false)]
@@ -117,16 +163,16 @@ public class ScoreManager : NetworkBehaviour
            // la liste 2 fait la list 1 *0.03f tout les x sec 
            // 
 // arreter le chronos
-    public void SyncPoint()
+    public void SyncPoint() //telemment merdique comme fonction
     {
         m_scoreSabotage=0;
         foreach (var entry in scores)
         {
-            m_scoreSabotage += entry.Value.pointBroken;
-            foreach (var entry2 in scoresSecNotRes)
-            {
-                m_scoreSabotage += entry2.Value.pointBroken;//*0.03f;  // c nul ca choque et decu
-            }
+            m_scoreSabotage += entry.Value.pointSabotage;
+            //foreach (var entry2 in scoresSecNotRes)
+            //{
+              //  m_scoreSabotage += entry2.Value.pointSabotage;//*0.03f;  // c nul ca choque et decu
+            //}
         }
         m_scoreBroken=0;
         foreach (var entry in scores)
@@ -140,7 +186,8 @@ public class ScoreManager : NetworkBehaviour
     {
         if (m_scoreText != null)
         {
-            m_scoreText.text = $"Score : {m_scoreSabotage}";
+           // m_scoreText.text = $"Score : {m_scoreSabotage}";
+            m_scoreText.text = $"Score : {GetFinalScore():0.00}";
         }
 
     }

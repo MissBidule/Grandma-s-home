@@ -191,7 +191,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
 
         if(InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
         {
-            scoreManager.AddPointBroken(info.sender);
+            scoreManager.AddPointSabotage(info.sender);
             //if(owner.HasValue)
             //{
               //  scoreManager.AddTransformghost(owner.Value);
