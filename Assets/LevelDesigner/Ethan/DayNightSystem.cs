@@ -1,36 +1,38 @@
 using UnityEngine;
 using System.Collections;
+using System.Diagnostics;
 
 public class DayNightSystem : MonoBehaviour
 {
     //variables
     private GameObject sun; // référence au soleil dans la scène
+    // skybox dual panoramique ref
+    public Material skybox; // skybox pour le jour
 
-    public float gameTime = 480f; // 8 minutes de jeu, à changer ou prendre la valeur vers une autre référence si ça change
+    public float gameTime = 480f; // 480 - 8 minutes de jeu, à changer ou prendre la valeur vers une autre référence si ça change
     [SerializeField] private float currentTime = 0f; // temps actuel dans le cycle jour/nuit
     
     // positions des axes du soleil par défaut
-    public float sunInitialX = 60f;
+    public float sunInitialX = 150f;
     public float sunInitialY = 0f;
     public bool isRandomSunY = true; // randomiser l'angle y pour différent direction de coucher de soleil
     public float sunIntensity = 3f; // intensité maximale du soleil
 
-    public float timeBetweenUpdates = 0.2f; // temps entre chaque mise à jour du placement du soleil
-    public float additiveAngle = 0.1f; // valeur ajouté à l'angle du soleil à chaque mise à jour
+    //température du soleil entre le jour et la nuit
+    public float temperatureDay = 6000f; 
+    public float temperatureNight = 16000f;
 
-    //Démarrer avec un angle assez élevé 150, pour la monter à 170 sur 40% du temps de jeu total, faire un changement entre les 2 HDRI blend avec les paramètre de luminosité et allumages progressifs de toutes sources de lumière sur 20% du temps de jeu total, sur les 40% restant de jeu le soleil aura un éclairage d'une couleur plus froide et une intensité plus faible en remontant vers 150 comme une monté de lune.
-    //Voir la rotation du HDRI pour que la directional light avec le random en Y ne rentre pas en collision avec ses nuages 2D
+    public float HdriRotationAngle = 0.05f; //rotation par actualisation
+    public float HdriRotationSpeed = 0.1f; // vitesse de rotation de la skybox
 
+    private float timeBetweenUpdates = 1f; // temps entre chaque mise à jour du placement du soleil
+    private float sunRotationAngle; // valeur ajouté à l'angle du soleil à chaque mise à jour
 
-    //VIEUX - NON FONCTIONNEL
-    //2 secondes = 1 angle
-    //1 minute = 30 angle
-    //De 4 minutes à 6 minutes = 120 angle | l'intensité de la lumière va diminuer jusqu'a 0 
-    //De 6 minutes à 7 minutes = 180 angle | allumage des sources de lumières dans la map et essayer d'assombrir encore plus la lumière de la skybox pendant 1 minute
-    //8 minutes = 240 angle 
+    //Démarrer avec un angle assez élevé 150, pour la monter à 180 sur 40% du temps de jeu total, faire un changement entre les 2 HDRI blend avec les paramètre de luminosité et allumages progressifs de toutes sources de lumière sur 20% du temps de jeu total, sur les 40% restant de jeu le soleil aura un éclairage d'une couleur plus froide et une intensité plus faible en remontant vers 150 comme une monté de lune.
+
     void Start()
     {
-        Debug.Log("DayNightSystem started");
+        UnityEngine.Debug.LogFormat("DayNightSystem started");
 
         //regarde si l'objet auquel il est attaché a Light
         if (GetComponent<Light>() != null) {
@@ -38,12 +40,13 @@ public class DayNightSystem : MonoBehaviour
 
             InitDayNight();
             
-            //démarrage de la coroutine
-            StartCoroutine(UpdateSun());
+            //démarrage des coroutines
+            StartCoroutine(SkyboxRotation());
+            StartCoroutine(UpdateLight_LowerSun());
 
         }
         else {
-            Debug.LogError("DayNightSystem doit être attaché à un objet avec un composant Light !");
+            UnityEngine.Debug.LogFormat("DayNightSystem doit être attaché à un objet avec un composant Light !");
         }
     }
 
@@ -51,35 +54,97 @@ public class DayNightSystem : MonoBehaviour
     // Initialisation du système de jour/nuit
     void InitDayNight()
     {
-        currentTime = 0f;
-        sun.GetComponent<Light>().intensity = sunIntensity; // intensité maximale du soleil au début
-
+        currentTime = 0f;//temps de jeu actuel
         // Position initiale du soleil
         if (isRandomSunY){//random de l'angle y
         sunInitialY = Random.Range(0f, 360f);
         }
+        UnityEngine.Debug.LogFormat("Sun initial X angle: {0}, Sun initial Y angle: {1}", sunInitialX, sunInitialY);
         sun.transform.rotation = Quaternion.Euler(sunInitialX, sunInitialY, 0f);
+        // sun.transform.rotation = Quaternion.Euler(150, 0, 0f);
+
+        UnityEngine.Debug.LogFormat("Sun initial rotation set to: {0}", sun.transform.rotation.eulerAngles);
+
+        sun.GetComponent<Light>().intensity = sunIntensity; // intensité maximale du soleil au début
+        sun.GetComponent<Light>().colorTemperature = temperatureDay; // température du soleil du début de partie
+
+        //angles des 2 texture + blend à 0
+        skybox.SetFloat("_Rotation1", 0f);
+        skybox.SetFloat("_Rotation2", 0f);
+        skybox.SetFloat("_Blend", 0f);
+
+        //calcul de l'angle de rotation du soleil pour allez de sunInitialX à 180 sur 40% du temps de jeu total
+        sunRotationAngle = (180f - sunInitialX) / (gameTime * 0.4f);
+        UnityEngine.Debug.LogFormat("Sun rotation angle calculated: {0}", sunRotationAngle);
+
     }
 
-    IEnumerator UpdateSun() // update de la position du soleil
+    //vérifie si sa dépasse pas les 180 degrés
+    float CheckRotationAngle(float angle)
     {
-        while (currentTime < gameTime)
+        if (angle > 180f)
         {
-            sun.transform.Rotate(additiveAngle, 0f, 0f); // fait tourner le soleil autour de l'axe x
+            return 180f;
+        }
+        return angle;
+    }
 
-            //Change l'intensité si l'angle est entre 120 et 180 de 3 à 0
-            if (sun.transform.rotation.eulerAngles.x > 120f && sun.transform.rotation.eulerAngles.x < 180f) {
-                float intensity = Mathf.Lerp(sunIntensity, 0f, (sun.transform.rotation.eulerAngles.x - 120f) / 60f); // calcul de l'intensité en fonction de l'angle
-                sun.GetComponent<Light>().intensity = intensity; // applique l'intensité calculée
-            }
-            else if (sun.transform.rotation.eulerAngles.x >= 180f) {
-                sun.GetComponent<Light>().intensity = 0f; // éteint la lumière du soleil
-            }
+    IEnumerator UpdateLight_LowerSun()
+    {//début de la partie, le soleil se couche
+        while (currentTime < gameTime * 0.4f)
+        {
+            //rotation du soleil
+            float newSunX = CheckRotationAngle(sun.transform.rotation.eulerAngles.x + sunRotationAngle);//vérifie que l'angle ne dépasse pas 180
+            sun.transform.rotation = Quaternion.Euler(newSunX, sun.transform.rotation.eulerAngles.y, 0f);
 
             currentTime += timeBetweenUpdates; // incrémente le temps actuel
             yield return new WaitForSeconds(timeBetweenUpdates);// attend entre chaque update
         }
+        //démarrage de la seconde corroutine pour la transition jour-nuit
+        StartCoroutine(UpdateLight_Transition());
+    }
+
+    IEnumerator UpdateLight_Transition() // transition entre le jour et la nuit
+    {
+        while (currentTime >= gameTime * 0.4f && currentTime < gameTime * 0.6f)
+        {
+            //blend progressif des 2 texture de la skybox
+            float blend = Mathf.Lerp(0f, 1f, (currentTime - gameTime * 0.4f) / (gameTime * 0.2f));
+            skybox.SetFloat("_Blend", blend);
+
+            //changement progressif de l'intensité du soleil
+            float intensity = Mathf.Lerp(0f, sunIntensity * 0.5f, (currentTime - gameTime * 0.4f) / (gameTime * 0.2f));
+            sun.GetComponent<Light>().intensity = intensity;
+
+            //changement progressif de la température du soleil
+            float temperature = Mathf.Lerp(temperatureDay, temperatureNight, (currentTime - gameTime * 0.4f) / (gameTime * 0.2f));
+            sun.GetComponent<Light>().colorTemperature = temperature;
+
+            currentTime += timeBetweenUpdates;
+            yield return new WaitForSeconds(timeBetweenUpdates);
+        }
+        //démarrage de la troisième corroutine pour la montée de la lune
+        StartCoroutine(UpdateLight_UpperMoon());
+    }
+
+    IEnumerator UpdateLight_UpperMoon() // montée de la lune
+    {
+        while (currentTime >= gameTime * 0.6f && currentTime < gameTime)
+        {
+            yield return new WaitForSeconds(timeBetweenUpdates);
+        }
     }
     
-    // quand l'angle > une valeur proche de 180, réduire l'intensité de la lumière jusqu'a 0 pour que au dela de 180, ça éclaire pas le dessous de la map et voir pour diminuer toute AUTRES lumière causé pas la skybox qui peut rendre la nuit encore trop lumineux.
+    
+    IEnumerator SkyboxRotation() // update de la rotation de la skybox
+    {
+        while (currentTime < gameTime)
+        {
+            //rotation des 2 texture de la skybox
+            skybox.SetFloat("_Rotation1", skybox.GetFloat("_Rotation1") + HdriRotationAngle);
+            skybox.SetFloat("_Rotation2", skybox.GetFloat("_Rotation2") + HdriRotationAngle);
+
+            yield return new WaitForSeconds(timeBetweenUpdates);
+        }
+    }
 }
