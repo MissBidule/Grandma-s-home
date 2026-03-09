@@ -18,6 +18,25 @@ public class GhostMorphPreview : MonoBehaviour
     [SerializeField] private Color m_validColor = new Color(1f, 1f, 1f, 0.3f);
     [SerializeField] private Color m_invalidColor = new Color(1f, 0f, 0f, 0.3f);
 
+    [SerializeField] private Color m_validColor = new Color(1f, 1f, 1f, 0f);
+    [SerializeField] private Color m_invalidColor = new Color(1f, 0f, 0f, 0f);
+
+    [SerializeField] private Color m_highlightColor = Color.yellow;
+    [SerializeField] private float m_pulseSpeed = 3f;
+    [SerializeField] private float m_minIntensity = 0.2f;
+    [SerializeField] private float m_maxIntensity = 0.6f;
+
+    private GameObject m_currentHighlightedObject = null;
+    private Coroutine m_pulseCoroutine = null;
+    private MaterialPropertyBlock m_propertyBlock;
+
+    private Transform m_cameraTransform;
+
+    [SerializeField] private string m_promptMessageSCAN = "F : SCAN";
+    [SerializeField] private string m_promptMessageValid = "E : Valid";
+
+    [SerializeField] private bool m_GhostPreviewOn;
+    
     /*
      * @brief Awake is called when the script instance is being loaded
      * Initializes the mesh renderer and collider, sets the collider as a trigger, and updates the material.
@@ -29,6 +48,46 @@ public class GhostMorphPreview : MonoBehaviour
         m_previewCollider = GetComponent<Collider>();
         m_previewCollider.isTrigger = true;
         UpdateMaterial();
+    }
+
+    /*
+     * @brief Scans for a scannable prefab in front of the player
+     * If found and there's a free slot, adds it to the wheel. If wheel is full, opens the wheel for slot selection.
+     * @return void
+     */
+    public void ScanForPrefab()
+    {
+        
+        Debug.Log("Scan");
+
+        Vector3 rayOrigin = m_cameraTransform.transform.position;
+        Vector3 rayDirection = m_cameraTransform.transform.forward;
+
+        if (!Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, m_scanRange, m_scanLayerMask))
+        {
+            Debug.Log("No objects detected by the raycast");
+            return;
+        }
+
+        GameObject scannedObject = hit.collider.gameObject;
+        Debug.Log($"Object detected: {scannedObject.name}");
+
+        ScannableObject scannableComponent = scannedObject.GetComponent<ScannableObject>();
+        if (scannableComponent == null)
+        {
+            Debug.Log($"Object detected but not scannable: {scannedObject.name}");
+            return;
+        }
+
+        Debug.Log($"Scannable object found: {scannedObject.name}");
+
+        if (scannableComponent.m_icon == null)
+        {
+            Debug.Log($"No icon for the scanned object: {scannedObject.name}");
+            return;
+        }
+
+        m_wheel.TryAddPrefabToWheel(scannedObject, scannableComponent.m_icon);
     }
 
     /*
@@ -49,6 +108,9 @@ public class GhostMorphPreview : MonoBehaviour
         if (prefabRenderer != null)
         {
             m_meshRenderer.sharedMaterials = prefabRenderer.sharedMaterials;
+
+            InteractPromptUI.m_Instance.Show(m_promptMessageValid);
+            m_GhostPreviewOn =true;
         }
         m_colliders.Clear();
         ReplaceCollider(collider);
@@ -74,6 +136,13 @@ public class GhostMorphPreview : MonoBehaviour
         transform.localPosition = new Vector3(0f, offsetY+0.01f, 0f);
 
         UpdateMaterial();
+    }
+
+    public void HidePreview()
+    {
+        m_meshRenderer.enabled = false;
+        m_GhostPreviewOn=false;//
+        m_currentPrefab = null;
     }
 
     /*
@@ -154,6 +223,168 @@ public class GhostMorphPreview : MonoBehaviour
             mat.SetInt("_ZWrite", 0);
             mat.renderQueue = 3000;
             mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        }
+    }
+
+    /*
+     * @brief Checks for scannable objects in view and highlights them
+     * @return void
+     */
+    private void CheckForScannableObject()
+    {
+        if (!isOwner) return;
+        if (m_cameraTransform == null || GetComponentInParent<GhostMorph>().m_isMorphed)
+        {
+            ClearHighlight();
+            
+            return;
+        }
+
+        Vector3 rayOrigin = m_cameraTransform.transform.position;
+        Vector3 rayDirection = m_cameraTransform.transform.forward;
+
+        if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, m_scanRange, m_scanLayerMask))
+        {
+            GameObject hitObject = hit.collider.gameObject;
+
+            if (IsPartOfPlayer(hitObject))
+            {
+                InteractPromptUI.m_Instance.Hide();
+
+                ClearHighlight();
+                return;
+            }
+
+            ScannableObject scannableComponent = hitObject.GetComponent<ScannableObject>();
+
+            if (scannableComponent != null && scannableComponent.m_icon != null)
+            {
+                if (m_currentHighlightedObject != hitObject)
+                {
+                    if(!GetComponentInParent<GhostMorph>().m_isMorphed)
+                    {
+                       // There is a clone for few seconds...
+                    InteractPromptUI.m_Instance.Show(m_promptMessageSCAN);
+                    }
+                    ClearHighlight();
+                    HighlightObject(hitObject);
+                }
+            }
+            else
+            {
+                ClearHighlight();
+            }
+        }
+        else
+        {
+             
+            ClearHighlight();
+            InteractPromptUI.m_Instance.Hide();
+
+            if(m_GhostPreviewOn == true){
+            InteractPromptUI.m_Instance.Show(m_promptMessageValid);
+            
+            } 
+        }
+    }
+
+    /*
+     * @brief Checks if a GameObject is part of the player hierarchy
+     * @param _obj: The GameObject to check
+     * @return True if the object is the player or a child of the player
+     */
+    private bool IsPartOfPlayer(GameObject _obj)
+    {
+        Transform current = _obj.transform;
+        while (current != null)
+        {
+            if (current == transform)
+            {
+                return true;
+            }
+            current = current.parent;
+        }
+        return false;
+    }
+
+    /*
+     * @brief Highlights a scannable object with pulsing emission
+     * @param _object: The GameObject to highlight
+     * @return void
+     */
+    private void HighlightObject(GameObject _object)
+    {
+        m_currentHighlightedObject = _object;
+
+        Renderer[] objectRenderers = _object.GetComponentsInChildren<Renderer>();
+
+        foreach (Renderer renderer in objectRenderers)
+        {
+            foreach (Material mat in renderer.sharedMaterials)
+            {
+                if (mat != null)
+                {
+                    mat.EnableKeyword("_EMISSION");
+                }
+            }
+        }
+
+        if (m_pulseCoroutine != null)
+        {
+            StopCoroutine(m_pulseCoroutine);
+        }
+        m_pulseCoroutine = StartCoroutine(PulseHighlight());
+    }
+
+    /*
+     * @brief Animates the highlight with a pulsing effect
+     * @return IEnumerator for coroutine
+     */
+    private IEnumerator PulseHighlight()
+    {
+        float time = 0;
+
+        Renderer[] renderers = m_currentHighlightedObject.GetComponentsInChildren<Renderer>();
+
+        while (m_currentHighlightedObject != null)
+        {
+            float pulse = Mathf.Lerp(m_minIntensity, m_maxIntensity,
+                                    (Mathf.Sin(time * m_pulseSpeed) + 1f) * 0.5f);
+
+            foreach (Renderer r in renderers)
+            {
+                r.GetPropertyBlock(m_propertyBlock);
+                m_propertyBlock.SetColor("_EmissionColor", m_highlightColor * pulse);
+                r.SetPropertyBlock(m_propertyBlock);
+            }
+
+            time += Time.deltaTime;
+            yield return null;
+        }
+    }
+
+    /*
+     * @brief Clears the current highlight by restoring the original materials
+     * @return void
+     */
+    private void ClearHighlight()
+    {
+        if (m_currentHighlightedObject != null)
+        {
+            if (m_pulseCoroutine != null)
+            {
+                StopCoroutine(m_pulseCoroutine);
+                m_pulseCoroutine = null;
+            }
+
+            Renderer[] objectRenderers = m_currentHighlightedObject.GetComponentsInChildren<Renderer>();
+
+            foreach (Renderer r in objectRenderers)
+            {
+                r.SetPropertyBlock(null);
+            }
+
+            m_currentHighlightedObject = null;
         }
     }
 }

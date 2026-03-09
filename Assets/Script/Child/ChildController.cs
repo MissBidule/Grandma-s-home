@@ -1,3 +1,5 @@
+using System;
+using PurrNet;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -25,13 +27,12 @@ public class ChildController : MonoBehaviour
     [SerializeField] private Transform m_bulletSpawnTransform;
     [SerializeField] private GameObject m_bulletPrefab;
     [SerializeField] private float m_jumpImpulse = 6.0f;
+    [SerializeField] private float m_shootRange = 50f;
 
-    /*
-     * @brief Awake is called when the script instance is being loaded
-     * Gets the ChildInputController component.
-     * @return void
-     */
-    void Awake()
+    [NonSerialized] public Vector3 m_cameraPosition;
+    [NonSerialized] public Vector3 m_cameraForward;
+
+    protected override void OnSpawned()
     {
         m_childInputController = GetComponent<ChildInputController>();
         m_rigidbody = GetComponent<Rigidbody>();
@@ -135,7 +136,18 @@ public class ChildController : MonoBehaviour
     {
         if (m_isranged)
         {
-            Shoot();
+            if (m_lastShot >= m_cdGun)
+            {
+                m_lastShot = 0;
+                Debug.Log("shoot");
+                Vector3 aimTarget;
+                if (Physics.Raycast(m_cameraPosition, m_cameraForward, out RaycastHit hit, m_shootRange))
+                    aimTarget = hit.point;
+                else
+                    aimTarget = m_cameraPosition + m_cameraForward * m_shootRange;
+                Vector3 shootDir = (aimTarget - m_bulletSpawnTransform.position).normalized;
+                ShootForAll(Quaternion.LookRotation(shootDir));
+            }
         }
         else
         {
@@ -175,28 +187,14 @@ public class ChildController : MonoBehaviour
 
 
     /*
-     * @brief  This function instantiates a ball prefab
-     * We instantaneously transfer the ball and put the force into impulse mode.
+     * @brief  Instantiates a bullet aimed at the camera's target point
      * @return void
      */
-
-    void Shoot()
+    [ObserversRpc(runLocally:true)]
+    void ShootForAll(Quaternion rotation)
     {
-        print("shoot");
-        GameObject bullet = Instantiate(m_bulletPrefab, m_bulletSpawnTransform.position, transform.rotation);
-        bullet.GetComponent<Rigidbody>().AddForce(m_bulletSpawnTransform.forward, ForceMode.Impulse);
-    }
-
-    /*
-     * @brief  This function allows you to clean the slime
-     * When the child is close to a distance of m_cleanRange and there is a gameObject with the tag "Slime", they destroy the gameObject.
-     * @return void
-     */
-    public void Clean()
-    {
-        Collider[] hits = Physics.OverlapSphere(transform.position, m_cleanRange);
-
-        foreach (Collider col in hits)
+        GameObject bullet = UnityProxy.InstantiateDirectly(m_bulletPrefab, m_bulletSpawnTransform.position, rotation);
+        if (isServer)
         {
             if (col.CompareTag("Slime"))
             {
