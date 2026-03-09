@@ -205,16 +205,11 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     }
 
     [ObserversRpc(runLocally:true, requireServer:true)]
-    private void SabotageForAll(RPCInfo info = default)
+    private void SabotageForAll()
     {
         m_isSabotaged = true;
         ApplyState();
         SetHighlight(false);
-        if(InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
-        {
-            scoreManager.AddPointSabotage(info.sender);
-        }
-
     }
 
     [ServerRpc(requireOwnership:false)]
