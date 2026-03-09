@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using PurrNet;
 using PurrNet.Logging;
@@ -27,6 +28,32 @@ public class PanicState : StateNode<GhostGameStateData>
     private List<GhostController> m_ghosts = new();
     private List<PlayerID> m_aliveGhosts = new();
     private List<PlayerID> m_deadGhosts = new();
+
+    private Coroutine m_panicTimer;
+    
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+        
+        if (m_panicTimer != null)
+            StopCoroutine(m_panicTimer);
+        
+        // Unsubscribe from ghost death events
+        foreach (var ghost in m_ghosts)
+        {
+            if (ghost != null)
+                ghost.OnDeathChange -= OnGhostDeathChange;
+        }
+        
+        // Unsubscribe from score events
+        if (!InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
+        {
+            PurrLogger.LogError("No Score Manager found", this);
+            return;
+        }
+
+        scoreManager.m_noticeHouseDestroyed -= OnHouseDestroyed;
+    }
     
     public override void Enter(GhostGameStateData _ghostGameStateData, bool _asServer)
     {
@@ -36,6 +63,16 @@ public class PanicState : StateNode<GhostGameStateData>
             return;
 
         GhostInitialize(_ghostGameStateData);
+        
+        if (!InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
+        {
+            PurrLogger.LogError("No Score Manager found", this);
+            return;
+        }
+
+        scoreManager.m_noticeHouseDestroyed += OnHouseDestroyed;
+        
+        m_panicTimer = StartCoroutine(PanicTimer(m_roundDuration*60));
     }
 
     private void GhostInitialize(GhostGameStateData _ghostGameStateData)
@@ -51,6 +88,22 @@ public class PanicState : StateNode<GhostGameStateData>
             
             ghostController.OnDeathChange += OnGhostDeathChange;
         }
+    }
+    
+    /*
+     * @brief The timer of the round, and sun mover
+     * @param float _roundDuration !!! In seconds
+     */
+    private IEnumerator PanicTimer(float _duration)
+    {
+        SetupPanicMode();
+        yield return new WaitForSeconds(_duration);
+        MoveToEnd(false);
+    }
+
+    private void SetupPanicMode()
+    {
+        // TODO Add all the light and gong stuff
     }
     
     private void OnGhostDeathChange(bool _deathOrRevive, PlayerID _playerID)
@@ -76,6 +129,15 @@ public class PanicState : StateNode<GhostGameStateData>
             m_deadGhosts.Remove(_playerID);
             m_aliveGhosts.Add(_playerID);
         }
+    }
+
+    /*
+     * @brief react if the house is destroyed and move to end state with child losing
+     */
+    private void OnHouseDestroyed(bool _destroyed)
+    {
+        if (_destroyed)
+            MoveToEnd(false);
     }
     
     private void MoveToEnd(bool _childWin)

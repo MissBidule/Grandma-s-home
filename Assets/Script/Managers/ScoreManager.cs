@@ -1,6 +1,7 @@
 using System;
 using System.Linq.Expressions;
 using PurrNet;
+using Script.UI.Views;
 using TMPro;
 using UnityEngine;
 
@@ -13,25 +14,30 @@ public class ScoreManager : NetworkBehaviour
     [SerializeField] private SyncDictionary<PlayerID, ScoreData> m_scoresSabotage = new();
     [SerializeField] private SyncDictionary<PlayerID, ScoreData2> m_scoresBroken = new();
     [SerializeField] private SyncVar<float> m_sabotageBonusTotal = new();
-    [SerializeField] private TMP_Text m_scoreText;
     [SerializeField] private int m_scoreBroken;
     [SerializeField] private float m_maxScoreSabotage=5.0f;
     [SerializeField] private int m_maxScoreBroken=5;
     private float m_timer;
-    public Action<string> m_noticeHouseDestroy;
+    public Action<bool> m_noticeHouseDestroyed; // false if only sabotaged
 
     private void Awake()
     {
         InstanceHandler.RegisterInstance(this);
     }
 
-/*
- * @details Refreshes the canvas that displays the score (this needs to be removed and replaced with a view).
- *          This makes the server call the Sabotage Bonus every second and checks if the total Sabotage points (excluding bonuses) have reached 0. 
- *          If so, it resets the Sabotage dictionary.
- *          Invoke a event if the final Score Sabotage > the max
- * @return void
-*/
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+        InstanceHandler.UnregisterInstance<ScoreManager>();
+    }
+
+    /*
+     * @details Refreshes the canvas that displays the score (this needs to be removed and replaced with a view).
+     *          This makes the server call the Sabotage Bonus every second and checks if the total Sabotage points (excluding bonuses) have reached 0. 
+     *          If so, it resets the Sabotage dictionary.
+     *          Invokes an event if the final Score Sabotage > the max
+     * @return void
+     */
     private void Update()
     {
         RefreshUI();
@@ -49,7 +55,7 @@ public class ScoreManager : NetworkBehaviour
 
         if (GetFinalScoreSabotage() > m_maxScoreSabotage)
         {
-            m_noticeHouseDestroy?.Invoke("sabotage");
+            m_noticeHouseDestroyed?.Invoke(false);
         }
 
         float sabotagePoints = 0; 
@@ -83,11 +89,10 @@ public class ScoreManager : NetworkBehaviour
         }
     }
 
-/*
- * @details This function calculates the bonus points for sabotage (the bonus is 0.3).
- * @return void
-*/
-
+    /*
+     * @details This function calculates the bonus points for sabotage (the bonus is 0.3).
+     * @return void
+     */
     private void SabotageBonus()
     {
         float totalSabotage = 0;
@@ -100,11 +105,11 @@ public class ScoreManager : NetworkBehaviour
         m_sabotageBonusTotal.value += totalSabotage * 0.3f;  
     }
 
-/*
- * @details This function adds +1 to the Sabotage score
-* @param _playerID: Id of the player.
- * @return void
-*/
+    /*
+     * @details This function adds +1 to the Sabotage score
+     * @param _playerID: Id of the player.
+     * @return void
+     */
     [ServerRpc(requireOwnership:false)]
     public void AddPointSabotage(PlayerID _playerID) 
     {
@@ -116,11 +121,11 @@ public class ScoreManager : NetworkBehaviour
          
     }
 
-/*
- * @details This function deducts 1 from the Sabotage score if it is not equal to 0
- * @param _playerID: Id of the player.
- * @return void
-*/
+    /*
+     * @details This function deducts 1 from the Sabotage score if it is not equal to 0.
+     * @param _playerID: Id of the player.
+     * @return void
+     */
     [ServerRpc(requireOwnership:false)]
     public void SubPointSabotage(PlayerID _playerID)
     {
@@ -142,10 +147,10 @@ public class ScoreManager : NetworkBehaviour
         m_scoresSabotage[_playerID] = ScoreData;     
     }
 
-/*
- * @details This function calcule and return the Final sabotage score
- * @return float : The Final Sabotage Score : score of sabotage + bonus sabotage
-*/
+    /*
+     * @details This function calculates and returns the final sabotage score.
+     * @return float : The final sabotage score: score of sabotage + bonus sabotage
+     */
     private float GetFinalScoreSabotage() 
     {
         float sabotagePoints = 0;
@@ -156,13 +161,13 @@ public class ScoreManager : NetworkBehaviour
         return sabotagePoints + m_sabotageBonusTotal.value;
     }
 
-/*
- * @details This function add +1 to the broken score 
- *          Invoke a event if totalBroken > max broken
- * @param _playerID: Id of the player.
- * @param _valeurObjectBroken: the monetary value of the item that was broken.
- * @return void
-*/
+    /*
+     * @details This function adds +1 to the broken score.
+     *          Invokes an event if totalBroken > max broken
+     * @param _playerID: Id of the player.
+     * @param _valeurObjectBroken: The monetary value of the item that was broken.
+     * @return void
+     */
     [ServerRpc(requireOwnership:false)]
     public void AddPointBroken(PlayerID _playerID, int _valeurObjectBroken)
     {
@@ -181,25 +186,25 @@ public class ScoreManager : NetworkBehaviour
 
         if(totalBroken > m_maxScoreBroken)
         {
-            m_noticeHouseDestroy?.Invoke("broken");
+            m_noticeHouseDestroyed?.Invoke(true);
         }
     }
 
-/*
- * @details This function reset the Sabotage score
- * @return void
-*/
+    /*
+     * @details This function resets the Sabotage score.
+     * @return void
+     */
     [ServerRpc(requireOwnership:false)]
     public void ResetScore()   
     {
         m_scoresSabotage.Clear();
     }
 
-/*
- * @details This function check who change the Sabotage score
- * @param _playerID: Id of the player.
- * @return void
-*/
+    /*
+     * @details This function checks which player changed the Sabotage score.
+     * @param _playerID: Id of the player.
+     * @return void
+     */
     private void CheckForDictonaryEntrySabotage(PlayerID _playerID)
     {
         if(!m_scoresSabotage.ContainsKey(_playerID))
@@ -208,22 +213,23 @@ public class ScoreManager : NetworkBehaviour
         }
     } 
 
-/*
- * @details This function check who change the Broken score
- * @param _playerID: Id of the player.
- * @return void
-*/
-    private void CheckForDictonaryEntryBroken(PlayerID playerID)
+    /*
+     * @details This function checks which player changed the Broken score.
+     * @param _playerID: Id of the player.
+     * @return void
+     */
+    private void CheckForDictonaryEntryBroken(PlayerID _playerID)
     {
-        if(!m_scoresBroken.ContainsKey(playerID)) 
+        if(!m_scoresBroken.ContainsKey(_playerID)) 
         {
-            m_scoresBroken.Add(playerID, new ScoreData2());
+            m_scoresBroken.Add(_playerID, new ScoreData2());
         } 
     } 
-/*
- * @details This function refresh the Score UI
- * @return void
-*/
+    
+    /*
+     * @details This function refreshes the Score UI.
+     * @return void
+     */
     private void RefreshUI() // GetFinalScore() et totalBroken a utiliser sur une view plutot qu un canvas!
     {
         float totalBroken = 0;
@@ -232,10 +238,12 @@ public class ScoreManager : NetworkBehaviour
         {
             totalBroken += entry.Value.pointBroken;
         }
-        if (m_scoreText != null)
-        {
-            m_scoreText.text = $"Score Sabotage : {GetFinalScoreSabotage():0.00}";
-            //m_scoreText.text = $"Score : {totalBroken}";
-        }
+
+
+        if (InstanceHandler.TryGetInstance(out GhostHUDView ghostHUDView))
+            ghostHUDView.UpdateScore(GetFinalScoreSabotage(), m_maxScoreSabotage, m_scoreBroken, m_maxScoreBroken);
+        
+        if (InstanceHandler.TryGetInstance(out ChildHUDView childHUDView))
+            childHUDView.UpdateScore(GetFinalScoreSabotage(), m_maxScoreSabotage, m_scoreBroken, m_maxScoreBroken);
     }
 }

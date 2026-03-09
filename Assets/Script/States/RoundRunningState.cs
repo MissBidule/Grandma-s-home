@@ -68,8 +68,15 @@ public class RoundRuningState : StateNode<List<PlayerControllerCore>>
             if (ghost != null)
                 ghost.OnDeathChange -= OnGhostDeathChange;
         }
+        
+        // Unsubscribe from score events
+        if (!InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
+        {
+            PurrLogger.LogError("No Score Manager found", this);
+            return;
+        }
 
-        // TODO Unlisten to Score manager
+        scoreManager.m_noticeHouseDestroyed -= OnHouseDestroyed;
     }
 
     private void ClearLists()
@@ -107,7 +114,13 @@ public class RoundRuningState : StateNode<List<PlayerControllerCore>>
             }
         }
         
-        // TODO Listen to Score manager
+        if (!InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
+        {
+            PurrLogger.LogError("No Score Manager found", this);
+            return;
+        }
+
+        scoreManager.m_noticeHouseDestroyed += OnHouseDestroyed;
     }
 
     /*
@@ -137,11 +150,7 @@ public class RoundRuningState : StateNode<List<PlayerControllerCore>>
             MoveToPanic();
     }
 
-    private void MoveToPanic()
-    {
-        PurrLogger.Log($"Moving to Panic State");
-        machine.SetState(m_panicState, new GhostGameStateData(m_ghosts, m_aliveGhosts, m_deadGhosts));
-    }
+    // Action Reactions
 
     private void OnGhostDeathChange(bool _deathOrRevive, PlayerID _playerID)
     {
@@ -166,6 +175,27 @@ public class RoundRuningState : StateNode<List<PlayerControllerCore>>
             m_deadGhosts.Remove(_playerID);
             m_aliveGhosts.Add(_playerID);
         }
+    }
+
+    private void OnHouseDestroyed(bool _isDestroyedOrJustSabotaged)
+    {
+        if (_isDestroyedOrJustSabotaged)
+        {
+            MoveToEnd(false);
+        }
+        else
+        {
+            MoveToPanic();
+        }
+    }
+    
+    
+    // State Movement
+    
+    private void MoveToPanic()
+    {
+        PurrLogger.Log($"Moving to Panic State");
+        machine.SetState(m_panicState, new GhostGameStateData(m_ghosts, m_aliveGhosts, m_deadGhosts));
     }
     
     private void MoveToEnd(bool _childWin)

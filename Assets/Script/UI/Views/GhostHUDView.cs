@@ -20,6 +20,14 @@ namespace Script.UI.Views
         [SerializeField] private Image m_scaryIcon;
         [SerializeField] private Image m_scaryCooldownOverlay;
         
+        [Header("Score parameters")]
+        [SerializeField] private Slider m_sabotageScoreSlider;
+        [SerializeField] private TMP_Text m_scoreSabotage;
+        
+        [SerializeField] private Slider m_brokenScoreSlider;
+        [SerializeField] private TMP_Text m_scoreBroken;
+        
+        
         // TODO find way to unserielize
         public bool m_dash_disabled = false;
         
@@ -98,6 +106,17 @@ namespace Script.UI.Views
             _overlay.fillAmount = 0f;
             
             ShowMessage(_endMessage);
+        }
+
+        public void UpdateScore(float _sabotageScore, float _maxScoreSabotage, int _brokenScore, float _maxScoreBroken)
+        {
+            m_sabotageScoreSlider.value = _sabotageScore;
+            m_sabotageScoreSlider.maxValue = _maxScoreSabotage;
+            m_scoreSabotage.text = _sabotageScore+"$";
+            
+            m_brokenScoreSlider.value = _brokenScore;
+            m_brokenScoreSlider.maxValue = _maxScoreBroken;
+            m_scoreBroken.text = _brokenScore+"$";
         }
     }
 }
