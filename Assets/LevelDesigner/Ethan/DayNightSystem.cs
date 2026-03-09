@@ -18,6 +18,11 @@ public class DayNightSystem : MonoBehaviour
     public float timeBetweenUpdates = 0.2f; // temps entre chaque mise à jour du placement du soleil
     public float additiveAngle = 0.1f; // valeur ajouté à l'angle du soleil à chaque mise à jour
 
+    //Démarrer avec un angle assez élevé 150, pour la monter à 170 sur 40% du temps de jeu total, faire un changement entre les 2 HDRI blend avec les paramètre de luminosité et allumages progressifs de toutes sources de lumière sur 20% du temps de jeu total, sur les 40% restant de jeu le soleil aura un éclairage d'une couleur plus froide et une intensité plus faible en remontant vers 150 comme une monté de lune.
+    //Voir la rotation du HDRI pour que la directional light avec le random en Y ne rentre pas en collision avec ses nuages 2D
+
+
+    //VIEUX - NON FONCTIONNEL
     //2 secondes = 1 angle
     //1 minute = 30 angle
     //De 4 minutes à 6 minutes = 120 angle | l'intensité de la lumière va diminuer jusqu'a 0 
