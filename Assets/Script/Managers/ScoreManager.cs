@@ -6,12 +6,12 @@ using UnityEngine;
 
 /*
  * @brief  Contains class declaration for ScoreManager
- * @details Script that handles the score and updates theUI text
+ * @details Script that handles the score and call an event when the House is destroy and updates the UI text
  */
 public class ScoreManager : NetworkBehaviour
 {
-    [SerializeField] private SyncDictionary<PlayerID, ScoreData> scores = new();
-    [SerializeField] private SyncVar<float> sabotageBonusTotal = new();
+    [SerializeField] private SyncDictionary<PlayerID, ScoreData> m_scores = new();
+    [SerializeField] private SyncVar<float> m_sabotageBonusTotal = new();
     [SerializeField] private TMP_Text m_scoreText;
     [SerializeField] private int m_scoreBroken;
     [SerializeField] private float m_maxScoreSabotage=5.0f;
@@ -41,6 +41,17 @@ public class ScoreManager : NetworkBehaviour
         {
             m_noticeHouseDestroy?.Invoke("sabotage");
         }
+
+        float sabotagePoints = 0;
+        foreach (var entry in m_scores)
+        {
+            Debug.Log("Player sabotage: " + entry.Value.pointSabotage);
+            sabotagePoints += entry.Value.pointSabotage;
+        }
+        if(sabotagePoints==0)
+        {
+            ResetScore();
+        }
     }
 
 
@@ -59,12 +70,12 @@ public class ScoreManager : NetworkBehaviour
     {
         float totalSabotage = 0;
 
-        foreach (var entry in scores)
+        foreach (var entry in m_scores)
         {
             totalSabotage += entry.Value.pointSabotage;
         }
 
-        sabotageBonusTotal.value += totalSabotage * 0.3f;  
+        m_sabotageBonusTotal.value += totalSabotage * 0.3f;  
     }
 
     [ServerRpc(requireOwnership:false)]
@@ -72,9 +83,9 @@ public class ScoreManager : NetworkBehaviour
     {
         CheckForDictonaryEntry(playerID);
 
-        var ScoreData = scores[playerID];
+        var ScoreData = m_scores[playerID];
         ScoreData.pointSabotage++;
-        scores[playerID] = ScoreData; 
+        m_scores[playerID] = ScoreData; 
          
     }
 
@@ -83,27 +94,36 @@ public class ScoreManager : NetworkBehaviour
     {
         CheckForDictonaryEntry(playerID);
 
-        var ScoreData = scores[playerID];
 
-        if (ScoreData.pointSabotage > 0)   // a voir
+        float sabotagePoints = 0;
+        foreach (var entry in m_scores)
+        {
+            Debug.Log("Player sabotage: " + entry.Value.pointSabotage);
+            sabotagePoints += entry.Value.pointSabotage;
+        }
+
+        var ScoreData = m_scores[playerID];
+
+        if (sabotagePoints > 0)   
         {
             ScoreData.pointSabotage--;
         }
 
-        scores[playerID] = ScoreData;     
+        m_scores[playerID] = ScoreData;     
+
     }
 
     private float GetFinalScore() 
     {
         float sabotagePoints = 0;
-        foreach (var entry in scores)
+        foreach (var entry in m_scores)
         {
             Debug.Log("Player sabotage: " + entry.Value.pointSabotage);
             sabotagePoints += entry.Value.pointSabotage;
         }
         Debug.Log("SabotageSum = " + sabotagePoints);
-        Debug.Log("Bonus = " + sabotageBonusTotal.value);
-        return sabotagePoints + sabotageBonusTotal.value;
+        Debug.Log("Bonus = " + m_sabotageBonusTotal.value);
+        return sabotagePoints + m_sabotageBonusTotal.value;
     }
 
     //
@@ -112,9 +132,9 @@ public class ScoreManager : NetworkBehaviour
     {
         CheckForDictonaryEntry(playerID);
 
-        var ScoreData = scores[playerID];
+        var ScoreData = m_scores[playerID];
         ScoreData.pointBroken++;
-        scores[playerID] = ScoreData;  
+        m_scores[playerID] = ScoreData;  
 
         if(ScoreData.pointBroken > m_maxScoreBroken)
         {
@@ -124,21 +144,21 @@ public class ScoreManager : NetworkBehaviour
 
 
     [ServerRpc(requireOwnership:false)]
-    public void ResetScore()   //on ne devrait pas avoir besoins de ca
+    public void ResetScore()   
     {
-        scores.Clear();
+        m_scores.Clear();
     }
 
 
     private void CheckForDictonaryEntry(PlayerID playerID)
     {
-        if(!scores.ContainsKey(playerID))
+        if(!m_scores.ContainsKey(playerID))
         {
-            scores.Add(playerID, new ScoreData());
+            m_scores.Add(playerID, new ScoreData());
         }
         
     } 
-    private void RefreshUI() // a retirer
+    private void RefreshUI() // GetFinalScore() a utiliser sur une view plutot qu un canvas!
     {
         if (m_scoreText != null)
         {
@@ -147,11 +167,10 @@ public class ScoreManager : NetworkBehaviour
 
     }
 
-   // if(InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
-     //       {
-         //       scoreManager.Fonc();
-       //     }
+    // (RPCInfo info = default)
+    // if(InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
+    //       {
+        //       scoreManager.Fonc(info.sender);
+    //     }
 
-       // rajouter le parametre (RPCInfo info = default) si on a besoins de scoreManager.Fonc(info)
-    
 }
