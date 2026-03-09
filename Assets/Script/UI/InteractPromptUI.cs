@@ -2,38 +2,38 @@ using TMPro;
 using UnityEngine;
 
 /**
-@brief       Script pour gérer l'affichage des messages d'interaction dans le jeu
-@details     La classe \c InteractPromptUI gère l'affichage du texte d'interaction.
+@brief       Script pour gï¿½rer l'affichage des messages d'interaction dans le jeu
+@details     La classe \c InteractPromptUI gï¿½re l'affichage du texte d'interaction.
 */
 public class InteractPromptUI : MonoBehaviour
 {
     public static InteractPromptUI Instance;
 
-    [SerializeField] private TMP_Text m_promptText;
+    //[SerializeField] private TMP_Text m_promptText;
 
+    [SerializeField] private GameObject m_canvasPrefab;
+    private GameObject m_currentCanvas;
+    private TMP_Text m_promptText;
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-        Hide();
+        m_Instance = this;
     }
 
     /**
     @brief      Affiche le message d'interaction
-    @param      _message: texte à afficher
+    @param      _message: texte ï¿½ afficher
     @return     void
     */
     public void Show(string _message)
     {
-        if (m_promptText == null) return;
+        if (m_currentCanvas == null)
+        {
+            m_currentCanvas = Instantiate(m_canvasPrefab);
+
+            m_promptText = m_currentCanvas.GetComponentInChildren<TMP_Text>();
+        }
 
         m_promptText.text = _message;
-        m_promptText.gameObject.SetActive(true);
     }
 
     /**
@@ -42,8 +42,9 @@ public class InteractPromptUI : MonoBehaviour
     */
     public void Hide()
     {
-        if (m_promptText == null) return;
+        if (m_currentCanvas == null) return;
 
-        m_promptText.gameObject.SetActive(false);
+        Destroy(m_currentCanvas);
+        m_currentCanvas = null;
     }
 }

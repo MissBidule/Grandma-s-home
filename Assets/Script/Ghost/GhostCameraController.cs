@@ -18,6 +18,8 @@ public class GhostCameraController : MonoBehaviour
     private float m_pitch;
 
     private GhostInputController m_ghostInputController;
+    private GhostClientController m_ghostClientController;
+    private GhostController m_ghostController;
     private Transform m_target;
 
     /*
@@ -27,6 +29,8 @@ public class GhostCameraController : MonoBehaviour
     private void Awake()
     {
         m_ghostInputController = GetComponentInParent<GhostInputController>();
+        m_ghostClientController = GetComponentInParent<GhostClientController>();
+        m_ghostController = GetComponentInParent<GhostController>();
         m_target = transform.parent;
 
         UnityEngine.Cursor.lockState = CursorLockMode.Locked;
@@ -43,8 +47,10 @@ public class GhostCameraController : MonoBehaviour
         Vector3 desiredOffset;
         float finalDistance = m_distance;
 
-        // Do not move the camera if the wheel is open
-        if (WheelController.m_Instance != null && WheelController.m_Instance.IsWheelOpen())
+        // Do not move the camera if the wheel is open or if reviving
+        bool blockLookInput = (m_ghostClientController.m_wheel != null && m_ghostClientController.m_wheel.IsWheelOpen())
+            || (m_ghostController != null && m_ghostController.m_isReviving);
+        if (blockLookInput)
         {
             rotation = Quaternion.Euler(m_pitch, m_yaw, 0f);
             desiredOffset = rotation * Vector3.back * m_distance;

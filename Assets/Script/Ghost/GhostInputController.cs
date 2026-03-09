@@ -13,6 +13,10 @@ public class GhostInputController : MonoBehaviour
     private GhostMorph m_ghostTransform;
     private GhostInteract m_ghostInteract;
 
+    private bool isOwner => m_ghostClientController != null && m_ghostClientController.isOwner;
+
+    [SerializeField] private string m_promptMessageValid = "E : Valid";
+
     /*
      * @brief Awake is called when the script instance is being loaded
      * Gets the PlayerController component.
@@ -65,7 +69,8 @@ public class GhostInputController : MonoBehaviour
     {
         if (_context.performed)
         {
-            m_ghostTransform.ScanForPrefab();
+            m_ghostClientController.OnScan();
+            InteractPromptUI.m_Instance.Show(m_promptMessageValid);
         }
     }
 
@@ -78,7 +83,7 @@ public class GhostInputController : MonoBehaviour
     {
         if (_context.performed)
         {
-            WheelController.m_Instance.Toggle();
+            m_ghostClientController.OnOpenWheel();
         }
     }
 
@@ -91,7 +96,10 @@ public class GhostInputController : MonoBehaviour
     {
         if (_context.performed)
         {
-            m_ghostTransform.ConfirmTransform(_context);
+            
+            
+            m_ghostClientController.OnMorph();
+
         }
     }
 
@@ -104,7 +112,11 @@ public class GhostInputController : MonoBehaviour
     {
         if (_context.performed)
         {
-            m_ghostInteract.Interact();
+            m_ghostInteract.Interact(m_ghostInteract.m_onFocus);
+        }
+        else if (_context.canceled)
+        {
+            m_ghostInteract.StopInteract(m_ghostInteract.m_onFocus);
         }
     }
 

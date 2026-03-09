@@ -3,6 +3,8 @@ using UnityEngine.InputSystem;
 
 public class GhostMorph : MonoBehaviour
 {
+    public bool m_isMorphed = false;
+
     [SerializeField] private GameObject m_mesh;
     [SerializeField] private GhostMorphPreview m_previewGhost;
     [SerializeField] private float m_scanRange = 10f;
@@ -20,7 +22,12 @@ public class GhostMorph : MonoBehaviour
         m_playerCollider = GetComponent<BoxCollider>();
         m_renderers = m_mesh.GetComponentsInChildren<MeshRenderer>();
 
-        m_wheel = WheelController.m_Instance;
+    void Start()
+    {
+        m_playerCollider = GetComponent<BoxCollider>();
+
+
+        m_renderers = m_mesh.GetComponentsInChildren<MeshRenderer>();
 
         m_originalMaterials = new Material[m_renderers.Length][];
         for (int i = 0; i < m_renderers.Length; i++)
@@ -38,38 +45,14 @@ public class GhostMorph : MonoBehaviour
         m_previewGhost.SetPreview(_prefab);
     }
 
-
-    /*
-     * @brief Confirms the transformation based on input
-     * Applies the selected prefab if the context is performed and transformation is allowed.
-     * @param _context: The context of the input action.
-     * @return void
-     */
-    public void ConfirmTransform(InputAction.CallbackContext _context)
+    [ObserversRpc(requireServer: true, runLocally: true)]
+    public void InstantiateForAll(GameObject _prefab, Vector3 _position)
     {
-        if (!_context.performed || !m_previewGhost.m_CanTransform || !m_wheel.m_selectedPrefab || m_isTransformed)
-        {
-            return;
-        }
-        GameObject prefab = m_wheel.m_selectedPrefab;
-        ApplyPrefab(prefab);
-        m_wheel.m_selectedPrefab = null;
-        m_previewGhost.GetComponent<MeshRenderer>().enabled = false;
-        m_isTransformed = true;
-        Rigidbody rb = GetComponent<Rigidbody>();
-        rb.constraints = RigidbodyConstraints.FreezeRotation;
-
-        // Reset the input to prevent immediate detransformation
-        GhostInputController ghostInput = GetComponent<GhostInputController>();
-        if (ghostInput != null)
-        {
-            ghostInput.ResetMovementInput();
-        }
-
-        if (m_wheel.IsWheelOpen())
-        {
-            m_wheel.Toggle();
-        }
+        m_playerCollider.enabled = false;
+        m_mesh.SetActive(false);
+        InteractPromptUI.m_Instance.Hide();
+        m_currentPrefab = UnityProxy.InstantiateDirectly(_prefab, transform);
+        m_currentPrefab.transform.localPosition = _position;
     }
 
     /*
@@ -83,7 +66,14 @@ public class GhostMorph : MonoBehaviour
         {
             return;
         }
+        InteractPromptUI.m_Instance.Hide();
+        m_isMorphed = false;
+        DestroyForAll();
+    }
 
+    [ObserversRpc(requireServer: true, runLocally: true)]
+    public void DestroyForAll()
+    {
         m_playerCollider.enabled = true;
         m_mesh.SetActive(true);
         Destroy(m_currentPrefab);

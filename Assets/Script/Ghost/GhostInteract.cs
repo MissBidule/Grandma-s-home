@@ -12,9 +12,9 @@ public class GhostInteract : MonoBehaviour
     [Header("Detection")]
     [SerializeField] private float m_radius = 2.0f;
     [SerializeField] private LayerMask m_interactableMask;
-    private SabotageObject m_focusedObject;
-    private GhostController m_focusedGhost;
-    private List<GameObject> m_colliders = new List<GameObject>();
+    public IInteractable m_onFocus;
+    private List<IInteractable> m_interactable = new List<IInteractable>();
+
 
     private void Update()
     {
@@ -56,6 +56,21 @@ public class GhostInteract : MonoBehaviour
                 }
             }
         }
+                
+        IInteractable closest = CheckClosest();
+
+        if (closest != m_onFocus)
+        {
+            closest?.OnFocus(this);
+            m_onFocus?.OnUnfocus(this);
+            m_onFocus = closest;
+        }
+        print(m_onFocus);
+    }
+
+    private float SqDistanceTo(Transform _transform)
+    {
+        return (transform.position - _transform.position).sqrMagnitude;
     }
 
     /*
@@ -85,32 +100,30 @@ public class GhostInteract : MonoBehaviour
 
     /*
      * @brief Interact with the current target if available
+     * @details If target is a downed ghost, starts a hold-to-revive. Otherwise delegates to OnInteract.
      * @return void
      */
-    public void Interact()
+    [ServerRpc]
+    public void Interact(IInteractable currentFocus)
     {
-        if (m_focusedGhost)
-        {
-            GhostController ghost = m_focusedGhost;
-            if (ghost.m_isStopped == true)
-            {
-                ghost.m_isStopped = false;
-                return;
-            }
-        }else if (m_focusedObject)
-        {
-            if (m_focusedObject.m_isSabotaged)
-            {
-                return;
-            }
-            SabotageObject sabotageObject = m_focusedObject;
-            sabotageObject.StartQte(this);
-            Rigidbody rb = GetComponentInParent<Rigidbody>();
-            rb.constraints = RigidbodyConstraints.FreezeAll;
-        }
+        if (!isServer) return;
+        if (currentFocus == null) return;
+        currentFocus.OnInteract(this);
     }
 
-    public void OnSabotageover(bool success)
+    /**
+    @brief      Called when the interact button is released
+    */
+    [ServerRpc]
+    public void StopInteract(IInteractable currentFocus)
+    {
+        if (currentFocus == null) return;
+        currentFocus?.OnStopInteract(this);
+    }
+
+
+
+    public void OnSabotageOver(bool success)
     {
         Rigidbody rb = GetComponentInParent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;

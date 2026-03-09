@@ -78,6 +78,7 @@ public class WheelController : MonoBehaviour
      */
     public void TryAddPrefabToWheel(GameObject _prefab, Sprite _icon)
     {
+        //
         if (IsIconAlreadyInWheel(_icon))
         {
             Debug.Log($"Object already in the wheel: {_prefab.name}");
@@ -185,11 +186,19 @@ public class WheelController : MonoBehaviour
      */
     public void SelectPrefab(GameObject _prefab)
     {
-        m_selectedPrefab = _prefab;
-        m_ghostTransform.SetPreview(_prefab);
-        Cursor.lockState = CursorLockMode.Locked;
-
-        m_anim.SetBool("OpenWheel", false);
+        // It will be better with a StateMachine I guess cause all the states variable will be centralized.
+        if (!m_ghostMorphPreview.transform.parent.GetComponent<GhostMorph>().m_isMorphed) 
+        {
+            m_selectedPrefab = _prefab;
+            m_ghostMorphPreview.SetPreview(_prefab);
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+        else
+        {
+            Debug.Log("Cannot select a new prefab while already transformed");
+        }
+            //InteractPromptUI.m_Instance.Hide();
+            m_anim.SetBool("OpenWheel", false);
     }
 
     /*
