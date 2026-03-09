@@ -39,8 +39,9 @@ public class GhostMorphPreview : NetworkBehaviour
 
     private Transform m_cameraTransform;
 
-    [SerializeField] private string m_promptMessageSCAN = "F : SCAN";
-    [SerializeField] private string m_promptMessageValid = "E : Valid";
+    [SerializeField] private string m_promptMessageSCAN = "T : SCAN";
+    [SerializeField] private string m_promptMessageValid = "F : Valid";
+    [SerializeField] private float m_rotateSpeed = 120f;
 
     [SerializeField] private bool m_GhostPreviewOn;
     
@@ -51,17 +52,43 @@ public class GhostMorphPreview : NetworkBehaviour
     void Start()
     {
         if (!isOwner) return;
+        InitOwner();
+    }
+
+    protected override void OnOwnerChanged(PurrNet.PlayerID? oldOwner, PurrNet.PlayerID? newOwner, bool asServer)
+    {
+        if (isOwner && m_cameraTransform == null) InitOwner();
+    }
+
+    private void InitOwner()
+    {
         m_meshRenderer = GetComponent<MeshRenderer>();
         m_previewCollider = GetComponent<Collider>();
         m_meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
         m_propertyBlock = new MaterialPropertyBlock();
-        m_cameraTransform = transform.parent.GetComponent<GhostClientController>().m_playerCamera.transform;
+        // Use PlayerControllerCore.m_playerCamera (Inspector-assigned, always valid)
+        // instead of GhostClientController.m_playerCamera (lazy-initialized, may be null)
+        var core = transform.parent.GetComponent<PlayerControllerCore>();
+        if (core != null && core.m_playerCamera != null)
+            m_cameraTransform = core.m_playerCamera.transform;
     }
 
     private void Update()
     {
         if (!isOwner) return;
         CheckForScannableObject();
+
+        if (m_currentPrefab != null)
+        {
+            float rotDir = 0f;
+            if (Keyboard.current.qKey.isPressed) rotDir -= 1f;
+            if (Keyboard.current.eKey.isPressed) rotDir += 1f;
+            if (rotDir != 0f)
+            {
+                transform.Rotate(0f, rotDir * m_rotateSpeed * Time.deltaTime, 0f, Space.World);
+                UpdateMaterial();
+            }
+        }
     }
 
     /*
@@ -85,6 +112,12 @@ public class GhostMorphPreview : NetworkBehaviour
 
         GameObject scannedObject = hit.collider.gameObject;
         Debug.Log($"Object detected: {scannedObject.name}");
+
+        if (IsPartOfPlayer(scannedObject))
+        {
+            Debug.Log("Cannot scan yourself");
+            return;
+        }
 
         ScannableObject scannableComponent = scannedObject.GetComponent<ScannableObject>();
         if (scannableComponent == null)
@@ -110,7 +143,7 @@ public class GhostMorphPreview : NetworkBehaviour
      * @param _prefab: The prefab GameObject to preview.
      * @return void
      */
-    public void SetPreview(GameObject _prefab)
+    public void SetPreview(GameObject _prefab, RPCInfo _info = default)
     {
         m_currentPrefab = _prefab;
 
@@ -308,16 +341,7 @@ public class GhostMorphPreview : NetworkBehaviour
      */
     private bool IsPartOfPlayer(GameObject _obj)
     {
-        Transform current = _obj.transform;
-        while (current != null)
-        {
-            if (current == transform)
-            {
-                return true;
-            }
-            current = current.parent;
-        }
-        return false;
+        return _obj.transform.IsChildOf(transform.root);
     }
 
     /*

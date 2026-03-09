@@ -1,4 +1,7 @@
+using System.Collections;
 using PurrNet;
+using Script.UI.Views;
+using UI;
 using Unity.Cinemachine;
 using UnityEngine;
 
@@ -13,6 +16,7 @@ public class GhostClientController : NetworkBehaviour
     public DeathEffect m_cameraEffect;
 
     private bool last_stopped = false;
+    private bool last_slowed = false;
 
 
     [Header("Canva")]
@@ -20,7 +24,11 @@ public class GhostClientController : NetworkBehaviour
     public GameObject m_uiHolder;
     public WheelController m_wheel;
 
+    private GhostHUDView m_ghostHUDView;
+
     private bool morphPressed = false;
+    private bool dashPressed = false;
+    private bool sneakPressed = false;
 
     private bool m_reviveUIActive = false;
     private ReviveBarUI m_reviveBarUI;
@@ -31,46 +39,85 @@ public class GhostClientController : NetworkBehaviour
     {
         base.OnSpawned();
 
-
         m_ghostController = GetComponent<GhostController>();
         m_ghostMorph = GetComponent<GhostMorph>();
         m_ghostMorphPreview = GetComponentInChildren<GhostMorphPreview>();
 
-        if (!isOwner) return;
+        if (isOwner) InitOwner();
 
+        InstanceHandler.TryGetInstance(out m_ghostHUDView);
+    }
+
+    protected override void OnOwnerChanged(PurrNet.PlayerID? oldOwner, PurrNet.PlayerID? newOwner, bool asServer)
+    {
+        if (isOwner && (m_ghostInputController == null || m_playerCamera == null)) InitOwner();
+        if (!isOwner) DestroyUI();
+    }
+
+    private void InitOwner()
+    {
         m_ghostInputController = GetComponent<GhostInputController>();
-        m_playerCamera = GetComponentInChildren<CinemachineCamera>();
-        m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
-
+        // Use PlayerControllerCore.m_playerCamera (Inspector-assigned, always valid)
+        // instead of GetComponentInChildren which can fail in multi-instance scenarios
+        var core = GetComponent<PlayerControllerCore>();
+        if (core != null) m_playerCamera = core.m_playerCamera;
+        if (m_uiHolder == null)
+            m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
         m_reviveBarUI = m_uiHolder.GetComponentInChildren<ReviveBarUI>(true);
         m_wheel = m_uiHolder.GetComponentInChildren<WheelController>();
-        m_cameraEffect = m_playerCamera.GetComponent<DeathEffect>();
-
+        if (m_playerCamera != null) m_cameraEffect = m_playerCamera.GetComponent<DeathEffect>();
         m_wheel.LinkWithGhost(this);
+        Debug.Log($"[GhostClientController] InitOwner - m_playerCamera: {m_playerCamera}");
+        
+        if (InstanceHandler.TryGetInstance(out UIsManager  uisManager))
+            uisManager.ShowView<GhostHUDView>();
     }
+
+    private void DestroyUI()
+    {
+        if (m_uiHolder) UnityProxy.DestroyDirectly(m_uiHolder);
+        m_uiHolder = null;
+    }
+
     void Update()
     {
         if (!isOwner) return;
+        if (m_ghostController == null || m_ghostInputController == null || m_playerCamera == null) return; // "just in case"
+
+
         if (last_stopped != m_ghostController.m_isStopped)
         {
             print("dead: " + m_ghostController.m_isStopped);
+            m_ghostHUDView.ShowMessage(m_ghostController.m_isStopped ? "You've been stopped!" : "You're no longer stopped.");
             m_cameraEffect.SetDeathEffect(m_ghostController.m_isStopped);
             last_stopped = m_ghostController.m_isStopped;
         }
 
+        if (last_slowed != m_ghostController.m_isSlowed)
+        {
+            print("slowed: " + m_ghostController.m_isSlowed);
+            m_ghostHUDView.ShowMessage(m_ghostController.m_isSlowed ? "You've been slowed!" : "You're no longer slowed.");
+            last_slowed = m_ghostController.m_isSlowed;
+        }
 
         // DebugPrintTrafic();
 
         SendGhostRPC(
             GetDirectionIntention(m_ghostInputController.m_movementInputVector),
             morphPressed ? m_ghostMorphPreview.m_currentPrefab : null,                  // Morph Parameters
-            m_ghostMorphPreview.transform.localPosition                                 // Morph Parameters
+            m_ghostMorphPreview.transform.localPosition,                                 // Morph Parameters
+            dashPressed,
+            sneakPressed,
+            m_ghostMorphPreview.transform.localRotation
         );
 
         // Reset values after sending to server
         if (morphPressed) m_ghostMorphPreview.HidePreview();
         morphPressed = false;
-
+        
+        // Dash 
+        dashPressed = false;
+        
         if (m_reviveUIActive)
         {
             UpdateReviveUI();
@@ -94,6 +141,30 @@ public class GhostClientController : NetworkBehaviour
         print(morphPressed);
         print(morphPressed ? m_ghostMorphPreview.m_currentPrefab : null);
         print(m_ghostMorphPreview.transform.localPosition);
+    }
+
+    void UpdateLabels()
+    {
+        if (m_ghostHUDView == null)
+            return;
+
+        switch (m_ghostController.m_isDashing)
+        {
+            case true:
+                m_ghostHUDView.DashActivate();
+                break;
+            case false when !m_ghostController.m_CanDash:
+            {
+                if (m_ghostHUDView.m_dash_disabled)
+                    return;
+                m_ghostHUDView.DashDisabled();
+                break;
+            }
+        }
+        
+        if (!m_ghostController.m_canScareChild)
+            m_ghostHUDView.ScaredActivate(m_ghostController.GetScaryCooldownDuration());
+        else m_ghostHUDView.m_canScare = true;
     }
 
     void UpdateReviveUI()
@@ -124,6 +195,7 @@ public class GhostClientController : NetworkBehaviour
     public void OnScan()
     {
         if (!isOwner) return;
+        if (m_ghostController.m_isStopped) return;
         if (m_ghostMorph.m_isMorphed) return; // Prevent scanning if already morphed
         m_ghostMorphPreview.ScanForPrefab();
     }
@@ -131,17 +203,35 @@ public class GhostClientController : NetworkBehaviour
     public void OnOpenWheel()
     {
         if (!isOwner) return;
+        if (m_ghostController.m_isStopped) return;
         m_wheel.Toggle();
     }
     public void OnMorph()
     {
         if (!isOwner) return;
+        if (m_ghostController.m_isStopped) return;
         if (!m_ghostMorphPreview.m_canMorph || !m_ghostMorphPreview.m_currentPrefab || m_ghostMorph.m_isMorphed) return;
         if (m_wheel.IsWheelOpen()) m_wheel.Toggle();
         
         m_wheel.ClearSelection();
         morphPressed = true;
         InteractPromptUI.m_Instance.Hide();
+    }
+
+    /*
+     * @brief call the server to dash
+     */
+    public void OnDash()
+    {
+        dashPressed = true;
+    }
+    
+    /*
+     * @brief call the server to sneak
+     */
+    public void Sneak(bool _sneakStatus)
+    {
+        sneakPressed = _sneakStatus;
     }
 
     /**
@@ -168,11 +258,29 @@ public class GhostClientController : NetworkBehaviour
     }
 
     [ServerRpc]
-    private void SendGhostRPC(Vector3 _movement, GameObject _prefab, Vector3 _pos)
+    private void SendGhostRPC(Vector3 _movement, GameObject _prefab, Vector3 _pos, bool _dashPressed, bool _sneakPressed, Quaternion _rotation)
     {
-        m_ghostController.m_wishDir = _movement;
-        // Prefab is not null only when morphPressed is true.
-        // This method helps reduce the network traffic by not sending that bool "morphPressed"
-        if (_prefab) m_ghostMorph.Morphing(_prefab, _pos);
+        if (_prefab)
+        {
+            // On morph: freeze movement and require input release before allowing revert
+            m_ghostController.m_wishDir = Vector3.zero;
+            m_ghostController.m_morphInputReleased = false;
+            m_ghostMorph.Morphing(_prefab, _pos, _rotation);
+        }
+        else if (!m_ghostController.m_morphInputReleased)
+        {
+            // Keep frozen until player actually releases all movement input
+            if ((Vector2)_movement == Vector2.zero)
+                m_ghostController.m_morphInputReleased = true;
+            m_ghostController.m_wishDir = Vector3.zero;
+        }
+        else
+        {
+            m_ghostController.m_wishDir = _movement;
+        if (_dashPressed)
+            m_ghostController.StartDash();
+        
+        m_ghostController.m_isSneaking = _sneakPressed;
+        }
     }
 }

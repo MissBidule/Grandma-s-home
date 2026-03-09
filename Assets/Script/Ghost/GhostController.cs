@@ -1,6 +1,8 @@
-﻿using PurrNet;
+using PurrNet;
 using System;
+using System.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 /**
 @brief       Controller for the Ghost character
@@ -11,9 +13,14 @@ public class GhostController : PlayerControllerCore, IInteractable
     // Network Variables
     [NonSerialized] public Vector3 m_wishDir;
     public bool m_isSlowed = false;
+    public bool m_isDashing = false;
     public bool m_isStopped = false;
+    public bool m_isSneaking = false;
+    public bool m_morphInputReleased = true;
     public bool m_beingRevived = false;
     public bool m_isReviving = false;
+    public bool m_CanDash = true;
+
 
     [Header("Ghost references")]
     private GhostMorph m_ghostMorph;
@@ -24,6 +31,10 @@ public class GhostController : PlayerControllerCore, IInteractable
     public float m_timerStop;
     private float m_currentTimerSlowed;
     private float m_currentTimerStop;
+    
+    [Header("Scary Parameters")]
+    [SerializeField] [Tooltip("In seconds")] private float m_cdChildScare = 10f;
+    public bool m_canScareChild = true;
 
     [Header("Revive")]
     public float m_baseReviveTime = 5f;
@@ -36,6 +47,12 @@ public class GhostController : PlayerControllerCore, IInteractable
     [Header("Movement")]
     [SerializeField] private float m_walkSpeed = 4f;
     [SerializeField] private float m_acceleration = 25f;
+    [SerializeField] private float m_slowAmplitude = 0.5f;
+    [SerializeField] private float m_dashAmplitude = 1.5f;
+    [SerializeField] [Tooltip("In seconds")] private float m_dashDuration = 2.5f;
+    // [SerializeField] [Tooltip("In seconds")] private float m_dashCooldown = 30.0f;
+    [SerializeField] private float m_sneakAmplitude = 0.5f;
+    
 
     [Header("Rotation")]
     [SerializeField] private float m_rotationSpeed = 12f;
@@ -70,7 +87,6 @@ public class GhostController : PlayerControllerCore, IInteractable
 
         m_ghostMorph = GetComponent<GhostMorph>();
 
-
     }
 
     private void Update()
@@ -88,7 +104,7 @@ public class GhostController : PlayerControllerCore, IInteractable
         }
 
         // Casting to Vector2 to ignore falling movement
-        if ((Vector2)m_wishDir != Vector2.zero)
+        if (m_morphInputReleased && (Vector2)m_wishDir != Vector2.zero)
         {
             m_ghostMorph.RevertToOriginal();
         }
@@ -191,7 +207,9 @@ public class GhostController : PlayerControllerCore, IInteractable
     void SetSpeedModifier()
     {
         m_speedModifier = 1f;
-        if (m_isSlowed) m_speedModifier *= 0.5f;
+        if (m_isSlowed) m_speedModifier *= m_slowAmplitude;
+        if (m_isDashing) m_speedModifier *= m_dashAmplitude;
+        if (m_isSneaking) m_speedModifier *= m_sneakAmplitude;
         // Place between those lines the speedModifier change for when the player will "dash" / "sprint"
         if (m_isStopped || m_isReviving) m_speedModifier = 0f;
     }
@@ -357,7 +375,14 @@ public class GhostController : PlayerControllerCore, IInteractable
         CancelRevive();
     }
 
-    public void OnInteract(GhostInteract _who)
+    [ObserversRpc(runLocally:true)]
+    public void ApplyDashToAll(bool _isDashing, bool _canDash)
+    {
+        m_isDashing = _isDashing;
+        m_CanDash = _canDash;
+    }
+
+    public void OnInteract(Interact _who)
     {
         if (!isServer) return;
         if (m_isReviving) return;
@@ -368,7 +393,7 @@ public class GhostController : PlayerControllerCore, IInteractable
         }
     }
 
-    public void OnStopInteract(GhostInteract _who)
+    public void OnStopInteract(Interact _who)
     {
         if (!isServer) return;
         if (m_beingRevived)
@@ -377,8 +402,6 @@ public class GhostController : PlayerControllerCore, IInteractable
         }
     }
 
-
-
     [ServerRpc]
     private void ResetStoppedRPC()
     {
@@ -386,13 +409,62 @@ public class GhostController : PlayerControllerCore, IInteractable
         m_currentTimerStop = 0f;
     }
 
-    public void OnFocus(GhostInteract who)
+    public void OnFocus(Interact who)
     {
         print("Found dead ghost");
     }
 
-    public void OnUnfocus(GhostInteract who)
+    public void OnUnfocus(Interact who)
     {
         print("Lost focus on dead ghost");
+    }
+    
+    
+    public void StartDash()
+    {
+        if (!m_CanDash)
+        {
+            // case when can't dash
+            return;
+        }
+        m_isDashing = true;
+        m_CanDash = false;
+        
+        ApplyDashToAll(m_isDashing, m_CanDash);
+        
+        StartCoroutine(DashDuration(m_dashDuration));
+    }
+    
+    private IEnumerator DashDuration(float _duration)
+    {
+        yield return new WaitForSeconds(_duration);
+        m_isDashing = false;
+        ApplyDashToAll(m_isDashing, m_CanDash);
+    }
+
+    public void StartSpookyScary()
+    {
+        m_canScareChild = false;
+        ApplyScaryToAll(m_canScareChild);
+        StartCoroutine(ScaryCooldown(m_cdChildScare));
+    }
+    
+    private IEnumerator ScaryCooldown(float _duration)
+    {
+        yield return new WaitForSeconds(_duration);
+        m_canScareChild = true;
+        ApplyScaryToAll(m_canScareChild);
+    }
+    
+    [ObserversRpc(runLocally:true)]
+    public void ApplyScaryToAll(bool _canScare)
+    {
+        m_canScareChild = _canScare;
+        Debug.Log(m_canScareChild + " from ApplyScaryToAll in GhostController");
+    }
+
+    public float GetScaryCooldownDuration()
+    {
+        return m_cdChildScare;
     }
 }

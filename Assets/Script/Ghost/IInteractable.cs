@@ -3,8 +3,8 @@ using UnityEngine;
 
 public interface IInteractable
 {
-    public void OnFocus(GhostInteract who);
-    public void OnUnfocus(GhostInteract who);
-    public void OnInteract(GhostInteract who);
-    public void OnStopInteract(GhostInteract who);
+    public void OnFocus(Interact who);
+    public void OnUnfocus(Interact who);
+    public void OnInteract(Interact who);
+    public void OnStopInteract(Interact who);
 }
