@@ -1,30 +1,29 @@
 using System;
-using System.Diagnostics;
-using PurrNet;
 using UnityEngine;
 using UnityEngine.UI;
 
 /*
  * @brief  Contains class declaration for QteCircle
- * @details Script that handles a circular QTE with several difficulties
+ * @details Script that handles a circular QTE with several difficulties (3D mesh version)
  */
 public class QteCircle : MonoBehaviour
 {
-    [Header("UI")]
-    [SerializeField] private RectTransform m_circleTransform;
-    [SerializeField] private RectTransform m_needlePivot;
-    [SerializeField] private RectTransform m_zonePivot;
+    [Header("3D Transforms")]
+    [SerializeField] private Transform m_needlePivot;
+    [SerializeField] private Transform m_zonePivot;
+    [SerializeField] private GameObject m_visualRoot;
 
-    [Header("Markers")]
-    [SerializeField] private RectTransform m_needleMarker;
-    [SerializeField] private RectTransform m_zoneMarkerLarge;
-    [SerializeField] private RectTransform m_zoneMarkerMedium;
-    [SerializeField] private RectTransform m_zoneMarkerSmall;
+    [Header("Render Texture")]
+    [SerializeField] private Camera m_qteCamera;
+    [SerializeField] private RawImage m_rawImage;
 
-    [Header("Zone Visuals (placed in scene)")]
+    [Header("Zone Visuals")]
     [SerializeField] private GameObject m_zoneLarge;
     [SerializeField] private GameObject m_zoneMedium;
     [SerializeField] private GameObject m_zoneSmall;
+
+    [Header("Debug")]
+    [SerializeField] private Renderer m_needleRenderer;
 
     [Header("Timing")]
     [SerializeField] private float m_rotationSpeedDegPerSec = 240f;
@@ -32,11 +31,19 @@ public class QteCircle : MonoBehaviour
     [Header("Phases")]
     [SerializeField] private float[] m_zoneToleranceByPhase = { 18f, 13f, 8f };
 
-    private const float c_minVectorSqrMagnitude = 0.0001f;
-
     private int m_currentPhaseIndex;
     public bool m_isRunning;
     private Action<bool> m_onFinished;
+
+    private void Awake()
+    {
+        if (m_qteCamera != null && m_rawImage != null)
+        {
+            RenderTexture rt = new RenderTexture(512, 512, 16);
+            m_qteCamera.targetTexture = rt;
+            m_rawImage.texture = rt;
+        }
+    }
 
     private void Start()
     {
@@ -45,14 +52,8 @@ public class QteCircle : MonoBehaviour
 
     private void SetVisibility(bool _visible)
     {
-        m_circleTransform.GetComponent<Image>().enabled = _visible;
-
-        m_needleMarker.GetComponent<Image>().enabled = _visible;
-
-        m_zoneMarkerLarge.GetComponent<Image>().enabled = _visible;
-        m_zoneMarkerMedium.GetComponent<Image>().enabled = _visible;
-        m_zoneMarkerSmall.GetComponent<Image>().enabled = _visible;
-
+        m_visualRoot?.SetActive(_visible);
+        if (m_rawImage != null) m_rawImage.enabled = _visible;
     }
 
     /**
@@ -64,12 +65,10 @@ public class QteCircle : MonoBehaviour
     {
         SetVisibility(true);
         enabled = true;
-        
-        
+
         m_onFinished = _onFinished;
         m_isRunning = true;
         m_currentPhaseIndex = 0;
-
 
         ResetNeedle();
         PlaceZoneRandomly();
@@ -81,6 +80,7 @@ public class QteCircle : MonoBehaviour
         if (!m_isRunning) return;
 
         RotateNeedle();
+        UpdateNeedleDebugColor();
     }
 
     /**
@@ -100,6 +100,12 @@ public class QteCircle : MonoBehaviour
         callback?.Invoke(_success);
     }
 
+    private void UpdateNeedleDebugColor()
+    {
+        if (m_needleRenderer == null) return;
+        m_needleRenderer.material.color = IsNeedleInZone() ? Color.green : Color.black;
+    }
+
     /**
     @brief      Makes the needle turn
     @return     void
@@ -109,7 +115,7 @@ public class QteCircle : MonoBehaviour
         if (m_needlePivot == null) return;
 
         float delta = m_rotationSpeedDegPerSec * Time.deltaTime;
-        m_needlePivot.Rotate(0f, 0f, -delta);
+        m_needlePivot.Rotate(0f, 0f, -delta, Space.Self);
     }
 
     /**
@@ -146,41 +152,18 @@ public class QteCircle : MonoBehaviour
     }
 
     /**
-    @brief     Retrieves the zone marker depending on the current phase
-    @return     RectTransform of the active marker
-    */
-    private RectTransform GetCurrentZoneMarker()
-    {
-        if (m_currentPhaseIndex == 0) return m_zoneMarkerLarge;
-        if (m_currentPhaseIndex == 1) return m_zoneMarkerMedium;
-        return m_zoneMarkerSmall;
-    }
-
-    /**
-    @brief      Checks if the needle is in the active zone marker
+    @brief      Checks if the needle is aligned with the active zone using rotation angles
     @return     true if success
     */
     private bool IsNeedleInZone()
     {
-        RectTransform zoneMarker = GetCurrentZoneMarker();
-        if (m_needleMarker == null || zoneMarker == null || m_needlePivot == null) return false;
+        if (m_needlePivot == null || m_zonePivot == null) return false;
 
-        Vector2 center = m_needlePivot.position;
+        float needleAngle = m_needlePivot.localEulerAngles.z;
+        float zoneAngle   = m_zonePivot.localEulerAngles.z;
+        float delta       = Mathf.Abs(Mathf.DeltaAngle(needleAngle, zoneAngle));
 
-        Vector2 needleVector = (Vector2)m_needleMarker.position - center;
-        Vector2 zoneVector = (Vector2)zoneMarker.position - center;
-
-        if (needleVector.sqrMagnitude < c_minVectorSqrMagnitude) return false;
-        if (zoneVector.sqrMagnitude < c_minVectorSqrMagnitude) return false;
-
-        Vector2 needleDir = needleVector.normalized;
-        Vector2 zoneDir = zoneVector.normalized;
-
-        float delta = Vector2.Angle(needleDir, zoneDir);
-        float tolerance = GetToleranceForCurrentPhase();
-
-
-        return delta <= tolerance;
+        return delta <= GetToleranceForCurrentPhase();
     }
 
     /**
