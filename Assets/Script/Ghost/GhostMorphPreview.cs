@@ -111,9 +111,10 @@ public class GhostMorphPreview : NetworkBehaviour
      * @brief Sets the preview based on the given prefab
      * Copies the mesh and collider from the prefab to the preview ghost.
      * @param _prefab: The prefab GameObject to preview.
+     * @param _info: Tell which player is.
      * @return void
      */
-    public void SetPreview(GameObject _prefab,RPCInfo info = default)
+    public void SetPreview(GameObject _prefab, RPCInfo _info = default)
     {
         m_currentPrefab = _prefab;
 
@@ -131,7 +132,7 @@ public class GhostMorphPreview : NetworkBehaviour
             InteractPromptUI.m_Instance.Show(m_promptMessageValid);
             if(InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
         {
-            scoreManager.SubPointSabotage(info.sender);
+            scoreManager.SubPointSabotage(_info.sender);
             //if(owner.HasValue)
             //{
               //  scoreManager.AddTransformghost(owner.Value);
