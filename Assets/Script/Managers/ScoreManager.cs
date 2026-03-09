@@ -1,3 +1,4 @@
+using System;
 using System.Linq.Expressions;
 using PurrNet;
 using TMPro;
@@ -9,17 +10,14 @@ using UnityEngine;
  */
 public class ScoreManager : NetworkBehaviour
 {
-
     [SerializeField] private SyncDictionary<PlayerID, ScoreData> scores = new();
-    //[SerializeField] private SyncDictionary<PlayerID, ScoreData> scoresSecNotRes = new(); // il sert a rien pour l'instant
-    //[SerializeField] private SyncDictionary<PlayerID, ScoreData> scoresfinal = new();
+    [SerializeField] private SyncVar<float> sabotageBonusTotal = new();
     [SerializeField] private TMP_Text m_scoreText;
-    //[SerializeField] private float m_scoreSabotageFinal=0;
-    [SerializeField] private float m_scoreSabotage;
     [SerializeField] private int m_scoreBroken;
-    [SerializeField] private SyncVar<float> sabotageBonusTotal = new(); // point timer
+    [SerializeField] private float m_maxScoreSabotage=5.0f;
+    [SerializeField] private int m_maxScoreBroken=5;
     private float timer;
-
+    public Action<string> m_noticeHouseDestroy;
 
     private void Awake()
     {
@@ -38,15 +36,18 @@ public class ScoreManager : NetworkBehaviour
             timer = 0f;
             AddSabotageBonus();
         }
-        //SyncPoint();
-        
+
+        if (GetFinalScore() > m_maxScoreSabotage)
+        {
+            m_noticeHouseDestroy?.Invoke("sabotage");
+        }
     }
 
 
     public struct ScoreData
     {
-        public float pointSabotage;         // point it s when we sucess in sabotage
-        public int pointBroken;   // transformghost it s when we tranform to a object (it dont make sense it is just for teste)
+        public float pointSabotage;      
+        public int pointBroken;   
 
         public override string ToString()
         {
@@ -63,9 +64,36 @@ public class ScoreManager : NetworkBehaviour
             totalSabotage += entry.Value.pointSabotage;
         }
 
-        sabotageBonusTotal.value += totalSabotage * 0.3f; // ca marche sur tous 
+        sabotageBonusTotal.value += totalSabotage * 0.3f;  
     }
-    private float GetFinalScore() //c le return qui est important
+
+    [ServerRpc(requireOwnership:false)]
+    public void AddPointSabotage(PlayerID playerID) 
+    {
+        CheckForDictonaryEntry(playerID);
+
+        var ScoreData = scores[playerID];
+        ScoreData.pointSabotage++;
+        scores[playerID] = ScoreData; 
+         
+    }
+
+    [ServerRpc(requireOwnership:false)]
+    public void SubPointSabotage(PlayerID playerID)
+    {
+        CheckForDictonaryEntry(playerID);
+
+        var ScoreData = scores[playerID];
+
+        if (ScoreData.pointSabotage > 0)   // a voir
+        {
+            ScoreData.pointSabotage--;
+        }
+
+        scores[playerID] = ScoreData;     
+    }
+
+    private float GetFinalScore() 
     {
         float sabotagePoints = 0;
         foreach (var entry in scores)
@@ -78,21 +106,7 @@ public class ScoreManager : NetworkBehaviour
         return sabotagePoints + sabotageBonusTotal.value;
     }
 
-    [ServerRpc(requireOwnership:false)]
-    public void AddPointSabotage(PlayerID playerID) // ca marche sur tous
-    {
-        CheckForDictonaryEntry(playerID);
-
-        var ScoreData = scores[playerID];
-        ScoreData.pointSabotage++;
-        scores[playerID] = ScoreData; 
-
-       // var ScoreData2 = scoresSecNotRes[playerID];
-        //ScoreData2.pointSabotage++;
-        //scoresSecNotRes[playerID] = ScoreData2;
-         
-    }
-
+    //
     [ServerRpc(requireOwnership:false)]
     public void AddPointBroken(PlayerID playerID)
     {
@@ -101,48 +115,16 @@ public class ScoreManager : NetworkBehaviour
         var ScoreData = scores[playerID];
         ScoreData.pointBroken++;
         scores[playerID] = ScoreData;  
-    }
 
-    [ServerRpc(requireOwnership:false)]
-    public void SubPointSabotage(PlayerID playerID)
-    {
-        CheckForDictonaryEntry(playerID);
-
-        var ScoreData = scores[playerID];
-        //ScoreData.pointSabotage--;
-        //if (ScoreData.pointSabotage<0)
-        //{
-        //  ScoreData.pointSabotage=0;
-        //}
-
-        if (ScoreData.pointSabotage > 0)   // a voir
+        if(ScoreData.pointBroken > m_maxScoreBroken)
         {
-            ScoreData.pointSabotage--;
+            m_noticeHouseDestroy?.Invoke("broken");
         }
-
-        scores[playerID] = ScoreData;     
     }
 
-    [ServerRpc(requireOwnership:false)]
-    public void SubPointBroken(PlayerID playerID)
-    {
-        CheckForDictonaryEntry(playerID);
-
-        var ScoreData = scores[playerID];
-        //ScoreData.pointBroken--;
-        if (ScoreData.pointBroken > 0)
-        {
-            ScoreData.pointBroken--; // a voir
-        }
-        //if (ScoreData.pointBroken<0)
-        //{
-          //  ScoreData.pointBroken=0;
-        //}
-        scores[playerID] = ScoreData;    
-    }
 
     [ServerRpc(requireOwnership:false)]
-    public void ResetScore()
+    public void ResetScore()   //on ne devrait pas avoir besoins de ca
     {
         scores.Clear();
     }
@@ -155,41 +137,11 @@ public class ScoreManager : NetworkBehaviour
             scores.Add(playerID, new ScoreData());
         }
         
-    }
-
-// debuter un chronos qui fait : 
-            //foreach (var entry2 in scoresSecNotRes)
-           // {
-             //   m_scoreSabotage += entry2.Value.pointBroken*0.03f; 
-           // }
-           //    entry2+=entry1.Value.pointBroken*0.03f
-           // la liste 2 fait la list 1 *0.03f tout les x sec 
-           // 
-// arreter le chronos
-    //public void SyncPoint() //telemment merdique comme fonction
-    //{
-        //m_scoreSabotage=0;
-        //foreach (var entry in scores)
-        //{
-          //  m_scoreSabotage += entry.Value.pointSabotage;
-            //foreach (var entry2 in scoresSecNotRes)
-            //{
-              //  m_scoreSabotage += entry2.Value.pointSabotage;//*0.03f;  // c nul ca choque et decu
-            //}
-        //}
-        //m_scoreBroken=0;
-        //foreach (var entry in scores)
-       // {
-      //      m_scoreBroken += entry.Value.pointBroken;
-     //   }
-   // }
-
-// faudra rajouter les differents trucs
-    private void RefreshUI()
+    } 
+    private void RefreshUI() // a retirer
     {
         if (m_scoreText != null)
         {
-           // m_scoreText.text = $"Score : {m_scoreSabotage}";
             m_scoreText.text = $"Score : {GetFinalScore():0.00}";
         }
 

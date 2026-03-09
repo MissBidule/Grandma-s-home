@@ -113,7 +113,7 @@ public class GhostMorphPreview : NetworkBehaviour
      * @param _prefab: The prefab GameObject to preview.
      * @return void
      */
-    public void SetPreview(GameObject _prefab)
+    public void SetPreview(GameObject _prefab,RPCInfo info = default)
     {
         m_currentPrefab = _prefab;
 
@@ -129,6 +129,18 @@ public class GhostMorphPreview : NetworkBehaviour
             m_meshRenderer.sharedMaterials = prefabRenderer.sharedMaterials;
             
             InteractPromptUI.m_Instance.Show(m_promptMessageValid);
+            if(InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
+        {
+            scoreManager.SubPointSabotage(info.sender);
+            //if(owner.HasValue)
+            //{
+              //  scoreManager.AddTransformghost(owner.Value);
+            //}
+        }
+        else
+        {
+            Debug.Log("ff");
+        }
             m_save =true;
 
         }
