@@ -396,6 +396,13 @@ namespace PurrLobby.Providers
             return Task.FromResult(Task.CompletedTask);
         }
 
+        public async Task TriggerLobbyUpdated()
+        {
+            if (!IsSteamClientAvailable)
+                return;
+            Steamworks.SteamMatchmaking.TriggerLobbyUpdated(_currentLobby, 0,);
+        }
+
         public void SetLobbyStarted(Steamworks.CSteamID serverId)
         {
             if (IsSteamClientAvailable)
