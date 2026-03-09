@@ -265,7 +265,7 @@ public class GhostClientController : NetworkBehaviour
             // On morph: freeze movement and require input release before allowing revert
             m_ghostController.m_wishDir = Vector3.zero;
             m_ghostController.m_morphInputReleased = false;
-            m_ghostMorph.Morphing(_prefab, _pos, _rot);
+            m_ghostMorph.Morphing(_prefab, _pos, _rotation);
         }
         else if (!m_ghostController.m_morphInputReleased)
         {
