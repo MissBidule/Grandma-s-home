@@ -70,6 +70,8 @@ public class GhostController : PlayerControllerCore, IInteractable
     private Vector3 m_wallNormal;
 
     private float m_speedModifier = 1f;
+    
+    public Action<bool, PlayerID> OnDeathChange; // true for death | false for resurrection
 
     // -------------------------------------------
     // --- Everything Down Here is Server-Side ---
@@ -275,11 +277,14 @@ public class GhostController : PlayerControllerCore, IInteractable
     }
 
     /**
-    @brief      Apply stop effect from close combat hit
+    @brief Apply stop effect from close combat hit
     */
     public void HitCac()
     {
         if (!isServer) return;
+        if (!owner.HasValue)
+            return;
+        OnDeathChange?.Invoke(true, owner.Value); // True because he dies
         ApplyStopToAll();
         m_currentTimerStop = m_timerStop;
     }
@@ -322,9 +327,9 @@ public class GhostController : PlayerControllerCore, IInteractable
         if (InteractPromptUI.m_Instance != null) InteractPromptUI.m_Instance.Hide();
     }
 
-    public void RevivingBuddy(float duration)
+    public void RevivingBuddy(float _duration)
     {
-        m_reviveDuration = duration;
+        m_reviveDuration = _duration;
         m_reviveTimer = 0f;
         m_isReviving = true;
     }
@@ -364,6 +369,9 @@ public class GhostController : PlayerControllerCore, IInteractable
     private void RequestReviveRpc()
     {
         if (!m_isStopped) return;
+        if (!owner.HasValue)
+            return;
+        OnDeathChange?.Invoke(false, owner.Value); // False because he undies
         ForceRevive();
         if (!m_reviver.m_isStopped)
             m_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
