@@ -52,7 +52,7 @@ public class ScoreManager : NetworkBehaviour
             m_noticeHouseDestroy?.Invoke("sabotage");
         }
 
-        float sabotagePoints = 0; // peut etre a mettre avant la verification du serveur?
+        float sabotagePoints = 0; 
         foreach (var entry in m_scoresSabotage)
         {
             sabotagePoints += entry.Value.pointSabotage;
@@ -160,16 +160,17 @@ public class ScoreManager : NetworkBehaviour
  * @details This function add +1 to the broken score 
  *          Invoke a event if totalBroken > max broken
  * @param _playerID: Id of the player.
+ * @param _valeurObjectBroken: the monetary value of the item that was broken.
  * @return void
 */
     [ServerRpc(requireOwnership:false)]
-    public void AddPointBroken(PlayerID playerID)
+    public void AddPointBroken(PlayerID _playerID, int _valeurObjectBroken)
     {
-        CheckForDictonaryEntryBroken(playerID);
+        CheckForDictonaryEntryBroken(_playerID);
 
-        var ScoreData = m_scoresBroken[playerID];
-        ScoreData.pointBroken++;
-        m_scoresBroken[playerID] = ScoreData;  
+        var ScoreData = m_scoresBroken[_playerID];
+        ScoreData.pointBroken=ScoreData.pointBroken + _valeurObjectBroken;
+        m_scoresBroken[_playerID] = ScoreData;  
 
         float totalBroken = 0;
 
