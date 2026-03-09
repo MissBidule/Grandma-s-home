@@ -59,6 +59,8 @@ namespace PurrLobby
         private LobbyDataHolder _lobbyDataHolder;
 
         private bool IsStarting = false;
+        public float _RefreshRate = 5f;
+        private float _elapsedTime = 0;
 
         [SerializeField] private Button m_readyButton;
 
@@ -106,6 +108,16 @@ namespace PurrLobby
             while (_delayedActions.Count > 0)
             {
                 _delayedActions.Dequeue()?.Invoke();
+            }
+            if (_currentLobby.IsValid)
+            {
+                _elapsedTime += Time.deltaTime;
+                if (_elapsedTime >= _RefreshRate)
+                {
+                    _elapsedTime = 0;
+                    EnsureProviderSet();
+                    _currentProvider.TriggerLobbyUpdated();
+                }
             }
         }
 

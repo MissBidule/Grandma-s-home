@@ -297,4 +297,3 @@ public class CustomConnectionStarter : MonoBehaviour
         m_networkManager.StartClient();
     }
 }
-

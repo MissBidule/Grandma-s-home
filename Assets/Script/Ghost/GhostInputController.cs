@@ -1,5 +1,8 @@
 using PurrNet;
+using PurrNet.Logging;
+using Script.UI.Views;
 using System;
+using UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -15,12 +18,13 @@ public class GhostInputController : MonoBehaviour
 
     private GhostClientController m_ghostClientController;
     private GhostMorph m_ghostMorph;
-    private GhostInteract m_ghostInteract;
-    private QteCircle m_qteCircle;
+    private GhostMorphPreview m_ghostMorphPreview;
+    private Interact m_ghostInteract;
+    public QteCircle m_qteCircle;
 
     private bool isOwner => m_ghostClientController != null && m_ghostClientController.isOwner;
 
-    [SerializeField] private string m_promptMessageValid = "E : Valid";
+    [SerializeField] private string m_promptMessageValid = "F : Valid";
 
     /*
      * @brief Awake is called when the script instance is being loaded
@@ -31,7 +35,8 @@ public class GhostInputController : MonoBehaviour
     {
         m_ghostClientController = GetComponent<GhostClientController>();
         m_ghostMorph = GetComponent<GhostMorph>();
-        m_ghostInteract = GetComponentInChildren<GhostInteract>();
+        m_ghostMorphPreview = GetComponentInChildren<GhostMorphPreview>();
+        m_ghostInteract = GetComponentInChildren<Interact>();
     }
 
     /*
@@ -85,7 +90,7 @@ public class GhostInputController : MonoBehaviour
         if (!isOwner) return;
         if (_context.performed)
         {
-            m_ghostClientController.m_wheel.Toggle();
+            m_ghostClientController.OnOpenWheel();
         }
     }
 
@@ -106,6 +111,9 @@ public class GhostInputController : MonoBehaviour
         }
     }
 
+    public void OnRotatePreviewLeft(InputAction.CallbackContext _context) { }
+    public void OnRotatePreviewRight(InputAction.CallbackContext _context) { }
+
     /*
      * @brief OnInteract is called by the Input System when interact input is detected
      * @param _context: The context of the input action
@@ -116,7 +124,63 @@ public class GhostInputController : MonoBehaviour
         if (!isOwner) return;
         if (_context.performed)
         {
-            m_ghostInteract.Interact();
+            m_ghostInteract.OnInteract(m_ghostInteract.m_onFocus);
+        }
+        else if (_context.canceled)
+        {
+            m_ghostInteract.StopInteract(m_ghostInteract.m_onFocus);
+        }
+    }
+    
+    
+    /*
+     * @brief OnDash is called by the Input System when dash input is detected
+     * @param _context: The context of the input action
+     * @return void
+     */
+    public void OnDash(InputAction.CallbackContext _context)
+    {
+        if (!isOwner) return;
+        if (_context.performed)
+        {
+            m_ghostClientController.OnDash();
+        }
+    }
+    
+    /*
+     * @brief OnSneak  is called by the Input System when sneak input is detected
+     * @param _context: The context of the input action
+     * @return void
+     */
+    public void OnSneak(InputAction.CallbackContext _context)
+    {
+        if (!isOwner) return;
+        if (_context.started)
+        {
+            // On press
+            m_ghostClientController.Sneak(true);
+        }
+        else if (_context.canceled)
+        {
+            // On release
+            m_ghostClientController.Sneak(false);
+        }
+    }
+    
+    /*
+     * @brief OnHint is called by the Input System when hint input is detected used to display the controls hint
+     * @param _context: The context of the input action
+     * @return void
+     */
+    public void OnHint(InputAction.CallbackContext _context)
+    {
+        if (!isOwner) return;
+        if (_context.performed)
+        {
+            if (!InstanceHandler.TryGetInstance(out UIsManager uisManager))
+                return;
+            
+            uisManager.ToggleView<InstructionsView>();
         }
     }
 

@@ -10,8 +10,6 @@ using UnityEngine.UIElements;
 public class GhostMorph : NetworkBehaviour
 {
     public bool m_isMorphed = false;
-    public PlayerID m_localPlayer;
-
 
     [SerializeField] private GameObject m_mesh;
     [SerializeField] private GhostMorphPreview m_previewGhost;
@@ -31,11 +29,6 @@ public class GhostMorph : NetworkBehaviour
         m_renderers = m_mesh.GetComponentsInChildren<MeshRenderer>();
     }
 
-
-    
-
-
-
     void Start()
     {
         m_playerCollider = GetComponent<BoxCollider>();
@@ -53,18 +46,16 @@ public class GhostMorph : NetworkBehaviour
         if (!isServer) return;
     }
 
-    
-
     [ObserversRpc(requireServer: true, runLocally: true)]
-    public void InstantiateForAll(GameObject _prefab, Vector3 _position)
+    public void InstantiateForAll(GameObject _prefab, Vector3 _position, Quaternion _rotation)
     {
         m_playerCollider.enabled = false;
         m_mesh.SetActive(false);
         InteractPromptUI.m_Instance.Hide();
-        
 
         m_currentPrefab = UnityProxy.InstantiateDirectly(_prefab, transform);
         m_currentPrefab.transform.localPosition = _position;
+        m_currentPrefab.transform.localRotation = _rotation;
     }
 
     /*
@@ -82,9 +73,6 @@ public class GhostMorph : NetworkBehaviour
         m_isMorphed = false;
         DestroyForAll();
     }
-
-
-
 
     [ObserversRpc(requireServer: true, runLocally: true)]
     public void DestroyForAll()
@@ -108,9 +96,10 @@ public class GhostMorph : NetworkBehaviour
      * @param _position: The local position to place the instantiated prefab.
      * @return void
      */
-    public void Morphing(GameObject _prefab, Vector3 _position)
+    public void Morphing(GameObject _prefab, Vector3 _position, Quaternion _rotation)
     {
         Rigidbody rb = GetComponent<Rigidbody>();
+        rb.linearVelocity = Vector3.zero;
         rb.constraints = RigidbodyConstraints.FreezeRotation;
 
         MeshFilter targetFilter = _prefab.GetComponent<MeshFilter>();
@@ -121,7 +110,7 @@ public class GhostMorph : NetworkBehaviour
             return;
         }
 
-        InstantiateForAll(_prefab, _position);
+        InstantiateForAll(_prefab, _position, _rotation);
 
         m_isMorphed = true;
     }
