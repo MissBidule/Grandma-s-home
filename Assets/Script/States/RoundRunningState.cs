@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using PurrNet;
 using PurrNet.Logging;
 using PurrNet.StateMachine;
@@ -15,6 +16,10 @@ public class RoundRuningState : StateNode<List<PlayerControllerCore>>
     [SerializeField] [Tooltip("Duration of the round in minutes")] private float m_roundDuration;
     [SerializeField] [Tooltip("Number of time the sky will move in the round.")] private int m_sunIncrementNumber = 12;
     // TODO Skybox & directional light reference.
+    
+    // State Reference
+    private PanicState m_panicState;
+    private EndGameState m_endGameState;
     
     // Players Info
     private List<PlayerID> m_playerIds = new();
@@ -34,13 +39,39 @@ public class RoundRuningState : StateNode<List<PlayerControllerCore>>
         if(!_asServer)
             return;
 
+        foreach (StateNode state in machine.states)
+        {
+            if (state is PanicState panicState)
+                m_panicState = panicState;
+            
+            if (state is EndGameState endGameState)
+                m_endGameState = endGameState;
+        }
+
         ClearLists();
         
         RegisteringListener(_players);
 
         m_roundTimer = StartCoroutine(RoundTimer(m_roundDuration*60));
     }
-    
+
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+        
+        if (m_roundTimer != null)
+            StopCoroutine(m_roundTimer);
+        
+        // Unsubscribe from ghost death events
+        foreach (var ghost in m_ghosts)
+        {
+            if (ghost != null)
+                ghost.OnDeathChange -= OnGhostDeathChange;
+        }
+
+        // TODO Unlisten to Score manager
+    }
+
     private void ClearLists()
     {
         m_playerIds.Clear();
@@ -75,6 +106,8 @@ public class RoundRuningState : StateNode<List<PlayerControllerCore>>
                     break;
             }
         }
+        
+        // TODO Listen to Score manager
     }
 
     /*
@@ -88,6 +121,8 @@ public class RoundRuningState : StateNode<List<PlayerControllerCore>>
             yield return new WaitForSeconds(_roundDuration/m_sunIncrementNumber);
             // TODO move the sun to reflect time change
         }
+        // Time ended
+        MoveToEnd(true);
     }
 
     private void OnHouseBreak(string _houseBreakReason)
@@ -104,7 +139,8 @@ public class RoundRuningState : StateNode<List<PlayerControllerCore>>
 
     private void MoveToPanic()
     {
-        
+        PurrLogger.Log($"Moving to Panic State");
+        machine.SetState(m_panicState, new GhostGameStateData(m_ghosts, m_aliveGhosts, m_deadGhosts));
     }
 
     private void OnGhostDeathChange(bool _deathOrRevive, PlayerID _playerID)
@@ -135,5 +171,6 @@ public class RoundRuningState : StateNode<List<PlayerControllerCore>>
     private void MoveToEnd(bool _childWin)
     {
         PurrLogger.Log($"Moving to End of game step child in:{_childWin}");
+        machine.SetState(m_endGameState, _childWin);
     }
 }

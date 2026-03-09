@@ -1,15 +1,21 @@
+using PurrNet;
+using PurrNet.StateMachine;
 using UnityEngine;
 
-public class EndGameState : MonoBehaviour
+public class EndGameState : StateNode<bool>
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public override void Enter(bool _childWin, bool _asServer)
     {
+        base.Enter(_asServer);
         
+        if (!_asServer)
+            return;
+
+        SetupEndGameUI(_childWin);
     }
 
-    // Update is called once per frame
-    void Update()
+    [ObserversRpc]
+    private void SetupEndGameUI(bool _childWin)
     {
         
     }
