@@ -192,18 +192,8 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         if(InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
         {
             scoreManager.AddPointSabotage(info.sender);
-            //if(owner.HasValue)
-            //{
-              //  scoreManager.AddTransformghost(owner.Value);
-            //}
         }
-        else
-        {
-            Debug.Log("ff");
-        }
-
-       
-
+        
     }
 
     [ObserversRpc(runLocally:true, requireServer:true)]
@@ -212,13 +202,6 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         m_isSabotaged = true;
         ApplyState();
         SetHighlight(false);
-
-       
-        //scoreManager.Add(m_scoreValue);
-        //if (ScoreManager.m_Instance != null)
-        //{
-          //  ScoreManager.m_Instance.Add(m_scoreValue);
-        //}
     }
 
     /*
