@@ -99,6 +99,7 @@ public class GhostMorph : NetworkBehaviour
     public void Morphing(GameObject _prefab, Vector3 _position, Quaternion _rotation)
     {
         Rigidbody rb = GetComponent<Rigidbody>();
+        rb.linearVelocity = Vector3.zero;
         rb.constraints = RigidbodyConstraints.FreezeRotation;
 
         MeshFilter targetFilter = _prefab.GetComponent<MeshFilter>();

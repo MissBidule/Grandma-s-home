@@ -16,9 +16,11 @@ public class GhostController : PlayerControllerCore, IInteractable
     public bool m_isDashing = false;
     public bool m_isStopped = false;
     public bool m_isSneaking = false;
+    public bool m_morphInputReleased = true;
     public bool m_beingRevived = false;
     public bool m_isReviving = false;
     public bool m_CanDash = true;
+
 
     [Header("Ghost references")]
     private GhostMorph m_ghostMorph;
@@ -102,7 +104,7 @@ public class GhostController : PlayerControllerCore, IInteractable
         }
 
         // Casting to Vector2 to ignore falling movement
-        if ((Vector2)m_wishDir != Vector2.zero)
+        if (m_morphInputReleased && (Vector2)m_wishDir != Vector2.zero)
         {
             m_ghostMorph.RevertToOriginal();
         }

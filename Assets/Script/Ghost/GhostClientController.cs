@@ -84,7 +84,6 @@ public class GhostClientController : NetworkBehaviour
         if (!isOwner) return;
         if (m_ghostController == null || m_ghostInputController == null || m_playerCamera == null) return; // "just in case"
 
-        UpdateLabels();
 
         if (last_stopped != m_ghostController.m_isStopped)
         {
@@ -196,6 +195,7 @@ public class GhostClientController : NetworkBehaviour
     public void OnScan()
     {
         if (!isOwner) return;
+        if (m_ghostController.m_isStopped) return;
         if (m_ghostMorph.m_isMorphed) return; // Prevent scanning if already morphed
         m_ghostMorphPreview.ScanForPrefab();
     }
@@ -203,11 +203,13 @@ public class GhostClientController : NetworkBehaviour
     public void OnOpenWheel()
     {
         if (!isOwner) return;
+        if (m_ghostController.m_isStopped) return;
         m_wheel.Toggle();
     }
     public void OnMorph()
     {
         if (!isOwner) return;
+        if (m_ghostController.m_isStopped) return;
         if (!m_ghostMorphPreview.m_canMorph || !m_ghostMorphPreview.m_currentPrefab || m_ghostMorph.m_isMorphed) return;
         if (m_wheel.IsWheelOpen()) m_wheel.Toggle();
         
@@ -258,14 +260,27 @@ public class GhostClientController : NetworkBehaviour
     [ServerRpc]
     private void SendGhostRPC(Vector3 _movement, GameObject _prefab, Vector3 _pos, bool _dashPressed, bool _sneakPressed, Quaternion _rotation)
     {
-        m_ghostController.m_wishDir = _movement;
-        // Prefab is not null only when morphPressed is true.
-        // This method helps reduce the network traffic by not sending that bool "morphPressed"
-        if (_prefab) m_ghostMorph.Morphing(_prefab, _pos, _rotation);
-        
+        if (_prefab)
+        {
+            // On morph: freeze movement and require input release before allowing revert
+            m_ghostController.m_wishDir = Vector3.zero;
+            m_ghostController.m_morphInputReleased = false;
+            m_ghostMorph.Morphing(_prefab, _pos, _rot);
+        }
+        else if (!m_ghostController.m_morphInputReleased)
+        {
+            // Keep frozen until player actually releases all movement input
+            if ((Vector2)_movement == Vector2.zero)
+                m_ghostController.m_morphInputReleased = true;
+            m_ghostController.m_wishDir = Vector3.zero;
+        }
+        else
+        {
+            m_ghostController.m_wishDir = _movement;
         if (_dashPressed)
             m_ghostController.StartDash();
         
         m_ghostController.m_isSneaking = _sneakPressed;
+        }
     }
 }
