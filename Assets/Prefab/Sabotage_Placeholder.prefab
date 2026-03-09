@@ -170,11 +170,16 @@ MonoBehaviour:
   m_normalMesh: {fileID: 5058939095065862159}
   m_sabotagedMesh: {fileID: 8554978192234837727}
   m_scoreValue: 1
-  m_highlightRenderer: {fileID: 7506536898928165685}
-  m_highlightMaterialIndex: 0
-  m_emissionColor: {r: 0, g: 1, b: 1, a: 1}
-  m_emissionIntensity: 0.5
-  m_promptMessage: 'E : Sabotage'
+  m_highlightRenderers:
+  - {fileID: 7506536898928165685}
+  - {fileID: 2091922555540639281}
+  m_highlightColor: {r: 0, g: 1, b: 1, a: 1}
+  m_pulseSpeed: 3
+  m_minIntensity: 0.2
+  m_maxIntensity: 0.6
+  m_promptMessageSABOTE: 'E : Sabotage'
+  m_promptMessageREPARE: 'E : Repair'
+  m_promptMessageESPACE: 'ESPACE : Valid'
   m_saboteur: {fileID: 0}
   m_isSabotaged: 0
   m_saboteurs: []

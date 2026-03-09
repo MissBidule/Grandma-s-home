@@ -78,6 +78,13 @@ namespace PurrLobby.Providers {
                 return _localPlayer;
             }
         }
+
+        public async Task TriggerLobbyUpdated()
+        {
+            await LobbyService.Instance.UpdateLobbyAsync(CurrentLobby.Id, new UpdateLobbyOptions() {
+                Data = CurrentLobby.Data
+            });
+        }
         public bool IsLocalPlayerHost { get { return CurrentLobby != null && LocalPlayerId == CurrentLobby.HostId; } }
 
         private Unity.Services.Lobbies.Models.Lobby CurrentLobby = null;
