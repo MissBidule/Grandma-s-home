@@ -42,6 +42,17 @@ public class ScoreManager : NetworkBehaviour
     }
 
     /**
+    @brief      Removes points from the score
+    @param      _value: value to remove
+    @return     void
+    */
+    public void Remove(int _value)
+    {
+        m_score -= _value;
+        RefreshUI();
+    }
+
+    /**
     @brief      resets score
     @return     void
     */
