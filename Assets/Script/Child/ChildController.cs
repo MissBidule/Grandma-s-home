@@ -150,7 +150,7 @@ public class ChildController : PlayerControllerCore
      * @brief   Called when the child collides with a ghost to apply the scared debuff, the collider is quite small to prevent from triggering while trying to hit a ghost with the bat
      * @return  void
      */
-    private void OnTriggerEnter(Collider _other)
+    public void CollideWithObject(Collider _other)
     {
         PurrLogger.Log($"Trigger Enter {_other.gameObject.name} {_other.gameObject.layer.ToString()}", this);
         if ((m_GhostLayerMask.value & (1 << _other.gameObject.layer)) == 0) return;

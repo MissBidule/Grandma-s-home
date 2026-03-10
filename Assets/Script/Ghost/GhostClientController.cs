@@ -70,7 +70,7 @@ public class GhostClientController : NetworkBehaviour
         Debug.Log($"[GhostClientController] InitOwner - m_playerCamera: {m_playerCamera}");
         
         if (InstanceHandler.TryGetInstance(out UIsManager  uisManager))
-            uisManager.ShowView<GhostHUDView>();
+            uisManager.ShowView<GhostHUDView>();   
     }
 
     private void DestroyUI()

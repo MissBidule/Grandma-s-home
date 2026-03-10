@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using PurrNet;
 using UnityEngine;
 using System.Collections;
+using UnityEngine.Rendering;
+using UnityEngine.SocialPlatforms.Impl;
 
 /*
  * @brief  Contains class declaration for SabotageObject
@@ -189,10 +191,17 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         }
     }
 
+// le [] sert vraiment? a verifier
     [ServerRpc(requireOwnership:false)]
-    private void SabotageRPC()
+    private void SabotageRPC(RPCInfo info = default)
     {
         SabotageForAll();
+
+        if(InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
+        {
+            scoreManager.AddPointSabotage(info.sender);
+        }
+        
     }
 
     [ObserversRpc(runLocally:true, requireServer:true)]
@@ -201,16 +210,17 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         m_isSabotaged = true;
         ApplyState();
         SetHighlight(false);
-        if (ScoreManager.m_Instance != null)
-        {
-            ScoreManager.m_Instance.Add(m_scoreValue);
-        }
     }
 
     [ServerRpc(requireOwnership:false)]
-    private void UnsabotageRPC()
+    private void UnsabotageRPC(RPCInfo info = default)
     {
         UnsabotageForAll();
+
+        if(InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
+        {
+            scoreManager.SubPointSabotage(info.sender);
+        }
     }
 
     [ObserversRpc(runLocally:true, requireServer:true)]
@@ -219,13 +229,6 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         m_isSabotaged = false;
         ApplyState();
         SetHighlight(false);
-
-       
-
-        if (ScoreManager.m_Instance != null)
-        {
-            ScoreManager.m_Instance.Remove(m_scoreValue);
-        }
     }
 
     /*

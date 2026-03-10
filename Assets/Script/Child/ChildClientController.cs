@@ -44,6 +44,7 @@ public class ChildClientController : NetworkBehaviour
         var core = GetComponent<PlayerControllerCore>();
         if (core != null) m_playerCamera = core.m_playerCamera;
         Debug.Log($"[ChildClientController] InitOwner - m_playerCamera: {m_playerCamera}, m_childInputController: {m_childInputController}");
+
         if (InstanceHandler.TryGetInstance(out UIsManager  uisManager))
             uisManager.ShowView<ChildHUDView>();
     }

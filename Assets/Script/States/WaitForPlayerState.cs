@@ -40,19 +40,7 @@ public class WaitForPlayerState : StateNode
         
         while (m_numPlayers < m_minPlayers)
             yield return null;
-
-        DisableWaitUIObserverRPC();
         
         machine.Next();
-    }
-
-    [ObserversRpc (runLocally: true, bufferLast: true)]
-    private void DisableWaitUIObserverRPC()
-    {
-        if (!InstanceHandler.TryGetInstance(out UIsManager uisManager))
-            return;
-        uisManager.HideView<WaitForPlayerView>();
-        Debug.Log("WaitForPlayerState: Disabling WaitForPlayerView");
-        uisManager.ToggleUIVision();
     }
 }
