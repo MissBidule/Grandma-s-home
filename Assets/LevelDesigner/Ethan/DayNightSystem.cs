@@ -10,7 +10,7 @@ public class DayNightSystem : MonoBehaviour
     public Material skybox; // skybox pour le jour
 
     public float gameTime = 480f; // 480 - 8 minutes de jeu, à changer ou prendre la valeur vers une autre référence si ça change
-    [SerializeField] private float currentTime = 0f; // temps actuel dans le cycle jour/nuit
+    private float currentTime = 0f; // temps actuel dans le cycle jour/nuit
     
     // positions des axes du soleil par défaut
     public float sunInitialX = 150f;
@@ -26,11 +26,14 @@ public class DayNightSystem : MonoBehaviour
     public float HdriRotationAngle = 0.1f; 
 
     private float timeBetweenUpdates = 1f; // temps entre chaque mise à jour des corroutines progressives
+    //refreshMultiplier pour que les mise a jour soit plus rapide ou pas sur la même durée de jeu total (plus de fluidité)
+    public float refreshMultiplier = 2f;
+
     private float timeBetweenGeneralUpdates = 0.1f; // temps entre chaque mise à jour des éléments généraux
 
     private float sunRotationAngle; // valeur ajouté à l'angle du soleil à chaque mise à jour
     public Color sunDayColor;// FFE499
-    public Color sunNightColor;// 207980
+    public Color sunNightColor;// 123E41
 
     //Démarrer avec un angle assez élevé 150, pour la monter à 180 sur 40% du temps de jeu total, faire un changement entre les 2 HDRI blend avec les paramètre de luminosité et allumages progressifs de toutes sources de lumière sur 20% du temps de jeu total, sur les 40% restant de jeu le soleil aura un éclairage d'une couleur plus froide et une intensité plus faible en remontant vers 150 comme une monté de lune.
 
@@ -105,7 +108,8 @@ public class DayNightSystem : MonoBehaviour
             sunRotationAngle = CheckRotationAngle(sunInitialX + (30f * (currentTime / (gameTime * 0.4f))));
             sun.transform.rotation = Quaternion.Euler(sunRotationAngle, sunInitialY, 0f);
 
-            currentTime += timeBetweenUpdates; // incrémente le temps actuel
+            // incrémente le temps actuel
+            currentTime += timeBetweenUpdates; 
             yield return new WaitForSeconds(timeBetweenUpdates);// attend entre chaque update
         }
         //démarrage de la seconde corroutine pour la transition jour-nuit
@@ -133,7 +137,7 @@ public class DayNightSystem : MonoBehaviour
             sun.GetComponent<Light>().color = color;
 
             //changement progressif de RenderSettings.ambientIntensity de 1 à 0.4
-            RenderSettings.ambientIntensity = Mathf.Lerp(1f, 0.4f, (currentTime - gameTime * 0.4f) / (gameTime * 0.2f));
+            RenderSettings.ambientIntensity = Mathf.Lerp(1f, 0.4f, (currentTime - gameTime * 0.3f) / (gameTime * 0.2f));
             
 
             currentTime += timeBetweenUpdates;
