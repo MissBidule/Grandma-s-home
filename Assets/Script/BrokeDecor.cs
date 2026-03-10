@@ -49,7 +49,7 @@ public class BrokeDecor : NetworkBehaviour
             if (c != null)
                 c.enabled = m_isBroken;
         }
-        if (isServer) return;
+        if (!isServer) return;
         if (m_alreadyBroken != true){
             if(InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
             {
