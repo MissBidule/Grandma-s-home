@@ -223,6 +223,14 @@ public class ChildController : PlayerControllerCore
             {
                 ghost.HitCac();
             }
+            if (col.transform.parent.gameObject.GetComponent<BrokeDecor>())
+            {
+                var brokeDecor = col.transform.parent.gameObject.GetComponent<BrokeDecor>();
+                if(brokeDecor != null)
+                {
+                    brokeDecor.Broke();
+                }
+            }
             if (col.transform.parent) 
             {
                 if (col.transform.parent.gameObject.layer == LayerMask.NameToLayer("Ghost"))
