@@ -6,6 +6,8 @@ using PurrNet.Modules;
 using PurrLobby;
 using System;
 using PurrNet.Transports;
+using Script.UI.Views;
+using UI;
 
 /*
  * @brief  Contains class declaration for the state PlayerSpawningState
@@ -22,17 +24,21 @@ public class PlayerSpawningState : StateNode
     [Tooltip("Even if rules are to not despawn on disconnect, this will ignore that and always spawn a player.")]
     [SerializeField] private List<Transform> m_ghostSpawnPoints = new List<Transform>();
     private bool m_isServer = false;
-    
+    private bool m_hasStarted = false;
+
     public override void Enter(bool _asServer)
     {
         base.Enter(_asServer);
 
         m_isServer = _asServer;
+        m_hasStarted = false;
     }
 
     public void StartMachine()
     {
         if(!m_isServer) return;
+        if(m_hasStarted) return;
+        m_hasStarted = true;
 
         DespawnPlayers();
 
@@ -75,19 +81,16 @@ public class PlayerSpawningState : StateNode
             newPlayer.GiveOwnership(player);
             spawnedPlayers.Add(newPlayer);
         }
-
-        DisableWaitInterface();
-
+        
         return spawnedPlayers;
     }
 
     [ObserversRpc]
     void DisableWaitInterface()
     {
-        if (InstanceHandler.TryGetInstance(out DisableWaitOnStart disableWaitOnStart))
-        {
-            disableWaitOnStart.DisableWaitInterface();
-        }
+        if (!InstanceHandler.TryGetInstance(out UIsManager uisManager))
+            return;
+        uisManager.HideView<WaitForPlayerView>();
     }
     
     private void DespawnPlayers()

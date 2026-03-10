@@ -2,6 +2,8 @@ using PurrNet;
 using System.Collections;
 using PurrNet.Logging;
 using PurrNet.StateMachine;
+using Script.UI.Views;
+using UI;
 using UnityEngine;
 using PurrLobby;
 

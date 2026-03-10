@@ -1,4 +1,7 @@
 using PurrNet;
+using PurrNet.Logging;
+using Script.UI.Views;
+using UI;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -23,30 +26,59 @@ public class ChildClientController : NetworkBehaviour
     [SerializeField]private float m_attackTimer = 10f;
     private float m_attackTime;
 
+    private bool m_sneakPressed = false;
+    
     protected override void OnSpawned()
     {
         base.OnSpawned();
         m_childController = GetComponent<ChildController>();
-
-        if (!isOwner) return;
-        m_childInputController = GetComponent<ChildInputController>();
-        m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
-        m_playerCamera = GetComponentInChildren<CinemachineCamera>();
         m_animator = GetComponentInChildren<Animator>();
+
+        if (isOwner) InitOwner();
     }
+
+    protected override void OnOwnerChanged(PurrNet.PlayerID? oldOwner, PurrNet.PlayerID? newOwner, bool asServer)
+    {
+        if (isOwner) InitOwner();
+    }
+
+    private void InitOwner()
+    {
+        m_childInputController = GetComponent<ChildInputController>();
+        if (m_uiHolder == null)
+            m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
+        // Use PlayerControllerCore.m_playerCamera (Inspector-assigned, always valid)
+        // instead of GetComponentInChildren which can fail in multi-instance scenarios
+        var core = GetComponent<PlayerControllerCore>();
+        if (core != null) m_playerCamera = core.m_playerCamera;
+        Debug.Log($"[ChildClientController] InitOwner - m_playerCamera: {m_playerCamera}, m_childInputController: {m_childInputController}");
+
+        if (InstanceHandler.TryGetInstance(out UIsManager  uisManager))
+            uisManager.ShowView<ChildHUDView>();
+    }
+
     void Update()
     {
         if (!isOwner) return;
+
+        UpdateLabels();
+
         // DebugPrintTrafic();
 
+        var moveVec = m_childInputController.m_movementInputVector;
+        var wishDir = GetDirectionIntention(moveVec);
+        var cameraYaw = m_playerCamera.transform.eulerAngles.y;
+
+
         SendChildRPC(
-            GetDirectionIntention(m_childInputController.m_movementInputVector),
+            wishDir,
             m_playerCamera.transform.eulerAngles.y,
             m_playerCamera.transform.position,
             m_playerCamera.transform.forward,
             m_jumpPressed,
             m_switchWeaponPressed,
-            m_attackPressed
+            m_attackPressed,
+            m_sneakPressed
         );
 
         m_jumpPressed = false;
@@ -63,6 +95,16 @@ public class ChildClientController : NetworkBehaviour
         print(m_jumpPressed);
         print(m_switchWeaponPressed);
         print(m_attackPressed);
+    }
+
+    void UpdateLabels()
+    {
+        if (!InstanceHandler.TryGetInstance(out ChildHUDView childHUDView))
+            return;
+        
+        if (m_childController.m_isScared)
+            childHUDView.StartScared(m_childController.GetScaredDuration());
+        else childHUDView.m_isScared = false;
     }
 
     public void OnJump()
@@ -83,6 +125,14 @@ public class ChildClientController : NetworkBehaviour
         m_attackPressed = true;
         m_animator.SetTrigger("OnAttack");
         print("KABOOM");
+    }
+    
+    /*
+     * @brief call the server to sneak
+     */
+    public void Sneak(bool _sneakStatus)
+    {
+        m_sneakPressed = _sneakStatus;
     }
 
     private Vector3 GetDirectionIntention(Vector2 _movement)
@@ -137,7 +187,7 @@ public class ChildClientController : NetworkBehaviour
     }
 
     [ServerRpc]
-    private void SendChildRPC(Vector3 _wishDirection, float _cameraYaw, Vector3 _cameraPosition, Vector3 _cameraForward, bool _jumpPressed, bool _switchPressed, bool _attackPressed)
+    private void SendChildRPC(Vector3 _wishDirection, float _cameraYaw, Vector3 _cameraPosition, Vector3 _cameraForward,  bool _jumpPressed, bool _switchPressed, bool _attackPressed, bool _sneakPressed)
     {
         m_childController.m_wishDir = _wishDirection;
         m_childController.m_cameraYaw = _cameraYaw;
@@ -146,5 +196,6 @@ public class ChildClientController : NetworkBehaviour
         if (_jumpPressed) m_childController.Jump();
         if (_switchPressed) m_childController.SwitchAttackType();
         if (_attackPressed) m_childController.Attack();
+        m_childController.m_isSneaking = _sneakPressed;
     }
 }

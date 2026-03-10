@@ -91,16 +91,17 @@ public class CustomConnectedText : MonoBehaviour
         }
         m_typewriterEffect2 = StartCoroutine(TypewriterEffect(2));
 
-        if (_playerNumber == _maxPlayerNumber)
+        if (!m_networkManager.isServer)
+            return;
+        
+        if (_playerNumber != _maxPlayerNumber) return;
+        StateMachine stateMachine = FindFirstObjectByType<StateMachine>();
+        if (!stateMachine)
         {
-            StateMachine stateMachine = FindFirstObjectByType<StateMachine>();
-            if (!stateMachine)
-            {
-                PurrLogger.LogError($"Failed to get {nameof(StateMachine)} component.", this);
-                return;
-            }
-            else ((PlayerSpawningState)stateMachine.states[1]).StartMachine();
+            PurrLogger.LogError($"Failed to get {nameof(StateMachine)} component.", this);
+            return;
         }
+        else ((PlayerSpawningState)stateMachine.states[1]).StartMachine();
     }
 
     private WaitForSeconds m_wait = new(0.005f);
