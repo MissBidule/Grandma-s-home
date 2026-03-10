@@ -225,13 +225,10 @@ public class ChildController : PlayerControllerCore
             }
             if (col.transform.parent.gameObject.GetComponent<BrokeDecor>())
             {
-                Debug.Log("The hit have a component BroekeDecor");
                 var brokeDecor = col.transform.parent.gameObject.GetComponent<BrokeDecor>();
                 if(brokeDecor != null)
                 {
-                    Debug.Log("he is not null");
                     brokeDecor.Broke();
-                    Debug.Log("wtf");
                 }
             }
             if (col.transform.parent) 
