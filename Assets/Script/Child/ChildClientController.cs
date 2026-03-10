@@ -56,6 +56,7 @@ public class ChildClientController : NetworkBehaviour
 
         // DebugPrintTrafic();
 
+        if (m_qteCircle.m_isRunning) return;
         var moveVec = m_childInputController.m_movementInputVector;
         var wishDir = GetDirectionIntention(moveVec);
         var cameraYaw = m_playerCamera.transform.eulerAngles.y;
