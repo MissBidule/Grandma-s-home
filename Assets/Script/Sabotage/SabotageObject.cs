@@ -124,7 +124,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
             return;
         }
         Rigidbody rb = _player.GetComponentInParent<Rigidbody>();
-        rb.constraints = RigidbodyConstraints.FreezeAll;
+        rb.constraints = (RigidbodyConstraints)(RigidbodyConstraints.FreezeAll - RigidbodyConstraints.FreezePositionY);
         StartQte(_player);
     }
 

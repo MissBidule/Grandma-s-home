@@ -53,33 +53,34 @@ public class ChildClientController : NetworkBehaviour
     {
         if (!isOwner) return;
 
-        UpdateLabels();
-
-        // DebugPrintTrafic();
-
-        if(m_qteCircle!= null)
+        if (m_childInputController != null)
         {
-            if (m_qteCircle.m_isRunning) return;            
+
+            UpdateLabels();
+
+            // DebugPrintTrafic();
+
+            if (m_qteCircle.m_isRunning) return;
+            var moveVec = m_childInputController.m_movementInputVector;
+            var wishDir = GetDirectionIntention(moveVec);
+            var cameraYaw = m_playerCamera.transform.eulerAngles.y;
+
+
+            SendChildRPC(
+                wishDir,
+                m_playerCamera.transform.eulerAngles.y,
+                m_playerCamera.transform.position,
+                m_playerCamera.transform.forward,
+                m_jumpPressed,
+                m_switchWeaponPressed,
+                m_attackPressed,
+                m_sneakPressed
+            );
+
+            m_jumpPressed = false;
+            m_switchWeaponPressed = false;
+            m_attackPressed = false;
         }
-        var moveVec = m_childInputController.m_movementInputVector;
-        var wishDir = GetDirectionIntention(moveVec);
-        var cameraYaw = m_playerCamera.transform.eulerAngles.y;
-
-
-        SendChildRPC(
-            wishDir,
-            m_playerCamera.transform.eulerAngles.y,
-            m_playerCamera.transform.position,
-            m_playerCamera.transform.forward,
-            m_jumpPressed,
-            m_switchWeaponPressed,
-            m_attackPressed,
-            m_sneakPressed
-        );
-
-        m_jumpPressed = false;
-        m_switchWeaponPressed = false;
-        m_attackPressed = false;
     }
 
     public void DebugPrintTrafic()

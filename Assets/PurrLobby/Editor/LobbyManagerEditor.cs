@@ -15,7 +15,7 @@ namespace PurrLobby.Editor
         private bool showRoomStatus = true;
         private Dictionary<string, bool> memberFoldouts = new Dictionary<string, bool>();
 
-        public override void OnInspectorGUI()
+        private void CustomProperties()
         {
             var serializedObject = new SerializedObject(target);
             var eventProperty = serializedObject.FindProperty("m_readyButton");
@@ -23,14 +23,24 @@ namespace PurrLobby.Editor
             {
                 EditorGUILayout.PropertyField(eventProperty, true);
             }
-            var eventProperty2 = serializedObject.FindProperty("m_usernameField");
+            var eventProperty2 = serializedObject.FindProperty("m_leaveButton");
             if (eventProperty2 != null)
             {
                 EditorGUILayout.PropertyField(eventProperty2, true);
             }
+            var eventProperty3 = serializedObject.FindProperty("m_usernameField");
+            if (eventProperty3 != null)
+            {
+                EditorGUILayout.PropertyField(eventProperty3, true);
+            }
             serializedObject.ApplyModifiedProperties();
             
             EditorGUILayout.Space();
+        }
+
+        public override void OnInspectorGUI()
+        {
+            CustomProperties();
 
             var lobbyManager = (LobbyManager)target;
 
