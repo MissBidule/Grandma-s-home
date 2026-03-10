@@ -37,6 +37,7 @@ public class CustomConnectionStarter : MonoBehaviour
     
     private void Awake()
     {
+        _hasStarted = false; // Reset static flag on Awake to allow proper initialization in new lobby sessions
         if(!TryGetComponent(out m_networkManager)) {
             PurrLogger.LogError($"Failed to get {nameof(NetworkManager)} component.", this);
             return;
