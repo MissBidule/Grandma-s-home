@@ -19,12 +19,14 @@ public class ChildClientController : NetworkBehaviour
     private bool m_attackPressed = false;
 
     //Animations
-    private Animator m_animator;
+    [SerializeField]private NetworkAnimator m_animator;
     private bool m_isMovingForward;
     private bool m_isMovingBackward;
     private bool m_isAttacking;
+    private bool m_isSneaking;
     [SerializeField]private float m_attackTimer = 10f;
     private float m_attackTime;
+
 
     private bool m_sneakPressed = false;
     
@@ -32,7 +34,6 @@ public class ChildClientController : NetworkBehaviour
     {
         base.OnSpawned();
         m_childController = GetComponent<ChildController>();
-        m_animator = GetComponentInChildren<Animator>();
 
         if (isOwner) InitOwner();
     }
@@ -124,7 +125,6 @@ public class ChildClientController : NetworkBehaviour
         if (!isOwner) return;
         m_attackPressed = true;
         m_animator.SetTrigger("OnAttack");
-        print("KABOOM");
     }
     
     /*
@@ -137,6 +137,12 @@ public class ChildClientController : NetworkBehaviour
 
     private Vector3 GetDirectionIntention(Vector2 _movement)
     {
+        if(m_isSneaking != m_sneakPressed)
+        {
+            m_isMovingForward = false;
+            m_isMovingBackward = false;
+            m_isSneaking = m_sneakPressed;
+        }
         if (_movement == Vector2.zero)
         {
             if (m_isMovingForward || m_isMovingBackward)
@@ -151,13 +157,27 @@ public class ChildClientController : NetworkBehaviour
         {
             m_isMovingForward = true;
             m_isMovingBackward = false;
-            m_animator.CrossFadeInFixedTime("cac_run",0.2f,0);
+            if (m_sneakPressed)
+            {
+                m_animator.CrossFadeInFixedTime("cac_walk",0.2f,0);
+            }
+            else
+            {
+                m_animator.CrossFadeInFixedTime("cac_run", 0.2f, 0);
+            }
         }
         else if(m_isMovingBackward == false && _movement.y < 1)
         {
             m_isMovingForward = false;
             m_isMovingBackward = true;
-            m_animator.CrossFadeInFixedTime("cac_brun",0.2f,0);
+            if (m_sneakPressed)
+            {
+                m_animator.CrossFadeInFixedTime("cac_bwalk", 0.2f, 0);
+            }
+            else
+            {
+                m_animator.CrossFadeInFixedTime("cac_brun", 0.2f, 0);
+            }
         }
         var wishDir = Vector3.zero;
 
