@@ -17,7 +17,7 @@ public class BrokeDecor : NetworkBehaviour
     public bool m_isBroken;
     public bool m_alreadyBroken=false;
 
-    [ObserversRpc(runLocally:true, requireServer:true)]
+    [ObserversRpc(runLocally:true)]
     public void Broke()
     {
         m_isBroken = true;
