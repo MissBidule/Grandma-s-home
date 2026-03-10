@@ -249,7 +249,8 @@ namespace PurrLobby.Providers {
             LocalPlayer.Data = new Dictionary<string, PlayerDataObject>() {
                 { "Name", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, playerName) },
                 { "IsReady", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, "False") },
-                { "IsGhost", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, isGhost) }
+                { "IsGhost", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, isGhost) },
+                { "IsInGame", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, "False") }
             };
 
             await UpdatePlayerDataAsync();
@@ -266,6 +267,7 @@ namespace PurrLobby.Providers {
                         IsReady = player.Data["IsReady"]?.Value == "True",
                         Avatar = null,
                         IsGhost = player.Data["IsGhost"]?.Value == "True",
+                        IsInGame = player.Data["IsInGame"]?.Value == "True",
                     });
                 } catch { } //player dataobject can throw
             }
@@ -605,28 +607,33 @@ namespace PurrLobby.Providers {
             });
         }
 
+        /// <summary>
+        /// Retrieves the lobby currently connected
+        /// </summary>
         public async Task OnLobbyUpdateData(string _lobbyId) {
             if(!IsUnityServiceAvailable) { return; }
 
             CurrentLobby = await LobbyService.Instance.GetLobbyAsync(_lobbyId);
             await SubscribeLobbyEventsAsync();
             await InitializeLocalPlayerData();
-            /*
+            if (IsLocalPlayerHost)
+            {
+                await SetLobbyDataAsync("JoinCode", "");
+            }
 
-            var updatedLobby = LobbyFactory.Create(
-                _lobby.Name,
-                _lobby.LobbyId,
-                _lobby.LobbyCode,
-                _lobby.MaxPlayers,
-                _lobby.IsOwner,
-                _lobby.Members,
-                _lobby.Properties,
-                RelayServerAllocation
-            );
+            foreach (Player player in CurrentLobby.Players)
+            {
+                if (player.Data["IsReady"]?.Value == "True")
+                {
+                    await SetIsReadyAsync(player.Id, false);
+                }
+                if (player.Data["IsInGame"]?.Value == "True")
+                {
+                    await SetIsInGameAsync(player.Id, false);
+                }
+            }
 
-            Debug.Log("Lobby Updated");
-            OnLobbyUpdated?.Invoke(updatedLobby);
-            OnLobbyPlayerListUpdated?.Invoke(updatedLobby.Members);*/
+            OnLobbyUpdate();
         }
 
         /// <summary>
@@ -663,8 +670,6 @@ namespace PurrLobby.Providers {
         }
 
         public async Task SetIsReadyAsync(string userId, bool isReady) {
-            Debug.Log(CurrentLobby == null);
-            Debug.Log(LocalPlayer == null);
             if(!IsUnityServiceAvailable || CurrentLobby == null || LocalPlayer == null) { return; }
 
             await SetPlayerDataAsync("IsReady", $"{isReady}");
@@ -676,8 +681,16 @@ namespace PurrLobby.Providers {
             await SetPlayerDataAsync("IsGhost", $"{isGhost}");
         }
 
+        public async Task SetIsInGameAsync(string userId, bool isInGame) {
+            if(!IsUnityServiceAvailable || CurrentLobby == null || LocalPlayer == null) { return; }
+
+            await SetPlayerDataAsync("IsInGame", $"{isInGame}");
+        }
+
         public async Task SetAllReadyAsync() {
             if(!IsUnityServiceAvailable || CurrentLobby == null || !UseUnityRelayService) { return; }
+
+            await SetIsInGameAsync(LocalPlayerId, true);
 
             if(IsLocalPlayerHost) {
                 await AllocateRelayServerAsync(CurrentLobby.MaxPlayers, RegionId);

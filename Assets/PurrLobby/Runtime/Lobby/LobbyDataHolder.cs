@@ -35,6 +35,18 @@ namespace PurrLobby
         {
             return number_of_player_in_lobby;
         }
+
+        public int GetNumber_of_player_ready_in_lobby()
+        {
+            int playersReady = 0;
+            foreach (LobbyUser player in CurrentLobby.Members)            {
+                if (player.IsReady)
+                {
+                    playersReady++;
+                }
+            }
+            return playersReady;
+        }
         
         private void Awake()
         {

@@ -29,15 +29,15 @@ namespace PurrLobby
             userName.text = user.DisplayName;
             SetReady(user.IsReady);
             string ownId = await FindAnyObjectByType<LobbyManager>().GetPlayer();
-            if (ownId != _memberId) roleButton.enabled = false;
+            if (ownId != _memberId) roleButton.interactable = false;
             else
             {
-                roleButton.enabled = true;
+                roleButton.interactable = true;
                 roleButton.onClick.AddListener(delegate {
                     FindAnyObjectByType<LobbyManager>().ToggleLocalRole();
                 });
                 readyButton.onClick.AddListener(delegate {
-                    roleButton.enabled = !roleButton.enabled;
+                    roleButton.interactable = !roleButton.interactable;
                 });
             }
         }
@@ -45,6 +45,11 @@ namespace PurrLobby
         public void SetReady(bool isReady)
         {
             userName.color = isReady ? readyColor : _defaultColor;
+        }
+
+        public void LockReady(bool isLocked)
+        {
+            readyButton.interactable = !isLocked;
         }
 
         public void SetRole(bool isGhost)

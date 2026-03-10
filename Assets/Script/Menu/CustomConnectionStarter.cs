@@ -112,7 +112,7 @@ public class CustomConnectionStarter : MonoBehaviour
         if (m_stateMachine.states[0] is WaitForPlayerState)
         {
             PurrLogger.Log("Setup the number of player");
-            ((WaitForPlayerState)m_stateMachine.states[0]).set_numPlayers(m_lobbyDataHolder.GetNumber_of_player_in_lobby());
+            ((WaitForPlayerState)m_stateMachine.states[0]).set_numPlayers(m_lobbyDataHolder.GetNumber_of_player_ready_in_lobby());
         }
         else
         {
