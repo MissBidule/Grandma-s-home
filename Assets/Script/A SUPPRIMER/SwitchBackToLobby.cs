@@ -3,7 +3,7 @@ using PurrNet.Logging;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class SwitchBackToLobby : MonoBehaviour
+public class SwitchBackToLobby : NetworkBehaviour
 {
     [PurrScene, SerializeField] private string nextScene;
 
@@ -22,6 +22,7 @@ public class SwitchBackToLobby : MonoBehaviour
         }
     }
 
+    [ObserversRpc]
     public void SwitchScene()
         {
             // Prevent duplicate scene switches

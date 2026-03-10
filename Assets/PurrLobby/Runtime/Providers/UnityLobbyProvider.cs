@@ -151,6 +151,7 @@ namespace PurrLobby.Providers {
                 CurrentLobby.LobbyCode,
                 CurrentLobby.MaxPlayers,
                 IsLocalPlayerHost,
+                CurrentLobby.IsPrivate,
                 GetLobbyUsers(CurrentLobby),
                 GetLobbyProperties(CurrentLobby),
                 RelayServerAllocation
@@ -604,6 +605,30 @@ namespace PurrLobby.Providers {
             });
         }
 
+        public async Task OnLobbyUpdateData(string _lobbyId) {
+            if(!IsUnityServiceAvailable) { return; }
+
+            CurrentLobby = await LobbyService.Instance.GetLobbyAsync(_lobbyId);
+            await SubscribeLobbyEventsAsync();
+            await InitializeLocalPlayerData();
+            /*
+
+            var updatedLobby = LobbyFactory.Create(
+                _lobby.Name,
+                _lobby.LobbyId,
+                _lobby.LobbyCode,
+                _lobby.MaxPlayers,
+                _lobby.IsOwner,
+                _lobby.Members,
+                _lobby.Properties,
+                RelayServerAllocation
+            );
+
+            Debug.Log("Lobby Updated");
+            OnLobbyUpdated?.Invoke(updatedLobby);
+            OnLobbyPlayerListUpdated?.Invoke(updatedLobby.Members);*/
+        }
+
         /// <summary>
         /// Add/Update a Player property
         /// </summary>
@@ -638,6 +663,8 @@ namespace PurrLobby.Providers {
         }
 
         public async Task SetIsReadyAsync(string userId, bool isReady) {
+            Debug.Log(CurrentLobby == null);
+            Debug.Log(LocalPlayer == null);
             if(!IsUnityServiceAvailable || CurrentLobby == null || LocalPlayer == null) { return; }
 
             await SetPlayerDataAsync("IsReady", $"{isReady}");

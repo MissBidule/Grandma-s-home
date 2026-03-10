@@ -32,11 +32,12 @@ namespace PurrLobby
             if (ownId != _memberId) roleButton.enabled = false;
             else
             {
+                roleButton.enabled = true;
                 roleButton.onClick.AddListener(delegate {
                     FindAnyObjectByType<LobbyManager>().ToggleLocalRole();
                 });
                 readyButton.onClick.AddListener(delegate {
-                        roleButton.enabled = !roleButton.enabled;
+                    roleButton.enabled = !roleButton.enabled;
                 });
             }
         }

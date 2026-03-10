@@ -17,6 +17,8 @@ namespace PurrLobby.Editor
 
         private void CustomProperties()
         {
+            EditorGUILayout.LabelField("Custom properties", EditorStyles.boldLabel);
+
             var serializedObject = new SerializedObject(target);
             var eventProperty = serializedObject.FindProperty("m_readyButton");
             if (eventProperty != null)
@@ -33,8 +35,17 @@ namespace PurrLobby.Editor
             {
                 EditorGUILayout.PropertyField(eventProperty3, true);
             }
+            var eventProperty4 = serializedObject.FindProperty("m_serverType");
+            if (eventProperty4 != null)
+            {
+                EditorGUILayout.PropertyField(eventProperty4, true);
+            }
+            var eventProperty5 = serializedObject.FindProperty("m_playerCount");
+            if (eventProperty5 != null)
+            {
+                EditorGUILayout.PropertyField(eventProperty5, true);
+            }
             serializedObject.ApplyModifiedProperties();
-            
             EditorGUILayout.Space();
         }
 
