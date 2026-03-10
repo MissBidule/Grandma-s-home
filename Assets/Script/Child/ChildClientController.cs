@@ -13,6 +13,7 @@ public class ChildClientController : NetworkBehaviour
     private CinemachineCamera m_playerCamera;
     private ChildInputController m_childInputController;
     private ChildController m_childController;
+    private QteCircle m_qteCircle;
 
     private bool m_jumpPressed = false;
     private bool m_switchWeaponPressed = false;
@@ -37,6 +38,7 @@ public class ChildClientController : NetworkBehaviour
         m_childInputController = GetComponent<ChildInputController>();
         if (m_uiHolder == null)
             m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
+            m_qteCircle = m_uiHolder.GetComponentInChildren<QteCircle>();
         // Use PlayerControllerCore.m_playerCamera (Inspector-assigned, always valid)
         // instead of GetComponentInChildren which can fail in multi-instance scenarios
         var core = GetComponent<PlayerControllerCore>();
@@ -55,6 +57,7 @@ public class ChildClientController : NetworkBehaviour
 
         // DebugPrintTrafic();
 
+        if (m_qteCircle.m_isRunning) return;
         var moveVec = m_childInputController.m_movementInputVector;
         var wishDir = GetDirectionIntention(moveVec);
         var cameraYaw = m_playerCamera.transform.eulerAngles.y;
@@ -100,7 +103,15 @@ public class ChildClientController : NetworkBehaviour
     public void OnJump()
     {
         if (!isOwner) return;
+        if (m_qteCircle.m_isRunning) return;
         m_jumpPressed = true;
+    }
+
+    public void OnValidation()
+    {
+        if (!isOwner) return;
+        if (!m_qteCircle.m_isRunning) return;
+        m_qteCircle.CheckSuccess();
     }
 
     public void OnSwitchWeapon()

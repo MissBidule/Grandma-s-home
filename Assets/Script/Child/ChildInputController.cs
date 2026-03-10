@@ -54,21 +54,6 @@ public class ChildInputController : MonoBehaviour
         m_lookInputVector = _context.ReadValue<Vector2>();
     }
 
-
-    /*
-     * @brief function called when the child inputs the jump command
-     * @param _context: value linked to input
-     * @return void
-     */
-    public void OnJump(InputAction.CallbackContext _context)
-    {
-        if (!isOwner) return;
-        if (_context.performed)
-        {
-            m_childClientController.OnJump();
-        }
-    }
-
     /*
      * @brief OnInteract is called by the Input System when interact input is detected
      * @param _context: The context of the input action
@@ -149,6 +134,15 @@ public class ChildInputController : MonoBehaviour
         }
     }
 
+    public void OnJump(InputAction.CallbackContext _context)
+    {
+        if (!isOwner) return;
+        if (_context.performed)
+        {
+            m_childClientController.OnJump();
+        }
+    }
+
     /*
      * @brief OnValidate is called by the Input System when validate input is detected
      * @param _context: The context of the input action
@@ -159,16 +153,7 @@ public class ChildInputController : MonoBehaviour
         if (!isOwner) return;
         if (_context.performed)
         {
-            if (!m_qteCircle)
-            {
-                // Cant place the reference in start cause we need to wait for ChildClientController to spawn the UIHolder
-                m_qteCircle = FindAnyObjectByType<QteCircle>();
-            }
-
-            if(m_qteCircle.m_isRunning)
-            {
-                m_qteCircle.CheckSuccess();
-            }
+            m_childClientController.OnValidation();
         }
     }
 }
