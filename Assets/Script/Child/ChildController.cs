@@ -126,7 +126,6 @@ public class ChildController : PlayerControllerCore
             if (m_lastShot >= m_cdGun)
             {
                 m_lastShot = 0;
-                Debug.Log("shoot");
                 Vector3 aimTarget;
                 if (Physics.Raycast(m_cameraPosition, m_cameraForward, out RaycastHit hit, m_shootRange))
                     aimTarget = hit.point;
