@@ -1,4 +1,5 @@
 using PurrNet;
+using PurrNet.Logging;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -284,6 +285,7 @@ public class GhostController : PlayerControllerCore, IInteractable
         if (!isServer) return;
         if (!owner.HasValue)
             return;
+        PurrLogger.LogWarning("Ghost Died", this);
         OnDeathChange?.Invoke(true, owner.Value); // True because he dies
         ApplyStopToAll();
         m_currentTimerStop = m_timerStop;
@@ -371,6 +373,7 @@ public class GhostController : PlayerControllerCore, IInteractable
         if (!m_isStopped) return;
         if (!owner.HasValue)
             return;
+        PurrLogger.LogWarning("Ghost Revive", this);
         OnDeathChange?.Invoke(false, owner.Value); // False because he undies
         ForceRevive();
         if (!m_reviver.m_isStopped)

@@ -2,6 +2,7 @@ using System;
 using System.Linq.Expressions;
 using PurrNet;
 using Script.UI.Views;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -17,8 +18,11 @@ public class ScoreManager : NetworkBehaviour
     [SerializeField] private int m_scoreBroken;
     [SerializeField] private float m_maxScoreSabotage=5.0f;
     [SerializeField] private int m_maxScoreBroken=5;
+    
     private float m_timer;
+    
     public Action<bool> m_noticeHouseDestroyed; // false if only sabotaged
+    private bool m_sabotagedCalled = false;
 
     private void Awake()
     {
@@ -43,8 +47,7 @@ public class ScoreManager : NetworkBehaviour
         RefreshUI();
 
         if (!isServer) return;
-
-
+        
         m_timer += Time.deltaTime;
 
         if (m_timer >= 1f)
@@ -53,9 +56,10 @@ public class ScoreManager : NetworkBehaviour
             SabotageBonus();
         }
 
-        if (GetFinalScoreSabotage() > m_maxScoreSabotage)
+        if (GetFinalScoreSabotage() > m_maxScoreSabotage && !m_sabotagedCalled)
         {
             m_noticeHouseDestroyed?.Invoke(false);
+            m_sabotagedCalled = true;
         }
 
         float sabotagePoints = 0; 
@@ -65,7 +69,7 @@ public class ScoreManager : NetworkBehaviour
         }
         if(sabotagePoints==0)
         {
-            ResetScore();
+            ResetSabotageScore();
         }
     }
 
@@ -191,11 +195,22 @@ public class ScoreManager : NetworkBehaviour
     }
 
     /*
-     * @details This function resets the Sabotage score.
+     * @details This function resets the scores.
      * @return void
      */
     [ServerRpc(requireOwnership:false)]
     public void ResetScore()   
+    {
+        m_scoresSabotage.Clear();
+        m_scoresBroken.Clear();
+    }
+    
+    /*
+     * @details This function resets the Sabotage score.
+     * @return void
+     */
+    [ServerRpc(requireOwnership:false)]
+    public void ResetSabotageScore()   
     {
         m_scoresSabotage.Clear();
     }
@@ -234,7 +249,7 @@ public class ScoreManager : NetworkBehaviour
     {
         float totalBroken = 0;
 
-        foreach (var entry in m_scoresBroken)
+        foreach (KeyValuePair<PlayerID, ScoreData2> entry in m_scoresBroken)
         {
             totalBroken += entry.Value.pointBroken;
         }

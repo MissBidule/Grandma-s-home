@@ -152,24 +152,24 @@ public class ChildController : PlayerControllerCore
      */
     private void OnTriggerEnter(Collider _other)
     {
-        PurrLogger.Log($"Trigger Enter {_other.gameObject.name} {_other.gameObject.layer.ToString()}", this);
+        //PurrLogger.Log($"Trigger Enter {_other.gameObject.name} {_other.gameObject.layer.ToString()}", this);
         if ((m_GhostLayerMask.value & (1 << _other.gameObject.layer)) == 0) return;
-        PurrLogger.Log($"Trigger Good Layer", this);
+        //PurrLogger.Log($"Trigger Good Layer", this);
         if (!_other.gameObject.TryGetComponent(out GhostController ghost))
         {
-            foreach (var component in _other.GetComponents<Component>())
-            {
-                PurrLogger.LogWarning($"{_other.gameObject.name} Component: {component.GetType().Name}", this);
-            }
+            //foreach (var component in _other.GetComponents<Component>())
+            //{
+            //    PurrLogger.LogWarning($"{_other.gameObject.name} Component: {component.GetType().Name}", this);
+            //}
             return;   
         }
-        PurrLogger.Log($"Ghost Found", this);
+        //PurrLogger.Log($"Ghost Found", this);
         if (ghost.m_isStopped) return;
-        PurrLogger.Log($"Ghost Not stopped", this);
-        Debug.Log(ghost.m_canScareChild + " from ChildController OnTriggerEnter");
+        //PurrLogger.Log($"Ghost Not stopped", this);
+        //Debug.Log(ghost.m_canScareChild + " from ChildController OnTriggerEnter");
         if (!ghost.m_canScareChild) return;
-        PurrLogger.Log($"Ghost Can Scare", this);
-        PurrLogger.Log("Ghost", this);
+        //PurrLogger.Log($"Ghost Can Scare", this);
+        //PurrLogger.Log("Ghost", this);
         ghost.StartSpookyScary();
         GhostTouch();
     }
@@ -181,7 +181,7 @@ public class ChildController : PlayerControllerCore
     {
         if (!isServer) return;
         m_isScared = true;
-        PurrLogger.Log("Ghost Touch", this);
+        //PurrLogger.Log("Ghost Touch", this);
         UpdateScaredToAll(m_isScared);
         StartCoroutine(ScaredTimer(m_scaredDuration));
     }
