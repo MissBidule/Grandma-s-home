@@ -63,6 +63,7 @@ namespace PurrLobby
         private float _elapsedTime = 0;
 
         [SerializeField] private Button m_readyButton;
+        [SerializeField] private Button m_leaveButton;
 
         private void Awake()
         {
@@ -497,6 +498,7 @@ namespace PurrLobby
         public void LockReady()
         {
             m_readyButton.interactable = false;
+            m_leaveButton.interactable = false;
         }
         
         public async Task WaitForAllTasksAsync()
