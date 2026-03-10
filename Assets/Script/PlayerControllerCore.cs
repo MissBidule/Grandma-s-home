@@ -76,6 +76,9 @@ public class PlayerControllerCore : NetworkBehaviour
         if (!m_playerCamera) m_playerCamera = GetComponentInChildren<CinemachineCamera>();
         if (m_playerCamera != null)
             m_playerCamera.gameObject.SetActive(isOwner);
+        
+        var cinemachineBrain = GetComponentInChildren<CinemachineBrain>();
+        if (cinemachineBrain != null) cinemachineBrain.gameObject.SetActive(isOwner);
 
         // Also deactivate the local render camera (CinemachineBrain) for non-owners
         // to prevent multiple active cameras and duplicate AudioListeners
