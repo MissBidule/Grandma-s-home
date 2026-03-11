@@ -21,6 +21,11 @@ namespace PurrLobby
             serializedLobby.MaxPlayers = _max_players;
         }
 
+        public void SetPrivate(bool _isPrivate)
+        {
+            serializedLobby.IsPrivate = _isPrivate;
+        }
+
         public void setNumber_of_player_in_lobby(int number_of_player_in_lobby)
         {
             this.number_of_player_in_lobby = number_of_player_in_lobby;
@@ -29,6 +34,18 @@ namespace PurrLobby
         public int GetNumber_of_player_in_lobby()
         {
             return number_of_player_in_lobby;
+        }
+
+        public int GetNumber_of_player_ready_in_lobby()
+        {
+            int playersReady = 0;
+            foreach (LobbyUser player in CurrentLobby.Members)            {
+                if (player.IsReady)
+                {
+                    playersReady++;
+                }
+            }
+            return playersReady;
         }
         
         private void Awake()

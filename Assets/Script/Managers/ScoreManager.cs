@@ -217,7 +217,7 @@ public class ScoreManager : NetworkBehaviour
 
     /*
      * @details This function checks which player changed the Sabotage score.
-     * @param _playerID: Id of the player.
+     * @param _playerID: ID of the player.
      * @return void
      */
     private void CheckForDictonaryEntrySabotage(PlayerID _playerID)
@@ -253,8 +253,7 @@ public class ScoreManager : NetworkBehaviour
         {
             totalBroken += entry.Value.pointBroken;
         }
-
-
+        
         if (InstanceHandler.TryGetInstance(out GhostHUDView ghostHUDView))
             ghostHUDView.UpdateScore(GetFinalScoreSabotage(), m_maxScoreSabotage, m_scoreBroken, m_maxScoreBroken);
         
