@@ -1,15 +1,9 @@
 using PurrNet.Voice;
 using UnityEngine;
-using PurrNet;
 
-public class AudioManager : NetworkBehaviour
+public class AudioManager : MonoBehaviour
 {
-    void Update()
-    {
-        MuteGhostByChild();
-    }
-
-    void MuteGhostByChild()
+    public void MuteGhostByChild()
     {
         if(ChildClientController.m_thePlayerIsAChild)
         {
