@@ -112,11 +112,11 @@ namespace Script.UI.Views
         {
             m_sabotageScoreSlider.value = _sabotageScore;
             m_sabotageScoreSlider.maxValue = _maxScoreSabotage;
-            m_scoreSabotage.text = _sabotageScore+"$";
+            m_scoreSabotage.text = _sabotageScore.ToString("F2"); // XXX.XX
             
             m_brokenScoreSlider.value = _brokenScore;
             m_brokenScoreSlider.maxValue = _maxScoreBroken;
-            m_scoreBroken.text = _brokenScore+"$";
+            m_scoreBroken.text = _brokenScore.ToString("F2") + "$"; // XXXX.XX;
         }
     }
 }

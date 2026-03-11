@@ -32,13 +32,14 @@ namespace Script.States
         public override void Enter(bool _childWin, bool _asServer)
         {
             base.Enter(_asServer);
-
+            
+            PurrLogger.Log($"End Game childWin {_childWin} | Server asServer {_asServer}");
+            
             if (!_asServer)
                 return;
-
+            
             SetupEndGameUI(_childWin);
             
-            PurrLogger.Log("End Game");
             if (!InstanceHandler.TryGetInstance(out EndGameView endGameView))
                 return;
             endGameView.EnableHostTools();

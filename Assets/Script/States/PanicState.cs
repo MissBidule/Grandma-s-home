@@ -34,6 +34,8 @@ namespace Script.States
         private List<PlayerID> m_deadGhosts = new();
 
         private Coroutine m_panicTimer;
+        
+        private EndGameState m_endGameState;
 
         protected override void OnDestroy()
         {
@@ -75,6 +77,16 @@ namespace Script.States
 
             if (!_asServer)
                 return;
+            
+            foreach (StateNode state in machine.states)
+            {
+                switch (state)
+                {
+                    case EndGameState endGameState:
+                        m_endGameState = endGameState;
+                        break;
+                }
+            }
 
             GhostInitialize(_ghostGameStateData);
 
@@ -177,7 +189,7 @@ namespace Script.States
             StopTimer();
             UnregisteringListener();
             PurrLogger.Log($"Moving to End of game step. ChildWin: {_childWin}");
-            machine.Next(_childWin);
+            machine.SetState(m_endGameState, _childWin); // because the state machine decided it didn't want to go to next set anymore
         }
     }
 }
