@@ -67,9 +67,6 @@ public class PlayerControllerCore : NetworkBehaviour
     private void ApplyOwnership()
     {
 
-        var audioListener = GetComponentInChildren<AudioListener>();
-        if (audioListener != null) audioListener.enabled = isOwner;
-
         var playerInput = GetComponent<PlayerInput>();
         if (playerInput != null) playerInput.enabled = isOwner;
 
