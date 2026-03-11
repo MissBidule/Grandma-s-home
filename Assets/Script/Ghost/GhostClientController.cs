@@ -43,8 +43,6 @@ public class GhostClientController : NetworkBehaviour
         m_ghostMorph = GetComponent<GhostMorph>();
         m_ghostMorphPreview = GetComponentInChildren<GhostMorphPreview>();
 
-        if (isOwner) InitOwner();
-
         InstanceHandler.TryGetInstance(out m_ghostHUDView);
     }
 

@@ -11,7 +11,7 @@ using UnityEngine.Rendering;
  * @brief Contains class declaration for TransformPreviewGhost
  * @details The TransformPreviewGhost class handles the preview of transformations, checking for collisions and updating materials accordingly.
  */
-public class GhostMorphPreview : NetworkBehaviour
+public class GhostMorphPreview : MonoBehaviour
 {
     [SerializeField] private float m_scanRange = 10f;
     [SerializeField] private LayerMask m_scanLayerMask;
@@ -51,17 +51,6 @@ public class GhostMorphPreview : NetworkBehaviour
      */
     void Start()
     {
-        if (!isOwner) return;
-        InitOwner();
-    }
-
-    protected override void OnOwnerChanged(PurrNet.PlayerID? oldOwner, PurrNet.PlayerID? newOwner, bool asServer)
-    {
-        if (isOwner && m_cameraTransform == null) InitOwner();
-    }
-
-    private void InitOwner()
-    {
         m_meshRenderer = GetComponent<MeshRenderer>();
         m_previewCollider = GetComponent<Collider>();
         m_meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
@@ -73,9 +62,9 @@ public class GhostMorphPreview : NetworkBehaviour
             m_cameraTransform = core.m_playerCamera.transform;
     }
 
+
     private void Update()
     {
-        if (!isOwner) return;
         CheckForScannableObject();
 
         if (m_currentPrefab != null)
@@ -256,7 +245,6 @@ public class GhostMorphPreview : NetworkBehaviour
      */
     void UpdateMaterial()
     {
-        if (!isOwner) return;
         Material[] mats = m_meshRenderer.materials;
         Color targetColor = m_canMorph ? m_validColor : m_invalidColor;
         foreach (Material mat in mats)
@@ -278,7 +266,6 @@ public class GhostMorphPreview : NetworkBehaviour
      */
     private void CheckForScannableObject()
     {
-        if (!isOwner) return;
         if (m_cameraTransform == null || GetComponentInParent<GhostMorph>().m_isMorphed)
         {
             ClearHighlight();

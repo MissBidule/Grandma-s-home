@@ -35,17 +35,6 @@ public class PlayerControllerCore : NetworkBehaviour
         base.OnSpawned();
 
         Debug.Log($"[{gameObject.name}] OnSpawned - isOwner: {isOwner}, localPlayer: {localPlayer}, owner: {owner}");
-
-        ApplyOwnership();
-
-        if (!isOwner)
-        {
-            // Change color of non-owned players for better visibility
-            foreach (var renderer in m_renderers)
-            {
-                renderer.material.color = Color.HSVToRGB(Random.Range(0f, 1f), 0.8f, 0.9f);
-            }
-        }
     }
 
     /*
@@ -83,6 +72,14 @@ public class PlayerControllerCore : NetworkBehaviour
             m_localRenderCamera.SetActive(isOwner);
 
         if (isOwner) DisableWaitUIObserverRPC();
+        
+        // Change color of non-owned players for better visibility
+        if (isOwner) return; // Keep owned player default color
+        foreach (var renderer in m_renderers)
+        {
+            renderer.material.color = Color.HSVToRGB(Random.Range(0f, 1f), 0.8f, 0.9f);
+        }
+
     }
     
     private void OnDisable()
