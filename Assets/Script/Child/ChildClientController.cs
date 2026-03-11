@@ -6,6 +6,19 @@ using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+public struct ChildInputData
+{
+    public int tick;
+    public Vector3 wishDirection;
+    public float cameraYaw;
+    public Vector3 cameraPosition;
+    public Vector3 cameraForward;
+    public bool jumpPressed;
+    public bool switchPressed;
+    public bool attackPressed;
+    public bool sneakPressed;
+}
+
 public class ChildClientController : NetworkBehaviour
 {
     [SerializeField] private GameObject m_uiHolder_prefab;
@@ -14,15 +27,19 @@ public class ChildClientController : NetworkBehaviour
     private ChildInputController m_childInputController;
     private ChildController m_childController;
     private QteCircle m_qteCircle;
+    private GameObject m_predictionPrefab;
 
     private bool m_jumpPressed = false;
     private bool m_switchWeaponPressed = false;
     private bool m_attackPressed = false;
     private bool m_sneakPressed = false;
-    
+
+    private PredictiveMovement m_predictiveMovement;
+
     protected override void OnSpawned()
     {
         base.OnSpawned();
+        m_predictiveMovement = GetComponent<PredictiveMovement>();
         m_childController = GetComponent<ChildController>();
     }
 
@@ -35,15 +52,20 @@ public class ChildClientController : NetworkBehaviour
     {
         m_childInputController = GetComponent<ChildInputController>();
         if (m_uiHolder == null)
+        {
             m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
-            m_qteCircle = m_uiHolder.GetComponentInChildren<QteCircle>();
+            if (!isServer) UnityProxy.InstantiateDirectly(m_predictionPrefab);
+        }
+
+
+        m_qteCircle = m_uiHolder.GetComponentInChildren<QteCircle>();
         // Use PlayerControllerCore.m_playerCamera (Inspector-assigned, always valid)
         // instead of GetComponentInChildren which can fail in multi-instance scenarios
         var core = GetComponent<PlayerControllerCore>();
         if (core != null) m_playerCamera = core.m_playerCamera;
         Debug.Log($"[ChildClientController] InitOwner - m_playerCamera: {m_playerCamera}, m_childInputController: {m_childInputController}");
 
-        if (InstanceHandler.TryGetInstance(out UIsManager  uisManager))
+        if (InstanceHandler.TryGetInstance(out UIsManager uisManager))
             uisManager.ShowView<ChildHUDView>();
     }
 
@@ -60,16 +82,24 @@ public class ChildClientController : NetworkBehaviour
         var wishDir = GetDirectionIntention(moveVec);
         var cameraYaw = m_playerCamera.transform.eulerAngles.y;
 
+        var inputData = new ChildInputData
+        {
+            tick = m_predictiveMovement.GetTick(),
+            wishDirection = wishDir,
+            cameraYaw = m_playerCamera.transform.eulerAngles.y,
+            cameraPosition = m_playerCamera.transform.position,
+            cameraForward = GetCameraForward(),
+            jumpPressed = m_jumpPressed,
+            switchPressed = m_switchWeaponPressed,
+            attackPressed = m_attackPressed,
+            sneakPressed = m_sneakPressed
+        };
+
+        m_predictiveMovement.NewInput(inputData);
+
 
         SendChildRPC(
-            wishDir,
-            m_playerCamera.transform.eulerAngles.y,
-            m_playerCamera.transform.position,
-            m_playerCamera.transform.forward,
-            m_jumpPressed,
-            m_switchWeaponPressed,
-            m_attackPressed,
-            m_sneakPressed
+            inputData
         );
 
         m_jumpPressed = false;
@@ -92,7 +122,7 @@ public class ChildClientController : NetworkBehaviour
     {
         if (!InstanceHandler.TryGetInstance(out ChildHUDView childHUDView))
             return;
-        
+
         if (m_childController.m_isScared)
             childHUDView.StartScared(m_childController.GetScaredDuration());
         else childHUDView.m_isScared = false;
@@ -123,7 +153,7 @@ public class ChildClientController : NetworkBehaviour
         if (!isOwner) return;
         m_attackPressed = true;
     }
-    
+
     /*
      * @brief call the server to sneak
      */
@@ -156,7 +186,7 @@ public class ChildClientController : NetworkBehaviour
         return wishDir;
     }
 
-    private Vector3 GetCameraForward(){
+    private Vector3 GetCameraForward() {
         Transform cameraTransform = m_playerCamera.transform;
         Vector3 forward = cameraTransform.forward;
         forward.y = 0f;
@@ -164,15 +194,15 @@ public class ChildClientController : NetworkBehaviour
     }
 
     [ServerRpc]
-    private void SendChildRPC(Vector3 _wishDirection, float _cameraYaw, Vector3 _cameraPosition, Vector3 _cameraForward,  bool _jumpPressed, bool _switchPressed, bool _attackPressed, bool _sneakPressed)
+    private void SendChildRPC(ChildInputData _data)
     {
-        m_childController.m_wishDir = _wishDirection;
-        m_childController.m_cameraYaw = _cameraYaw;
-        m_childController.m_cameraPosition = _cameraPosition;
-        m_childController.m_cameraForward = _cameraForward;
-        if (_jumpPressed) m_childController.Jump();
-        if (_switchPressed) m_childController.SwitchAttackType();
-        if (_attackPressed) m_childController.Attack();
-        m_childController.m_isSneaking = _sneakPressed;
+        m_childController.m_wishDir = _data.wishDirection;
+        m_childController.m_cameraYaw = _data.cameraYaw;
+        m_childController.m_cameraPosition = _data.cameraPosition;
+        m_childController.m_cameraForward = _data.cameraForward;
+        if (_data.jumpPressed) m_childController.Jump();
+        if (_data.switchPressed) m_childController.SwitchAttackType();
+        if (_data.attackPressed) m_childController.Attack();
+        m_childController.m_isSneaking = _data.sneakPressed; 
     }
 }

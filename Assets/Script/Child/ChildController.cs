@@ -127,10 +127,10 @@ public class ChildController : PlayerControllerCore
             {
                 m_lastShot = 0;
                 Vector3 aimTarget;
-                if (Physics.Raycast(m_cameraPosition, m_cameraForward, out RaycastHit hit, m_shootRange))
+                if (Physics.Raycast(m_cameraPosition, m_cameraForward, out RaycastHit hit, 50f))
                     aimTarget = hit.point;
                 else
-                    aimTarget = m_cameraPosition + m_cameraForward * m_shootRange;
+                    aimTarget = m_cameraPosition + m_cameraForward * 50f;
                 Vector3 shootDir = (aimTarget - m_bulletSpawnTransform.position).normalized;
                 ShootForAll(Quaternion.LookRotation(shootDir));
             }
