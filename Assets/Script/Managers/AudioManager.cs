@@ -5,8 +5,6 @@ public class AudioManager : MonoBehaviour
 {
     public void MuteGhostByChild()
     {
-        if(ChildClientController.m_thePlayerIsAChild)
-        {
             foreach(GameObject obj in FindObjectsByType<GameObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
             {
                 if(obj.layer == LayerMask.NameToLayer("Ghost"))
@@ -21,6 +19,5 @@ public class AudioManager : MonoBehaviour
                     }
                 }
             }
-        }
     }
 }
