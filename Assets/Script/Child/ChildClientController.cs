@@ -19,6 +19,7 @@ public class ChildClientController : NetworkBehaviour
     private bool m_switchWeaponPressed = false;
     private bool m_attackPressed = false;
     private bool m_sneakPressed = false;
+    public static bool m_thePlayerIsAChild;
     
     protected override void OnSpawned()
     {
@@ -36,6 +37,8 @@ public class ChildClientController : NetworkBehaviour
     private void InitOwner()
     {
         m_childInputController = GetComponent<ChildInputController>();
+        Debug.Log("Je suis un child mouhahahahahahhaah");
+        m_thePlayerIsAChild = true;
         if (m_uiHolder == null)
             m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
             m_qteCircle = m_uiHolder.GetComponentInChildren<QteCircle>();

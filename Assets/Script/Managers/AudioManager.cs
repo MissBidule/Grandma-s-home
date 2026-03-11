@@ -1,20 +1,32 @@
-using Unity.Cinemachine;
+using PurrNet.Voice;
 using UnityEngine;
+using PurrNet;
 
-public class AudioManager : MonoBehaviour
+public class AudioManager : NetworkBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        CinemachineBrain brain = Camera.main.GetComponent<CinemachineBrain>();
-        ICinemachineCamera currentCam = brain.ActiveVirtualCamera;
-
-        Debug.Log("The name of the camera"+currentCam.Name);
-    }
-
-    // Update is called once per frame
     void Update()
     {
-        
+        MuteGhostByChild();
+    }
+
+    void MuteGhostByChild()
+    {
+        if(ChildClientController.m_thePlayerIsAChild)
+        {
+            foreach(GameObject obj in FindObjectsByType<GameObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+            {
+                if(obj.layer == LayerMask.NameToLayer("Ghost"))
+                {
+                    PurrVoicePlayer purrVoicePlayer = obj.GetComponent<PurrVoicePlayer>();
+                    if (purrVoicePlayer != null)
+                    {
+                        if(!purrVoicePlayer.muted)
+                        {
+                        purrVoicePlayer.muted=true;
+                        }
+                    }
+                }
+            }
+        }
     }
 }
