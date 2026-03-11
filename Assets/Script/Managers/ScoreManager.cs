@@ -234,8 +234,8 @@ public class ScoreManager : NetworkBehaviour
         }
         if (m_scoreText != null)
         {
-            m_scoreText.text = $"Score Sabotage : {GetFinalScoreSabotage():0.00}";
-            //m_scoreText.text = $"Score : {totalBroken}";
+            //m_scoreText.text = $"Score Sabotage : {GetFinalScoreSabotage():0.00}";
+            m_scoreText.text = $"Score Broken : {totalBroken}\nScore Sabotage :{GetFinalScoreSabotage():0.00}";
         }
     }
 }
