@@ -32,14 +32,6 @@ namespace Script.UI.Views
             m_hostTools.SetActive(true);
         }
         
-        public void ResetGame()
-        {
-            m_hostTools.SetActive(false);
-            if (!InstanceHandler.TryGetInstance(out EndGameState endGameState))
-                return;
-            endGameState.ResetGame();
-        }
-
         public void BackToLobby()
         {
             if (!InstanceHandler.TryGetInstance(out EndGameState endGameState))

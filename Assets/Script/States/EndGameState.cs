@@ -49,21 +49,6 @@ namespace Script.States
             endGameView.EnableHostTools();
         }
         
-        public void ResetGame()
-        {
-            if (!isServer)
-                return;
-            PurrLogger.Log("Reset Game");
-            if (!InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
-                return;
-            scoreManager.ResetScore();
-            
-            if (!InstanceHandler.TryGetInstance(out UIsManager uisManager))
-                return;
-            uisManager.HideView<EndGameView>();
-            machine.SetState(m_spawnState);
-        }
-        
         [ObserversRpc]
         public void BackToLobby()
         {
