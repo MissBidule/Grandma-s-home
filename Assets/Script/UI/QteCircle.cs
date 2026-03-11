@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 /*
  * @brief  Contains class declaration for QteCircle
- * @details Script that handles a circular QTE with several difficulties (3D mesh version)
+ * @details Script that handles a circular QTE with several difficulties
  */
 public class QteCircle : MonoBehaviour
 {
@@ -24,26 +24,17 @@ public class QteCircle : MonoBehaviour
 
     [Header("Debug")]
     [SerializeField] private Renderer m_needleRenderer;
+    [SerializeField] private bool m_debugNeedleColor = false;
 
-    [Header("Timing")]
+    [Header("Speed")]
     [SerializeField] private float m_rotationSpeedDegPerSec = 240f;
 
     [Header("Phases")]
-    [SerializeField] private float[] m_zoneToleranceByPhase = { 18f, 13f, 8f };
+    [SerializeField] private float[] m_zoneToleranceByPhase = { 52f, 43f, 20f };
 
     private int m_currentPhaseIndex;
     public bool m_isRunning;
     private Action<bool> m_onFinished;
-
-    private void Awake()
-    {
-        if (m_qteCamera != null && m_rawImage != null)
-        {
-            RenderTexture rt = new RenderTexture(512, 512, 16);
-            m_qteCamera.targetTexture = rt;
-            m_rawImage.texture = rt;
-        }
-    }
 
     private void Start()
     {
@@ -102,8 +93,8 @@ public class QteCircle : MonoBehaviour
 
     private void UpdateNeedleDebugColor()
     {
-        if (m_needleRenderer == null) return;
-        m_needleRenderer.material.color = IsNeedleInZone() ? Color.green : Color.black;
+        if (!m_debugNeedleColor || m_needleRenderer == null) return;
+        m_needleRenderer.material.color = IsNeedleInZone() ? Color.white : Color.black;
     }
 
     /**
@@ -114,8 +105,9 @@ public class QteCircle : MonoBehaviour
     {
         if (m_needlePivot == null) return;
 
-        float delta = m_rotationSpeedDegPerSec * Time.deltaTime;
-        m_needlePivot.Rotate(0f, 0f, -delta, Space.Self);
+        float direction = (m_currentPhaseIndex % 2 == 0) ? 1f : -1f;
+        float delta = direction * m_rotationSpeedDegPerSec * Time.deltaTime;
+        m_needlePivot.Rotate(0f, 0f, delta, Space.Self);
     }
 
     /**
@@ -179,6 +171,12 @@ public class QteCircle : MonoBehaviour
         return m_zoneToleranceByPhase[phaseIndex];
     }
 
+    public void CancelQte()
+    {
+        if (m_isRunning)
+            FinishQte(false);
+    }
+
     public void CheckSuccess()
     {
         bool success = IsNeedleInZone();
@@ -197,7 +195,6 @@ public class QteCircle : MonoBehaviour
         }
         else
         {
-            ResetNeedle();
             PlaceZoneRandomly();
             UpdateZoneVisual();
         }
