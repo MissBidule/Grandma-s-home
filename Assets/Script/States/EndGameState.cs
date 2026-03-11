@@ -5,12 +5,16 @@ using Script.UI.Views;
 using System;
 using UI;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Script.States
 {
     public class EndGameState : StateNode<bool>
     {
+        [PurrScene, SerializeField] private string m_lobbyScene;
+        
         private PlayerSpawningState m_spawnState;
+        private static bool _hasAlreadySwitched = false;
         
         private void Awake()
         {
@@ -58,6 +62,30 @@ namespace Script.States
                 return;
             uisManager.HideView<EndGameView>();
             machine.SetState(m_spawnState);
+        }
+        
+        [ObserversRpc]
+        public void BackToLobby()
+        {
+            // Prevent duplicate scene switches
+            if (_hasAlreadySwitched)
+            {
+                PurrLogger.LogWarning("SwitchScene already called - ignoring duplicate", this);
+                return;
+            }
+            
+            _hasAlreadySwitched = true;
+            
+            if (string.IsNullOrEmpty(m_lobbyScene))
+            {
+                PurrLogger.LogError("Next scene name is not set!", this);
+                return;
+            }
+
+            PurrLogger.Log($"Switching to scene: {m_lobbyScene}", this);
+            
+            // Load game scene - ConnectionStarter in new scene will handle network initialization
+            SceneManager.LoadSceneAsync(m_lobbyScene);
         }
 
         [ObserversRpc]

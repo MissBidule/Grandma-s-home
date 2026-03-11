@@ -39,5 +39,12 @@ namespace Script.UI.Views
                 return;
             endGameState.ResetGame();
         }
+
+        public void BackToLobby()
+        {
+            if (!InstanceHandler.TryGetInstance(out EndGameState endGameState))
+                return;
+            endGameState.BackToLobby();
+        }
     }
 }
