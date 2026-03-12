@@ -13,10 +13,7 @@ using UnityEngine.Serialization;
  */
 public class ChildController : PlayerControllerCore
 {
-    private Rigidbody m_rigidbody;
-
     // Camera Parameters
-    public float m_cameraYaw;
     [NonSerialized] public Vector3 m_cameraPosition;
     [NonSerialized] public Vector3 m_cameraForward;
     
@@ -37,23 +34,15 @@ public class ChildController : PlayerControllerCore
     [SerializeField] private float m_shootRange = 50f;
     
     [Header("Speed Modifiers")]
-    [SerializeField] private float m_speed = 5f;
-    [SerializeField] private float m_jumpImpulse = 6.0f;
-    public bool m_isScared = false;
-    [SerializeField] private float m_scaredAmplitude = 0.5f;
-    [SerializeField] [Tooltip("Duration of scared by ghost in seconds")] private float m_scaredDuration = 5.0f;
-    [SerializeField] private float m_sneakAmplitude = 0.5f;
-    private float m_speedModifier = 1.0f; // Default speed modifier
+    [SerializeField][Tooltip("Duration of scared by ghost in seconds")] private float m_scaredDuration = 5.0f;
 
     protected override void OnSpawned()
     {
         base.OnSpawned();
-        m_rigidbody = GetComponent<Rigidbody>();
 
         if (!isServer) return;
         m_lastShot = m_cdGun;
         m_switchingTime = m_cdSwitch;
-
     }
 
     /*
@@ -66,12 +55,7 @@ public class ChildController : PlayerControllerCore
         UpdateTimers();
     }
     
-    void SetSpeedModifier(bool _sneak)
-    {
-        m_speedModifier = 1f;
-        if (_sneak) m_speedModifier *= m_sneakAmplitude;
-        if (m_isScared) m_speedModifier *= m_scaredAmplitude;
-    }
+    
 
     void UpdateTimers()
     {
@@ -80,31 +64,13 @@ public class ChildController : PlayerControllerCore
     }
 
     /*
-     * @brief   Makes the child jump by applying an impulse force upwards
-     * @return  void
-     */
-    public void Jump()
-    {
-        if (!IsGrounded()) return;
-        m_rigidbody.AddForce(Vector3.up * m_jumpImpulse, ForceMode.Impulse);
-    }
-
-    /*
-     * @brief   Checks if the child is grounded by casting a ray downwards
-     * @return  bool True if grounded, false otherwise
-     */
-    private bool IsGrounded()
-    {
-        return Physics.Raycast(transform.position, Vector3.down, out _, 1.0f);
-    }
-
-    /*
      * @brief function called when the child inputs the hit command
      * @return void
      */
     public void Attack()
     {
-        if (!isServer || m_isScared) return; // Return if the player is scared
+        if (!isServer) return;
+        //if (m_isScared) return; // Return if the player is scared
         if (m_switchingTime < m_cdSwitch) return;
         if (m_isranged)
         {
@@ -125,10 +91,7 @@ public class ChildController : PlayerControllerCore
             Cac();
             Debug.Log("cac");
         }
-
     }
-    
-    
     
     /*
      * @brief   Called when the child collides with a ghost to apply the scared debuff, the collider is quite small to prevent from triggering while trying to hit a ghost with the bat
@@ -155,13 +118,13 @@ public class ChildController : PlayerControllerCore
         PurrLogger.Log($"Ghost Can Scare", this);
         PurrLogger.Log("Ghost", this);
         ghost.StartSpookyScary();
-        GhostTouch();
+        //GhostTouch();
     }
     
     /**
     @brief      Apply scared effect from ghost
     */
-    private void GhostTouch()
+    /*private void GhostTouch()
     {
         if (!isServer) return;
         m_isScared = true;
@@ -174,7 +137,7 @@ public class ChildController : PlayerControllerCore
     public void UpdateScaredToAll(bool _isScared)
     {
         m_isScared = _isScared;
-    }
+    }*/
 
     /*
      * @brief Timer for scared debuff
@@ -182,8 +145,8 @@ public class ChildController : PlayerControllerCore
     private IEnumerator ScaredTimer(float _scaredDuration)
     {
         yield return new WaitForSeconds(_scaredDuration);
-        m_isScared = false;
-        UpdateScaredToAll(m_isScared);
+        //m_isScared = false;
+        //UpdateScaredToAll(m_isScared);
     }
 
     public float GetScaredDuration()
@@ -246,39 +209,5 @@ public class ChildController : PlayerControllerCore
         if (!isServer) return;
         m_isranged = !m_isranged;
         m_switchingTime = 0;
-    }
-
-    public void SimulateMovement(ChildInputData input)
-    {
-        // Rotation
-        transform.rotation = Quaternion.Euler(0, m_cameraYaw, 0);
-
-        // Movement
-        SetSpeedModifier(input.sneakPressed);
-
-        Vector3 movement = input.wishDirection * (m_speed * Time.deltaTime * m_speedModifier);
-
-        if (isServer)
-        {
-            m_rigidbody.MovePosition(
-                m_rigidbody.position + movement
-            );
-
-            if (input.jumpPressed) Jump();
-        }
-        else
-        {
-            transform.position += movement;
-
-            if (input.jumpPressed)
-            {
-
-            }
-        }
-
-        
-
-
-
     }
 }

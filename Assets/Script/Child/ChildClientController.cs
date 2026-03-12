@@ -36,6 +36,8 @@ public class ChildClientController : NetworkBehaviour
 
     private PredictiveMovement m_predictiveMovement;
 
+    private bool m_gotOwner = false;
+
     protected override void OnSpawned()
     {
         base.OnSpawned();
@@ -46,6 +48,7 @@ public class ChildClientController : NetworkBehaviour
     protected override void OnOwnerChanged(PurrNet.PlayerID? oldOwner, PurrNet.PlayerID? newOwner, bool asServer)
     {
         if (isOwner) InitOwner();
+        m_gotOwner = true;
     }
 
     private void InitOwner()
@@ -72,6 +75,8 @@ public class ChildClientController : NetworkBehaviour
     void Update()
     {
         if (!isOwner) return;
+        if (!m_gotOwner) return;
+
 
         UpdateLabels();
 
@@ -95,8 +100,10 @@ public class ChildClientController : NetworkBehaviour
             sneakPressed = m_sneakPressed
         };
 
-        m_predictiveMovement.NewInput(inputData);
-
+        if (!isServer) // Modification locale pour le client, le serveur ne fait pas de mouvement prédictif
+        {
+            m_predictiveMovement.NewInput(inputData);
+        }
 
         SendChildRPC(
             inputData
@@ -123,8 +130,8 @@ public class ChildClientController : NetworkBehaviour
         if (!InstanceHandler.TryGetInstance(out ChildHUDView childHUDView))
             return;
 
-        if (m_childController.m_isScared)
-            childHUDView.StartScared(m_childController.GetScaredDuration());
+        //if (m_childController.m_isScared)
+        //    childHUDView.StartScared(m_childController.GetScaredDuration());
         else childHUDView.m_isScared = false;
     }
 
@@ -196,13 +203,11 @@ public class ChildClientController : NetworkBehaviour
     [ServerRpc]
     private void SendChildRPC(ChildInputData _data)
     {
-        m_childController.m_wishDir = _data.wishDirection;
-        m_childController.m_cameraYaw = _data.cameraYaw;
         m_childController.m_cameraPosition = _data.cameraPosition;
         m_childController.m_cameraForward = _data.cameraForward;
-        if (_data.jumpPressed) m_childController.Jump();
         if (_data.switchPressed) m_childController.SwitchAttackType();
         if (_data.attackPressed) m_childController.Attack();
-        m_childController.m_isSneaking = _data.sneakPressed; 
+        
+        m_predictiveMovement.NewInput(_data);
     }
 }

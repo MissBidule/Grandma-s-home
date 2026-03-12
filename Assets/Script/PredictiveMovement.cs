@@ -11,17 +11,14 @@ public class PredictiveMovement : NetworkBehaviour
     private List<ChildInputData> inputHistory = new List<ChildInputData>();
     private int tick = 0;
     private ChildInputController inputController;
+    private ChildSimulateMovement simulateMovement;
 
     private ChildInputData currentInput = new();
 
     private void Start()
     {
-        if (isHost) // Imagine Client Side Prediction in Server Side LMAO
-        {
-            enabled = false;
-            return;
-        }
         inputController = GetComponent<ChildInputController>();
+        simulateMovement = GetComponent<ChildSimulateMovement>();
         clearInputData();
 
         StartCoroutine(PredictiveUpdate());
@@ -60,16 +57,20 @@ public class PredictiveMovement : NetworkBehaviour
         while (true)
         {
             yield return new WaitForSeconds(frameRate);
+            currentInput.tick = tick;
             if (isServer)
             {
-
+                simulateMovement.SimulateMovement(currentInput);
+                clearInputData();
             }
             else
             {
+                simulateMovement.SimulateMovement(currentInput);
                 inputHistory.Add(currentInput);
                 clearInputData();
-                tick += 1;
             }
+            tick += 1;
+            Debug.Log("Tick number: " + tick + " Movement: " + currentInput.wishDirection);
         }
     }
 }

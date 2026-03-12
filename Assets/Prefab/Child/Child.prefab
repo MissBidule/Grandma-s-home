@@ -24,6 +24,7 @@ GameObject:
   - component: {fileID: 6962044170748144648}
   - component: {fileID: 3504036722481472221}
   - component: {fileID: 4921003906979138618}
+  - component: {fileID: 6399460431807554062}
   m_Layer: 8
   m_Name: Child
   m_TagString: Untagged
@@ -173,8 +174,6 @@ MonoBehaviour:
   m_playerAnimator: {fileID: 0}
   m_renderers:
   - {fileID: 3144909238071061404}
-  m_wishDir: {x: 0, y: 0, z: 0}
-  m_cameraYaw: 0
   m_cdSwitch: 0.2
   m_GhostLayerMask:
     serializedVersion: 2
@@ -183,13 +182,7 @@ MonoBehaviour:
   m_bulletSpawnTransform: {fileID: 8286851940836659514}
   m_bulletPrefab: {fileID: 366779594710045177, guid: 90e50898fd15e4755813076e701192cc, type: 3}
   m_shootRange: 50
-  m_speed: 5
-  m_jumpImpulse: 6
-  m_isScared: 0
-  m_scaredAmplitude: 0.5
   m_scaredDuration: 5
-  m_isSneaking: 0
-  m_sneakAmplitude: 0.5
 --- !u!114 &30589635987039035
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -782,6 +775,32 @@ MonoBehaviour:
   _directChildren: []
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
+--- !u!114 &6399460431807554062
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2220852981099475913}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1f174e5903fe8340ae065ea130d4979, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ChildSimulateMovement
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  m_speed: 5
+  m_jumpImpulse: 6
+  m_isScared: 0
+  m_scaredAmplitude: 0.5
+  m_sneakAmplitude: 0.5
 --- !u!1 &2316951510614423555
 GameObject:
   m_ObjectHideFlags: 0
