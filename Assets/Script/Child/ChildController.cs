@@ -15,8 +15,6 @@ public class ChildController : PlayerControllerCore
 {
     private Rigidbody m_rigidbody;
 
-    public Vector3 m_wishDir;
-    
     // Camera Parameters
     public float m_cameraYaw;
     [NonSerialized] public Vector3 m_cameraPosition;
@@ -44,7 +42,6 @@ public class ChildController : PlayerControllerCore
     public bool m_isScared = false;
     [SerializeField] private float m_scaredAmplitude = 0.5f;
     [SerializeField] [Tooltip("Duration of scared by ghost in seconds")] private float m_scaredDuration = 5.0f;
-    public bool m_isSneaking = false;
     [SerializeField] private float m_sneakAmplitude = 0.5f;
     private float m_speedModifier = 1.0f; // Default speed modifier
 
@@ -66,24 +63,13 @@ public class ChildController : PlayerControllerCore
     void Update()
     {
         if (!isServer) return;
-     
         UpdateTimers();
-        
-        transform.rotation = Quaternion.Euler(0, m_cameraYaw, 0);
-
-        SetSpeedModifier();
-
-        m_rigidbody.MovePosition(
-            m_rigidbody.position + m_wishDir * (m_speed * Time.deltaTime * m_speedModifier)
-        );
-
-
     }
     
-    void SetSpeedModifier()
+    void SetSpeedModifier(bool _sneak)
     {
         m_speedModifier = 1f;
-        if (m_isSneaking) m_speedModifier *= m_sneakAmplitude;
+        if (_sneak) m_speedModifier *= m_sneakAmplitude;
         if (m_isScared) m_speedModifier *= m_scaredAmplitude;
     }
 
@@ -99,7 +85,6 @@ public class ChildController : PlayerControllerCore
      */
     public void Jump()
     {
-        if (!isServer) return;
         if (!IsGrounded()) return;
         m_rigidbody.AddForce(Vector3.up * m_jumpImpulse, ForceMode.Impulse);
     }
@@ -261,5 +246,39 @@ public class ChildController : PlayerControllerCore
         if (!isServer) return;
         m_isranged = !m_isranged;
         m_switchingTime = 0;
+    }
+
+    public void SimulateMovement(ChildInputData input)
+    {
+        // Rotation
+        transform.rotation = Quaternion.Euler(0, m_cameraYaw, 0);
+
+        // Movement
+        SetSpeedModifier(input.sneakPressed);
+
+        Vector3 movement = input.wishDirection * (m_speed * Time.deltaTime * m_speedModifier);
+
+        if (isServer)
+        {
+            m_rigidbody.MovePosition(
+                m_rigidbody.position + movement
+            );
+
+            if (input.jumpPressed) Jump();
+        }
+        else
+        {
+            transform.position += movement;
+
+            if (input.jumpPressed)
+            {
+
+            }
+        }
+
+        
+
+
+
     }
 }
