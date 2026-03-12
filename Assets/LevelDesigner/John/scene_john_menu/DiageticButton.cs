@@ -1,51 +1,36 @@
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems; // 1. AJOUTE CETTE LIGNE EN HAUT !
 
-// Ce script demande à Unity d'ajouter automatiquement l'effet de contour
-// si l'objet n'en a pas déjà un. Pratique !
-[RequireComponent(typeof(Outline))]
 public class DiegeticButton : MonoBehaviour
 {
-    [Header("Ce qui se passe quand on clique")]
     public UnityEvent OnClick;
-
-    // Référence secrète vers le composant Outline
-    private Outline outlineEffect;
+    private Outline[] outlineEffects;
 
     private void Start()
     {
-        // Au lancement, le script va chercher le composant Outline sur l'objet
-        outlineEffect = GetComponent<Outline>();
-
-        // Et on s'assure qu'il est éteint au départ
-        outlineEffect.enabled = false;
+        outlineEffects = GetComponentsInChildren<Outline>();
+        foreach (Outline outline in outlineEffects) outline.enabled = false;
     }
-
-    // --- Gestion du Survol (Hover) ---
 
     private void OnMouseEnter()
     {
-        // La souris entre : on allume le contour blanc
-        if (outlineEffect != null)
-        {
-            outlineEffect.enabled = true;
-        }
+        // 2. LA LIGNE MAGIQUE : Si on survole l'UI 2D, on ne fait rien !
+        if (EventSystem.current.IsPointerOverGameObject()) return;
+
+        foreach (Outline outline in outlineEffects) outline.enabled = true;
     }
 
     private void OnMouseExit()
     {
-        // La souris part : on éteint le contour blanc
-        if (outlineEffect != null)
-        {
-            outlineEffect.enabled = false;
-        }
+        foreach (Outline outline in outlineEffects) outline.enabled = false;
     }
-
-    // --- Gestion du Clic ---
 
     private void OnMouseDown()
     {
-        // On clique, ça déclenche l'événement Unity (pour changer de caméra)
-        OnClick.Invoke();
+        // 3. LA MÊME LIGNE MAGIQUE : Si on clique sur l'UI 2D, le bouton 3D l'ignore !
+        if (EventSystem.current.IsPointerOverGameObject()) return;
+
+        if (OnClick != null) OnClick.Invoke();
     }
 }
