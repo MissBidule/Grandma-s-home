@@ -9,8 +9,8 @@ public class DayNightSystem : MonoBehaviour
     // skybox dual panoramique ref
     public Material skybox; // skybox pour le jour
 
-    public float gameTime = 480f; // 480 - 8 minutes de jeu, à changer ou prendre la valeur vers une autre référence si ça change
-    [SerializeField] private float currentTime = 0f; // temps actuel dans le cycle jour/nuit
+    private float gameTime = 30f; // 480 - 8 minutes de jeu, prendre la valeur du serveur
+    private float currentTime = 0f; // temps actuel dans le cycle jour/nuit
     
     // positions des axes du soleil par défaut
     public float sunInitialX = 150f;
@@ -25,12 +25,18 @@ public class DayNightSystem : MonoBehaviour
     //rotation par actualisation
     public float HdriRotationAngle = 0.1f; 
 
+    //si le script d'allumage des lumières à été activé
+    private bool lightsActivated = false;
+
     private float timeBetweenUpdates = 1f; // temps entre chaque mise à jour des corroutines progressives
-    private float timeBetweenGeneralUpdates = 0.1f; // temps entre chaque mise à jour des éléments généraux
+    //refreshMultiplier pour que les mise a jour soit plus rapide ou pas sur la même durée de jeu total (plus de fluidité)
+    public float refreshMultiplier = 10f;// exemple 1f = 1 seconde | 10f = 0.1 seconde...
+
+    private Coroutine skyCoroutine;
 
     private float sunRotationAngle; // valeur ajouté à l'angle du soleil à chaque mise à jour
     public Color sunDayColor;// FFE499
-    public Color sunNightColor;// 207980
+    public Color sunNightColor;// 123E41
 
     //Démarrer avec un angle assez élevé 150, pour la monter à 180 sur 40% du temps de jeu total, faire un changement entre les 2 HDRI blend avec les paramètre de luminosité et allumages progressifs de toutes sources de lumière sur 20% du temps de jeu total, sur les 40% restant de jeu le soleil aura un éclairage d'une couleur plus froide et une intensité plus faible en remontant vers 150 comme une monté de lune.
 
@@ -72,101 +78,140 @@ public class DayNightSystem : MonoBehaviour
         //RenderSettings.ambientIntensity à 1 au début de partie
         RenderSettings.ambientIntensity = 1f;
 
-        //angles des 2 texture + blend à 0
+        //angles des 3 texture + blend à 0
         skybox.SetFloat("_Rotation1", 0f);
         skybox.SetFloat("_Rotation2", 0f);
+        skybox.SetFloat("_Rotation3", 0f);
         skybox.SetFloat("_Blend", 0f);
         
         //récupère la couleur du soleil au début de partie
         sunDayColor = sun.GetComponent<Light>().color;
 
 
-        //démarrage des coroutines
-        StartCoroutine(GeneralUpdates());
-        StartCoroutine(UpdateLight_LowerSun());
+        UpdateSky(gameTime);
     }
 
-    //vérifie si sa dépasse pas les 180 degrés
+    //toutes les actualisations a prendre en compte en fonction de l'état du jeu
+    void UpdateSky(float serverGameTime)
+    {
+        gameTime = serverGameTime;
+
+        if (skyCoroutine != null)
+        {
+            StopCoroutine(skyCoroutine);
+        }
+
+        skyCoroutine = StartCoroutine(UpdateSkyCoroutine());
+    }
+
+    IEnumerator UpdateSkyCoroutine()
+    {
+        float updateInterval = timeBetweenUpdates / Mathf.Max(refreshMultiplier, 0.01f);
+
+        while (currentTime < gameTime)
+        {
+            //print du gameTime
+            UnityEngine.Debug.LogFormat("Game time: {0}", gameTime);
+            UnityEngine.Debug.LogFormat("Updating sky at time: {0}", currentTime);
+            //actualisation par défaut
+            skybox.SetFloat("_Rotation1", skybox.GetFloat("_Rotation1") + HdriRotationAngle);
+            skybox.SetFloat("_Rotation2", skybox.GetFloat("_Rotation2") + HdriRotationAngle);
+            skybox.SetFloat("_Rotation3", skybox.GetFloat("_Rotation3") + HdriRotationAngle);
+
+            //coucher du soleil
+            if (currentTime < gameTime * 0.4f)
+            {
+                Sky_SunDown();
+            }
+
+            //transition jour-nuit
+            else if (currentTime >= gameTime * 0.4f && currentTime < gameTime * 0.6f)
+            {
+                Sky_DayNightTransition();
+                if (!lightsActivated)
+                {
+                    // Activer les lumières de la scène progressivement sur 10 secondes
+                    //script a appeler ICI !
+                    //faut un script sur chaque point light de toutes les lumières qui va prendre sont intensité max et faire une montée progressive de 0 à cette intensité sur 10 secondes. chaque point light va s'ajouter dans une liste avec son info d'intensité max.
+                    lightsActivated = true;
+                }
+            }
+            
+            // levé de lune
+            else if (currentTime >= gameTime * 0.6f)
+            {
+                Sky_MoonUp();
+            }
+
+            currentTime += updateInterval;
+            yield return new WaitForSeconds(updateInterval);
+        }
+
+        skyCoroutine = null;
+    }
+
+    //coucher du soleil
+    void Sky_SunDown()
+    {
+        //rotation du soleil
+        //calcul angle de sunInitialX vers 180 degré sur les 40% du temps de jeu total + vérifier que l'angle ne dépasse pas 180
+        sunRotationAngle = CheckRotationAngle(sunInitialX + (30f * (currentTime / (gameTime * 0.4f))));
+        sun.transform.rotation = Quaternion.Euler(sunRotationAngle, sunInitialY, 0f);
+
+        // Changement progressif du blend de la skybox de 0 à 0.2
+        float blend = Mathf.Lerp(0f, 0.2f, currentTime / (gameTime * 0.4f));
+        skybox.SetFloat("_Blend", blend);
+    }
+
+    //transition jour-nuit
+    void Sky_DayNightTransition()
+    {
+        // Calcul de l'angle du soleil pour 20% du temps de jeu total
+        float transitionT = Mathf.Clamp01((currentTime - gameTime * 0.4f) / (gameTime * 0.2f));
+
+        // Changement progressif du blend de la skybox de 0.2 à 0.6
+        float blend = Mathf.Lerp(0.2f, 0.6f, transitionT);
+        skybox.SetFloat("_Blend", blend);
+
+        //changement progressif de l'intensité du soleil de 3 à 1
+        float intensity = Mathf.Lerp(sunIntensity, 1f, transitionT);
+        sun.GetComponent<Light>().intensity = intensity;
+
+        //changement progressif de la température du soleil de temperatureDay à temperatureNight
+        float temperature = Mathf.Lerp(temperatureDay, temperatureNight, transitionT);
+        sun.GetComponent<Light>().colorTemperature = temperature;
+
+        //changement progressif de la couleur du soleil de sunDayColor à sunNightColor
+        Color color = Color.Lerp(sunDayColor, sunNightColor, transitionT);
+        sun.GetComponent<Light>().color = color;
+
+        //changement progressif de RenderSettings.ambientIntensity de 1 à 0.4
+        RenderSettings.ambientIntensity = Mathf.Lerp(1f, 0.4f, transitionT);
+    }
+
+    // levé de lune
+    void Sky_MoonUp()
+    {
+        //calcul angle de 180 vers sunInitialX sur les 40% du temps de jeu total + vérifier que l'angle ne dépasse pas sunInitialX
+        sunRotationAngle = CheckRotationAngle(180f - (30f * ((currentTime - gameTime * 0.6f) / (gameTime * 0.4f))));
+        sun.transform.rotation = Quaternion.Euler(sunRotationAngle, sunInitialY, 0f);
+
+        // Changement progressif du blend de la skybox de 0.6 à 1
+        float blend = Mathf.Lerp(0.6f, 1f, (currentTime - gameTime * 0.6f) / (gameTime * 0.4f));
+        skybox.SetFloat("_Blend", blend);
+    }
+
+    //vérifie si sa dépasse pas les 180 degrés ou le sunInitialX
     float CheckRotationAngle(float angle)
     {
         if (angle > 180f)
         {
             return 180f;
         }
+        if (angle < sunInitialX)
+        {
+            return sunInitialX;
+        }
         return angle;
-    }
-
-    IEnumerator UpdateLight_LowerSun()
-    {//début de la partie, le soleil se couche
-        while (currentTime < gameTime * 0.4f)
-        {
-            //rotation du soleil
-            //calcul angle de sunInitialX vers 180 degré sur les 40% du temps de jeu total + vérifier que l'angle ne dépasse pas 180
-            sunRotationAngle = CheckRotationAngle(sunInitialX + (30f * (currentTime / (gameTime * 0.4f))));
-            sun.transform.rotation = Quaternion.Euler(sunRotationAngle, sunInitialY, 0f);
-
-            currentTime += timeBetweenUpdates; // incrémente le temps actuel
-            yield return new WaitForSeconds(timeBetweenUpdates);// attend entre chaque update
-        }
-        //démarrage de la seconde corroutine pour la transition jour-nuit
-        StartCoroutine(UpdateLight_Transition());
-    }
-
-    IEnumerator UpdateLight_Transition() // transition entre le jour et la nuit
-    {
-        while (currentTime >= gameTime * 0.4f && currentTime < gameTime * 0.6f)
-        {
-            //blend progressif des 2 texture de la skybox
-            float blend = Mathf.Lerp(0f, 1f, (currentTime - gameTime * 0.4f) / (gameTime * 0.2f));
-            skybox.SetFloat("_Blend", blend);
-
-            //changement progressif de l'intensité du soleil de 3 à 1
-            float intensity = Mathf.Lerp(sunIntensity, 1f, (currentTime - gameTime * 0.4f) / (gameTime * 0.2f));
-            sun.GetComponent<Light>().intensity = intensity;
-
-            //changement progressif de la température du soleil de temperatureDay à temperatureNight
-            float temperature = Mathf.Lerp(temperatureDay, temperatureNight, (currentTime - gameTime * 0.4f) / (gameTime * 0.2f));
-            sun.GetComponent<Light>().colorTemperature = temperature;
-
-            //changement progressif de la couleur du soleil de sunDayColor à sunNightColor
-            Color color = Color.Lerp(sunDayColor, sunNightColor, (currentTime - gameTime * 0.4f) / (gameTime * 0.2f));
-            sun.GetComponent<Light>().color = color;
-
-            //changement progressif de RenderSettings.ambientIntensity de 1 à 0.4
-            RenderSettings.ambientIntensity = Mathf.Lerp(1f, 0.4f, (currentTime - gameTime * 0.4f) / (gameTime * 0.2f));
-            
-
-            currentTime += timeBetweenUpdates;
-            yield return new WaitForSeconds(timeBetweenUpdates);
-        }
-        //démarrage de la troisième corroutine pour la montée de la lune
-        StartCoroutine(UpdateLight_UpperMoon());
-    }
-
-    IEnumerator UpdateLight_UpperMoon() // montée de la lune
-    {
-        while (currentTime >= gameTime * 0.6f && currentTime < gameTime)
-        {
-            //rotation du soleil
-            //calcul angle de 180 vers sunInitialX sur les 40% du temps de jeu total + vérifier que l'angle ne dépasse pas sunInitialX
-            sunRotationAngle = CheckRotationAngle(180f - (30f * ((currentTime - gameTime * 0.6f) / (gameTime * 0.4f))));
-            sun.transform.rotation = Quaternion.Euler(sunRotationAngle, sunInitialY, 0f);
-
-            currentTime += timeBetweenUpdates;
-            yield return new WaitForSeconds(timeBetweenUpdates);
-        }
-    }
-    
-    
-    IEnumerator GeneralUpdates() // update des éléments généraux hors périodes spécifiques
-    {
-        while (currentTime < gameTime)
-        {
-            //rotation des 2 texture de la skybox
-            skybox.SetFloat("_Rotation1", skybox.GetFloat("_Rotation1") + HdriRotationAngle);
-            skybox.SetFloat("_Rotation2", skybox.GetFloat("_Rotation2") + HdriRotationAngle);
-
-            yield return new WaitForSeconds(timeBetweenGeneralUpdates);
-        }
     }
 }

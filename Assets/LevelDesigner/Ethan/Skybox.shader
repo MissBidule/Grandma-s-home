@@ -5,12 +5,16 @@ Shader "Skybox/Dual Panoramic" {
 	Properties{
 		_Tint1("Tint Color 1", Color) = (.5, .5, .5, .5)
 		_Tint2("Tint Color 2", Color) = (.5, .5, .5, .5)
+		_Tint3("Tint Color 3", Color) = (.5, .5, .5, .5)
 		[Gamma] _Exposure1("Exposure 1", Range(0, 8)) = 1.0
 		[Gamma] _Exposure2("Exposure 2", Range(0, 8)) = 1.0
+		[Gamma] _Exposure3("Exposure 3", Range(0, 8)) = 1.0
 		_Rotation1("Rotation1", Range(0, 360)) = 0
 		_Rotation2("Rotation2", Range(0, 360)) = 0
+		_Rotation3("Rotation3", Range(0, 360)) = 0
 		[NoScaleOffset] _Texture1("Texture 1", 2D) = "grey" {}
 		[NoScaleOffset] _Texture2("Texture 2", 2D) = "grey" {}
+		[NoScaleOffset] _Texture3("Texture 3", 2D) = "grey" {}
 		[Enum(360 Degrees, 0, 180 Degrees, 1)] _ImageType("Image Type", Float) = 0
 		[Toggle] _MirrorOnBack("Mirror on Back", Float) = 0
 		[Enum(None, 0, Side by Side, 1, Over Under, 2)] _Layout("3D Layout", Float) = 0
@@ -33,17 +37,22 @@ Shader "Skybox/Dual Panoramic" {
 
 				sampler2D _Texture1;
 				sampler2D _Texture2;
+				sampler2D _Texture3;
 
 				float4 _Texture1_TexelSize;
 
 				half4 _Texture1_HDR;
 				half4 _Texture2_HDR;
+				half4 _Texture3_HDR;
 				half4 _Tint1;
 				half4 _Tint2;
+				half4 _Tint3;
 				half _Exposure1;
 				half _Exposure2;
+				half _Exposure3;
 				float _Rotation1;
 				float _Rotation2;
+				float _Rotation3;
 
 				float _Blend;
 
@@ -115,15 +124,48 @@ Shader "Skybox/Dual Panoramic" {
 					tc.x = fmod(tc.x * i.image180ScaleAndCutoff[0], 1);
 					tc = (tc + i.layout3DScaleAndOffset.xy) * i.layout3DScaleAndOffset.zw;
 
-					half4 tex1 = tex2D(_Texture1, tc);
-					tc.x = frac(tc.x + (_Rotation2 - _Rotation1) / 360.0);
-					half4 tex2 = tex2D(_Texture2, tc);
+					float2 tcBase = tc;
+					half4 tex1 = tex2D(_Texture1, tcBase);
+
+					float2 tc2 = tcBase;
+					tc2.x = frac(tc2.x + (_Rotation2 - _Rotation1) / 360.0);
+					half4 tex2 = tex2D(_Texture2, tc2);
+
+					float2 tc3 = tcBase;
+					tc3.x = frac(tc3.x + (_Rotation3 - _Rotation1) / 360.0);
+					half4 tex3 = tex2D(_Texture3, tc3);
 
 					half3 c1 = DecodeHDR(tex1, _Texture1_HDR);
 					half3 c2 = DecodeHDR(tex2, _Texture2_HDR);
+					half3 c3 = DecodeHDR(tex3, _Texture3_HDR);
 
-					c1 = lerp(c1, c2, _Blend) * lerp(_Tint1.rgb, _Tint2.rgb, _Blend) * unity_ColorSpaceDouble.rgb * lerp(_Exposure1, _Exposure2, _Blend);
-					return half4(c1, 1);
+					half3 color;
+					half3 tint;
+					half exposure;
+
+					if (_Blend < 0.33)
+					{
+						half t = saturate(_Blend / 0.33);
+						color = lerp(c1, c2, t);
+						tint = lerp(_Tint1.rgb, _Tint2.rgb, t);
+						exposure = lerp(_Exposure1, _Exposure2, t);
+					}
+					else if (_Blend < 0.66)
+					{
+						color = c2;
+						tint = _Tint2.rgb;
+						exposure = _Exposure2;
+					}
+					else
+					{
+						half t = saturate((_Blend - 0.66) / 0.34);
+						color = lerp(c2, c3, t);
+						tint = lerp(_Tint2.rgb, _Tint3.rgb, t);
+						exposure = lerp(_Exposure2, _Exposure3, t);
+					}
+
+					color = color * tint * unity_ColorSpaceDouble.rgb * exposure;
+					return half4(color, 1);
 				}
 				ENDCG
 			}
