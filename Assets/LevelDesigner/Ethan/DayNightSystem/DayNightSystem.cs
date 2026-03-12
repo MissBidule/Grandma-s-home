@@ -9,6 +9,9 @@ public class DayNightSystem : MonoBehaviour
     // skybox dual panoramique ref
     public Material skybox; // skybox pour le jour
 
+    private LightOnSystem lightOnSystem; // référence au script d'allumage des lumières
+    private bool lightsActivated = false; //si le script d'allumage des lumières a été activé
+
     private float gameTime = 30f; // 480 - 8 minutes de jeu, prendre la valeur du serveur
     private float currentTime = 0f; // temps actuel dans le cycle jour/nuit
     
@@ -24,9 +27,6 @@ public class DayNightSystem : MonoBehaviour
 
     //rotation par actualisation
     public float HdriRotationAngle = 0.1f; 
-
-    //si le script d'allumage des lumières à été activé
-    private bool lightsActivated = false;
 
     private float timeBetweenUpdates = 1f; // temps entre chaque mise à jour des corroutines progressives
     //refreshMultiplier pour que les mise a jour soit plus rapide ou pas sur la même durée de jeu total (plus de fluidité)
@@ -69,7 +69,7 @@ public class DayNightSystem : MonoBehaviour
 
         //rotation du soleil au début
         sun.transform.rotation = Quaternion.Euler(sunInitialX, sunInitialY, 0f);
-        UnityEngine.Debug.LogFormat("Sun initial rotation set to: {0}", sun.transform.rotation.eulerAngles);
+        // UnityEngine.Debug.LogFormat("Sun initial rotation set to: {0}", sun.transform.rotation.eulerAngles);
 
         // intensité maximale du soleil au début de partie
         sun.GetComponent<Light>().intensity = sunIntensity;
@@ -87,6 +87,7 @@ public class DayNightSystem : MonoBehaviour
         //récupère la couleur du soleil au début de partie
         sunDayColor = sun.GetComponent<Light>().color;
 
+        lightOnSystem = GetComponentInParent<LightOnSystem>();//récupère le script d'allumage des lumières dans le parent
 
         UpdateSky(gameTime);
     }
@@ -110,9 +111,8 @@ public class DayNightSystem : MonoBehaviour
 
         while (currentTime < gameTime)
         {
-            //print du gameTime
-            UnityEngine.Debug.LogFormat("Game time: {0}", gameTime);
-            UnityEngine.Debug.LogFormat("Updating sky at time: {0}", currentTime);
+            // UnityEngine.Debug.LogFormat("Game time: {0}", gameTime);
+            // UnityEngine.Debug.LogFormat("Updating sky at time: {0}", currentTime);
             //actualisation par défaut
             skybox.SetFloat("_Rotation1", skybox.GetFloat("_Rotation1") + HdriRotationAngle);
             skybox.SetFloat("_Rotation2", skybox.GetFloat("_Rotation2") + HdriRotationAngle);
@@ -130,9 +130,9 @@ public class DayNightSystem : MonoBehaviour
                 Sky_DayNightTransition();
                 if (!lightsActivated)
                 {
-                    // Activer les lumières de la scène progressivement sur 10 secondes
-                    //script a appeler ICI !
-                    //faut un script sur chaque point light de toutes les lumières qui va prendre sont intensité max et faire une montée progressive de 0 à cette intensité sur 10 secondes. chaque point light va s'ajouter dans une liste avec son info d'intensité max.
+                    // Activer les lumières de la scène progressivement sur X secondes via le script LightOnSystem
+                    lightOnSystem.TurnOnLights();
+
                     lightsActivated = true;
                 }
             }
