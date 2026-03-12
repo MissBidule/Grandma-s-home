@@ -7,6 +7,8 @@ public class SceneMenuNavigator : MonoBehaviour
     public CinemachineVirtualCameraBase mainCam;
     public CinemachineVirtualCameraBase optionsCam;
     public CinemachineVirtualCameraBase playCam;
+    public CinemachineVirtualCameraBase TVCam;
+
 
     [Header("Les Colliders des Boutons (pour bloquer les clics)")]
     public Collider[] boutonsMainMenu; // Glisse ici Quit, Play, Options
