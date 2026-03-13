@@ -25,6 +25,8 @@ namespace Script.States
                 if (state is PlayerSpawningState playerSpawningState)
                     m_spawnState = playerSpawningState;
             }
+            
+            _hasAlreadySwitched = false; // Reset flag on start to allow scene switching in new lobby sessions
         }
 
         protected override void OnDestroy()
