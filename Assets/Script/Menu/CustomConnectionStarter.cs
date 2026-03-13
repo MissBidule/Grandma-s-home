@@ -4,6 +4,7 @@ using PurrNet;
 using PurrNet.Logging;
 using PurrNet.StateMachine;
 using PurrNet.Transports;
+using Script.States;
 using UnityEngine;
 
 #if UTP_LOBBYRELAY

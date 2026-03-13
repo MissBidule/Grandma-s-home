@@ -8,6 +8,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.Serialization;
 using PurrNet.StateMachine;
+using Script.States;
 
 public class CustomConnectedText : MonoBehaviour
 {
