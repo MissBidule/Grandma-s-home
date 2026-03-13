@@ -11,67 +11,69 @@ using UI;
 using Antony;
 using System.Linq;
 
-/*
- * @brief  Contains class declaration for the state PlayerSpawningState
- * @details Script that will handle the correct spawning of each player element
- */
-public class PlayerSpawningState : StateNode
+namespace Script.States
 {
-    [Header("Child spawner")]
-    [SerializeField] private ChildController m_childPrefab;
-    [SerializeField] private List<Transform> m_childSpawnPoints = new List<Transform>();
-    
-    [Header("Ghost spawner")]
-    [SerializeField] private GhostController m_ghostPrefab;
-    [Tooltip("Even if rules are to not despawn on disconnect, this will ignore that and always spawn a player.")]
-    [SerializeField] private List<Transform> m_ghostSpawnPoints = new List<Transform>();
-
+    /*
+     * @brief  Contains class declaration for the state PlayerSpawningState
+     * @details Script that will handle the correct spawning of each player element
+     */
+    public class PlayerSpawningState : StateNode
     [SerializeField] private PlaydoughShaderManager m_playdoughPrefab;
     [SerializeField] private JellyGhostShaderManager m_jellyPrefab;
-    private bool m_isServer = false;
-    private bool m_hasStarted = false;
-
-    public override void Enter(bool _asServer)
     {
-        base.Enter(_asServer);
+        [Header("Child spawner")]
+        [SerializeField] private ChildController m_childPrefab;
+        [SerializeField] private List<Transform> m_childSpawnPoints = new List<Transform>();
 
-        m_isServer = _asServer;
-        m_hasStarted = false;
-    }
+        [Header("Ghost spawner")]
+        [SerializeField] private GhostController m_ghostPrefab;
+        [Tooltip("Even if rules are to not despawn on disconnect, this will ignore that and always spawn a player.")]
+        [SerializeField] private List<Transform> m_ghostSpawnPoints = new List<Transform>();
+        private bool m_isServer = false;
+        private bool m_hasStarted = false;
 
-    public void StartMachine()
-    {
-        if(!m_isServer) return;
-        if(m_hasStarted) return;
-        m_hasStarted = true;
-
-        DespawnPlayers();
-
-        var spawnedPlayers = SpawnPlayers();
-
-        // We still keep the player list in case for future implementation of round running state.
-        machine.Next();
-    }
-    
-    private List<PlayerControllerCore> SpawnPlayers()
-    {
-        var spawnedPlayers = new List<PlayerControllerCore>();
-        var roleKeeper = FindAnyObjectByType<RoleKeeper>();
-        
-        int currentSpawnChildIndex = 0;
-        int currentSpawnGhostIndex = 0;
-        foreach (var player in networkManager.players)
+        public override void Enter(bool _asServer)
         {
-            if (NetworkManager.main.TryGetModule(out GlobalOwnershipModule ownership, true) && ownership.PlayerOwnsSomething(player))
-                continue;
-                
-            //CONNECTION
-            networkManager.GetModule<PlayersManager>(m_isServer).TryGetConnection(player, out Connection conn);
+            base.Enter(_asServer);
 
-            bool isGhost = roleKeeper.IsGhost(conn.connectionId);
+            m_isServer = _asServer;
+            m_hasStarted = false;
+        }
 
-            Transform spawnPoint;
-            PlayerControllerCore newPlayer;
+        public void StartMachine()
+        {
+            if (!m_isServer) return;
+            if (m_hasStarted) return;
+            m_hasStarted = true;
+
+            DespawnPlayers();
+
+            List<PlayerControllerCore> spawnedPlayers = SpawnPlayers();
+
+            // We still keep the player list in case for future implementation of round running state.
+            Debug.Log($"{spawnedPlayers.Count} Player spawned moving to next state.");
+            machine.Next(spawnedPlayers);
+        }
+
+        private List<PlayerControllerCore> SpawnPlayers()
+        {
+            List<PlayerControllerCore> spawnedPlayers = new List<PlayerControllerCore>();
+            RoleKeeper roleKeeper = FindAnyObjectByType<RoleKeeper>();
+
+            int currentSpawnChildIndex = 0;
+            int currentSpawnGhostIndex = 0;
+            foreach (var player in networkManager.players)
+            {
+                if (NetworkManager.main.TryGetModule(out GlobalOwnershipModule ownership, true) && ownership.PlayerOwnsSomething(player))
+                    continue;
+
+                //CONNECTION
+                networkManager.GetModule<PlayersManager>(m_isServer).TryGetConnection(player, out Connection conn);
+
+                bool isGhost = roleKeeper.IsGhost(conn.connectionId);
+
+                Transform spawnPoint;
+                PlayerControllerCore newPlayer;
 
             if (isGhost)
             {
@@ -94,26 +96,24 @@ public class PlayerSpawningState : StateNode
             newPlayer.GiveOwnership(player);
             spawnedPlayers.Add(newPlayer);
         }
-        
-        return spawnedPlayers;
-    }
 
-    [ObserversRpc]
-    void DisableWaitInterface()
-    {
-        if (!InstanceHandler.TryGetInstance(out UIsManager uisManager))
-            return;
-        uisManager.HideView<WaitForPlayerView>();
-    }
-    
-    private void DespawnPlayers()
-    {
-        var allPlayers = FindObjectsByType<PlayerControllerCore>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
-
-        foreach (var player in allPlayers)
+        [ObserversRpc]
+        private void DisableWaitInterface()
         {
-            Destroy(player.gameObject);
+            if (!InstanceHandler.TryGetInstance(out UIsManager uisManager))
+                return;
+            uisManager.HideView<WaitForPlayerView>();
         }
-    }
 
+        private void DespawnPlayers()
+        {
+            PlayerControllerCore[] allPlayers = FindObjectsByType<PlayerControllerCore>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+
+            foreach (PlayerControllerCore player in allPlayers)
+            {
+                Destroy(player.gameObject);
+            }
+        }
+
+    }
 }
