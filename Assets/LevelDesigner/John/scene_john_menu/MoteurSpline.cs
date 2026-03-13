@@ -22,8 +22,6 @@ public class MoteurSpline : MonoBehaviour
     private IEnumerator Trajet()
     {
         float temps = 0f;
-
-        // On place la caméra au début de ta 2ème Spline (en haut)
         dolly.CameraPosition = 0f;
 
         // On fait avancer la caméra jusqu'en bas
@@ -34,7 +32,7 @@ public class MoteurSpline : MonoBehaviour
             yield return null;
         }
 
-        // On s'assure d'être exactement à la fin du rail (en bas)
+        // On s'assure d'être exactement à la fin du rail
         dolly.CameraPosition = 1f;
 
         // 🎯 L'ACTION FINALE : On rebascule sur le menu principal !

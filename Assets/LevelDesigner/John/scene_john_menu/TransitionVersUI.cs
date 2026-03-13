@@ -12,28 +12,39 @@ public class TransitionVersUI : MonoBehaviour
     [Header("Réglages")]
     public float delaiAffichage = 1.5f; // Le temps que met la caméra pour zoomer
 
-    // C'est cette fonction qu'on mettra sur le bouton de la télé
+    // --- FONCTION POUR L'ALLER (Quand on clique sur l'objet 3D) ---
     public void LancerLaTransition()
     {
-        // 1. On lance le mouvement de caméra 
         if (navigator != null && camToZoom != null)
         {
             navigator.SwitchToCamera(camToZoom);
         }
-
-        // 2. On attend que la caméra arrive, puis on allume l'UI
         StartCoroutine(AfficherMenuApresDelai());
     }
 
     private IEnumerator AfficherMenuApresDelai()
     {
-        // On attend (le même temps que la transition Cinemachine)
         yield return new WaitForSeconds(delaiAffichage);
 
-        // On allume le Canvas !
         if (canvasToLaunch != null)
         {
             canvasToLaunch.SetActive(true);
+        }
+    }
+
+    // --- NOUVELLE FONCTION POUR LE RETOUR (Quand on clique sur le bouton Exit 2D) ---
+    public void FermerMenuEtRetourner(CinemachineVirtualCameraBase cam)
+    {
+        // 1. On éteint l'interface 2D instantanément
+        if (canvasToLaunch != null)
+        {
+            canvasToLaunch.SetActive(false);
+        }
+
+        // 2. On utilise ton SceneMenuNavigator pour dire "Retourne à la caméra principale"
+        if (navigator != null)
+        {
+            navigator.SwitchToCamera(cam);
         }
     }
 }
