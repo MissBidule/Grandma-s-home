@@ -122,6 +122,7 @@ public class WheelController : MonoBehaviour
     {
         foreach (WheelButtonController button in m_wheelButtons)
         {
+            if (button == null) continue;
             TransformOption option = button.GetTransformOption();
             if (option != null && option.m_icon == _icon)
             {
