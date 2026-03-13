@@ -23,6 +23,8 @@ public class ChildClientController : NetworkBehaviour
     [SerializeField]private NetworkAnimator m_animator;
     private bool m_isMovingForward;
     private bool m_isMovingBackward;
+    private bool m_isMovingLeft;
+    private bool m_isMovingRight;
     private bool m_isAttacking;
     private bool m_isSneaking;
     private float m_attackTime;
@@ -30,8 +32,8 @@ public class ChildClientController : NetworkBehaviour
     private bool m_isSwitchingWeapon;
     [SerializeField]private GameObject m_racket;
     [SerializeField]private GameObject m_gun;
-    private bool bivh = false;
-    private float hashc;
+    private bool m_startedAnimation = false;
+    private float m_oldAnimHash;
 
 
     private bool m_sneakPressed = false;
@@ -102,18 +104,17 @@ public class ChildClientController : NetworkBehaviour
                 print(animStateInfo.normalizedTime);
                 if (animStateInfo.normalizedTime > 0.3f)
                 {
-                    if (!bivh)
+                    if (!m_startedAnimation)
                     {
-                        bivh = true;
-                        hashc = animStateInfo.shortNameHash;
+                        m_startedAnimation = true;
+                        m_oldAnimHash = animStateInfo.shortNameHash;
                     }
-                    else if (hashc != animStateInfo.shortNameHash)
+                    else if (m_oldAnimHash != animStateInfo.shortNameHash)
                     {
-                        print("bibimbap");
                         m_racket.SetActive(!m_racket.activeInHierarchy);
                         m_gun.SetActive(!m_gun.activeInHierarchy);
                         m_isSwitchingWeapon = false;
-                        bivh = false;
+                        m_startedAnimation = false;
                     }
                 }
             }
@@ -188,44 +189,152 @@ public class ChildClientController : NetworkBehaviour
         {
             m_isMovingForward = false;
             m_isMovingBackward = false;
+            m_isMovingLeft = false;
+            m_isMovingRight = false;
             m_isSneaking = m_sneakPressed;
         }
         if (_movement == Vector2.zero)
         {
-            if (m_isMovingForward || m_isMovingBackward)
+            if (m_isMovingForward || m_isMovingBackward || m_isMovingRight || m_isMovingLeft)
             {
                 m_isMovingForward = false;
                 m_isMovingBackward = false;
-                m_animator.CrossFadeInFixedTime("cac_idle",0.2f,0);
+                m_isMovingLeft = false;
+                m_isMovingRight = false;
+                if (m_childController.m_isRanged)
+                {
+                    m_animator.CrossFadeInFixedTime("gun_idle", 0.2f, 0);
+                }
+                else
+                {
+                    m_animator.CrossFadeInFixedTime("cac_idle", 0.2f, 0);
+                }
             }
             return Vector3.zero;
         }
-        if (m_isMovingForward == false && _movement.y > 0)
+        if (Mathf.Abs(_movement.x) > Mathf.Abs(_movement.y))
         {
-            m_isMovingForward = true;
-            m_isMovingBackward = false;
-            if (m_sneakPressed)
+            if(m_isMovingRight == false && _movement.x > 0)
             {
-                m_animator.CrossFadeInFixedTime("cac_walk",0.2f,0);
+                m_isMovingRight = true;
+                m_isMovingLeft = false;
+                m_isMovingForward = false;
+                m_isMovingBackward = false;
+                if (m_sneakPressed)
+                {
+                    if (m_childController.m_isRanged)
+                    {
+                        m_animator.CrossFadeInFixedTime("gun_sideWalk_R", 0.2f, 0);
+                    }
+                    else
+                    {
+                        m_animator.CrossFadeInFixedTime("cac_sideWalk_R", 0.2f, 0);
+                    }
+                }
+                else
+                {
+                    if (m_childController.m_isRanged)
+                    {
+                        m_animator.CrossFadeInFixedTime("gun_sideRun_R", 0.2f, 0);
+                    }
+                    else
+                    {
+                        m_animator.CrossFadeInFixedTime("cac_sideRun_R", 0.2f, 0);
+                    }
+                }
             }
-            else
+            else if(m_isMovingLeft == false && _movement.x < 0)
             {
-                m_animator.CrossFadeInFixedTime("cac_run", 0.2f, 0);
+                m_isMovingRight = false;
+                m_isMovingLeft = true;
+                m_isMovingForward = false;
+                m_isMovingBackward = false;
+                if (m_sneakPressed)
+                {
+                    if (m_childController.m_isRanged)
+                    {
+                        m_animator.CrossFadeInFixedTime("gun_sideWalk_L", 0.2f, 0);
+                    }
+                    else
+                    {
+                        m_animator.CrossFadeInFixedTime("cac_sideWalk_L", 0.2f, 0);
+                    }
+                }
+                else
+                {
+                    if (m_childController.m_isRanged)
+                    {
+                        m_animator.CrossFadeInFixedTime("gun_sideWalk_L", 0.2f, 0);
+                    }
+                    else
+                    {
+                        m_animator.CrossFadeInFixedTime("cac_sideWalk_L", 0.2f, 0);
+                    }
+                }
             }
         }
-        else if(m_isMovingBackward == false && _movement.y < 1)
+        else
         {
-            m_isMovingForward = false;
-            m_isMovingBackward = true;
-            if (m_sneakPressed)
+            if (m_isMovingForward == false && _movement.y > 0)
             {
-                m_animator.CrossFadeInFixedTime("cac_bwalk", 0.2f, 0);
+                m_isMovingForward = true;
+                m_isMovingBackward = false;
+                m_isMovingLeft = false;
+                m_isMovingRight = false;
+                if (m_sneakPressed)
+                {
+                    if (m_childController.m_isRanged)
+                    {
+                        m_animator.CrossFadeInFixedTime("gun_walk", 0.2f, 0);
+                    }
+                    else
+                    {
+                        m_animator.CrossFadeInFixedTime("cac_walk", 0.2f, 0);
+                    }
+                }
+                else
+                {
+                    if (m_childController.m_isRanged)
+                    {
+                        m_animator.CrossFadeInFixedTime("gun_run", 0.2f, 0);
+                    }
+                    else
+                    {
+                        m_animator.CrossFadeInFixedTime("cac_run", 0.2f, 0);
+                    }
+                }
             }
-            else
+            else if (m_isMovingBackward == false && _movement.y < 0)
             {
-                m_animator.CrossFadeInFixedTime("cac_brun", 0.2f, 0);
+                m_isMovingForward = false;
+                m_isMovingBackward = true;
+                m_isMovingLeft = false;
+                m_isMovingRight = false;
+                if (m_sneakPressed)
+                {
+                    if (m_childController.m_isRanged)
+                    {
+                        m_animator.CrossFadeInFixedTime("gun_bwalk", 0.2f, 0);
+                    }
+                    else
+                    {
+                        m_animator.CrossFadeInFixedTime("cac_bwalk", 0.2f, 0);
+                    }
+                }
+                else
+                {
+                    if (m_childController.m_isRanged)
+                    {
+                        m_animator.CrossFadeInFixedTime("gun_brun", 0.2f, 0);
+                    }
+                    else
+                    {
+                        m_animator.CrossFadeInFixedTime("cac_brun", 0.2f, 0);
+                    }
+                }
             }
         }
+            
         var wishDir = Vector3.zero;
 
         if (_movement.sqrMagnitude < 0.001f) return wishDir;
