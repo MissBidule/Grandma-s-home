@@ -25,6 +25,7 @@ namespace UI
          */
         private void Awake()
         {
+            m_UIAlreadyToggled = false;
             InstanceHandler.RegisterInstance(this);
         
             foreach (var view in m_gameViews)

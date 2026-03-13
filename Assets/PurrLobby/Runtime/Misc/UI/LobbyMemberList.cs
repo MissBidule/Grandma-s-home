@@ -11,7 +11,9 @@ namespace PurrLobby
         [SerializeField] private MemberEntry memberEntryPrefab;
         [SerializeField] private Transform content;
         [SerializeField] private Button readyButton;
+        private bool m_isSomeoneInGame = false;
         private RoleKeeper m_roleKeeper;
+        private bool m_lastInGameState = false;
 
         void Start()
         {
@@ -26,6 +28,7 @@ namespace PurrLobby
             HandleExistingMembers(room);
             HandleNewMembers(room);
             HandleLeftMembers(room);
+            HandleInGameLock(room);
         }
 
         public void OnLobbyLeave()
@@ -88,6 +91,20 @@ namespace PurrLobby
             foreach (var child in childrenToRemove)
             {
                 Destroy(child.gameObject);
+            }
+        }
+
+        private void HandleInGameLock(Lobby room)
+        {
+            m_isSomeoneInGame = room.Members.Exists(x => x.IsInGame == true);
+            if (m_isSomeoneInGame == m_lastInGameState)
+                return;
+            m_lastInGameState = m_isSomeoneInGame;
+
+            var existingMembers = content.GetComponentsInChildren<MemberEntry>();
+            foreach (var member in existingMembers)
+            {
+                member.LockReady(m_isSomeoneInGame);
             }
         }
     }
