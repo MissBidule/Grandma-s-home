@@ -6,8 +6,8 @@ public class TransitionVersUI : MonoBehaviour
 {
     [Header("Les éléments à relier")]
     public SceneMenuNavigator navigator; // Pour bouger la caméra
-    public CinemachineVirtualCameraBase camTV; // La caméra gros plan
-    public GameObject canvasLobby; // Ton menu 2D
+    public CinemachineVirtualCameraBase camToZoom; // La caméra gros plan
+    public GameObject canvasToLaunch; // Ton menu 2D
 
     [Header("Réglages")]
     public float delaiAffichage = 1.5f; // Le temps que met la caméra pour zoomer
@@ -15,10 +15,10 @@ public class TransitionVersUI : MonoBehaviour
     // C'est cette fonction qu'on mettra sur le bouton de la télé
     public void LancerLaTransition()
     {
-        // 1. On lance le mouvement de caméra vers la télé
-        if (navigator != null && camTV != null)
+        // 1. On lance le mouvement de caméra 
+        if (navigator != null && camToZoom != null)
         {
-            navigator.SwitchToCamera(camTV);
+            navigator.SwitchToCamera(camToZoom);
         }
 
         // 2. On attend que la caméra arrive, puis on allume l'UI
@@ -31,9 +31,9 @@ public class TransitionVersUI : MonoBehaviour
         yield return new WaitForSeconds(delaiAffichage);
 
         // On allume le Canvas !
-        if (canvasLobby != null)
+        if (canvasToLaunch != null)
         {
-            canvasLobby.SetActive(true);
+            canvasToLaunch.SetActive(true);
         }
     }
 }

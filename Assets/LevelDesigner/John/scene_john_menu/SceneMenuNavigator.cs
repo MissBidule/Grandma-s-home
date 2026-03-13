@@ -88,4 +88,20 @@ public class SceneMenuNavigator : MonoBehaviour
             }
         }
     }
+
+
+    // --- FONCTION POUR QUITTER LE JEU ---
+    public void QuitterLeJeu()
+    {
+        // 1. Affiche un message dans la console pour prouver que ça marche
+        Debug.Log("Le joueur a quitté le jeu !");
+
+        // 2. Ferme le vrai jeu (une fois exporté/buildé)
+        Application.Quit();
+
+        // 3. (Bonus de Pro) Arrête le mode "Play" dans l'éditeur Unity
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
+    }
 }
