@@ -143,7 +143,7 @@ public class GhostMorphPreview : NetworkBehaviour
      * @param _prefab: The prefab GameObject to preview.
      * @return void
      */
-    public void SetPreview(GameObject _prefab)
+    public void SetPreview(GameObject _prefab, RPCInfo _info = default)
     {
         m_currentPrefab = _prefab;
 

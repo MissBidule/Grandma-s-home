@@ -95,12 +95,14 @@ namespace PurrLobby
             {
                 string keepRoleID = m_roles[i].m_roleId;
                 bool keepRole = m_roles[i].m_isGhost;
+                bool keepLocal = m_roles[i].m_isLocal;
                 if (m_roles[i].m_roleId == _roleID)
                 {
                     m_roles[i] = new Role()
                     {
                         m_roleId = keepRoleID,
                         m_isGhost = keepRole,
+                        m_isLocal = keepLocal,
                         m_connectionID = _connectionID
                     };
                     break;

@@ -44,8 +44,6 @@ public class GhostClientController : NetworkBehaviour
         m_ghostMorphPreview = GetComponentInChildren<GhostMorphPreview>();
 
         if (isOwner) InitOwner();
-
-        InstanceHandler.TryGetInstance(out m_ghostHUDView);
     }
 
     protected override void OnOwnerChanged(PurrNet.PlayerID? oldOwner, PurrNet.PlayerID? newOwner, bool asServer)
@@ -69,8 +67,12 @@ public class GhostClientController : NetworkBehaviour
         m_wheel.LinkWithGhost(this);
         Debug.Log($"[GhostClientController] InitOwner - m_playerCamera: {m_playerCamera}");
         
+        // Displaying the HUD
         if (InstanceHandler.TryGetInstance(out UIsManager  uisManager))
             uisManager.ShowView<GhostHUDView>();
+        
+        // Getting the HUD refference. (moved here as it could try to get it before it was instanced)
+        InstanceHandler.TryGetInstance(out m_ghostHUDView);
     }
 
     private void DestroyUI()
@@ -84,6 +86,7 @@ public class GhostClientController : NetworkBehaviour
         if (!isOwner) return;
         if (m_ghostController == null || m_ghostInputController == null || m_playerCamera == null) return; // "just in case"
 
+        UpdateHUD();
 
         if (last_stopped != m_ghostController.m_isStopped)
         {
@@ -143,7 +146,7 @@ public class GhostClientController : NetworkBehaviour
         print(m_ghostMorphPreview.transform.localPosition);
     }
 
-    void UpdateLabels()
+    void UpdateHUD()
     {
         if (m_ghostHUDView == null)
             return;

@@ -15,22 +15,43 @@ namespace PurrLobby.Editor
         private bool showRoomStatus = true;
         private Dictionary<string, bool> memberFoldouts = new Dictionary<string, bool>();
 
-        public override void OnInspectorGUI()
+        private void CustomProperties()
         {
+            EditorGUILayout.LabelField("Custom properties", EditorStyles.boldLabel);
+
             var serializedObject = new SerializedObject(target);
             var eventProperty = serializedObject.FindProperty("m_readyButton");
             if (eventProperty != null)
             {
                 EditorGUILayout.PropertyField(eventProperty, true);
             }
-            var eventProperty2 = serializedObject.FindProperty("m_usernameField");
+            var eventProperty2 = serializedObject.FindProperty("m_leaveButton");
             if (eventProperty2 != null)
             {
                 EditorGUILayout.PropertyField(eventProperty2, true);
             }
+            var eventProperty3 = serializedObject.FindProperty("m_usernameField");
+            if (eventProperty3 != null)
+            {
+                EditorGUILayout.PropertyField(eventProperty3, true);
+            }
+            var eventProperty4 = serializedObject.FindProperty("m_serverType");
+            if (eventProperty4 != null)
+            {
+                EditorGUILayout.PropertyField(eventProperty4, true);
+            }
+            var eventProperty5 = serializedObject.FindProperty("m_playerCount");
+            if (eventProperty5 != null)
+            {
+                EditorGUILayout.PropertyField(eventProperty5, true);
+            }
             serializedObject.ApplyModifiedProperties();
-            
             EditorGUILayout.Space();
+        }
+
+        public override void OnInspectorGUI()
+        {
+            CustomProperties();
 
             var lobbyManager = (LobbyManager)target;
 

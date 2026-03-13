@@ -3,6 +3,8 @@ using UnityEngine;
 using Unity.Cinemachine;
 using PurrNet;
 using UnityEngine.InputSystem;
+using UI;
+using Script.UI.Views;
 
 /*
  * @brief Player Core class inherited by Child & phantom
@@ -54,11 +56,16 @@ public class PlayerControllerCore : NetworkBehaviour
         ApplyOwnership();
     }
 
+    public void DisableWaitUIObserverRPC()
+    {
+        if (!InstanceHandler.TryGetInstance(out UIsManager uisManager))
+            return;
+        uisManager.HideView<WaitForPlayerView>();
+        uisManager.ToggleUIVision();
+    }
+
     private void ApplyOwnership()
     {
-
-        var audioListener = GetComponentInChildren<AudioListener>();
-        if (audioListener != null) audioListener.enabled = isOwner;
 
         var playerInput = GetComponent<PlayerInput>();
         if (playerInput != null) playerInput.enabled = isOwner;
@@ -71,6 +78,8 @@ public class PlayerControllerCore : NetworkBehaviour
         // to prevent multiple active cameras and duplicate AudioListeners
         if (m_localRenderCamera != null)
             m_localRenderCamera.SetActive(isOwner);
+
+        if (isOwner) DisableWaitUIObserverRPC();
     }
     
     private void OnDisable()

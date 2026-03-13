@@ -27,6 +27,7 @@ namespace PurrLobby
 
         private void Start()
         {
+            _hasAlreadySwitched = false; // Reset flag on start to allow scene switching in new lobby sessions
             if (subscribeToOnAllReady && lobbyManager != null)
             {
                 // Subscribe to OnAllReady event - fires after SetAllReadyAsync() completes

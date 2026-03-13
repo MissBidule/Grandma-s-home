@@ -37,6 +37,7 @@ public class CustomConnectionStarter : MonoBehaviour
     
     private void Awake()
     {
+        _hasStarted = false; // Reset static flag on Awake to allow proper initialization in new lobby sessions
         if(!TryGetComponent(out m_networkManager)) {
             PurrLogger.LogError($"Failed to get {nameof(NetworkManager)} component.", this);
             return;
@@ -111,7 +112,7 @@ public class CustomConnectionStarter : MonoBehaviour
         if (m_stateMachine.states[0] is WaitForPlayerState)
         {
             PurrLogger.Log("Setup the number of player");
-            ((WaitForPlayerState)m_stateMachine.states[0]).set_numPlayers(m_lobbyDataHolder.GetNumber_of_player_in_lobby());
+            ((WaitForPlayerState)m_stateMachine.states[0]).set_numPlayers(m_lobbyDataHolder.GetNumber_of_player_ready_in_lobby());
         }
         else
         {

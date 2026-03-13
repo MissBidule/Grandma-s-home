@@ -63,6 +63,7 @@ public class GhostController : PlayerControllerCore, IInteractable
     [SerializeField] private float m_wallNormalMaxY = 0.4f; 
     [SerializeField] private float m_raycastHeightOffset = 0.5f;
     [SerializeField] private LayerMask m_climbableLayerMask = ~0;
+    private QteCircle m_qteCircle;
 
     private Rigidbody m_rigidbody;
 
@@ -229,6 +230,11 @@ public class GhostController : PlayerControllerCore, IInteractable
     */
     private bool CheckForClimbableWall()
     {
+        if (m_qteCircle == null) m_qteCircle = FindAnyObjectByType<QteCircle>();
+        if (m_qteCircle != null && m_qteCircle.m_isRunning)
+        {
+            return false;
+        }
         Vector3 rayOrigin = transform.position + Vector3.up * m_raycastHeightOffset;
         Vector3 rayDirection = transform.forward;
 
