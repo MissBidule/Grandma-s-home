@@ -8,6 +8,8 @@ using System;
 using PurrNet.Transports;
 using Script.UI.Views;
 using UI;
+using Antony;
+using System.Linq;
 
 /*
  * @brief  Contains class declaration for the state PlayerSpawningState
@@ -23,6 +25,9 @@ public class PlayerSpawningState : StateNode
     [SerializeField] private GhostController m_ghostPrefab;
     [Tooltip("Even if rules are to not despawn on disconnect, this will ignore that and always spawn a player.")]
     [SerializeField] private List<Transform> m_ghostSpawnPoints = new List<Transform>();
+
+    [SerializeField] private PlaydoughShaderManager m_playdoughPrefab;
+    [SerializeField] private JellyGhostShaderManager m_jellyPrefab;
     private bool m_isServer = false;
     private bool m_hasStarted = false;
 
@@ -72,11 +77,19 @@ public class PlayerSpawningState : StateNode
             {
                 spawnPoint = m_ghostSpawnPoints[currentSpawnGhostIndex++ %  m_ghostSpawnPoints.Count];
                 newPlayer = UnityProxy.Instantiate(m_ghostPrefab, spawnPoint.position, spawnPoint.rotation);
+                // foreach (var renderer in newPlayer.GetComponentsInChildren<MeshRenderer>())
+                // {
+                //     m_jellyPrefab.renderersToModify.Append(renderer);
+                // }
             }
             else
             {
                 spawnPoint = m_childSpawnPoints[currentSpawnChildIndex++ % m_childSpawnPoints.Count];
                 newPlayer = UnityProxy.Instantiate(m_childPrefab, spawnPoint.position, spawnPoint.rotation);
+                // foreach (var renderer in newPlayer.GetComponentsInChildren<SkinnedMeshRenderer>())
+                // {
+                //     m_playdoughPrefab.skinnedMeshRenderersToModify.Append(renderer);
+                // }
             } 
             newPlayer.GiveOwnership(player);
             spawnedPlayers.Add(newPlayer);

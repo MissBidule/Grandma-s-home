@@ -24,8 +24,8 @@ namespace Antony
         [SerializeField] private Material playdoughObjColMaterial = null;
 
         [Tooltip("GameObjects that you want to use their already defined colour in the Playdough shader\n(the colour given before exporting to Unity, in Blender for example)\n/!\\The GameObjects must the Material you want to use the colour of be the first in the list,\nand the Material with the Playdough shader must be the last in the list/!\\")]
-        [SerializeField] private MeshRenderer[] renderersToModify = null;
-        [SerializeField] private SkinnedMeshRenderer[] skinnedMeshRenderersToModify = null;
+        [SerializeField] public MeshRenderer[] renderersToModify = null;
+        [SerializeField] public SkinnedMeshRenderer[] skinnedMeshRenderersToModify = null;
 
         [Tooltip("Height maps used for vertex displacement\nDirectly changes the mesh shape")]
         [SerializeField] private Texture2D[] heightMaps = null;

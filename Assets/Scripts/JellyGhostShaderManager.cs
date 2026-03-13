@@ -13,7 +13,7 @@ public class JellyGhostShaderManager : MonoBehaviour
     [SerializeField] private Material jellyGhostObjColMaterial = null;
 
     [Tooltip("GameObjects that you want to use their already defined colour in the Playdough shader\n(the colour given before exporting to Unity, in Blender for example)\n/!\\The GameObjects must the Material you want to use the colour of be the first in the list,\nand the Material with the Playdough shader must be the last in the list/!\\")]
-    [SerializeField] private MeshRenderer[] renderersToModify = null;
+    [SerializeField] public MeshRenderer[] renderersToModify = null;
 
     [Tooltip("The texture used for refraction, when light is distorted, affecting the view through the object\n(for example take cracked glasses => you may see things in multiples)")]
     [SerializeField] private Texture2D refractionTexture = null;
