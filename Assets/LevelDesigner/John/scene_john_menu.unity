@@ -4795,6 +4795,7 @@ GameObject:
   - component: {fileID: 72812782}
   - component: {fileID: 72812781}
   - component: {fileID: 72812783}
+  - component: {fileID: 72812784}
   m_Layer: 0
   m_Name: VCam_Play_Escalier_avant
   m_TagString: Untagged
@@ -4901,13 +4902,31 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 72812779}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f0e445794b3d8504380a0b5162f8bc97, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MoteurSpline
   dolly: {fileID: 72812781}
   dureeTrajet: 4
+  navigator: {fileID: 0}
+  Cam: {fileID: 0}
+--- !u!114 &72812784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 72812779}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 035cfdd9b4a3e51408357fd6179586bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MoteurRetourSpline
+  dolly: {fileID: 72812781}
+  dureeTrajet: 4
+  navigator: {fileID: 1360993971}
+  Cam: {fileID: 1055847428}
 --- !u!1001 &78673960
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -51759,6 +51778,81 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3098838158089265678, guid: db808ebf9ae37694ba4a17312fe79e26, type: 3}
   m_PrefabInstance: {fileID: 1054948562}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1055847426
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1055847427}
+  - component: {fileID: 1055847428}
+  m_Layer: 0
+  m_Name: VCam_Play
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1055847427
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1055847426}
+  serializedVersion: 2
+  m_LocalRotation: {x: 7.1054274e-15, y: -0.029086411, z: 1.7763568e-14, w: 0.9995769}
+  m_LocalPosition: {x: -1.423, y: 0.06, z: 4.52}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1312449542}
+  m_LocalEulerAnglesHint: {x: 0, y: -3.334, z: 0}
+--- !u!114 &1055847428
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1055847426}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9dfa5b682dcd46bda6128250e975f58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineCamera
+  Priority:
+    Enabled: 1
+    m_Value: 10
+  OutputChannel: 1
+  StandbyUpdate: 2
+  m_StreamingVersion: 20241001
+  m_LegacyPriority: 0
+  Target:
+    TrackingTarget: {fileID: 1452403783}
+    LookAtTarget: {fileID: 0}
+    CustomLookAtTarget: 0
+  Lens:
+    FieldOfView: 90.8
+    OrthographicSize: 10
+    NearClipPlane: 0.1
+    FarClipPlane: 5000
+    Dutch: 0
+    ModeOverride: 0
+    PhysicalProperties:
+      GateFit: 2
+      SensorSize: {x: 21.946, y: 16.002}
+      LensShift: {x: 0, y: 0}
+      FocusDistance: 10
+      Iso: 200
+      ShutterSpeed: 0.005
+      Aperture: 16
+      BladeCount: 5
+      Curvature: {x: 2, y: 11}
+      BarrelClipping: 0.25
+      Anamorphism: 0
+  BlendHint: 0
 --- !u!1 &1056107805
 GameObject:
   m_ObjectHideFlags: 0
@@ -56149,18 +56243,6 @@ MonoBehaviour:
   OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 72812783}
-        m_TargetAssemblyTypeName: MoteurSpline, Assembly-CSharp
-        m_MethodName: LancerLeTrajet
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
       - m_Target: {fileID: 1360993971}
         m_TargetAssemblyTypeName: SceneMenuNavigator, Assembly-CSharp
         m_MethodName: SwitchToCamera
@@ -56169,6 +56251,18 @@ MonoBehaviour:
           m_ObjectArgument: {fileID: 72812782}
           m_ObjectArgumentAssemblyTypeName: Unity.Cinemachine.CinemachineVirtualCameraBase,
             Unity.Cinemachine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 72812784}
+        m_TargetAssemblyTypeName: MoteurSpline, Assembly-CSharp
+        m_MethodName: LancerLeTrajet
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -63627,8 +63721,9 @@ Transform:
   - {fileID: 2141081890}
   - {fileID: 1501026708}
   - {fileID: 72812780}
-  - {fileID: 1802675341}
   - {fileID: 1821572515}
+  - {fileID: 1055847427}
+  - {fileID: 1802675341}
   - {fileID: 436438505}
   - {fileID: 1703148067}
   m_Father: {fileID: 1242381824}
@@ -66041,7 +66136,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   mainCam: {fileID: 1501026707}
   optionsCam: {fileID: 2141081889}
-  playCam: {fileID: 72812782}
+  playCam: {fileID: 1055847428}
   TVCam: {fileID: 1802675342}
   boutonsMainMenu:
   - {fileID: 1480088761}
@@ -88864,7 +88959,6 @@ GameObject:
   - component: {fileID: 1821572515}
   - component: {fileID: 1821572518}
   - component: {fileID: 1821572517}
-  - component: {fileID: 1821572516}
   - component: {fileID: 1821572519}
   m_Layer: 0
   m_Name: VCam_Main_Escalier_retour
@@ -88888,20 +88982,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1312449542}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1821572516
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1821572514}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f0e445794b3d8504380a0b5162f8bc97, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MoteurSpline
-  dolly: {fileID: 1821572517}
-  dureeTrajet: 4
 --- !u!114 &1821572517
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -88994,7 +89074,7 @@ MonoBehaviour:
   dolly: {fileID: 1821572517}
   dureeTrajet: 4
   navigator: {fileID: 1360993971}
-  mainCam: {fileID: 1501026707}
+  Cam: {fileID: 1501026707}
 --- !u!1 &1824840761
 GameObject:
   m_ObjectHideFlags: 0
@@ -89776,8 +89856,8 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
       - m_Target: {fileID: 1821572519}
-        m_TargetAssemblyTypeName: MoteurRetourSpline, Assembly-CSharp
-        m_MethodName: LancerLaDescente
+        m_TargetAssemblyTypeName: MoteurSpline, Assembly-CSharp
+        m_MethodName: LancerLeTrajet
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

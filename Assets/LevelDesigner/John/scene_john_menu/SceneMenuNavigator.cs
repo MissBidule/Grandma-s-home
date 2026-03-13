@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Cinemachine;
+using System.Collections; // INDISPENSABLE pour utiliser les Coroutines (les délais)
 
 public class SceneMenuNavigator : MonoBehaviour
 {
@@ -7,36 +8,61 @@ public class SceneMenuNavigator : MonoBehaviour
     public CinemachineVirtualCameraBase mainCam;
     public CinemachineVirtualCameraBase optionsCam;
     public CinemachineVirtualCameraBase playCam;
+    public CinemachineVirtualCameraBase quitCam;
     public CinemachineVirtualCameraBase TVCam;
 
+    [Header("Réglages de Transition")]
+    public float delaiCamera = 1.5f; // Le temps que met ta caméra à bouger (en secondes)
 
     [Header("Les Colliders des Boutons (pour bloquer les clics)")]
-    public Collider[] boutonsMainMenu; // Glisse ici Quit, Play, Options
-    public Collider[] boutonsOptions;  // Glisse ici le bouton Back des options
-    public Collider[] boutonsPlay;     // Glisse ici les boutons de la chambre (si tu en as)
+    public Collider[] boutonsMainMenu;
+    public Collider[] boutonsOptions;
+    public Collider[] boutonsPlay;
+
+    // Variable secrète pour mémoriser si une transition est en cours
+    private Coroutine transitionEnCours;
 
     private void Start()
     {
-        // Au lancement du jeu, on s'assure d'être sur le menu principal
-        // Ça va automatiquement activer les bons boutons et bloquer les autres !
+        // Au lancement, on va sur le menu principal (les boutons s'activeront après le délai)
         SwitchToCamera(mainCam);
     }
 
     public void SwitchToCamera(CinemachineVirtualCameraBase targetCamera)
     {
-        // 1. On gère les priorités des caméras
+        // Si on reclique pendant que la caméra bougeait déjà, on annule l'ancien timer
+        if (transitionEnCours != null)
+        {
+            StopCoroutine(transitionEnCours);
+        }
+
+        // 1. On gère les priorités des caméras (J'ai corrigé quitCam et ajouté TVCam !)
         if (mainCam != null) mainCam.Priority = 10;
         if (optionsCam != null) optionsCam.Priority = 10;
         if (playCam != null) playCam.Priority = 10;
+        if (quitCam != null) quitCam.Priority = 10;
+        if (TVCam != null) TVCam.Priority = 10;
 
         if (targetCamera != null) targetCamera.Priority = 20;
 
-        // 2. On DÉSACTIVE les clics de tous les boutons pour faire le ménage
+        // 2. On lance notre fonction temporelle (la Coroutine)
+        transitionEnCours = StartCoroutine(GererBoutonsAvecDelai(targetCamera));
+    }
+
+    // --- LA COROUTINE QUI GÈRE LE TEMPS ---
+    private IEnumerator GererBoutonsAvecDelai(CinemachineVirtualCameraBase targetCamera)
+    {
+        // ÉTAPE 1 : On DÉSACTIVE TOUT immédiatement au moment du clic
+        // Comme ça, pendant que la caméra vole, RIEN n'est cliquable.
         ActiverGroupeBoutons(boutonsMainMenu, false);
         ActiverGroupeBoutons(boutonsOptions, false);
         ActiverGroupeBoutons(boutonsPlay, false);
 
-        // 3. On ACTIVE uniquement les clics du menu qu'on regarde
+        // ÉTAPE 2 : LA PAUSE
+        // Le script s'arrête ici et attend le temps indiqué dans l'Inspecteur
+        yield return new WaitForSeconds(delaiCamera);
+
+        // ÉTAPE 3 : La caméra est arrivée ! On ACTIVE uniquement les bons boutons.
         if (targetCamera == mainCam)
             ActiverGroupeBoutons(boutonsMainMenu, true);
         else if (targetCamera == optionsCam)
