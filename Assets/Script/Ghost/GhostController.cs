@@ -19,7 +19,7 @@ public class GhostController : PlayerControllerCore, IInteractable
     public bool m_morphInputReleased = true;
     public bool m_beingRevived = false;
     public bool m_isReviving = false;
-    public bool m_CanDash = true;
+    public bool m_canDash = true;
 
 
     [Header("Ghost references")]
@@ -385,7 +385,7 @@ public class GhostController : PlayerControllerCore, IInteractable
     public void ApplyDashToAll(bool _isDashing, bool _canDash)
     {
         m_isDashing = _isDashing;
-        m_CanDash = _canDash;
+        m_canDash = _canDash;
     }
 
     public void OnInteract(Interact _who)
@@ -428,15 +428,13 @@ public class GhostController : PlayerControllerCore, IInteractable
     
     public void StartDash()
     {
-        if (!m_CanDash)
+        if (!m_canDash)
         {
             // case when can't dash
             return;
         }
-        m_isDashing = true;
-        m_CanDash = false;
         
-        ApplyDashToAll(m_isDashing, m_CanDash);
+        ApplyDashToAll(true, false);
         
         StartCoroutine(DashDuration(m_dashDuration));
     }
@@ -444,8 +442,7 @@ public class GhostController : PlayerControllerCore, IInteractable
     private IEnumerator DashDuration(float _duration)
     {
         yield return new WaitForSeconds(_duration);
-        m_isDashing = false;
-        ApplyDashToAll(m_isDashing, m_CanDash);
+        ApplyDashToAll(false, false);
     }
 
     public void StartSpookyScary()
