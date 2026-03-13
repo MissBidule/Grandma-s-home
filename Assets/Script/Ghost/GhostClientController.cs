@@ -86,7 +86,7 @@ public class GhostClientController : NetworkBehaviour
         if (!isOwner) return;
         if (m_ghostController == null || m_ghostInputController == null || m_playerCamera == null) return; // "just in case"
 
-        UpdateLabels();
+        UpdateHUD();
 
         if (last_stopped != m_ghostController.m_isStopped)
         {
@@ -146,7 +146,7 @@ public class GhostClientController : NetworkBehaviour
         print(m_ghostMorphPreview.transform.localPosition);
     }
 
-    void UpdateLabels()
+    void UpdateHUD()
     {
         if (m_ghostHUDView == null)
             return;

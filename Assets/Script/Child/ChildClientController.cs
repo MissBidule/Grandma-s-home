@@ -61,7 +61,7 @@ public class ChildClientController : NetworkBehaviour
         if (m_childInputController != null)
         {
 
-            UpdateLabels();
+            UpdateHUD();
 
             // DebugPrintTrafic();
 
@@ -99,7 +99,7 @@ public class ChildClientController : NetworkBehaviour
         print(m_attackPressed);
     }
 
-    void UpdateLabels()
+    void UpdateHUD()
     {
         if (!InstanceHandler.TryGetInstance(out ChildHUDView childHUDView))
             return;
