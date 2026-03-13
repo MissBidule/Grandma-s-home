@@ -54,6 +54,11 @@ public class ChildClientController : NetworkBehaviour
     private void InitOwner()
     {
         m_childInputController = GetComponent<ChildInputController>();
+        AudioManager audioManager = FindFirstObjectByType<AudioManager>();
+        if (audioManager != null)
+        {
+            audioManager.MuteGhostByChild();
+        }
         if (m_uiHolder == null)
             m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
             m_qteCircle = m_uiHolder.GetComponentInChildren<QteCircle>();
@@ -74,7 +79,7 @@ public class ChildClientController : NetworkBehaviour
         if (m_childInputController != null)
         {
 
-            UpdateLabels();
+            UpdateHUD();
 
             // DebugPrintTrafic();
 
@@ -132,7 +137,7 @@ public class ChildClientController : NetworkBehaviour
         print(m_attackPressed);
     }
 
-    void UpdateLabels()
+    void UpdateHUD()
     {
         if (!InstanceHandler.TryGetInstance(out ChildHUDView childHUDView))
             return;
