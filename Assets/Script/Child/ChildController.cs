@@ -23,17 +23,17 @@ public class ChildController : PlayerControllerCore
     [NonSerialized] public Vector3 m_cameraForward;
     
     [Header("Weapon Switching")]
-    private bool m_isranged;
-    private float m_lastShot;
-    private float m_switchingTime;
-    [SerializeField] private float m_cdSwitch = 0.2f;
+    public bool m_isRanged;
+    public float m_lastShot;
+    public float m_switchingTime;
+    [SerializeField] public float m_cdSwitch = 0.2f;
     
     [Header("CAC parameters")]
     private float m_attackRange = 0.5f;
     [SerializeField] private LayerMask m_GhostLayerMask;
     
     [Header("Shooting parameters")]
-    [SerializeField] [Tooltip("In seconds")] private float m_cdGun = 0.2f;
+    [SerializeField] [Tooltip("In seconds")] private float m_cdGun = 1.0f;
     [SerializeField] private Transform m_bulletSpawnTransform;
     [SerializeField] private GameObject m_bulletPrefab;
     [SerializeField] private float m_shootRange = 50f;
@@ -47,6 +47,12 @@ public class ChildController : PlayerControllerCore
     public bool m_isSneaking = false;
     [SerializeField] private float m_sneakAmplitude = 0.5f;
     private float m_speedModifier = 1.0f; // Default speed modifier
+
+    [Header("Animation")]
+    [SerializeField] private NetworkAnimator m_animator;
+
+
+
 
     protected override void OnSpawned()
     {
@@ -121,7 +127,7 @@ public class ChildController : PlayerControllerCore
     {
         if (!isServer || m_isScared) return; // Return if the player is scared
         if (m_switchingTime < m_cdSwitch) return;
-        if (m_isranged)
+        if (m_isRanged)
         {
             if (m_lastShot >= m_cdGun)
             {
@@ -189,6 +195,10 @@ public class ChildController : PlayerControllerCore
     [ObserversRpc(runLocally:true)]
     public void UpdateScaredToAll(bool _isScared)
     {
+        if (_isScared)
+        {
+            m_animator.SetTrigger("OnScared");
+        }
         m_isScared = _isScared;
     }
 
@@ -269,7 +279,7 @@ public class ChildController : PlayerControllerCore
     public void SwitchAttackType()
     {
         if (!isServer) return;
-        m_isranged = !m_isranged;
+        m_isRanged = !m_isRanged;
         m_switchingTime = 0;
     }
 }

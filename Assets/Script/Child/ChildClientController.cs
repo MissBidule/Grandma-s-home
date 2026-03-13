@@ -18,6 +18,22 @@ public class ChildClientController : NetworkBehaviour
     private bool m_jumpPressed = false;
     private bool m_switchWeaponPressed = false;
     private bool m_attackPressed = false;
+
+    //Animations
+    [SerializeField]private NetworkAnimator m_animator;
+    private bool m_isMovingForward;
+    private bool m_isMovingBackward;
+    private bool m_isAttacking;
+    private bool m_isSneaking;
+    private float m_attackTime;
+    AnimatorStateInfo animStateInfo;
+    private bool m_isSwitchingWeapon;
+    [SerializeField]private GameObject m_racket;
+    [SerializeField]private GameObject m_gun;
+    private bool bivh = false;
+    private float hashc;
+
+
     private bool m_sneakPressed = false;
     
     protected override void OnSpawned()
@@ -85,6 +101,27 @@ public class ChildClientController : NetworkBehaviour
             m_jumpPressed = false;
             m_switchWeaponPressed = false;
             m_attackPressed = false;
+            if (m_isSwitchingWeapon)
+            {
+                animStateInfo = m_animator.GetCurrentAnimatorStateInfo(0);
+                print(animStateInfo.normalizedTime);
+                if (animStateInfo.normalizedTime > 0.3f)
+                {
+                    if (!bivh)
+                    {
+                        bivh = true;
+                        hashc = animStateInfo.shortNameHash;
+                    }
+                    else if (hashc != animStateInfo.shortNameHash)
+                    {
+                        print("bibimbap");
+                        m_racket.SetActive(!m_racket.activeInHierarchy);
+                        m_gun.SetActive(!m_gun.activeInHierarchy);
+                        m_isSwitchingWeapon = false;
+                        bivh = false;
+                    }
+                }
+            }
         }
     }
 
@@ -127,12 +164,19 @@ public class ChildClientController : NetworkBehaviour
     {
         if (!isOwner) return;
         m_switchWeaponPressed = true;
+        if(m_childController.m_switchingTime > m_childController.m_cdSwitch)
+        {
+            m_animator.SetTrigger("OnSwitch");
+            m_animator.SetBool("Cac", m_childController.m_isRanged);
+            m_isSwitchingWeapon = true;
+        }
     }
 
     public void OnAttack()
     {
         if (!isOwner) return;
         m_attackPressed = true;
+        m_animator.SetTrigger("OnAttack");
     }
     
     /*
@@ -145,8 +189,48 @@ public class ChildClientController : NetworkBehaviour
 
     private Vector3 GetDirectionIntention(Vector2 _movement)
     {
-        if (_movement == Vector2.zero) return Vector3.zero;
-
+        if(m_isSneaking != m_sneakPressed)
+        {
+            m_isMovingForward = false;
+            m_isMovingBackward = false;
+            m_isSneaking = m_sneakPressed;
+        }
+        if (_movement == Vector2.zero)
+        {
+            if (m_isMovingForward || m_isMovingBackward)
+            {
+                m_isMovingForward = false;
+                m_isMovingBackward = false;
+                m_animator.CrossFadeInFixedTime("cac_idle",0.2f,0);
+            }
+            return Vector3.zero;
+        }
+        if (m_isMovingForward == false && _movement.y > 0)
+        {
+            m_isMovingForward = true;
+            m_isMovingBackward = false;
+            if (m_sneakPressed)
+            {
+                m_animator.CrossFadeInFixedTime("cac_walk",0.2f,0);
+            }
+            else
+            {
+                m_animator.CrossFadeInFixedTime("cac_run", 0.2f, 0);
+            }
+        }
+        else if(m_isMovingBackward == false && _movement.y < 1)
+        {
+            m_isMovingForward = false;
+            m_isMovingBackward = true;
+            if (m_sneakPressed)
+            {
+                m_animator.CrossFadeInFixedTime("cac_bwalk", 0.2f, 0);
+            }
+            else
+            {
+                m_animator.CrossFadeInFixedTime("cac_brun", 0.2f, 0);
+            }
+        }
         var wishDir = Vector3.zero;
 
         if (_movement.sqrMagnitude < 0.001f) return wishDir;
