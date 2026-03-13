@@ -10,6 +10,9 @@ public class SceneMenuNavigator : MonoBehaviour
     public CinemachineVirtualCameraBase playCam;
     public CinemachineVirtualCameraBase quitCam;
     public CinemachineVirtualCameraBase TVCam;
+    public CinemachineVirtualCameraBase PosterCam;
+    public CinemachineVirtualCameraBase SkinsCam;
+
 
     [Header("Réglages de Transition")]
     public float delaiCamera = 1.5f; // Le temps que met ta caméra à bouger (en secondes)
@@ -42,6 +45,8 @@ public class SceneMenuNavigator : MonoBehaviour
         if (playCam != null) playCam.Priority = 10;
         if (quitCam != null) quitCam.Priority = 10;
         if (TVCam != null) TVCam.Priority = 10;
+        if (PosterCam != null) PosterCam.Priority = 10;
+        if (SkinsCam != null) SkinsCam.Priority = 10;
 
         if (targetCamera != null) targetCamera.Priority = 20;
 
