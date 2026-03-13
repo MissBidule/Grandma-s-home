@@ -9,22 +9,41 @@ public class MoteurSpline : MonoBehaviour
     public float dureeTrajet = 2f;
 
     [Header("Pour la transition finale")]
-    public SceneMenuNavigator navigator; // Ton script qui gère les caméras
-    public CinemachineVirtualCameraBase Cam; 
+    public SceneMenuNavigator navigator;
+    public CinemachineVirtualCameraBase Cam;
+
+    // Variable secrète pour manipuler cette caméra
+    private CinemachineVirtualCameraBase maCameraSpline;
+
+    private void Start()
+    {
+        // Le script trouve tout seul la caméra sur laquelle il est posé
+        maCameraSpline = GetComponent<CinemachineVirtualCameraBase>();
+    }
 
     public void LancerLeTrajet()
     {
         if (dolly == null) dolly = GetComponent<CinemachineSplineDolly>();
         StopAllCoroutines();
+
+        // 1. LE ROULEAU COMPRESSEUR : On met la priorité à 30 !
+        // Ça force Unity à afficher cette caméra, peu importe les bugs du menu.
+        if (maCameraSpline != null)
+        {
+            maCameraSpline.Priority = 30;
+        }
+
         StartCoroutine(Trajet());
     }
 
     private IEnumerator Trajet()
     {
         float temps = 0f;
+
+        // On rembobine bien l'animation à zéro
         dolly.CameraPosition = 0f;
 
-        // On fait avancer la caméra jusqu'en bas
+        // On fait avancer la caméra
         while (temps < dureeTrajet)
         {
             temps += Time.deltaTime;
@@ -32,10 +51,16 @@ public class MoteurSpline : MonoBehaviour
             yield return null;
         }
 
-        // On s'assure d'être exactement à la fin du rail
+        // On s'assure d'être à la fin
         dolly.CameraPosition = 1f;
 
-        // 🎯 L'ACTION FINALE : On rebascule sur le menu principal !
+        // 2. FIN DU TRAJET : On éteint cette caméra en la remettant à 10
+        if (maCameraSpline != null)
+        {
+            maCameraSpline.Priority = 10;
+        }
+
+        // 3. On demande au Navigator d'allumer la chambre (qui passera à 20)
         if (navigator != null && Cam != null)
         {
             navigator.SwitchToCamera(Cam);
