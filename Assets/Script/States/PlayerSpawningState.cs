@@ -10,7 +10,6 @@ using Script.UI.Views;
 using UI;
 using Antony;
 using System.Linq;
-
 namespace Script.States
 {
     /*
@@ -18,8 +17,6 @@ namespace Script.States
      * @details Script that will handle the correct spawning of each player element
      */
     public class PlayerSpawningState : StateNode
-    [SerializeField] private PlaydoughShaderManager m_playdoughPrefab;
-    [SerializeField] private JellyGhostShaderManager m_jellyPrefab;
     {
         [Header("Child spawner")]
         [SerializeField] private ChildController m_childPrefab;
@@ -75,26 +72,21 @@ namespace Script.States
                 Transform spawnPoint;
                 PlayerControllerCore newPlayer;
 
-            if (isGhost)
-            {
-                spawnPoint = m_ghostSpawnPoints[currentSpawnGhostIndex++ %  m_ghostSpawnPoints.Count];
-                newPlayer = UnityProxy.Instantiate(m_ghostPrefab, spawnPoint.position, spawnPoint.rotation);
-                // foreach (var renderer in newPlayer.GetComponentsInChildren<MeshRenderer>())
-                // {
-                //     m_jellyPrefab.renderersToModify.Append(renderer);
-                // }
+                if (isGhost)
+                {
+                    spawnPoint = m_ghostSpawnPoints[currentSpawnGhostIndex++ % m_ghostSpawnPoints.Count];
+                    newPlayer = UnityProxy.Instantiate(m_ghostPrefab, spawnPoint.position, spawnPoint.rotation);
+                }
+                else
+                {
+                    spawnPoint = m_childSpawnPoints[currentSpawnChildIndex++ % m_childSpawnPoints.Count];
+                    newPlayer = UnityProxy.Instantiate(m_childPrefab, spawnPoint.position, spawnPoint.rotation);
+                }
+                newPlayer.GiveOwnership(player);
+                spawnedPlayers.Add(newPlayer);
             }
-            else
-            {
-                spawnPoint = m_childSpawnPoints[currentSpawnChildIndex++ % m_childSpawnPoints.Count];
-                newPlayer = UnityProxy.Instantiate(m_childPrefab, spawnPoint.position, spawnPoint.rotation);
-                // foreach (var renderer in newPlayer.GetComponentsInChildren<SkinnedMeshRenderer>())
-                // {
-                //     m_playdoughPrefab.skinnedMeshRenderersToModify.Append(renderer);
-                // }
-            } 
-            newPlayer.GiveOwnership(player);
-            spawnedPlayers.Add(newPlayer);
+
+            return spawnedPlayers;
         }
 
         [ObserversRpc]
