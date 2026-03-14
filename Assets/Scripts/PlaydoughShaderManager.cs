@@ -23,10 +23,6 @@ namespace Antony
         [Tooltip("The Material which name is \"Playdough_ObjectColour\"\n(the only one that has the UseCustomBaseColour property to true (when the box is ticked on))")]
         [SerializeField] private Material playdoughObjColMaterial = null;
 
-        [Tooltip("GameObjects that you want to use their already defined colour in the Playdough shader\n(the colour given before exporting to Unity, in Blender for example)\n/!\\The GameObjects must the Material you want to use the colour of be the first in the list,\nand the Material with the Playdough shader must be the last in the list/!\\")]
-        [SerializeField] public MeshRenderer[] renderersToModify = null;
-        [SerializeField] public SkinnedMeshRenderer[] skinnedMeshRenderersToModify = null;
-
         [Tooltip("Height maps used for vertex displacement\nDirectly changes the mesh shape")]
         [SerializeField] private Texture2D[] heightMaps = null;
 
@@ -75,8 +71,6 @@ namespace Antony
         [Tooltip("If enabled, textures are chosen randomly\nIf disabled, they cycle in array order")]
         [SerializeField] private bool cycleTexturesRandomly = true;
 
-        private MeshRenderer[] renderersToModifyCpy = null;
-        private SkinnedMeshRenderer[] skinnedMeshRenderersToModifyCpy = null;
         private Texture2D currentHeightMap = null;
         private Texture2D currentNormalMap = null;
         private Texture2D currentTexture = null;
@@ -97,9 +91,6 @@ namespace Antony
 
         private void Awake()
         {
-            roughnessCpy = roughness;
-            metalnessCpy = metalness;
-
             ApplyNormalMap(0);
             ApplyHeightMap(0);
             ApplyTexture(0);
@@ -148,17 +139,6 @@ namespace Antony
             }
 
             changeTimer = 0f;
-        }
-
-        private void OnValidate()
-        {
-            if (renderersToModifyCpy != renderersToModify || skinnedMeshRenderersToModifyCpy != skinnedMeshRenderersToModify)
-            {
-                UpdateRenderersToModify();
-
-                renderersToModifyCpy = renderersToModify;
-                skinnedMeshRenderersToModifyCpy = skinnedMeshRenderersToModify;
-            }
 
             if (roughnessCpy != roughness)
             {
@@ -267,78 +247,6 @@ namespace Antony
             deltaTime = (float)(now - lastTime);
             lastTime = now;
 #endif
-        }
-
-
-        public void UpdateRenderersToModify()
-        {
-#if UNITY_EDITOR
-            if (EditorApplication.isCompiling ||
-                EditorApplication.isUpdating)
-            {
-                return;
-            }
-#endif
-
-            if ((renderersToModify == null || renderersToModify.Length == 0) && (skinnedMeshRenderersToModify == null || skinnedMeshRenderersToModify.Length == 0))
-            {
-                return;
-            }
-
-            if (playdoughObjColMaterial == null ||
-                playdoughObjColMaterial.shader == null ||
-                !playdoughObjColMaterial.HasProperty("_BaseColour"))
-            {
-                return;
-            }
-
-            foreach (MeshRenderer mr in renderersToModify)
-            {
-                Material[] newMaterials = mr.sharedMaterials;
-                for (int i = 0; i < mr.sharedMaterials.Length; i++)
-                {
-                    Material mat = mr.sharedMaterials[i];
-                    if (mat == null)
-                    {
-                        continue;
-                    }
-
-                    if (mat.shader == playdoughObjColMaterial.shader)
-                    {
-                        continue;
-                    }
-
-                    Color _originalColor = mat.color;
-                    newMaterials[i] = new Material(playdoughObjColMaterial);
-                    newMaterials[i].SetColor("_BaseColour", _originalColor);
-                }
-
-                mr.sharedMaterials = newMaterials;
-            }
-
-            foreach (SkinnedMeshRenderer smr in skinnedMeshRenderersToModify)
-            {
-                Material[] newMaterials = smr.sharedMaterials;
-                for (int i = 0; i < smr.sharedMaterials.Length; i++)
-                {
-                    Material mat = smr.sharedMaterials[i];
-                    if (mat == null)
-                    {
-                        continue;
-                    }
-
-                    if (mat.shader == playdoughObjColMaterial.shader)
-                    {
-                        continue;
-                    }
-
-                    Color _originalColor = mat.color;
-                    newMaterials[i] = new Material(playdoughObjColMaterial);
-                    newMaterials[i].SetColor("_BaseColour", _originalColor);
-                }
-
-                smr.sharedMaterials = newMaterials;
-            }
         }
     }
 }
