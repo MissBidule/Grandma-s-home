@@ -630,14 +630,8 @@ namespace PurrLobby.Providers {
 
             foreach (Player player in CurrentLobby.Players)
             {
-                if (player.Data["IsReady"]?.Value == "True")
-                {
-                    await SetIsReadyAsync(player.Id, false);
-                }
-                if (player.Data["IsInGame"]?.Value == "True")
-                {
-                    await SetIsInGameAsync(player.Id, false);
-                }
+                await SetIsReadyAsync(player.Id, false);
+                await SetIsInGameAsync(player.Id, false);
             }
 
             OnLobbyUpdate();
