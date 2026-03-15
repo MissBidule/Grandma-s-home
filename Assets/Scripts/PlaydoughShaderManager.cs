@@ -20,9 +20,6 @@ namespace Antony
         private static readonly int s_displacementStrengthID = Shader.PropertyToID("_Playdough_DisplacementStrength");
         private static readonly int s_maxLODDistanceID = Shader.PropertyToID("_Playdough_MaxLODDistance");
 
-        [Tooltip("The Material which name is \"Playdough_ObjectColour\"\n(the only one that has the UseCustomBaseColour property to true (when the box is ticked on))")]
-        [SerializeField] private Material playdoughObjColMaterial = null;
-
         [Tooltip("Height maps used for vertex displacement\nDirectly changes the mesh shape")]
         [SerializeField] private Texture2D[] heightMaps = null;
 

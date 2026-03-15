@@ -4979,7 +4979,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baacc2bfe126d544691d4f39fa3785f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _stopPlayingOnDisconnect: 0
+  _stopPlayingOnDisconnect: 1
   _startServerFlags: 0
   _startClientFlags: 0
   _cookieScope: 1
@@ -13672,6 +13672,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 379988950}
   - {fileID: 104676489}
   - {fileID: 4188363398081879897}
   - {fileID: 1478810386}
@@ -15423,12 +15424,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 379988948}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 2.41628, y: 3.01, z: 12.09}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 337395974}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &380686985
 GameObject:
@@ -47876,6 +47877,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8592952912687109434, guid: 120fc97dba3c78c45937ab5ddc19277c, type: 3}
       propertyPath: displacementStrength
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8592952912687109434, guid: 120fc97dba3c78c45937ab5ddc19277c, type: 3}
+      propertyPath: cycleTexturesRandomly
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8592952912687109434, guid: 120fc97dba3c78c45937ab5ddc19277c, type: 3}
@@ -82836,7 +82841,6 @@ SceneRoots:
   - {fileID: 1364236923}
   - {fileID: 3797009236798463491}
   - {fileID: 832090170}
-  - {fileID: 379988950}
   - {fileID: 1672712856}
   - {fileID: 446502151}
   - {fileID: 1291814605}

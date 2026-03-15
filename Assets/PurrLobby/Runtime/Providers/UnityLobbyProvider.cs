@@ -19,6 +19,7 @@ using Unity.Services.Lobbies.Models;
 using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
 using PurrNet;
+using PurrNet.Transports;
 #endif
 
 namespace PurrLobby.Providers {
@@ -614,12 +615,19 @@ namespace PurrLobby.Providers {
             if(!IsUnityServiceAvailable) { return; }
 
             CurrentLobby = await LobbyService.Instance.GetLobbyAsync(_lobbyId);
+
             await SubscribeLobbyEventsAsync();
             await InitializeLocalPlayerData();
+            
             if (IsLocalPlayerHost)
             {
                 await SetLobbyDataAsync("JoinCode", "");
             }
+
+            RoleKeeper roleList = FindAnyObjectByType<RoleKeeper>();
+            List<string> disconnectedPlayers = roleList.GetDisconnectedPlayers();
+            CurrentLobby.Players.RemoveAll(x => disconnectedPlayers.Exists(y => y == x.Id));
+            roleList.DeleteList();
 
             foreach (Player player in CurrentLobby.Players)
             {

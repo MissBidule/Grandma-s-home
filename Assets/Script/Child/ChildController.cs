@@ -69,9 +69,11 @@ public class ChildController : PlayerControllerCore
      * @brief   Reads child input and computes movement direction relative to the camera
      * @return  void
      */
-    void Update()
+    private void Update()
     {
         if (!isServer) return;
+
+        PingServer();
      
         UpdateTimers();
         

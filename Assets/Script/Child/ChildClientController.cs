@@ -76,6 +76,8 @@ public class ChildClientController : NetworkBehaviour
     {
         if (!isOwner) return;
 
+        m_childController.PingClient();
+
         if (m_childInputController != null)
         {
 

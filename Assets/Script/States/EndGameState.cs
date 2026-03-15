@@ -1,3 +1,4 @@
+using PurrLobby;
 using PurrNet;
 using PurrNet.Logging;
 using PurrNet.StateMachine;
@@ -20,12 +21,6 @@ namespace Script.States
         {
             InstanceHandler.RegisterInstance(this);
             
-            foreach (StateNode state in machine.states)
-            {
-                if (state is PlayerSpawningState playerSpawningState)
-                    m_spawnState = playerSpawningState;
-            }
-            
             _hasAlreadySwitched = false; // Reset flag on start to allow scene switching in new lobby sessions
         }
 
@@ -38,6 +33,12 @@ namespace Script.States
         public override void Enter(bool _childWin, bool _asServer)
         {
             base.Enter(_asServer);
+
+            foreach (StateNode state in machine.states)
+            {
+                if (state is PlayerSpawningState playerSpawningState)
+                    m_spawnState = playerSpawningState;
+            }
             
             PurrLogger.Log($"End Game childWin {_childWin} | Server asServer {_asServer}");
             
@@ -72,6 +73,13 @@ namespace Script.States
             PurrLogger.Log($"Switching to scene: {m_lobbyScene}", this);
             
             // Load game scene - ConnectionStarter in new scene will handle network initialization
+            SceneManager.LoadSceneAsync(m_lobbyScene);
+        }
+
+        public void ServerLost()
+        {
+            PurrLogger.LogWarning("Server is not accessible. Returning to lobby.", this);
+            FindAnyObjectByType<LobbyDataHolder>().SetCurrentLobby(default);
             SceneManager.LoadSceneAsync(m_lobbyScene);
         }
 
