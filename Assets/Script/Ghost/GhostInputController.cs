@@ -207,4 +207,22 @@ public class GhostInputController : MonoBehaviour
             }
         }
     }
+
+    public void OnEscape(InputAction.CallbackContext _context)
+    {
+        if (!isOwner) return;
+        if (_context.performed)
+        {
+            if (!m_qteCircle)
+                m_qteCircle = FindAnyObjectByType<QteCircle>();
+
+            if (m_qteCircle != null && m_qteCircle.m_isRunning)
+            {
+                m_qteCircle.CancelQte();
+                return;
+            }
+
+            // TODO: ouvrir le menu pause (lucas askip)
+        }   
+    }
 }

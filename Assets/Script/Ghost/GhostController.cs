@@ -1,4 +1,5 @@
 using PurrNet;
+using PurrNet.Logging;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -19,7 +20,7 @@ public class GhostController : PlayerControllerCore, IInteractable
     public bool m_morphInputReleased = true;
     public bool m_beingRevived = false;
     public bool m_isReviving = false;
-    public bool m_CanDash = true;
+    public bool m_canDash = true;
 
 
     [Header("Ghost references")]
@@ -63,6 +64,7 @@ public class GhostController : PlayerControllerCore, IInteractable
     [SerializeField] private float m_wallNormalMaxY = 0.4f; 
     [SerializeField] private float m_raycastHeightOffset = 0.5f;
     [SerializeField] private LayerMask m_climbableLayerMask = ~0;
+    private QteCircle m_qteCircle;
 
     private Rigidbody m_rigidbody;
 
@@ -70,6 +72,8 @@ public class GhostController : PlayerControllerCore, IInteractable
     private Vector3 m_wallNormal;
 
     private float m_speedModifier = 1f;
+    
+    public Action<bool, PlayerID> OnDeathChange; // true for death | false for resurrection
 
     // -------------------------------------------
     // --- Everything Down Here is Server-Side ---
@@ -89,9 +93,11 @@ public class GhostController : PlayerControllerCore, IInteractable
 
     }
 
-    private void Update()
+    void Update()
     {
         if (!isServer) return;
+
+        PingServer();
      
         UpdateTimers();
 
@@ -229,6 +235,11 @@ public class GhostController : PlayerControllerCore, IInteractable
     */
     private bool CheckForClimbableWall()
     {
+        if (m_qteCircle == null) m_qteCircle = FindAnyObjectByType<QteCircle>();
+        if (m_qteCircle != null && m_qteCircle.m_isRunning)
+        {
+            return false;
+        }
         Vector3 rayOrigin = transform.position + Vector3.up * m_raycastHeightOffset;
         Vector3 rayDirection = transform.forward;
 
@@ -275,11 +286,15 @@ public class GhostController : PlayerControllerCore, IInteractable
     }
 
     /**
-    @brief      Apply stop effect from close combat hit
+    @brief Apply stop effect from close combat hit
     */
     public void HitCac()
     {
         if (!isServer) return;
+        if (!owner.HasValue)
+            return;
+        PurrLogger.LogWarning("Ghost Died", this);
+        OnDeathChange?.Invoke(true, owner.Value); // True because he dies
         ApplyStopToAll();
         m_currentTimerStop = m_timerStop;
     }
@@ -322,9 +337,9 @@ public class GhostController : PlayerControllerCore, IInteractable
         if (InteractPromptUI.m_Instance != null) InteractPromptUI.m_Instance.Hide();
     }
 
-    public void RevivingBuddy(float duration)
+    public void RevivingBuddy(float _duration)
     {
-        m_reviveDuration = duration;
+        m_reviveDuration = _duration;
         m_reviveTimer = 0f;
         m_isReviving = true;
     }
@@ -364,6 +379,10 @@ public class GhostController : PlayerControllerCore, IInteractable
     private void RequestReviveRpc()
     {
         if (!m_isStopped) return;
+        if (!owner.HasValue)
+            return;
+        PurrLogger.LogWarning("Ghost Revive", this);
+        OnDeathChange?.Invoke(false, owner.Value); // False because he undies
         ForceRevive();
         if (!m_reviver.m_isStopped)
             m_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
@@ -379,7 +398,7 @@ public class GhostController : PlayerControllerCore, IInteractable
     public void ApplyDashToAll(bool _isDashing, bool _canDash)
     {
         m_isDashing = _isDashing;
-        m_CanDash = _canDash;
+        m_canDash = _canDash;
     }
 
     public void OnInteract(Interact _who)
@@ -422,15 +441,13 @@ public class GhostController : PlayerControllerCore, IInteractable
     
     public void StartDash()
     {
-        if (!m_CanDash)
+        if (!m_canDash)
         {
             // case when can't dash
             return;
         }
-        m_isDashing = true;
-        m_CanDash = false;
         
-        ApplyDashToAll(m_isDashing, m_CanDash);
+        ApplyDashToAll(true, false);
         
         StartCoroutine(DashDuration(m_dashDuration));
     }
@@ -438,8 +455,7 @@ public class GhostController : PlayerControllerCore, IInteractable
     private IEnumerator DashDuration(float _duration)
     {
         yield return new WaitForSeconds(_duration);
-        m_isDashing = false;
-        ApplyDashToAll(m_isDashing, m_CanDash);
+        ApplyDashToAll(false, false);
     }
 
     public void StartSpookyScary()

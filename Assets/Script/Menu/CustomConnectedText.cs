@@ -8,6 +8,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.Serialization;
 using PurrNet.StateMachine;
+using Script.States;
 
 public class CustomConnectedText : MonoBehaviour
 {
@@ -36,7 +37,7 @@ public class CustomConnectedText : MonoBehaviour
         }
 
         string[] messages = m_messageContent.Split("\n");
-        messages[2] = "Currently 0 out of " + m_lobbyDataHolder.GetNumber_of_player_in_lobby();
+        messages[2] = "Currently 0 out of " + m_lobbyDataHolder.GetNumber_of_player_ready_in_lobby();
         m_playerText.text = messages[2];
 
         m_networkManager.onPlayerJoined += OnPlayerJoined;
@@ -76,7 +77,7 @@ public class CustomConnectedText : MonoBehaviour
     {
         if (!gameObject.activeInHierarchy) 
             return;
-        OnNumberOfPlayersChanged(m_networkManager.playerCount, m_lobbyDataHolder.GetNumber_of_player_in_lobby());
+        OnNumberOfPlayersChanged(m_networkManager.playerCount, m_lobbyDataHolder.GetNumber_of_player_ready_in_lobby());
     }
 
     private void OnNumberOfPlayersChanged(int _playerNumber, int _maxPlayerNumber)

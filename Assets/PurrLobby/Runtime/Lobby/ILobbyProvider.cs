@@ -22,6 +22,7 @@ namespace PurrLobby {
         Task<List<Lobby>> SearchLobbiesAsync(int maxRoomsToFind = 10, Dictionary<string, string> filters = null);
         Task SetIsReadyAsync(string userId, bool isReady);
         Task SetIsGhostAsync(string userId, bool isGhost);
+        Task SetIsInGameAsync(string userId, bool isInGame);
         Task SetLobbyDataAsync(string key, string value);
         Task<string> GetLobbyDataAsync(string key);
         Task<List<LobbyUser>> GetLobbyMembersAsync();
@@ -32,6 +33,7 @@ namespace PurrLobby {
         Task UpdateLobbyType(bool _isPrivate);
         Task<string> GetPlayer();
         Task TriggerLobbyUpdated();
+        Task OnLobbyUpdateData(string _lobbyId);
 
         // Events
         event UnityAction<string> OnLobbyJoinFailed;
