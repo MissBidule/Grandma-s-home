@@ -176,6 +176,10 @@ MonoBehaviour:
   m_playerAnimator: {fileID: 0}
   m_renderers:
   - {fileID: 962482585755013352}
+  m_PingCooldown: 5
+  m_elapsedTimeSincePing: 0
+  m_isServerAccessible: 1
+  m_isClientAccessible: 1
   m_wishDir: {x: 0, y: 0, z: 0}
   m_cameraYaw: 0
   m_isRanged: 0
@@ -522,22 +526,6 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: b2c3d4e5-f6a7-8901-bcde-f12345678902
     m_ActionName: 'Ghost/RotatePreviewRight[/Keyboard/e]'
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 6565872187536608583}
-        m_TargetAssemblyTypeName: ChildInputController, Assembly-CSharp
-        m_MethodName: OnEscape
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: 99071452-9b02-4cc4-9b4c-06f7b819a5dd
-    m_ActionName: 'Child/Escape[/Keyboard/escape]'
   - m_PersistentCalls:
       m_Calls: []
     m_ActionId: 3d09c0f7-6836-414d-9309-10e51013ab1f
@@ -944,7 +932,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2479407354322227593}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0.95, y: 1.4499999, z: -3.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1058,7 +1046,7 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
+  m_RenderPostProcessing: 1
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0

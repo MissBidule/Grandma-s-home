@@ -17,6 +17,7 @@ namespace PurrLobby
             public bool m_isGhost;
             public bool m_isLocal;
             public int m_connectionID;
+            public bool m_isDisconnected;
         };
 
         [SerializeField] private List<Role> m_roles = new List<Role>();
@@ -72,6 +73,19 @@ namespace PurrLobby
             DontDestroyOnLoad(gameObject);
         }
 
+        public List<string> GetDisconnectedPlayers()
+        {
+            List <string> disconnectedList = new List<string>();
+            foreach (var player in m_roles)
+            {
+                if (player.m_isDisconnected)
+                {
+                    disconnectedList.Add(player.m_roleId);
+                }
+            }
+            return disconnectedList;
+        }
+
         public void DeleteList()
         {
             m_roles = new List<Role>();
@@ -104,6 +118,29 @@ namespace PurrLobby
                         m_isGhost = keepRole,
                         m_isLocal = keepLocal,
                         m_connectionID = _connectionID
+                    };
+                    break;
+                }
+            }
+        }
+
+        public void setMemberDisconnected(string _roleID)
+        {
+            for (int i = 0; i < m_roles.Count; i++)
+            {
+                string keepRoleID = m_roles[i].m_roleId;
+                bool keepRole = m_roles[i].m_isGhost;
+                bool keepLocal = m_roles[i].m_isLocal;
+                int keepConnection = m_roles[i].m_connectionID;
+                if (m_roles[i].m_roleId == _roleID)
+                {
+                    m_roles[i] = new Role()
+                    {
+                        m_roleId = keepRoleID,
+                        m_isGhost = keepRole,
+                        m_isLocal = keepLocal,
+                        m_connectionID = keepConnection,
+                        m_isDisconnected = true
                     };
                     break;
                 }

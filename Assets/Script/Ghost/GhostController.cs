@@ -93,9 +93,11 @@ public class GhostController : PlayerControllerCore, IInteractable
 
     }
 
-    private void Update()
+    void Update()
     {
         if (!isServer) return;
+
+        PingServer();
      
         UpdateTimers();
 
