@@ -83,6 +83,9 @@ public class ChildClientController : NetworkBehaviour
 
             // DebugPrintTrafic();
 
+            if (m_childController.m_isScared && m_qteCircle.m_isRunning)
+                m_qteCircle.CancelQte();
+
             if (m_qteCircle.m_isRunning) return;
             var moveVec = m_childInputController.m_movementInputVector;
             var wishDir = GetDirectionIntention(moveVec);
@@ -159,6 +162,13 @@ public class ChildClientController : NetworkBehaviour
         if (!isOwner) return;
         if (!m_qteCircle.m_isRunning) return;
         m_qteCircle.CheckSuccess();
+    }
+
+    public void OnEscape()
+    {
+        if (!isOwner) return;
+        if (m_qteCircle != null && m_qteCircle.m_isRunning)
+            m_qteCircle.CancelQte();
     }
 
     public void OnSwitchWeapon()
