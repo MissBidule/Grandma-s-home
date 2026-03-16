@@ -123,6 +123,8 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         {
             return;
         }
+        ChildController childController = _player.GetComponentInParent<ChildController>();
+        if (childController != null && childController.m_isScared) return;
         Rigidbody rb = _player.GetComponentInParent<Rigidbody>();
         rb.constraints = (RigidbodyConstraints)(RigidbodyConstraints.FreezeAll - RigidbodyConstraints.FreezePositionY);
         StartQte(_player);
