@@ -20,9 +20,6 @@ namespace Antony
         private static readonly int s_displacementStrengthID = Shader.PropertyToID("_Playdough_DisplacementStrength");
         private static readonly int s_maxLODDistanceID = Shader.PropertyToID("_Playdough_MaxLODDistance");
 
-        [Tooltip("The Material which name is \"Playdough_ObjectColour\"\n(the only one that has the UseCustomBaseColour property to true (when the box is ticked on))")]
-        [SerializeField] private Material playdoughObjColMaterial = null;
-
         [Tooltip("Height maps used for vertex displacement\nDirectly changes the mesh shape")]
         [SerializeField] private Texture2D[] heightMaps = null;
 
@@ -49,10 +46,6 @@ namespace Antony
         [SerializeField] [Range(0f, 1f)]
         [Tooltip("Surface metalness\nLower values look dull or matte\nHigher values appear more metallic and reflective")]
         private float metalness = 0f;
-
-        [SerializeField] [Range(0f, 0.3f)]
-        [Tooltip("Strength of vertex displacement from the height map")]
-        private float displacementStrength = 0.15f;
 
         [SerializeField] [Min(1f)]
         [Tooltip("Maximum distance between the objects and the camera for the object to be rendered at full resolution")]
@@ -162,12 +155,6 @@ namespace Antony
             {
                 Shader.SetGlobalFloat(s_normalStrengthID, normalStrength);
                 normalStrengthCpy = normalStrength;
-            }
-
-            if (displacementStrengthCpy != displacementStrength)
-            {
-                Shader.SetGlobalFloat(s_displacementStrengthID, displacementStrength);
-                displacementStrengthCpy = displacementStrength;
             }
 
             if (maxLODDistanceCpy != maxLODDistance)
