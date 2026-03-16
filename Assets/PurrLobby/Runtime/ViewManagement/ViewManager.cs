@@ -9,6 +9,7 @@ namespace PurrLobby
     {
         [SerializeField] private List<View> allViews = new();
         [SerializeField] private View defaultView;
+        [SerializeField] List<GameObject> objectsForHost = new();
 
         private void Start()
         {
@@ -72,6 +73,15 @@ namespace PurrLobby
         }
 
         #region Events
+
+        public void showHostObjects(bool isHost)
+        {
+            foreach (var obj in objectsForHost)
+            {
+                if (obj)
+                    obj.SetActive(isHost);
+            }
+        }
 
         public void OnRoomJoined()
         {

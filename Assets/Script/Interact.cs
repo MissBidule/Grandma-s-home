@@ -96,6 +96,19 @@ public class Interact : NetworkBehaviour
         _currentFocus.OnInteract(this);
     }
 
+    public void OnSuccessSabotage()
+    {
+        if (m_isGhost)
+        {
+            GetComponentInParent<GhostController>().ApplyDashToAll(false, true);
+        }
+        else
+        {
+            // If one day we give a score or something for repairing as the child
+            // It should be put here.
+        }
+    }
+
     /**
     @brief      Called when the interact button is released
     */

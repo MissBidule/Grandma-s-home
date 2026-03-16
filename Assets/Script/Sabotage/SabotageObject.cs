@@ -124,7 +124,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
             return;
         }
         Rigidbody rb = _player.GetComponentInParent<Rigidbody>();
-        rb.constraints = RigidbodyConstraints.FreezeAll;
+        rb.constraints = (RigidbodyConstraints)(RigidbodyConstraints.FreezeAll - RigidbodyConstraints.FreezePositionY);
         StartQte(_player);
     }
 
@@ -164,6 +164,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         {
             InteractPromptUI.m_Instance.Hide();
             
+            m_saboteur.OnSuccessSabotage();
             if (m_saboteur.m_isGhost)
             {
                 SabotageRPC();
@@ -172,7 +173,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
             {
                 UnsabotageRPC();
             }
-            
+
             m_saboteur = null;
             return;
         }
@@ -181,7 +182,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
             string prompt = m_saboteur.m_isGhost ? m_promptMessageSABOTAGE : m_promptMessageREPAIR;
             InteractPromptUI.m_Instance.Show(prompt);
         }
-        
+
         m_saboteur = null;
 
         if (m_isFocused)
@@ -213,9 +214,14 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     }
 
     [ServerRpc(requireOwnership:false)]
-    private void UnsabotageRPC()
+    private void UnsabotageRPC(RPCInfo info = default)
     {
         UnsabotageForAll();
+
+        if(InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
+        {
+            scoreManager.SubPointSabotage(info.sender);
+        }
     }
 
     [ObserversRpc(runLocally:true, requireServer:true)]

@@ -1,5 +1,6 @@
 using System.Collections;
 using PurrNet;
+using PurrNet.Logging;
 using Script.UI.Views;
 using TMPro;
 using UI;
@@ -17,9 +18,21 @@ public class ChildHUDView : GameView
     [SerializeField] private Image m_scaredCooldownOverlay;
     public bool m_isScared = false;
     
+    [Header("Score parameters")]
+    [SerializeField] private Slider m_sabotageScoreSlider;
+    [SerializeField] private TMP_Text m_scoreSabotage;
+        
+    [SerializeField] private Slider m_brokenScoreSlider;
+    [SerializeField] private TMP_Text m_scoreBroken;
+    
+    
     private void Awake()
     {
         InstanceHandler.RegisterInstance(this);
+        if (m_hudMessagePanel == null)
+            PurrLogger.LogWarning("hudMessagePanel is null");
+        // TODO The other null check 
+        
     }
 
     protected void OnDestroy()
@@ -69,5 +82,16 @@ public class ChildHUDView : GameView
         ShowMessage("You are not scared!");
         m_scaredIcon.enabled = false;
         m_scaredCooldownOverlay.enabled = false;
+    }
+    
+    public void UpdateScore(float _sabotageScore, float _maxScoreSabotage, int _brokenScore, float _maxScoreBroken)
+    {
+        m_sabotageScoreSlider.value = _sabotageScore;
+        m_sabotageScoreSlider.maxValue = _maxScoreSabotage;
+        m_scoreSabotage.text = _sabotageScore+"$";
+            
+        m_brokenScoreSlider.value = _brokenScore;
+        m_brokenScoreSlider.maxValue = _maxScoreBroken;
+        m_scoreBroken.text = _brokenScore+"$";
     }
 }
