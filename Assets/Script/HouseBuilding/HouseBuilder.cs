@@ -1,10 +1,13 @@
 using PurrNet;
 using PurrNet.Logging;
+using System;
+using System.Collections;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Script.HouseBuilding
 {
@@ -70,6 +73,7 @@ namespace Script.HouseBuilding
          * layouts that can be randomly chosen during generation.
          */
         [SerializeField] private List<RoomConfig> m_rooms;
+        private List<Room> m_networkRoomsCreated = new List<Room>();
         
         [Header("Props Parameters")]
         [SerializeField, Range(0f, 1f)] [Tooltip("Proportion of small props that should be spawned in rooms.")] private float m_smallPropsPercentage;
@@ -81,17 +85,16 @@ namespace Script.HouseBuilding
          * @description Only the server is allowed to generate the house. Clients
          * simply receive the result through the network RPC.
          */
-        protected override void OnSpawned(bool _asServer)
+        private void Awake()
         {
-            base.OnSpawned(_asServer);
+            InstanceHandler.RegisterInstance(this);
+        }
 
-            if (!_asServer)
-            {
-                enabled = false;
-                return;
-            }
-
-            SeedHouse();
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            
+            InstanceHandler.UnregisterInstance<HouseBuilder>();
         }
 
         /*
@@ -99,40 +102,43 @@ namespace Script.HouseBuilding
          * @description This must only execute on the server so every client
          * receives the same seed and produces identical procedural results.
          */
-        private void SeedHouse()
+        public void BuildHouseNetwork()
         {
-            if (!isServer) // To be super sure
+            if (!isServer)
                 return;
             
-            // Initialize random with a fixed seed so all clients generate the same random values
             int masterSeed = System.DateTime.Now.Millisecond;
-            PurrLogger.Log($"Seeding with master seed: {masterSeed}", this);
+            PurrLogger.Log($"Seeding house with master seed: {masterSeed}", this);
             
             BuildHouse(masterSeed);
         }
 
         /*
-         * @brief Network RPC responsible for generating the house on clients.
+         * @brief Network RPC responsible for generating the house on all clients.
          * @params _masterSeed Deterministic seed used for procedural generation.
+         * @description This RPC is called by the server and executed on all observers
+         * to build the house structure synchronously.
          */
         [ObserversRpc(bufferLast:true)]
-        private void BuildHouse(int  _masterSeed)
+        private void BuildHouse(int _masterSeed)
         {
-            BuildHouseInternal(_masterSeed, false);
+            BuildHouseNetwork(_masterSeed);
         }
-        
+
         /*
-         * @brief Core procedural generation function.
-         * @params _masterSeed Seed controlling random generation.
-         * @params _editorMode Indicates whether generation is executed inside the editor.
-         * @description This function is shared between runtime network generation
-         * and editor preview generation.
+         * @brief Network implementation of house generation.
+         * @params _masterSeed Seed controlling random generation for all clients.
+         * @description Creates rooms on all clients using the same seed to ensure
+         * identical layouts. Props are populated separately via server-side RPC.
          */
-        private void BuildHouseInternal(int _masterSeed, bool _editorMode)
+        private void BuildHouseNetwork(int _masterSeed)
         {
             Random.InitState(_masterSeed);
 
             int seedIterator = 0;
+            
+            if (isServer)
+                m_networkRoomsCreated.Clear();
 
             foreach (RoomConfig room in m_rooms)
             {
@@ -141,42 +147,21 @@ namespace Script.HouseBuilding
                     PurrLogger.LogWarning($"Error in room definition Type: {room.m_roomType}", this);
                     continue;
                 }
-                    
 
                 int layoutIndex = Random.Range(0, room.m_roomLayouts.Count);
-
-                Room newRoom;
-
-#if UNITY_EDITOR
-                if (_editorMode)
+                Room newRoom = UnityProxy.Instantiate(room.m_roomLayouts[layoutIndex], room.m_roomAnchor);
+                
+                if (newRoom != null && isServer)
                 {
-                    GameObject go = (GameObject)PrefabUtility.InstantiatePrefab(
-                        room.m_roomLayouts[layoutIndex].gameObject,
-                        room.m_roomAnchor
-                    );
-
-                    newRoom = go.GetComponent<Room>();
-                    m_spawnedRooms.Add(go);
-                }
-                else
-#endif
-                {
-                    newRoom = UnityProxy.Instantiate(room.m_roomLayouts[layoutIndex], room.m_roomAnchor);
-                }
-
-                if (newRoom != null)
-                {
-                    newRoom.PopulateRoom(
+                    newRoom.PopulateRoomNetwork(
                         m_smallPropsPercentage,
                         m_mediumPropsPercentage,
-                        _masterSeed + seedIterator
-                    );
+                        _masterSeed + seedIterator);
                 }
 
                 seedIterator++;
             }
         }
-        
         
         /*
          * ================================================================================
@@ -197,17 +182,62 @@ namespace Script.HouseBuilding
         
         /*
          * @brief Generates the house directly inside the editor.
+         * @description Uses PrefabUtility to instantiate room prefabs in editor mode
+         * and populates them with props immediately for preview.
          */
         public void EditorBuildHouse()
         {
             ClearEditorHouse();
 
-            int seed = m_useEditorSeed ? m_editorSeed : System.DateTime.Now.Millisecond;;
-            BuildHouseInternal(seed, true);
+            int seed = m_useEditorSeed ? m_editorSeed : System.DateTime.Now.Millisecond;
+            BuildHouseEditor(seed);
         }
 
         /*
-         * @brief Generates the house directly inside the editor.
+         * @brief Editor-specific house generation implementation.
+         * @params _seed Seed used for deterministic editor preview.
+         * @description Creates rooms and props using editor-only instantiation methods
+         * (PrefabUtility) for proper scene preservation.
+         */
+        private void BuildHouseEditor(int _seed)
+        {
+            Random.InitState(_seed);
+
+            int seedIterator = 0;
+
+            foreach (RoomConfig room in m_rooms)
+            {
+                if (room.m_roomAnchor == null || room.m_roomLayouts == null || room.m_roomLayouts.Count == 0)
+                {
+                    PurrLogger.LogWarning($"Error in room definition Type: {room.m_roomType}", this);
+                    continue;
+                }
+
+                int layoutIndex = Random.Range(0, room.m_roomLayouts.Count);
+
+                GameObject go = (GameObject)PrefabUtility.InstantiatePrefab(
+                    room.m_roomLayouts[layoutIndex].gameObject,
+                    room.m_roomAnchor
+                );
+
+                Room newRoom = go.GetComponent<Room>();
+                m_spawnedRooms.Add(go);
+
+                if (newRoom != null)
+                {
+                    newRoom.PopulateRoom(
+                        m_smallPropsPercentage,
+                        m_mediumPropsPercentage,
+                        _seed + seedIterator
+                    );
+                }
+
+                seedIterator++;
+            }
+        }
+
+        /*
+         * @brief Randomizes the editor seed for testing different house layouts.
          */
         public void RandomizeSeed()
         {

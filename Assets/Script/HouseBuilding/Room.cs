@@ -1,9 +1,10 @@
+using PurrNet;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Script.HouseBuilding
 {
-    public class Room : MonoBehaviour
+    public class Room : NetworkBehaviour
     {
         [Header("Props Infos")]
         [SerializeField] [Tooltip("Anchors used to spawn small props (books, decorations, small furniture, etc.).")] private List<PropAnchor> m_smallPropsAnchors;
@@ -23,27 +24,56 @@ namespace Script.HouseBuilding
             Random.InitState(_randomSeed);
 
             // Shuffle the props anchors lists.
-            for (var i = m_smallPropsAnchors.Count - 1; i > 0; i--)
+            for (int i = m_smallPropsAnchors.Count - 1; i > 0; i--)
             {
-                var randomIndex = Random.Range(0, m_smallPropsAnchors.Count);
+                int randomIndex = Random.Range(0, m_smallPropsAnchors.Count);
                 (m_smallPropsAnchors[i], m_smallPropsAnchors[randomIndex]) = (m_smallPropsAnchors[randomIndex], m_smallPropsAnchors[i]);
             }
 
-            for (var i = m_mediumPropsAnchors.Count - 1; i > 0; i--)
+            for (int i = m_mediumPropsAnchors.Count - 1; i > 0; i--)
             {
-                var randomIndex = Random.Range(0, m_mediumPropsAnchors.Count);
+                int randomIndex = Random.Range(0, m_mediumPropsAnchors.Count);
                 (m_mediumPropsAnchors[i], m_mediumPropsAnchors[randomIndex]) = (m_mediumPropsAnchors[randomIndex], m_mediumPropsAnchors[i]);
             }
 
             // Initialize the given proportion of the room props
-            for (var index = 0; index < m_smallPropsAnchors.Count * _smallPropsPercentage; index++)
+            for (int index = 0; index < m_smallPropsAnchors.Count * _smallPropsPercentage; index++)
             {
                 m_smallPropsAnchors[index].Initialize();
             }
 
-            for (var index = 0; index < m_mediumPropsAnchors.Count * _mediumPropsPercentage; index++)
+            for (int index = 0; index < m_mediumPropsAnchors.Count * _mediumPropsPercentage; index++)
             {
                 m_mediumPropsAnchors[index].Initialize();
+            }
+        }
+
+        public void PopulateRoomNetwork(float _smallPropsPercentage, float _mediumPropsPercentage, int _randomSeed)
+        {
+            Random.InitState(_randomSeed);
+            
+            // Shuffle the props anchors lists.
+            for (int i = m_smallPropsAnchors.Count - 1; i > 0; i--)
+            {
+                int randomIndex = Random.Range(0, m_smallPropsAnchors.Count);
+                (m_smallPropsAnchors[i], m_smallPropsAnchors[randomIndex]) = (m_smallPropsAnchors[randomIndex], m_smallPropsAnchors[i]);
+            }
+
+            for (int i = m_mediumPropsAnchors.Count - 1; i > 0; i--)
+            {
+                int randomIndex = Random.Range(0, m_mediumPropsAnchors.Count);
+                (m_mediumPropsAnchors[i], m_mediumPropsAnchors[randomIndex]) = (m_mediumPropsAnchors[randomIndex], m_mediumPropsAnchors[i]);
+            }
+
+            // Initialize the given proportion of the room props
+            for (int index = 0; index < m_smallPropsAnchors.Count * _smallPropsPercentage; index++)
+            {
+                m_smallPropsAnchors[index].NetworkInitialize();
+            }
+
+            for (int index = 0; index < m_mediumPropsAnchors.Count * _mediumPropsPercentage; index++)
+            {
+                m_mediumPropsAnchors[index].NetworkInitialize();
             }
         }
     }

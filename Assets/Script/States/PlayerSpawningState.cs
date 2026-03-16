@@ -9,6 +9,7 @@ using PurrNet.Transports;
 using Script.UI.Views;
 using UI;
 using Antony;
+using Script.HouseBuilding;
 using System.Linq;
 namespace Script.States
 {
@@ -39,16 +40,36 @@ namespace Script.States
 
         public void StartMachine()
         {
-            if (!m_isServer) return;
-            if (m_hasStarted) return;
+            if (!m_isServer) 
+            {
+                Debug.Log("[PlayerSpawningState] Not server, returning.");
+                return;
+            }
+            if (m_hasStarted) 
+            {
+                Debug.LogWarning("[PlayerSpawningState] Already started, ignoring duplicate call.");
+                return;
+            }
             m_hasStarted = true;
 
+            Debug.Log("[PlayerSpawningState] Starting machine - despawning old players.");
             DespawnPlayers();
 
+            Debug.Log("[PlayerSpawningState] Spawning new players.");
             List<PlayerControllerCore> spawnedPlayers = SpawnPlayers();
-
-            // We still keep the player list in case for future implementation of round running state.
-            Debug.Log($"{spawnedPlayers.Count} Player spawned moving to next state.");
+            
+            Debug.Log("[PlayerSpawningState] Building house network.");
+            if (InstanceHandler.TryGetInstance(out HouseBuilder houseBuilder))
+            {
+                houseBuilder.BuildHouseNetwork();
+                Debug.Log("[PlayerSpawningState] House network building initiated.");
+            }
+            else
+            {
+                Debug.LogWarning("[PlayerSpawningState] HouseBuilder instance not found!");
+            }
+            
+            Debug.Log($"[PlayerSpawningState] {spawnedPlayers.Count} players spawned, moving to next state.");
             machine.Next(spawnedPlayers);
         }
 
@@ -57,12 +78,24 @@ namespace Script.States
             List<PlayerControllerCore> spawnedPlayers = new List<PlayerControllerCore>();
             RoleKeeper roleKeeper = FindAnyObjectByType<RoleKeeper>();
 
+            if (roleKeeper == null)
+            {
+                Debug.LogError("[PlayerSpawningState] RoleKeeper not found in scene!");
+                return spawnedPlayers;
+            }
+
             int currentSpawnChildIndex = 0;
             int currentSpawnGhostIndex = 0;
+            
+            Debug.Log($"[PlayerSpawningState] Spawning players. Total players: {networkManager.players.Count}");
+
             foreach (var player in networkManager.players)
             {
                 if (NetworkManager.main.TryGetModule(out GlobalOwnershipModule ownership, true) && ownership.PlayerOwnsSomething(player))
+                {
+                    Debug.Log($"[PlayerSpawningState] Player {player} already owns something, skipping spawn.");
                     continue;
+                }
 
                 //CONNECTION
                 networkManager.GetModule<PlayersManager>(m_isServer).TryGetConnection(player, out Connection conn);
@@ -76,16 +109,20 @@ namespace Script.States
                 {
                     spawnPoint = m_ghostSpawnPoints[currentSpawnGhostIndex++ % m_ghostSpawnPoints.Count];
                     newPlayer = UnityProxy.Instantiate(m_ghostPrefab, spawnPoint.position, spawnPoint.rotation);
+                    Debug.Log($"[PlayerSpawningState] Spawned ghost player at {spawnPoint.position}");
                 }
                 else
                 {
                     spawnPoint = m_childSpawnPoints[currentSpawnChildIndex++ % m_childSpawnPoints.Count];
                     newPlayer = UnityProxy.Instantiate(m_childPrefab, spawnPoint.position, spawnPoint.rotation);
+                    Debug.Log($"[PlayerSpawningState] Spawned child player at {spawnPoint.position}");
                 }
+                
                 newPlayer.GiveOwnership(player);
                 spawnedPlayers.Add(newPlayer);
             }
 
+            Debug.Log($"[PlayerSpawningState] Total spawned: {spawnedPlayers.Count}");
             return spawnedPlayers;
         }
 
