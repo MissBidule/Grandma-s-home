@@ -271,11 +271,11 @@ public class ChildClientController : NetworkBehaviour
                 {
                     if (m_childController.m_isRanged)
                     {
-                        m_animator.CrossFadeInFixedTime("gun_sideWalk_L", 0.2f, 0);
+                        m_animator.CrossFadeInFixedTime("gun_sideRun_L", 0.2f, 0);
                     }
                     else
                     {
-                        m_animator.CrossFadeInFixedTime("cac_sideWalk_L", 0.2f, 0);
+                        m_animator.CrossFadeInFixedTime("cac_sideRun_L", 0.2f, 0);
                     }
                 }
             }
