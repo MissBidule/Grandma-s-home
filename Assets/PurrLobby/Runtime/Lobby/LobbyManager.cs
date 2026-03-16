@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using PurrNet;
@@ -90,6 +91,7 @@ namespace PurrLobby
         {
             m_usernameField.text = FindAnyObjectByType<PersistentDataManager>().LoadUsername();  
             EnsureProviderSet();
+            Application.wantsToQuit += WantsToQuit;
         }
 
         private void SetupDataHolder()
@@ -525,10 +527,23 @@ namespace PurrLobby
             _lobbyDataHolder = null;
         }
 
-        void OnApplicationQuit()
+        private bool WantsToQuit()
         {
             Debug.Log("LobbyManager OnDestroy called, shutting down provider.");
-            LeaveLobby();
+            if (CurrentLobby.IsValid)
+            {
+                StartCoroutine(RemovePlayerAndQuit());
+                return false;
+            }
+            return true;
+        }
+
+        private IEnumerator RemovePlayerAndQuit()
+        {
+            EnsureProviderSet();
+            yield return _currentProvider.LeaveLobbyAsync();
+            OnRoomLeft?.Invoke();
+            Application.Quit();
         }
 
         private async void CallOnAllReady()
