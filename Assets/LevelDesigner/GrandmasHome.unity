@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 2100000, guid: 2dea7a627961d3c5f888f7ac7ca979cc, type: 2}
+  m_SkyboxMaterial: {fileID: 2100000, guid: 6647cac18b8fce68e869d9940f53a026, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -47962,6 +47962,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1438634458}
   - component: {fileID: 1438634459}
+  - component: {fileID: 1438634460}
   - component: {fileID: 1438634457}
   - component: {fileID: 1438634456}
   m_Layer: 0
@@ -48010,7 +48011,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 1
-  m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
+  m_Color: {r: 1, g: 0.8924298, b: 0.5990566, a: 1}
   m_Intensity: 3
   m_Range: 10
   m_SpotAngle: 30
@@ -48092,14 +48093,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 163d7e96d92caf73db0db50c0eea3a91, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DayNightSystem
-  gameTime: 480
-  currentTime: 0
-  sunInitialX: 60
+  skybox: {fileID: 2100000, guid: 6647cac18b8fce68e869d9940f53a026, type: 2}
+  sunInitialX: 150
   sunInitialY: 0
   isRandomSunY: 1
   sunIntensity: 3
-  timeBetweenUpdates: 0.2
-  additiveAngle: 0.1
+  temperatureDay: 6000
+  temperatureNight: 16000
+  HdriRotationAngle: 0.1
+  refreshMultiplier: 10
+  sunDayColor: {r: 1, g: 0.89411765, b: 0.6, a: 0}
+  sunNightColor: {r: 0.07058824, g: 0.24313726, b: 0.25490198, a: 0}
+--- !u!114 &1438634460
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1438634455}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ded9bc5fc1a1c12ca270ac99368a093, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LightOnSystem
+  LightOnDuration: 5
+  lights: []
 --- !u!1 &1442788749
 GameObject:
   m_ObjectHideFlags: 0

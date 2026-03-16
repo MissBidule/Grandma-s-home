@@ -5,6 +5,8 @@ using PurrNet;
 using UnityEngine.InputSystem;
 using UI;
 using Script.UI.Views;
+using Script.States;
+using PurrLobby;
 
 /*
  * @brief Player Core class inherited by Child & phantom
@@ -19,12 +21,76 @@ public class PlayerControllerCore : NetworkBehaviour
     [SerializeField] private NetworkAnimator m_playerAnimator;
     [SerializeField] private List<Renderer> m_renderers = new();
 
+    [Header("ServerResponse")]
+    public float m_PingCooldown = 5f;
+    public float m_elapsedTimeSincePing = 0f;
+    public bool m_isServerAccessible = true;
+    public bool m_isClientAccessible = true;
+
+    private string m_memberID = "";
+
     protected virtual void Awake()
     {
         // Disable PlayerInput immediately so it can't grab a device before we know ownership.
         // OnSpawned() will re-enable it for the local owner only.
         var playerInput = GetComponent<PlayerInput>();
         if (playerInput != null) playerInput.enabled = false;
+    }
+
+    /**
+    @brief      Server accessibility check
+    @details    Will trigger if the server or client is not accessible and trigger the end of the game or the player disconnection 
+    */
+    public void PingClient()
+    {
+        if (!m_isServerAccessible || !m_isClientAccessible) return;
+
+        m_elapsedTimeSincePing += Time.deltaTime;
+
+        if (m_elapsedTimeSincePing >= m_PingCooldown)
+        {
+            PingFromClient();
+        }
+        
+        if (m_elapsedTimeSincePing >= 2 * m_PingCooldown)
+        {
+            m_isServerAccessible = false;
+            Debug.LogWarning("Server is not accessible. Last ping was " + m_elapsedTimeSincePing + " seconds ago.");
+            FindAnyObjectByType<EndGameState>().ServerLost();
+        }
+    }
+
+    public void PingServer()
+    {
+        if (!m_isClientAccessible || !m_isServerAccessible) return;
+
+        m_elapsedTimeSincePing += Time.deltaTime;
+
+        if (m_elapsedTimeSincePing >= 2 * m_PingCooldown)
+        {
+            m_isClientAccessible = false;
+            Debug.LogWarning("Client is not accessible. Last ping was " + m_elapsedTimeSincePing + " seconds ago.");
+            DisconnectPlayer();
+            Destroy(gameObject, 2f);
+        }
+    }
+
+    [ServerRpc (requireOwnership: false)]
+    public void PingFromClient()
+    {
+        PingReceived();
+    }
+
+    [ObserversRpc (runLocally: true)]
+    private void PingReceived()
+    {
+        m_elapsedTimeSincePing = 0f;
+    }
+
+    [ObserversRpc]
+    private void DisconnectPlayer()
+    {
+        FindAnyObjectByType<RoleKeeper>().setMemberDisconnected(m_memberID);
     }
 
     /*
@@ -79,7 +145,16 @@ public class PlayerControllerCore : NetworkBehaviour
         if (m_localRenderCamera != null)
             m_localRenderCamera.SetActive(isOwner);
 
-        if (isOwner) DisableWaitUIObserverRPC();
+        if (isOwner) {
+            DisableWaitUIObserverRPC();
+            ApplyMemberID(FindAnyObjectByType<RoleKeeper>().getLocalMemberID());
+        }
+    }
+
+    [ServerRpc]
+    private void ApplyMemberID(string _memberID)
+    {
+        m_memberID = _memberID;
     }
     
     private void OnDisable()

@@ -54,6 +54,8 @@ namespace Script.States
 
         private void UnregisteringListener()
         {
+            if (!isServer) return;
+            
             // Unsubscribe from ghost death events
             foreach (var ghost in m_ghosts)
             {
