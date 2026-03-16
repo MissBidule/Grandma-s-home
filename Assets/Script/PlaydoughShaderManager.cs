@@ -47,10 +47,6 @@ namespace Antony
         [Tooltip("Surface metalness\nLower values look dull or matte\nHigher values appear more metallic and reflective")]
         private float metalness = 0f;
 
-        [SerializeField] [Range(0f, 0.3f)]
-        [Tooltip("Strength of vertex displacement from the height map")]
-        private float displacementStrength = 0.15f;
-
         [SerializeField] [Min(1f)]
         [Tooltip("Maximum distance between the objects and the camera for the object to be rendered at full resolution")]
         private float maxLODDistance = 20f;
@@ -159,12 +155,6 @@ namespace Antony
             {
                 Shader.SetGlobalFloat(s_normalStrengthID, normalStrength);
                 normalStrengthCpy = normalStrength;
-            }
-
-            if (displacementStrengthCpy != displacementStrength)
-            {
-                Shader.SetGlobalFloat(s_displacementStrengthID, displacementStrength);
-                displacementStrengthCpy = displacementStrength;
             }
 
             if (maxLODDistanceCpy != maxLODDistance)
