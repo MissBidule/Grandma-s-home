@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class ChildSimulateMovement : NetworkBehaviour
 {
-    private float tickRate = 1f / 60f;
+    private float tickRate = 1f / 30f;
     [SerializeField] private float m_speed = 5f;
     [SerializeField] private float m_jumpImpulse = 6.0f;
     public bool m_isScared = false;

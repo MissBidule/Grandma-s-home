@@ -15,11 +15,15 @@ public class PredictiveMovement : NetworkBehaviour
 
     private ChildInputData currentInput = new();
 
+    private NetworkManager networkManager;
+
     private void Start()
     {
+        networkManager = FindAnyObjectByType<NetworkManager>();
         inputController = GetComponent<ChildInputController>();
         simulateMovement = GetComponent<ChildSimulateMovement>();
         clearInputData();
+
 
         StartCoroutine(PredictiveUpdate());
     }
@@ -56,21 +60,32 @@ public class PredictiveMovement : NetworkBehaviour
     {
         while (true)
         {
+            name = isOwner ? "Owner":"Remote";
+            if (!isOwner) continue; // Je gère pas les autres
             yield return new WaitForSeconds(frameRate);
             currentInput.tick = tick;
-            if (isServer)
+
+            // Si je suis l'hôte, je fais du mouvement normal, pas de prédiction
+            if (isHost)
             {
                 simulateMovement.SimulateMovement(currentInput);
-                clearInputData();
+                tick += 1;
+                //Debug.Log("Tick number: " + tick + " Movement: " + currentInput.wishDirection);
+                Debug.Log("Je suis " + name + " mais je me considère Host, et c'est ok.");
+                
+                continue;
             }
-            else
+
+            if (!isHost)
             {
+                // Je suis côté client
+                Debug.Log("Je suis " + name + " mais je me considère Client, et c'est ok.");
                 simulateMovement.SimulateMovement(currentInput);
                 inputHistory.Add(currentInput);
                 clearInputData();
             }
             tick += 1;
-            Debug.Log("Tick number: " + tick + " Movement: " + currentInput.wishDirection);
+            //Debug.Log("Tick number: " + tick + " Movement: " + currentInput.wishDirection);
         }
     }
 }
