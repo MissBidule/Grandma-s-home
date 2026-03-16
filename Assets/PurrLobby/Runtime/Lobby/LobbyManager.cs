@@ -537,6 +537,7 @@ namespace PurrLobby
             if(_currentLobby.IsValid && _currentLobby.Members.TrueForAll(x => x.IsReady))
             {
                 LockReady();
+                UpdateLobbyType(true);
                 await _currentProvider.SetAllReadyAsync();
 
                 OnAllReady?.Invoke();
