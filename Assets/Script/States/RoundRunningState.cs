@@ -78,6 +78,8 @@ namespace Script.States
 
         private void UnregisteringListener()
         {
+            if (!isServer) return;
+            
             // Unsubscribe from ghost death events
             foreach (GhostController ghost in m_ghosts.Where(_ghost => _ghost != null))
             {

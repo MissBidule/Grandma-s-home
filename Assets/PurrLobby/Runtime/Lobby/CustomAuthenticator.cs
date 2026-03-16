@@ -21,7 +21,7 @@ public class CustomAuthenticator : AuthenticationBehaviour<string>
 
     protected override void UnAuthenticateClient(Connection conn)
     {
-        throw new System.NotImplementedException();
+        Debug.Log("User disconnected.");
     }
 
     protected override Task<AuthenticationResponse> ValidateClientPayload(Connection conn, string payload)
