@@ -18,23 +18,29 @@ public class ChildController : PlayerControllerCore
     [NonSerialized] public Vector3 m_cameraForward;
     
     [Header("Weapon Switching")]
-    private bool m_isranged;
-    private float m_lastShot;
-    private float m_switchingTime;
-    [SerializeField] private float m_cdSwitch = 0.2f;
+    public bool m_isRanged;
+    public float m_lastShot;
+    public float m_switchingTime;
+    [SerializeField] public float m_cdSwitch = 0.2f;
     
     [Header("CAC parameters")]
     private float m_attackRange = 0.5f;
     [SerializeField] private LayerMask m_GhostLayerMask;
     
     [Header("Shooting parameters")]
-    [SerializeField] [Tooltip("In seconds")] private float m_cdGun = 0.2f;
+    [SerializeField] [Tooltip("In seconds")] private float m_cdGun = 1.0f;
     [SerializeField] private Transform m_bulletSpawnTransform;
     [SerializeField] private GameObject m_bulletPrefab;
     [SerializeField] private float m_shootRange = 50f;
     
     [Header("Speed Modifiers")]
     [SerializeField][Tooltip("Duration of scared by ghost in seconds")] private float m_scaredDuration = 5.0f;
+
+    [Header("Animation")]
+    [SerializeField] private NetworkAnimator m_animator;
+
+
+
 
     protected override void OnSpawned()
     {
@@ -49,9 +55,10 @@ public class ChildController : PlayerControllerCore
      * @brief   Reads child input and computes movement direction relative to the camera
      * @return  void
      */
-    void Update()
+    private void Update()
     {
         if (!isServer) return;
+        PingServer();
         UpdateTimers();
     }
     
@@ -72,7 +79,7 @@ public class ChildController : PlayerControllerCore
         if (!isServer) return;
         //if (m_isScared) return; // Return if the player is scared
         if (m_switchingTime < m_cdSwitch) return;
-        if (m_isranged)
+        if (m_isRanged)
         {
             if (m_lastShot >= m_cdGun)
             {
@@ -99,24 +106,24 @@ public class ChildController : PlayerControllerCore
      */
     public void CollideWithObject(Collider _other)
     {
-        PurrLogger.Log($"Trigger Enter {_other.gameObject.name} {_other.gameObject.layer.ToString()}", this);
+        //PurrLogger.Log($"Trigger Enter {_other.gameObject.name} {_other.gameObject.layer.ToString()}", this);
         if ((m_GhostLayerMask.value & (1 << _other.gameObject.layer)) == 0) return;
-        PurrLogger.Log($"Trigger Good Layer", this);
+        //PurrLogger.Log($"Trigger Good Layer", this);
         if (!_other.gameObject.TryGetComponent(out GhostController ghost))
         {
-            foreach (var component in _other.GetComponents<Component>())
-            {
-                PurrLogger.LogWarning($"{_other.gameObject.name} Component: {component.GetType().Name}", this);
-            }
+            //foreach (var component in _other.GetComponents<Component>())
+            //{
+            //    PurrLogger.LogWarning($"{_other.gameObject.name} Component: {component.GetType().Name}", this);
+            //}
             return;   
         }
-        PurrLogger.Log($"Ghost Found", this);
+        //PurrLogger.Log($"Ghost Found", this);
         if (ghost.m_isStopped) return;
-        PurrLogger.Log($"Ghost Not stopped", this);
-        Debug.Log(ghost.m_canScareChild + " from ChildController OnTriggerEnter");
+        //PurrLogger.Log($"Ghost Not stopped", this);
+        //Debug.Log(ghost.m_canScareChild + " from ChildController OnTriggerEnter");
         if (!ghost.m_canScareChild) return;
-        PurrLogger.Log($"Ghost Can Scare", this);
-        PurrLogger.Log("Ghost", this);
+        //PurrLogger.Log($"Ghost Can Scare", this);
+        //PurrLogger.Log("Ghost", this);
         ghost.StartSpookyScary();
         //GhostTouch();
     }
@@ -128,7 +135,7 @@ public class ChildController : PlayerControllerCore
     {
         if (!isServer) return;
         m_isScared = true;
-        PurrLogger.Log("Ghost Touch", this);
+        //PurrLogger.Log("Ghost Touch", this);
         UpdateScaredToAll(m_isScared);
         StartCoroutine(ScaredTimer(m_scaredDuration));
     }
@@ -136,6 +143,10 @@ public class ChildController : PlayerControllerCore
     [ObserversRpc(runLocally:true)]
     public void UpdateScaredToAll(bool _isScared)
     {
+        if (_isScared)
+        {
+            m_animator.SetTrigger("OnScared");
+        }
         m_isScared = _isScared;
     }*/
 
@@ -172,6 +183,15 @@ public class ChildController : PlayerControllerCore
             }
             if (col.transform.parent) 
             {
+                if (col.transform.parent.gameObject.GetComponent<BrokeDecor>())
+                {
+                    var brokeDecor = col.transform.parent.gameObject.GetComponent<BrokeDecor>();
+                    if(brokeDecor != null)
+                    {
+                        brokeDecor.Broke();
+                    }
+                }
+            
                 if (col.transform.parent.gameObject.layer == LayerMask.NameToLayer("Ghost"))
                 {
                     var ghostMorph = col.transform.parent.gameObject.GetComponent<GhostMorph>();
@@ -207,7 +227,7 @@ public class ChildController : PlayerControllerCore
     public void SwitchAttackType()
     {
         if (!isServer) return;
-        m_isranged = !m_isranged;
+        m_isRanged = !m_isRanged;
         m_switchingTime = 0;
     }
 }

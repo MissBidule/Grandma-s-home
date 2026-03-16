@@ -34,6 +34,7 @@ namespace PurrLobby
         
         private void Awake()
         {
+            _hasStarted = false; // Reset static flag on Awake to allow proper initialization in new lobby sessions
             if(!TryGetComponent(out _networkManager)) {
                 PurrLogger.LogError($"Failed to get {nameof(NetworkManager)} component.", this);
                 return;

@@ -40,6 +40,8 @@ namespace PurrLobby
 
         public ILobbyProvider CurrentProvider => currentProvider as ILobbyProvider;
 
+        private bool _restartGame = false;
+
         private Lobby _currentLobby
         {
             get
@@ -59,16 +61,20 @@ namespace PurrLobby
         private LobbyDataHolder _lobbyDataHolder;
 
         private bool IsStarting = false;
-        public float _RefreshRate = 5f;
+        public float _refreshRate = 5f;
         private float _elapsedTime = 0;
 
         [SerializeField] private Button m_readyButton;
+        [SerializeField] private Button m_leaveButton;
+        [SerializeField] private TextMeshProUGUI m_serverType;
+        [SerializeField] private TextMeshProUGUI m_playerCount;
 
         private void Awake()
         {
             _lastKnownState = new Lobby { IsValid = false };
 
             SetupDataHolder();
+            SetupRoleKeeper();
 
             if (CurrentProvider != null)
             {
@@ -98,13 +104,43 @@ namespace PurrLobby
 
             if (_lobbyDataHolder.CurrentLobby.IsValid)
             {
-                LeaveLobby(_lobbyDataHolder.CurrentLobby.LobbyId);
-                _lobbyDataHolder.SetCurrentLobby(default);
+                //Here we reloaded the scene while still being a lobby so we can reconnect again
+                Debug.Log("Valid lobby found in data holder on Awake, rejoining room...");
+                _restartGame = true;
             }
+        }
+
+        private void SetupRoleKeeper()
+        {
+            var roleKeeper = FindFirstObjectByType<RoleKeeper>();
+            if (!roleKeeper)
+            {
+                var newObject = new GameObject("RoleList");
+                newObject.AddComponent<RoleKeeper>();
+            }
+        }
+
+        private async Task ReconnectToLobbyAsync()
+        {
+            var viewManager = FindAnyObjectByType<ViewManager>();
+            viewManager.OnJoiningRoom(); 
+            EnsureProviderSet();
+            await _currentProvider.OnLobbyUpdateData(_currentLobby.LobbyId);
+            m_serverType.text = _currentLobby.IsPrivate ? "Private" : "Public";     
+            m_playerCount.text = "Max players (" + _currentLobby.MaxPlayers + ")";            
+            viewManager.showHostObjects(_currentLobby.IsOwner);
+            viewManager.OnRoomJoined(); 
+            //refresh lobby info
+            _elapsedTime = _refreshRate;
         }
 
         private void Update()
         {
+            if (_restartGame)
+            {
+                _ = ReconnectToLobbyAsync();
+                _restartGame = false;
+            }
             while (_delayedActions.Count > 0)
             {
                 _delayedActions.Dequeue()?.Invoke();
@@ -112,7 +148,7 @@ namespace PurrLobby
             if (_currentLobby.IsValid)
             {
                 _elapsedTime += Time.deltaTime;
-                if (_elapsedTime >= _RefreshRate)
+                if (_elapsedTime >= _refreshRate)
                 {
                     _elapsedTime = 0;
                     EnsureProviderSet();
@@ -331,6 +367,7 @@ namespace PurrLobby
                 var room = await _currentProvider.JoinLobbyAsync(roomId);
                 if (room.IsValid)
                 {
+                    _currentLobby = room;
                     OnRoomJoined?.Invoke(room);
                 }
                 else
@@ -365,6 +402,7 @@ namespace PurrLobby
         /// <param name="isReady">Ready state to set</param>
         public void SetIsReady(string userId, bool isReady)
         {
+            Debug.Log($"Setting ready state for user {userId} to {isReady}");
             RunTask(async () =>
             {
                 EnsureProviderSet();
@@ -407,6 +445,7 @@ namespace PurrLobby
         {
             EnsureProviderSet();
             _currentProvider.UpdateLobbyType(_isPrivate);
+            _lobbyDataHolder.SetPrivate(_isPrivate);
         }
 
         /// <summary>
@@ -442,6 +481,8 @@ namespace PurrLobby
                 PurrLogger.LogError($"Can't toggle ready state, current lobby is invalid.");
                 return;
             }
+
+            Debug.Log($"Toggling ready state for local user in lobby {_currentLobby.LobbyId}");
             
             var localUserId = _currentProvider.GetLocalUserIdAsync().Result;
             if (string.IsNullOrEmpty(localUserId))
@@ -449,6 +490,8 @@ namespace PurrLobby
                 PurrLogger.LogError($"Can't toggle ready state, local user ID is null or empty.");
                 return;
             }
+
+            Debug.Log($"toggle successful");
             
             var localLobbyUser = _currentLobby.Members.Find(x => x.Id == localUserId);
             SetIsReady(localUserId, !localLobbyUser.IsReady);
@@ -482,6 +525,12 @@ namespace PurrLobby
             _lobbyDataHolder = null;
         }
 
+        void OnApplicationQuit()
+        {
+            Debug.Log("LobbyManager OnDestroy called, shutting down provider.");
+            LeaveLobby();
+        }
+
         private async void CallOnAllReady()
         {
             await WaitForAllTasksAsync();
@@ -497,6 +546,7 @@ namespace PurrLobby
         public void LockReady()
         {
             m_readyButton.interactable = false;
+            m_leaveButton.interactable = false;
         }
         
         public async Task WaitForAllTasksAsync()

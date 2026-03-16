@@ -10,5 +10,6 @@ namespace PurrLobby
         public Texture2D Avatar;
 
         public bool IsGhost;
+        public bool IsInGame;
     }
 }

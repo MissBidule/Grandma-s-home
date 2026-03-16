@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-8558165227601916183
+--- !u!114 &-8539154816597791137
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -9,18 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a1614fc811f8f184697d9bee70ab9fe5, type: 3}
-  m_Name: DecalRendererFeature
-  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.DecalRendererFeature
+  m_Script: {fileID: 11500000, guid: 56973eb0c4b2848428ff7f8480113787, type: 3}
+  m_Name: OutlineRendererFeature
+  m_EditorClassIdentifier: com.cqf.outline::OutlineRendererFeature
   m_Active: 1
-  m_Settings:
-    technique: 0
-    maxDrawDistance: 1000
-    decalLayers: 0
-    dBufferSettings:
-      surfaceData: 2
-    screenSpaceSettings:
-      normalBlend: 0
+  shader: {fileID: 4800000, guid: d5f0ed6ad64bfd74aa279f5bf5fe41f8, type: 3}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -47,8 +40,8 @@ MonoBehaviour:
     probeVolumeBlendStatesCS: {fileID: 7200000, guid: b9a23f869c4fd45f19c5ada54dd82176, type: 3}
   m_RendererFeatures:
   - {fileID: 7833122117494664109}
-  - {fileID: -8558165227601916183}
-  m_RendererFeatureMap: ad6b866f10d7b46ce90eb08f114a3b89
+  - {fileID: -8539154816597791137}
+  m_RendererFeatureMap: ad6b866f10d7b46c5f6e9fcaefd37e89
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}

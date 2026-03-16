@@ -171,7 +171,7 @@ public class GhostMorphPreview : MonoBehaviour
 
         float offsetY = playerBounds.min.y - previewBounds.min.y;
 
-        transform.localPosition = new Vector3(0f, offsetY+0.01f, 0f);
+        transform.localPosition = new Vector3(0f, offsetY+0.02f, 0f);
 
         UpdateMaterial();
     }
