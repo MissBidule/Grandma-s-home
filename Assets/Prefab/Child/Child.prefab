@@ -16,14 +16,15 @@ GameObject:
   - component: {fileID: 6565872187536608583}
   - component: {fileID: 7371193213744557113}
   - component: {fileID: 30589635987039035}
-  - component: {fileID: 5856400788904567461}
   - component: {fileID: -6533943818096053305}
   - component: {fileID: -3510194049335302436}
   - component: {fileID: 613093929203921896}
   - component: {fileID: 8610913410535433184}
   - component: {fileID: -7897050309470336131}
   - component: {fileID: 6962044170748144648}
-  - component: {fileID: 3504036722481472221}
+  - component: {fileID: 7318928801757874475}
+  - component: {fileID: 6837177738975320834}
+  - component: {fileID: 2915013007527043000}
   m_Layer: 8
   m_Name: Child
   m_TagString: Untagged
@@ -176,12 +177,10 @@ MonoBehaviour:
   m_playerAnimator: {fileID: 0}
   m_renderers:
   - {fileID: 962482585755013352}
-  m_PingCooldown: 5
+  m_PingCooldown: Infinity
   m_elapsedTimeSincePing: 0
   m_isServerAccessible: 1
   m_isClientAccessible: 1
-  m_wishDir: {x: 0, y: 0, z: 0}
-  m_cameraYaw: 0
   m_isRanged: 0
   m_lastShot: 0
   m_switchingTime: 0
@@ -193,13 +192,7 @@ MonoBehaviour:
   m_bulletSpawnTransform: {fileID: 8286851940836659514}
   m_bulletPrefab: {fileID: 366779594710045177, guid: 90e50898fd15e4755813076e701192cc, type: 3}
   m_shootRange: 50
-  m_speed: 5
-  m_jumpImpulse: 6
-  m_isScared: 0
-  m_scaredAmplitude: 0.5
   m_scaredDuration: 5
-  m_isSneaking: 0
-  m_sneakAmplitude: 0.5
   m_animator: {fileID: 3610933806309611657}
 --- !u!114 &30589635987039035
 MonoBehaviour:
@@ -551,37 +544,6 @@ MonoBehaviour:
   m_DefaultActionMap: Child
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
---- !u!114 &5856400788904567461
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2220852981099475913}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 817fe5016bd0a2a49a95b6eb338bb132, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkTransform
-  _isSetup: 0
-  _prefabId: -2147483648
-  _componentIndex: -2147483648
-  _shouldBePooled: 0
-  _parent: {fileID: 0}
-  _invertedPathToNearestParent: 
-  _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
-  _syncPosition: 1
-  _syncRotation: 1
-  _syncScale: 0
-  _syncParent: 1
-  _interpolateSettings: 7
-  _minBufferSize: 1
-  _maxBufferSize: 2
-  _characterControllerPatch: 0
-  _ownerAuth: 0
-  _interpolationTiming: 0
 --- !u!114 &-6533943818096053305
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -782,7 +744,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: PurrVoice.Runtime::PurrNet.Voice.PurrVoicePlayerDebug
   timeWindow: 3
---- !u!114 &3504036722481472221
+--- !u!114 &7318928801757874475
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -791,9 +753,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 2220852981099475913}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d497b70c6fb6adc46b663609bee66dfd, type: 3}
+  m_Script: {fileID: 11500000, guid: 5681fe548eb84304ea28a286062791f5, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkRigidbody
+  m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkIdentity
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -803,26 +765,53 @@ MonoBehaviour:
   _directChildren: []
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
-  _ownerAuth: 0
-  _acceptableError: 0.05
-  _hardCorrectionThreshold: 2
-  _maxCorrectionTime: -1
-  _springConstant: 80
-  _dampingConstant: 5
-  _rotationSpringMultiplier: 0.3
-  _minRotationCorrectionAngle: 1
-  _uncertaintySpringDampening: 0.5
-  _accelerationDecay: 0.85
-  _hardCorrectionAccelerationScale: 0.1
-  _maxHardCorrectionMultiplier: 5
-  _lowSpeedThreshold: 1.5
-  _lowSpeedSpringMultiplier: 0.1
-  _extrapolateBasedOnPing: 0
-  _positionChangeThreshold: 0.001
-  _rotationChangeThreshold: 0.001
-  _velocityStopThreshold: 0.001
-  _debugGizmos: 0
-  _debugTextOffset: 2
+--- !u!114 &6837177738975320834
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2220852981099475913}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f4200a6cbd99a248bdb02181c4ca497, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PredictiveMovement
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+--- !u!114 &2915013007527043000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2220852981099475913}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1f174e5903fe8340ae065ea130d4979, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ChildSimulateMovement
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  m_speed: 5
+  m_jumpImpulse: 6
+  m_isScared: 0
+  m_scaredAmplitude: 0.5
+  m_sneakAmplitude: 0.5
 --- !u!1 &2316951510614423555
 GameObject:
   m_ObjectHideFlags: 0

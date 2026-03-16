@@ -6,7 +6,7 @@ using System.Collections.Generic;
 public class PredictiveMovement : NetworkBehaviour
 {
     private GameObject projectionObject;
-    private readonly float frameRate = 1f / 60f;
+    private readonly float frameRate = 1f / 30f;
 
     private List<ChildInputData> inputHistory = new List<ChildInputData>();
     private int tick = 0;
@@ -15,11 +15,8 @@ public class PredictiveMovement : NetworkBehaviour
 
     private ChildInputData currentInput = new();
 
-    private NetworkManager networkManager;
-
     private void Start()
     {
-        networkManager = FindAnyObjectByType<NetworkManager>();
         inputController = GetComponent<ChildInputController>();
         simulateMovement = GetComponent<ChildSimulateMovement>();
         clearInputData();
@@ -34,6 +31,7 @@ public class PredictiveMovement : NetworkBehaviour
 
     private void clearInputData()
     {
+        print("RESET");
         currentInput.wishDirection = Vector3.zero;
         currentInput.cameraYaw = 0f;
         currentInput.cameraPosition = Vector3.zero;
@@ -44,12 +42,13 @@ public class PredictiveMovement : NetworkBehaviour
         currentInput.sneakPressed = false;
     }
 
+    // It was supposed to be revolutionary, it's just dogshit.
     public void NewInput(ChildInputData _data)
     {
-        currentInput.wishDirection += _data.wishDirection;
-        currentInput.cameraYaw += _data.cameraYaw;
-        currentInput.cameraPosition += _data.cameraPosition;
-        currentInput.cameraForward += _data.cameraForward;
+        currentInput.wishDirection = _data.wishDirection;
+        currentInput.cameraYaw = _data.cameraYaw;
+        currentInput.cameraPosition = _data.cameraPosition;
+        currentInput.cameraForward = _data.cameraForward;
         currentInput.jumpPressed = currentInput.jumpPressed | _data.jumpPressed;
         currentInput.switchPressed = currentInput.switchPressed | _data.switchPressed;
         currentInput.attackPressed = currentInput.attackPressed | _data.attackPressed;
@@ -61,31 +60,28 @@ public class PredictiveMovement : NetworkBehaviour
         while (true)
         {
             name = isOwner ? "Owner":"Remote";
-            if (!isOwner) continue; // Je gère pas les autres
             yield return new WaitForSeconds(frameRate);
+            if (!isOwner) continue; // Je gère pas les autres (NE METTEZ PAS CA AU DESSUS DE YIELD CA VA EXPLOSER UNITY CEST UNE BOUCLE INFINI FAUT FORCEMENT ATTENDRE UNE FRAME PITIE) (en anglais)
             currentInput.tick = tick;
 
             // Si je suis l'hôte, je fais du mouvement normal, pas de prédiction
             if (isHost)
             {
                 simulateMovement.SimulateMovement(currentInput);
+                clearInputData();
                 tick += 1;
-                //Debug.Log("Tick number: " + tick + " Movement: " + currentInput.wishDirection);
-                Debug.Log("Je suis " + name + " mais je me considère Host, et c'est ok.");
-                
                 continue;
             }
 
             if (!isHost)
             {
+                Debug.Log("Tick number: " + tick + " Movement: " + currentInput.wishDirection);
                 // Je suis côté client
-                Debug.Log("Je suis " + name + " mais je me considère Client, et c'est ok.");
                 simulateMovement.SimulateMovement(currentInput);
                 inputHistory.Add(currentInput);
                 clearInputData();
+                tick += 1;
             }
-            tick += 1;
-            //Debug.Log("Tick number: " + tick + " Movement: " + currentInput.wishDirection);
         }
     }
 }

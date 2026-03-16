@@ -27,7 +27,6 @@ public class ChildClientController : NetworkBehaviour
     private ChildInputController m_childInputController;
     private ChildController m_childController;
     private QteCircle m_qteCircle;
-    private GameObject m_predictionPrefab;
 
     private bool m_jumpPressed = false;
     private bool m_switchWeaponPressed = false;
@@ -48,7 +47,6 @@ public class ChildClientController : NetworkBehaviour
     [SerializeField]private GameObject m_gun;
     private bool m_startedAnimation = false;
     private float m_oldAnimHash;
-
 
     private bool m_sneakPressed = false;
 
@@ -80,7 +78,6 @@ public class ChildClientController : NetworkBehaviour
         if (m_uiHolder == null)
         {
             m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
-            if (!isServer) UnityProxy.InstantiateDirectly(m_predictionPrefab);
         }
 
 
@@ -100,23 +97,19 @@ public class ChildClientController : NetworkBehaviour
         if (!isOwner) return;
         if (!m_gotOwner) return;
 
-
         m_childController.PingClient();
 
-        if (m_childInputController != null)
-        {
+        if (!m_childInputController) return;
 
-            UpdateHUD();
+        UpdateHUD();
 
-            // DebugPrintTrafic();
+        // DebugPrintTrafic();
 
-            if (m_childController.m_isScared && m_qteCircle.m_isRunning)
-                m_qteCircle.CancelQte();
+        //if (m_childController.m_isScared && m_qteCircle.m_isRunning)
+        //    m_qteCircle.CancelQte();
 
-            if (m_qteCircle.m_isRunning) return;
-            var moveVec = m_childInputController.m_movementInputVector;
-            var wishDir = GetDirectionIntention(moveVec);
-            var cameraYaw = m_playerCamera.transform.eulerAngles.y;
+        var moveVec = m_childInputController.m_movementInputVector;
+        var wishDir = GetDirectionIntention(moveVec);
 
         var inputData = new ChildInputData
         {
@@ -131,37 +124,31 @@ public class ChildClientController : NetworkBehaviour
             sneakPressed = m_sneakPressed
         };
 
-        if (!isServer) // Modification locale pour le client, le serveur ne fait pas de mouvement prédictif
-        {
-            m_predictiveMovement.NewInput(inputData);
-        }
-
-
+        m_predictiveMovement.NewInput(inputData);
         SendChildRPC(
             inputData
         );
 
-            m_jumpPressed = false;
-            m_switchWeaponPressed = false;
-            m_attackPressed = false;
-            if (m_isSwitchingWeapon)
+        m_jumpPressed = false;
+        m_switchWeaponPressed = false;
+        m_attackPressed = false;
+        if (m_isSwitchingWeapon)
+        {
+            animStateInfo = m_animator.GetCurrentAnimatorStateInfo(0);
+            print(animStateInfo.normalizedTime);
+            if (animStateInfo.normalizedTime > 0.3f)
             {
-                animStateInfo = m_animator.GetCurrentAnimatorStateInfo(0);
-                print(animStateInfo.normalizedTime);
-                if (animStateInfo.normalizedTime > 0.3f)
+                if (!m_startedAnimation)
                 {
-                    if (!m_startedAnimation)
-                    {
-                        m_startedAnimation = true;
-                        m_oldAnimHash = animStateInfo.shortNameHash;
-                    }
-                    else if (m_oldAnimHash != animStateInfo.shortNameHash)
-                    {
-                        m_racket.SetActive(!m_racket.activeInHierarchy);
-                        m_gun.SetActive(!m_gun.activeInHierarchy);
-                        m_isSwitchingWeapon = false;
-                        m_startedAnimation = false;
-                    }
+                    m_startedAnimation = true;
+                    m_oldAnimHash = animStateInfo.shortNameHash;
+                }
+                else if (m_oldAnimHash != animStateInfo.shortNameHash)
+                {
+                    m_racket.SetActive(!m_racket.activeInHierarchy);
+                    m_gun.SetActive(!m_gun.activeInHierarchy);
+                    m_isSwitchingWeapon = false;
+                    m_startedAnimation = false;
                 }
             }
         }
@@ -191,13 +178,14 @@ public class ChildClientController : NetworkBehaviour
     public void OnJump()
     {
         if (!isOwner) return;
-        if (m_qteCircle.m_isRunning) return;
+        if (m_qteCircle != null && m_qteCircle.m_isRunning) return;
         m_jumpPressed = true;
     }
 
     public void OnValidation()
     {
         if (!isOwner) return;
+        if (m_qteCircle == null) return;
         if (!m_qteCircle.m_isRunning) return;
         m_qteCircle.CheckSuccess();
     }
@@ -422,7 +410,5 @@ public class ChildClientController : NetworkBehaviour
         m_childController.m_cameraForward = _data.cameraForward;
         if (_data.switchPressed) m_childController.SwitchAttackType();
         if (_data.attackPressed) m_childController.Attack();
-        
-        m_predictiveMovement.NewInput(_data);
     }
 }
