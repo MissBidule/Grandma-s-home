@@ -21,6 +21,7 @@ public class SceneMenuNavigator : MonoBehaviour
     public Collider[] boutonsMainMenu;
     public Collider[] boutonsOptions;
     public Collider[] boutonsPlay;
+    public Collider[] boutonsSkins;
 
     // Variable secrète pour mémoriser si une transition est en cours
     private Coroutine transitionEnCours;
@@ -62,6 +63,7 @@ public class SceneMenuNavigator : MonoBehaviour
         ActiverGroupeBoutons(boutonsMainMenu, false);
         ActiverGroupeBoutons(boutonsOptions, false);
         ActiverGroupeBoutons(boutonsPlay, false);
+        ActiverGroupeBoutons(boutonsSkins, false);
 
         // ÉTAPE 2 : LA PAUSE
         // Le script s'arrête ici et attend le temps indiqué dans l'Inspecteur
@@ -74,6 +76,8 @@ public class SceneMenuNavigator : MonoBehaviour
             ActiverGroupeBoutons(boutonsOptions, true);
         else if (targetCamera == playCam)
             ActiverGroupeBoutons(boutonsPlay, true);
+        else if (targetCamera == SkinsCam)
+            ActiverGroupeBoutons(boutonsSkins, true);
     }
 
     public void GoBackToMain()
