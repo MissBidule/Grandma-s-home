@@ -52,7 +52,8 @@ public class ChildController : PlayerControllerCore
     [SerializeField] private NetworkAnimator m_animator;
     [SerializeField] private GameObject m_racket;
     [SerializeField] private GameObject m_gun;
-
+    public bool m_shootAnimRunning = false;
+     
 
 
 
@@ -101,6 +102,10 @@ public class ChildController : PlayerControllerCore
     {
         m_lastShot += Time.deltaTime;
         m_switchingTime += Time.deltaTime;
+        if(m_shootAnimRunning && m_switchingTime > m_cdSwitch)
+        {
+            changeAttackAnimStatus();
+        }
     }
 
     /*
@@ -285,6 +290,20 @@ public class ChildController : PlayerControllerCore
         if (!isServer) return;
         m_isRanged = !m_isRanged;
         m_switchingTime = 0;
+        changeAttackAnimStatus();
+    }
+
+    /*
+     * @brief  This function allows you to change the attack animation based on the current attack type.
+     *         It is called when switching attack types to update the animation accordingly.
+     * @return void
+     */
+    [ObserversRpc(runLocally:true)]
+    public void changeAttackAnimStatus()
+    {
+        if(!isOwner) return;
+        m_isRanged = !m_isRanged;
+        m_shootAnimRunning = !m_shootAnimRunning;
     }
 
     /*
@@ -292,7 +311,7 @@ public class ChildController : PlayerControllerCore
      * @return void
      */
     [ObserversRpc(runLocally:true)]
-    public void changeVisibleWeapon()
+    public void ChangeVisibleWeapon()
     {
         m_racket.SetActive(!m_racket.activeInHierarchy);
         m_gun.SetActive(!m_gun.activeInHierarchy);

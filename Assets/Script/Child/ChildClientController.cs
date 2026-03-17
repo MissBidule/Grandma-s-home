@@ -106,7 +106,6 @@ public class ChildClientController : NetworkBehaviour
             if (m_isSwitchingWeapon)
             {
                 animStateInfo = m_animator.GetCurrentAnimatorStateInfo(0);
-                print(animStateInfo.normalizedTime);
                 if (animStateInfo.normalizedTime > 0.3f)
                 {
                     if (!m_startedAnimation)
@@ -116,7 +115,7 @@ public class ChildClientController : NetworkBehaviour
                     }
                     else if (m_oldAnimHash != animStateInfo.shortNameHash)
                     {
-                        m_childController.changeVisibleWeapon();
+                        m_childController.ChangeVisibleWeapon();
                         m_isSwitchingWeapon = false;
                         m_startedAnimation = false;
                     }
@@ -164,13 +163,14 @@ public class ChildClientController : NetworkBehaviour
     {
         if (!isOwner) return;
         m_switchWeaponPressed = true;
-        if(m_childController.m_switchingTime > m_childController.m_cdSwitch)
+        if(!m_childController.m_shootAnimRunning)
         {
             m_animator.SetTrigger("OnSwitch");
             m_animator.SetBool("Cac", m_childController.m_isRanged);
             m_isSwitchingWeapon = true;
         }
     }
+
 
     public void OnAttack()
     {
