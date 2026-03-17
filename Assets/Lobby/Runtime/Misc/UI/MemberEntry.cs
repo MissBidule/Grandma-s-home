@@ -10,6 +10,7 @@ namespace PurrLobby
     {
         [SerializeField] private TMP_Text userName;
         [SerializeField] private RawImage avatar;
+        [SerializeField] private RawImage hostIcon;
         [SerializeField] private Color readyColor;
         [SerializeField] private Button roleButton;
         [SerializeField] public Button readyButton;
@@ -17,29 +18,50 @@ namespace PurrLobby
         public bool _isGhost;
         private Color _defaultColor;
         private string _memberId;
+        public string _ownId;
         public string MemberId => _memberId;
+        public LobbyManager _lobbyManager;
 
-        public async Task Init(LobbyUser user)
+        public void Init(LobbyUser _user)
         {
-            _isGhost = user.IsGhost;
-            roleButton.GetComponentInChildren<TextMeshProUGUI>().text = _isGhost ? "G" : "C";
+            //cosmetic
+            userName.text = _user.DisplayName;
             _defaultColor = userName.color;
-            _memberId = user.Id;
-            avatar.texture = user.Avatar;
-            userName.text = user.DisplayName;
-            SetReady(user.IsReady);
-            string ownId = await FindAnyObjectByType<LobbyManager>().GetPlayer();
-            if (ownId != _memberId) roleButton.interactable = false;
+            if (_user.Avatar != null) avatar.texture = _user.Avatar;
+            SetReady(_user.IsReady);
+
+            //role
+            _isGhost = _user.IsGhost;
+            roleButton.GetComponentInChildren<TextMeshProUGUI>().text = _isGhost ? "G" : "C";
+
+            //RoleButton
+            _memberId = _user.Id;
+            if (_ownId != _memberId) roleButton.interactable = false;
             else
             {
+                LockReady(false);
                 roleButton.interactable = true;
                 roleButton.onClick.AddListener(delegate {
-                    FindAnyObjectByType<LobbyManager>().ToggleLocalRole();
+                    _lobbyManager.ToggleLocalRole();
                 });
                 readyButton.onClick.AddListener(delegate {
                     roleButton.interactable = !roleButton.interactable;
                 });
             }
+        }
+
+        public bool SetHost()
+        {
+            if (_lobbyManager.isPlayerHost(_memberId)) {
+                hostIcon.enabled = true;
+                if (_memberId == _ownId)
+                {
+                    readyButton.GetComponentInChildren<TextMeshProUGUI>().text = "Start Game";
+                    return true;
+                }
+                else readyButton.GetComponentInChildren<TextMeshProUGUI>().text = "Ready";
+            }
+            return false;
         }
         
         public void SetReady(bool isReady)

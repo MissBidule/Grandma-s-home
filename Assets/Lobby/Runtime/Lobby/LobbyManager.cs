@@ -87,6 +87,12 @@ namespace PurrLobby
             }
         }
 
+        public bool isPlayerHost(string _playerId)
+        {
+            EnsureProviderSet();
+            return _currentProvider.IsPlayerHost(_playerId);
+        }
+
         void Start()
         {
             m_usernameField.text = FindAnyObjectByType<PersistentDataManager>().LoadUsername();  
@@ -130,7 +136,6 @@ namespace PurrLobby
             await _currentProvider.OnLobbyUpdateData(_currentLobby.LobbyId);
             m_serverType.text = _currentLobby.IsPrivate ? "Private" : "Public";     
             m_playerCount.text = "Max players (" + _currentLobby.MaxPlayers + ")";            
-            viewManager.showHostObjects(_currentLobby.IsOwner);
             viewManager.OnRoomJoined(); 
             //refresh lobby info
             _elapsedTime = _refreshRate;

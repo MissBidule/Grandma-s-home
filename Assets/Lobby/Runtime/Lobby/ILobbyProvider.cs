@@ -7,6 +7,7 @@ namespace PurrLobby {
         // Initialization
         Task InitializeAsync();
         void Shutdown();
+        bool IsPlayerHost(string _playerId);
 
         // Friend List
         Task<List<FriendUser>> GetFriendsAsync(LobbyManager.FriendFilter filter);

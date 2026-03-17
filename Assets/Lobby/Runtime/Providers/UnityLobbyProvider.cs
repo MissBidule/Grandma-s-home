@@ -88,6 +88,11 @@ namespace PurrLobby.Providers {
         }
         public bool IsLocalPlayerHost { get { return CurrentLobby != null && LocalPlayerId == CurrentLobby.HostId; } }
 
+        public bool IsPlayerHost(string _playerId)
+        {
+            return CurrentLobby != null && _playerId == CurrentLobby.HostId;
+        }
+
         private Unity.Services.Lobbies.Models.Lobby CurrentLobby = null;
 
         private LobbyEventCallbacks LobbyEventCallbacks;
