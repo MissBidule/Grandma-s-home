@@ -134,6 +134,24 @@ public class ChildInputController : MonoBehaviour
         }
     }
 
+    public void OnPushToTalk(InputAction.CallbackContext _context)
+    {
+        AudioManager audioManager = FindFirstObjectByType<AudioManager>();
+        if (!isOwner) return;
+        if (_context.started)
+        {
+            // On press
+            audioManager.PushToTalk(true);
+            Debug.Log("il commence a presser");
+        }
+        else if (_context.canceled)
+        {
+            // On release
+            audioManager.PushToTalk(false);
+            Debug.Log("il a finie de presser");
+        }
+    }
+
     public void OnJump(InputAction.CallbackContext _context)
     {
         if (!isOwner) return;

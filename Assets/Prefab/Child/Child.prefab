@@ -150,6 +150,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChildInputController
   m_childClientController: {fileID: 2404275679153068628}
+  audioManager: {fileID: 0}
 --- !u!114 &7371193213744557113
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -530,6 +531,22 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 3d09c0f7-6836-414d-9309-10e51013ab1f
     m_ActionName: 'Ghost/Escape[/Keyboard/escape]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6565872187536608583}
+        m_TargetAssemblyTypeName: ChildInputController, Assembly-CSharp
+        m_MethodName: OnPushToTalk
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 45478c5d-25b4-45fd-acb7-ba044eb7f3b1
+    m_ActionName: 'Child/PushToTalk[/Keyboard/v]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Child
@@ -589,7 +606,7 @@ MonoBehaviour:
   _visitiblityRules: {fileID: 0}
   _inputProvider: {fileID: 613093929203921896}
   _outputProvider: {fileID: 8610913410535433184}
-  muted: 0
+  muted: 1
   _enableLocalPlayback: 0
   _localOutputProvider: {fileID: -7897050309470336131}
   _currentDevice: 
