@@ -30,8 +30,6 @@ public class ChildClientController : NetworkBehaviour
     private float m_attackTime;
     AnimatorStateInfo animStateInfo;
     private bool m_isSwitchingWeapon;
-    [SerializeField]private GameObject m_racket;
-    [SerializeField]private GameObject m_gun;
     private bool m_startedAnimation = false;
     private float m_oldAnimHash;
 
@@ -118,8 +116,7 @@ public class ChildClientController : NetworkBehaviour
                     }
                     else if (m_oldAnimHash != animStateInfo.shortNameHash)
                     {
-                        m_racket.SetActive(!m_racket.activeInHierarchy);
-                        m_gun.SetActive(!m_gun.activeInHierarchy);
+                        m_childController.changeVisibleWeapon();
                         m_isSwitchingWeapon = false;
                         m_startedAnimation = false;
                     }

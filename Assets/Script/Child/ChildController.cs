@@ -50,6 +50,8 @@ public class ChildController : PlayerControllerCore
 
     [Header("Animation")]
     [SerializeField] private NetworkAnimator m_animator;
+    [SerializeField] private GameObject m_racket;
+    [SerializeField] private GameObject m_gun;
 
 
 
@@ -283,5 +285,16 @@ public class ChildController : PlayerControllerCore
         if (!isServer) return;
         m_isRanged = !m_isRanged;
         m_switchingTime = 0;
+    }
+
+    /*
+     * @brief  This function allows you to change the visible weapon in the player's hand.
+     * @return void
+     */
+    [ObserversRpc(runLocally:true)]
+    public void changeVisibleWeapon()
+    {
+        m_racket.SetActive(!m_racket.activeInHierarchy);
+        m_gun.SetActive(!m_gun.activeInHierarchy);
     }
 }
