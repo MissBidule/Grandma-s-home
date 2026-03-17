@@ -406,6 +406,7 @@ public class ChildClientController : NetworkBehaviour
     [ServerRpc]
     private void SendChildRPC(ChildInputData _data)
     {
+        m_predictiveMovement.ServerReceiveInput(_data);
         m_childController.m_cameraPosition = _data.cameraPosition;
         m_childController.m_cameraForward = _data.cameraForward;
         if (_data.switchPressed) m_childController.SwitchAttackType();

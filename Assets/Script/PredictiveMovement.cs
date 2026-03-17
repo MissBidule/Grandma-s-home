@@ -5,7 +5,6 @@ using System.Collections.Generic;
 
 public class PredictiveMovement : NetworkBehaviour
 {
-    private GameObject projectionObject;
     private readonly float frameRate = 1f / 30f;
 
     private List<ChildInputData> inputHistory = new List<ChildInputData>();
@@ -61,27 +60,43 @@ public class PredictiveMovement : NetworkBehaviour
         {
             name = isOwner ? "Owner":"Remote";
             yield return new WaitForSeconds(frameRate);
-            if (!isOwner) continue; // Je gère pas les autres (NE METTEZ PAS CA AU DESSUS DE YIELD CA VA EXPLOSER UNITY CEST UNE BOUCLE INFINI FAUT FORCEMENT ATTENDRE UNE FRAME PITIE) (en anglais)
-            currentInput.tick = tick;
-
-            // Si je suis l'hôte, je fais du mouvement normal, pas de prédiction
-            if (isHost)
+            
+            if (isOwner) // PREDICTION
             {
-                simulateMovement.SimulateMovement(currentInput);
-                clearInputData();
+                currentInput.tick = tick;
+                
+                // Si je suis l'hôte, je fais du mouvement normal, pas de prédiction
+                if (isHost)
+                {
+                    simulateMovement.SimulateMovement(currentInput);
+                    clearInputData();
+                }
+
+                // Je suis côté client
+                if (!isHost)
+                {
+                    Debug.Log("Tick number: " + tick + " Movement: " + currentInput.wishDirection);
+                    simulateMovement.SimulateMovement(currentInput);
+                    inputHistory.Add(currentInput);
+                    clearInputData();
+                }
                 tick += 1;
-                continue;
             }
 
-            if (!isHost)
+            // SERVER SIDE. ON APPLIQUE LES INPUTS DES AUTRES.
+            if (!isOwner && isServer)
             {
-                Debug.Log("Tick number: " + tick + " Movement: " + currentInput.wishDirection);
-                // Je suis côté client
                 simulateMovement.SimulateMovement(currentInput);
-                inputHistory.Add(currentInput);
                 clearInputData();
-                tick += 1;
             }
         }
+    }
+
+    [ObserversRpc(runLocally:true)]
+    public void ServerReceiveInput(ChildInputData _data)
+    {
+        if (!isServer) return;
+        if (isOwner) return;
+        NewInput(_data);
     }
 }
