@@ -33,7 +33,7 @@ namespace Script.HouseBuilding
          */
         public void NetworkInitialize()
         {
-            UnityProxy.Instantiate(m_propPrefab, transform);
+            UnityProxy.InstantiateDirectly(m_propPrefab, transform);
             //Instantiate(m_propPrefab, transform);
         }
     }

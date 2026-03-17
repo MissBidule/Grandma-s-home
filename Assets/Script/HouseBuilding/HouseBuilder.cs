@@ -149,7 +149,7 @@ namespace Script.HouseBuilding
                 }
 
                 int layoutIndex = Random.Range(0, room.m_roomLayouts.Count);
-                Room newRoom = UnityProxy.Instantiate(room.m_roomLayouts[layoutIndex], room.m_roomAnchor);
+                Room newRoom = UnityProxy.InstantiateDirectly(room.m_roomLayouts[layoutIndex], room.m_roomAnchor);
                 
                 if (newRoom != null && isServer)
                 {
