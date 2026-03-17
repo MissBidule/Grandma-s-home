@@ -124,7 +124,6 @@ namespace PurrLobby
         {
             var viewManager = FindAnyObjectByType<ViewManager>();
             viewManager.OnJoiningRoom(); 
-            FindAnyObjectByType<RoleKeeper>().DeleteList();
             EnsureProviderSet();
             await _currentProvider.OnLobbyUpdateData(_currentLobby.LobbyId);
             m_serverType.text = _currentLobby.IsPrivate ? "Private" : "Public";     
@@ -139,7 +138,7 @@ namespace PurrLobby
         {
             if (_restartGame)
             {
-                ReconnectToLobbyAsync();
+                _ = ReconnectToLobbyAsync();
                 _restartGame = false;
             }
             while (_delayedActions.Count > 0)
@@ -368,6 +367,7 @@ namespace PurrLobby
                 var room = await _currentProvider.JoinLobbyAsync(roomId);
                 if (room.IsValid)
                 {
+                    _currentLobby = room;
                     OnRoomJoined?.Invoke(room);
                 }
                 else
@@ -525,12 +525,19 @@ namespace PurrLobby
             _lobbyDataHolder = null;
         }
 
+        void OnApplicationQuit()
+        {
+            Debug.Log("LobbyManager OnDestroy called, shutting down provider.");
+            LeaveLobby();
+        }
+
         private async void CallOnAllReady()
         {
             await WaitForAllTasksAsync();
             if(_currentLobby.IsValid && _currentLobby.Members.TrueForAll(x => x.IsReady))
             {
                 LockReady();
+                UpdateLobbyType(true);
                 await _currentProvider.SetAllReadyAsync();
 
                 OnAllReady?.Invoke();

@@ -87,6 +87,55 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.AspectRatioFitter
   m_AspectMode: 3
   m_AspectRatio: 1
+--- !u!1 &5583006067715179305
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6330091536823519302}
+  - component: {fileID: 8313695928454476264}
+  m_Layer: 0
+  m_Name: Outline Volume
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6330091536823519302
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5583006067715179305}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -401.4807, y: -198.18698, z: -2.7053618}
+  m_LocalScale: {x: 0.52805287, y: 0.52805287, z: 0.52805287}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4649123166479991715}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8313695928454476264
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5583006067715179305}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.Volume
+  m_IsGlobal: 1
+  priority: 0
+  blendDistance: 0
+  weight: 1
+  sharedProfile: {fileID: 11400000, guid: 28cb0ba954c1545afb545206448b9f46, type: 2}
 --- !u!1 &6854350163697445871
 GameObject:
   m_ObjectHideFlags: 0
@@ -133,7 +182,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6019257813361733424}
   - component: {fileID: 5280389295186916345}
-  - component: {fileID: 4747394381872203562}
   - component: {fileID: 7507049500400380088}
   m_Layer: 5
   m_Name: Camera
@@ -212,14 +260,6 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!81 &4747394381872203562
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8306683109679698406}
-  m_Enabled: 1
 --- !u!114 &7507049500400380088
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -302,6 +342,7 @@ RectTransform:
   - {fileID: 3874446111614342560}
   - {fileID: 7224925140961141848}
   - {fileID: 3501847893595498301}
+  - {fileID: 6330091536823519302}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
