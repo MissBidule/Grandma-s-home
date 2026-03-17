@@ -134,20 +134,23 @@ public class ChildInputController : MonoBehaviour
         }
     }
 
-    public void OnPushToTalk(InputAction.CallbackContext _context)
+    public void OnPushToTalk(InputAction.CallbackContext _context, bool _pushToTalkOn)
     {
+        if(!_pushToTalkOn) return;
         // faire un boolen pour activer le push to talk et mettre en return si il n est pas active sinon il fait ca
-        AudioManager audioManager = FindFirstObjectByType<AudioManager>();
-        if (!isOwner) return;
-        if (_context.started)
-        {
-            // On press
-            audioManager.PushToTalk(true);
-        }
-        else if (_context.canceled)
-        {
-            // On release
-            audioManager.PushToTalk(false);
+        if(_pushToTalkOn){
+            AudioManager audioManager = FindFirstObjectByType<AudioManager>();
+            if (!isOwner) return;
+            if (_context.started)
+            {
+                // On press
+                audioManager.PushToTalk(true);
+            }
+            else if (_context.canceled)
+            {
+                // On release
+                audioManager.PushToTalk(false);
+            }
         }
     }
 
