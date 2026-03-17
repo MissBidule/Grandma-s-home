@@ -6,10 +6,24 @@ namespace Script.HouseBuilding
 {
     public class Room : NetworkBehaviour
     {
+        [Header("Networked Objects")]
+        [SerializeField] [Tooltip("Prefab of the Sabotage Object.")] private SabotageObject m_sabotagePrefab;
+        [SerializeField] [Tooltip("Anchor of the Sabotage Object.")] private Transform m_sabotageAnchor;
+        [SerializeField] [Tooltip("Prefab of the trapdoor Entry.")] private GameObject m_trapdoorPrefab;
+        [SerializeField] [Tooltip("Anchor of the trapdoor Entry.")] private Transform m_trapdoorAnchor;
+        [SerializeField] [Tooltip("The room type of the exit of this room trapdoor.")] private RoomType m_trapdoorExitRoomType;
+        [SerializeField] [Tooltip("Prefab of the trapdoor exit.")] private GameObject m_trapdoorExitPrefab;
+        [SerializeField] [Tooltip("Anchor of the trapdoor exit.")] private Transform m_trapdoorExitAnchor;
+        
         [Header("Props Infos")]
         [SerializeField] [Tooltip("Anchors used to spawn small props (books, decorations, small furniture, etc.).")] private List<PropAnchor> m_smallPropsAnchors;
         [SerializeField] [Tooltip("Anchors used to spawn medium props (chairs, tables, appliances, etc.).")] private List<PropAnchor> m_mediumPropsAnchors;
 
+        // Variables for linking.
+        private SabotageObject m_sabotageObject;
+        private GameObject m_trapdoorEntry;
+        private GameObject m_trapdoorExit;
+        
         /*
          * @brief Populates the room with props using deterministic random generation.
          * @params _smallPropsPercentage Percentage of small props to spawn.
@@ -46,6 +60,22 @@ namespace Script.HouseBuilding
             {
                 m_mediumPropsAnchors[index].Initialize();
             }
+            
+            // Spawn the trapdoor and sabotage object
+            if (m_sabotagePrefab != null)
+            {
+                m_sabotageObject = Instantiate(m_sabotagePrefab, m_sabotageAnchor);
+            }
+
+            if (m_trapdoorPrefab != null)
+            {
+                m_trapdoorEntry = Instantiate(m_trapdoorPrefab, m_trapdoorAnchor);
+            }
+
+            if (m_trapdoorExitPrefab != null)
+            {
+                m_trapdoorExit = Instantiate(m_trapdoorExitPrefab, m_trapdoorExitAnchor);
+            }
         }
 
         public void PopulateRoomNetwork(float _smallPropsPercentage, float _mediumPropsPercentage, int _randomSeed)
@@ -75,6 +105,24 @@ namespace Script.HouseBuilding
             {
                 m_mediumPropsAnchors[index].NetworkInitialize();
             }
+            
+            // Spawn the trapdoor and sabotage object
+            if (m_sabotagePrefab != null)
+            {
+                m_sabotageObject = Instantiate(m_sabotagePrefab, m_sabotageAnchor);
+            }
+
+            if (m_trapdoorPrefab != null)
+            {
+                m_trapdoorEntry = Instantiate(m_trapdoorPrefab, m_trapdoorAnchor);
+            }
+
+            if (m_trapdoorExitPrefab != null)
+            {
+                m_trapdoorExit = Instantiate(m_trapdoorExitPrefab, m_trapdoorExitAnchor);
+            }
         }
+        
+        // TODO make the linking
     }
 }
