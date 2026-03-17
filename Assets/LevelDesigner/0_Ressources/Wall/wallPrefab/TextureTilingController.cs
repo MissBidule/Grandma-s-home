@@ -9,6 +9,7 @@ public class TextureTilingController : MonoBehaviour {
 	public Texture texture;
 	public float textureToMeshZ = 2f; // Use this to constrain texture to a certain size
     public Material originalMaterial;
+    private Material originalMaterialCpy = null;
 
 	Vector3 prevScale = Vector3.one;
 	float prevTextureToMeshZ = -1f;
@@ -18,15 +19,26 @@ public class TextureTilingController : MonoBehaviour {
 		this.prevScale = gameObject.transform.lossyScale;
 		this.prevTextureToMeshZ = this.textureToMeshZ;
         
-        MeshRenderer renderer = gameObject.GetComponent<MeshRenderer>();
-        var tempMaterial = new Material(originalMaterial);
-        renderer.sharedMaterial = tempMaterial;
+        RefreshMaterial();
 
 		this.UpdateTiling();
 	}
 
+	void RefreshMaterial()
+	{
+		MeshRenderer renderer = gameObject.GetComponent<MeshRenderer>();
+        var tempMaterial = new Material(originalMaterial);
+        renderer.sharedMaterial = tempMaterial;
+		originalMaterialCpy = originalMaterial;
+		UpdateTiling();
+	}
+
 	// Update is called once per frame
 	void Update () {
+		if (originalMaterial != originalMaterialCpy)
+		{
+			RefreshMaterial();
+		}
 		// If something has changed
 		if(gameObject.transform.lossyScale != prevScale || !Mathf.Approximately(this.textureToMeshZ, prevTextureToMeshZ))
 			this.UpdateTiling();
