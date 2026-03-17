@@ -23,36 +23,34 @@ public class AudioManager : NetworkBehaviour
             }
     }
 
-    //[ServerRpc(requireOwnership:false)] //comme ca tout le monde se change sur tout le monde ? mais bien sur ca marche pas 
     public void PushToTalk(bool _push) //network du coup, mais ca va pas poser de blem avec MuteGhostByChild?? 
     {
         //faudrait mettre les deux options PushToTalk et Mode normal
-        Debug.Log("il esseye de faire la fonction");
+        Debug.Log("il essaye de faire la fonction");
         foreach(GameObject obj in FindObjectsByType<GameObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
             {
                 if(obj.layer == LayerMask.NameToLayer("Child"))
                 {
                     Debug.Log("il a trouve un objet child");
                     PlayerInput playerInput = obj.GetComponent<PlayerInput>();
+                    PurrVoicePlayer purrVoicePlayer = obj.GetComponent<PurrVoicePlayer>();
                         //if(quesque je if ???)
-                        //if (!isOwner) return;  //bah pourquoi tu return connard
-                        
-                            Debug.Log("il est owner ce con?");
-                            PurrVoicePlayer purrVoicePlayer = obj.GetComponent<PurrVoicePlayer>();
                             if (purrVoicePlayer != null)
                             {
                                 Debug.Log("il a un composent purrvoice");
+                                if (!purrVoicePlayer.isOwner) continue;
+                                Debug.Log("il est owner ce con?");
                                 //if(!purrVoicePlayer.muted)
                                 //{
                                 if(_push)
                                 {
                                     Debug.Log("il devrait retirer le mute");
-                                    purrVoicePlayer.m_mutedSync.value=false;
+                                    purrVoicePlayer.muted=false;
                                 }
                                 if(!_push)
                                 {
                                     Debug.Log("il devrait mettre le mute");
-                                    purrVoicePlayer.m_mutedSync.value=true;
+                                    purrVoicePlayer.muted=true;
                                 }
                                 //}
                             }

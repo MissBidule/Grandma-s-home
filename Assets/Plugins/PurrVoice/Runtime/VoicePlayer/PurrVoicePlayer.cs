@@ -17,7 +17,6 @@ namespace PurrNet.Voice
         /// Handles whether this PurrVoicePlayer is muted. If it's the local one, no audio will be sent. If it's a remote client, we won't replay their audio
         /// </summary>
         public bool muted;
-        [SerializeField] public SyncVar<bool> m_mutedSync ;
         [SerializeField, PurrLock] private bool _enableLocalPlayback = false;
         [SerializeField, PurrLock, PurrShowIf("_enableLocalPlayback")] private OutputProvider _localOutputProvider;
         
@@ -190,7 +189,7 @@ namespace PurrNet.Voice
 
         private ArraySegment<float> ProcessSamples(ArraySegment<float> inputSamples, int frequency, params FilterLevel[] levels)
         {
-            if ((muted && levels.Contains(FilterLevel.Receiver)) ||(m_mutedSync && levels.Contains(FilterLevel.Receiver)))
+            if ((muted && levels.Contains(FilterLevel.Receiver)))
                 return MuteAudio(inputSamples);
             
             return DoProcessFilters(inputSamples, frequency, levels);
@@ -198,7 +197,7 @@ namespace PurrNet.Voice
         
         private ArraySegment<float> ProcessSamplesLocal(ArraySegment<float> inputSamples, int frequency, params FilterLevel[] levels)
         {
-            if (muted || m_mutedSync)
+            if (muted)
                 return MuteAudio(inputSamples);
             
             return DoLocalProcessFilters(inputSamples, frequency, levels);
@@ -216,7 +215,7 @@ namespace PurrNet.Voice
 
         private void OnMicrophoneData(ArraySegment<float> samples)
         {
-            if (muted || m_mutedSync)
+            if (muted)
                 return;
             
             DebugMicrophoneDataPreProcessing(samples);
