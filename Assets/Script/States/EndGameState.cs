@@ -46,6 +46,7 @@ namespace Script.States
                 return;
             
             SetupEndGameUI(_childWin);
+            InteractPromptUI.m_Instance.Hide();
             
             if (!InstanceHandler.TryGetInstance(out EndGameView endGameView))
                 return;
