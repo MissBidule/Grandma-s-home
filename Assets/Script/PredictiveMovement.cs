@@ -5,10 +5,7 @@ using System.Collections.Generic;
 
 public class PredictiveMovement : NetworkBehaviour
 {
-    private readonly float frameRate = 1f / 30f;
-
-    private PredictiveMovement hostInstance;
-
+    private readonly float frameRate = 1f / 60f;
 
     private List<ChildInputData> inputHistory = new List<ChildInputData>();
     private int tick = 0;

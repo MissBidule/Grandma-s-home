@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class ChildSimulateMovement : NetworkBehaviour
 {
-    private readonly float tickRate = 1f / 30f;
+    private readonly float tickRate = 1f / 60f;
     [SerializeField] private float m_speed = 5f;
     [SerializeField] private float m_jumpImpulse = 6.0f;
     public bool m_isScared = false;
@@ -48,7 +48,6 @@ public class ChildSimulateMovement : NetworkBehaviour
      */
     public void Jump()
     {
-        if (!isServer) return;
         if (!IsGrounded() || m_rigidbody.linearVelocity.y > 0.1f) return;
         m_rigidbody.AddForce(Vector3.up * m_jumpImpulse, ForceMode.Impulse);
     }
