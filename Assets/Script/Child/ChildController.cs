@@ -108,7 +108,7 @@ public class ChildController : PlayerControllerCore
     public void Jump()
     {
         if (!isServer) return;
-        if (!IsGrounded()) return;
+        if (!IsGrounded() || m_rigidbody.linearVelocity.y > 0.1f) return;
         m_rigidbody.AddForce(Vector3.up * m_jumpImpulse, ForceMode.Impulse);
     }
 
