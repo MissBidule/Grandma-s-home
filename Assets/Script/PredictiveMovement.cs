@@ -7,6 +7,9 @@ public class PredictiveMovement : NetworkBehaviour
 {
     private readonly float frameRate = 1f / 30f;
 
+    private PredictiveMovement hostInstance;
+
+
     private List<ChildInputData> inputHistory = new List<ChildInputData>();
     private int tick = 0;
     private ChildInputController inputController;
@@ -20,9 +23,10 @@ public class PredictiveMovement : NetworkBehaviour
         simulateMovement = GetComponent<ChildSimulateMovement>();
         clearInputData();
 
-
         StartCoroutine(PredictiveUpdate());
     }
+
+
     public int GetTick()
     {
         return tick;
@@ -30,7 +34,7 @@ public class PredictiveMovement : NetworkBehaviour
 
     private void clearInputData()
     {
-        print("RESET");
+        currentInput = new ChildInputData();
         currentInput.wishDirection = Vector3.zero;
         currentInput.cameraYaw = 0f;
         currentInput.cameraPosition = Vector3.zero;
@@ -65,38 +69,64 @@ public class PredictiveMovement : NetworkBehaviour
             {
                 currentInput.tick = tick;
                 
-                // Si je suis l'hôte, je fais du mouvement normal, pas de prédiction
-                if (isHost)
-                {
-                    simulateMovement.SimulateMovement(currentInput);
-                    clearInputData();
-                }
-
-                // Je suis côté client
-                if (!isHost)
-                {
-                    Debug.Log("Tick number: " + tick + " Movement: " + currentInput.wishDirection);
-                    simulateMovement.SimulateMovement(currentInput);
-                    inputHistory.Add(currentInput);
-                    clearInputData();
-                }
-                tick += 1;
+                simulateMovement.SimulateMovement(currentInput);
+                if (!isHost) inputHistory.Add(currentInput);
+                clearInputData();
             }
 
             // SERVER SIDE. ON APPLIQUE LES INPUTS DES AUTRES.
-            if (!isOwner && isServer)
+            if (isServer)
             {
-                simulateMovement.SimulateMovement(currentInput);
+                if (!isOwner) // Pas l'owner (= host) car il a déjà appliqué son input en prédiction
+                {
+                    simulateMovement.SimulateMovement(currentInput);
+                }
+                ClientReceiveCorrection(tick, transform.position, transform.rotation);
                 clearInputData();
             }
+
+
+            tick += 1;
         }
     }
 
-    [ObserversRpc(runLocally:true)]
     public void ServerReceiveInput(ChildInputData _data)
     {
         if (!isServer) return;
         if (isOwner) return;
         NewInput(_data);
+    }
+
+    [ObserversRpc(runLocally:false)]
+    public void ClientReceiveCorrection(int tick, Vector3 position, Quaternion rotation)
+    {
+        if (isServer) return;
+        if (!isOwner)
+        {
+            transform.position = position;
+            transform.rotation = rotation;
+            return;
+        }
+        else
+        {
+            // On supprime les inputs déjà appliqués par le serveur
+            inputHistory.RemoveAll(input => input.tick <= tick);
+            // On corrige la position du client
+            Reconciliation(position, rotation);
+        }
+    }
+
+    public void Reconciliation(Vector3 position, Quaternion rotation)
+    {
+        transform.position = position;
+        transform.rotation = rotation;
+        if (inputHistory.Count == 0) return;
+
+
+        // On réapplique les inputs du client qui n'ont pas encore été appliqués par le serveur
+        foreach (var input in inputHistory)
+        {
+            simulateMovement.SimulateMovement(input);
+        }
     }
 }
