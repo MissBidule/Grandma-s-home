@@ -227,33 +227,35 @@ public class ChildController : PlayerControllerCore
     private void Cac()
     {
         Collider[] hits = Physics.OverlapSphere(m_bulletSpawnTransform.position, m_attackRange);
+        PurrLogger.Log($"1 try break", this);
 
         foreach (Collider col in hits)
         {
-            var ghost = col.GetComponent<GhostController>();
+            PurrLogger.Log($"2 try break", this);
+            GhostController ghost = col.GetComponent<GhostController>();
             if (ghost != null)
             {
                 ghost.HitCac();
             }
-            if (col.transform.parent) 
+
+            if (!col.transform.parent) continue;
+            PurrLogger.Log($"3 try break {col.transform.parent}  {col.transform.parent.gameObject.GetComponents<MonoBehaviour>()}", this);
+            if (col.transform.parent.gameObject.GetComponent<BrokeDecor>())
             {
-                if (col.transform.parent.gameObject.GetComponent<BrokeDecor>())
+                BrokeDecor brokeDecor = col.transform.parent.gameObject.GetComponent<BrokeDecor>();
+                PurrLogger.Log($"{brokeDecor.gameObject.name} try break", this);
+                if(brokeDecor != null)
                 {
-                    var brokeDecor = col.transform.parent.gameObject.GetComponent<BrokeDecor>();
-                    if(brokeDecor != null)
-                    {
-                        brokeDecor.Broke();
-                    }
+                    PurrLogger.Log("Breaking");
+                    brokeDecor.Broke();
                 }
-            
-                if (col.transform.parent.gameObject.layer == LayerMask.NameToLayer("Ghost"))
-                {
-                    var ghostMorph = col.transform.parent.gameObject.GetComponent<GhostMorph>();
-                    if (ghostMorph != null)
-                        {
-                            ghostMorph.RevertToOriginal();
-                        }
-                }
+            }
+
+            if (col.transform.parent.gameObject.layer != LayerMask.NameToLayer("Ghost")) continue;
+            GhostMorph ghostMorph = col.transform.parent.gameObject.GetComponent<GhostMorph>();
+            if (ghostMorph != null)
+            {
+                ghostMorph.RevertToOriginal();
             }
         }
     }

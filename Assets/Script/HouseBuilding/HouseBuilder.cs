@@ -73,11 +73,11 @@ namespace Script.HouseBuilding
          * layouts that can be randomly chosen during generation.
          */
         [SerializeField] private List<RoomConfig> m_rooms;
-        private List<Room> m_networkRoomsCreated = new List<Room>();
         
         [Header("Props Parameters")]
-        [SerializeField, Range(0f, 1f)] [Tooltip("Proportion of small props that should be spawned in rooms.")] private float m_smallPropsPercentage;
-        [SerializeField, Range(0f, 1f)] [Tooltip("Proportion of medium props that should be spawned in rooms.")] private float m_mediumPropsPercentage;
+        [SerializeField, Range(0f, 1f)] [Tooltip("Proportion of small props that should be spawned in rooms.")] public float m_smallPropsPercentage;
+        [SerializeField, Range(0f, 1f)] [Tooltip("Proportion of medium props that should be spawned in rooms.")] public float m_mediumPropsPercentage;
+        public SyncVar<int> m_masterSeed; 
         
         /*
          * @brief Called when the network object is spawned.
@@ -97,20 +97,26 @@ namespace Script.HouseBuilding
             InstanceHandler.UnregisterInstance<HouseBuilder>();
         }
 
+        protected override void OnSpawned()
+        {
+            base.OnSpawned();
+            BuildHouseNetwork();
+        }
+
         /*
          * @brief Generates the random seed used for procedural house creation.
          * @description This must only execute on the server so every client
          * receives the same seed and produces identical procedural results.
          */
-        public void BuildHouseNetwork()
+        private void BuildHouseNetwork()
         {
             if (!isServer)
                 return;
             
-            int masterSeed = System.DateTime.Now.Millisecond;
-            PurrLogger.Log($"Seeding house with master seed: {masterSeed}", this);
-            
-            BuildHouse(masterSeed);
+            m_masterSeed = new SyncVar<int>(DateTime.Now.Millisecond);
+            PurrLogger.Log($"Seeding house with master seed: {m_masterSeed}", this);
+
+            BuildHouseNetwork(m_masterSeed);
         }
 
         /*
@@ -119,11 +125,11 @@ namespace Script.HouseBuilding
          * @description This RPC is called by the server and executed on all observers
          * to build the house structure synchronously.
          */
-        [ObserversRpc(bufferLast:true)]
-        private void BuildHouse(int _masterSeed)
-        {
-            BuildHouseNetwork(_masterSeed);
-        }
+        //[ObserversRpc(bufferLast:true)]
+        //private void BuildHouse(int _masterSeed)
+        //{
+            //BuildHouseNetwork(_masterSeed);
+        //}
 
         /*
          * @brief Network implementation of house generation.
@@ -134,11 +140,7 @@ namespace Script.HouseBuilding
         private void BuildHouseNetwork(int _masterSeed)
         {
             Random.InitState(_masterSeed);
-
-            int seedIterator = 0;
-            
-            if (isServer)
-                m_networkRoomsCreated.Clear();
+            PurrLogger.Log($"Building house with master seed: {_masterSeed}", this);
 
             foreach (RoomConfig room in m_rooms)
             {
@@ -149,17 +151,7 @@ namespace Script.HouseBuilding
                 }
 
                 int layoutIndex = Random.Range(0, room.m_roomLayouts.Count);
-                Room newRoom = UnityProxy.InstantiateDirectly(room.m_roomLayouts[layoutIndex], room.m_roomAnchor);
-                
-                if (newRoom != null && isServer)
-                {
-                    newRoom.PopulateRoomNetwork(
-                        m_smallPropsPercentage,
-                        m_mediumPropsPercentage,
-                        _masterSeed + seedIterator);
-                }
-
-                seedIterator++;
+                Room newRoom = UnityProxy.Instantiate(room.m_roomLayouts[layoutIndex], room.m_roomAnchor);
             }
         }
         

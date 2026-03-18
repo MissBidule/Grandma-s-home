@@ -1,5 +1,6 @@
 using PurrNet;
 using System.Collections.Generic;
+using PurrNet.Logging;
 using UnityEngine;
 
 namespace Script.HouseBuilding
@@ -23,7 +24,23 @@ namespace Script.HouseBuilding
         private SabotageObject m_sabotageObject;
         private GameObject m_trapdoorEntry;
         private GameObject m_trapdoorExit;
-        
+
+
+        protected override void OnSpawned()
+        {
+            base.OnSpawned();
+            
+            if (!isServer)
+                return;
+            
+            if (!InstanceHandler.TryGetInstance(out HouseBuilder houseBuilder))
+                return;
+
+            PopulateRoomNetwork(houseBuilder.m_smallPropsPercentage, houseBuilder.m_mediumPropsPercentage,
+                houseBuilder.m_masterSeed);
+        }
+
+
         /*
          * @brief Populates the room with props using deterministic random generation.
          * @params _smallPropsPercentage Percentage of small props to spawn.
@@ -82,6 +99,8 @@ namespace Script.HouseBuilding
         {
             Random.InitState(_randomSeed);
             
+            PurrLogger.Log("Populating Room Network");
+            
             // Shuffle the props anchors lists.
             for (int i = m_smallPropsAnchors.Count - 1; i > 0; i--)
             {
@@ -98,28 +117,28 @@ namespace Script.HouseBuilding
             // Initialize the given proportion of the room props
             for (int index = 0; index < m_smallPropsAnchors.Count * _smallPropsPercentage; index++)
             {
-                m_smallPropsAnchors[index].NetworkInitialize();
+                m_smallPropsAnchors[index].NetworkInitialize(m_smallPropsAnchors[index].transform);
             }
 
             for (int index = 0; index < m_mediumPropsAnchors.Count * _mediumPropsPercentage; index++)
             {
-                m_mediumPropsAnchors[index].NetworkInitialize();
+                m_mediumPropsAnchors[index].NetworkInitialize(m_mediumPropsAnchors[index].transform);
             }
             
             // Spawn the trapdoor and sabotage object
             if (m_sabotagePrefab != null)
             {
-                m_sabotageObject = Instantiate(m_sabotagePrefab, m_sabotageAnchor);
+                m_sabotageObject = UnityProxy.Instantiate(m_sabotagePrefab, m_sabotageAnchor);
             }
 
             if (m_trapdoorPrefab != null)
             {
-                m_trapdoorEntry = Instantiate(m_trapdoorPrefab, m_trapdoorAnchor);
+                m_trapdoorEntry = UnityProxy.Instantiate(m_trapdoorPrefab, m_trapdoorAnchor);
             }
 
             if (m_trapdoorExitPrefab != null)
             {
-                m_trapdoorExit = Instantiate(m_trapdoorExitPrefab, m_trapdoorExitAnchor);
+                m_trapdoorExit = UnityProxy.Instantiate(m_trapdoorExitPrefab, m_trapdoorExitAnchor);
             }
         }
         

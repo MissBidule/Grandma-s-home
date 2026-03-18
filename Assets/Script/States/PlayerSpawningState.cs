@@ -11,6 +11,8 @@ using UI;
 using Antony;
 using Script.HouseBuilding;
 using System.Linq;
+using PurrNet.Logging;
+
 namespace Script.States
 {
     /*
@@ -40,67 +42,52 @@ namespace Script.States
 
         public void StartMachine()
         {
+            PurrLogger.Log("Starting machine ...", this);
             if (!m_isServer) 
             {
-                Debug.Log("[PlayerSpawningState] Not server, returning.");
                 return;
             }
+            PurrLogger.Log("Check Server", this);
             if (m_hasStarted) 
             {
-                Debug.LogWarning("[PlayerSpawningState] Already started, ignoring duplicate call.");
                 return;
             }
+            PurrLogger.Log("Check HasStarted", this);
             m_hasStarted = true;
-
-            Debug.Log("[PlayerSpawningState] Starting machine - despawning old players.");
+            
             DespawnPlayers();
-
-            Debug.Log("[PlayerSpawningState] Spawning new players.");
+            PurrLogger.Log("Clear player", this);
+            
             List<PlayerControllerCore> spawnedPlayers = SpawnPlayers();
+            PurrLogger.Log("Spawned player", this);
             
-            Debug.Log("[PlayerSpawningState] Building house network.");
-            if (InstanceHandler.TryGetInstance(out HouseBuilder houseBuilder))
-            {
-                houseBuilder.BuildHouseNetwork();
-                Debug.Log("[PlayerSpawningState] House network building initiated.");
-            }
-            else
-            {
-                Debug.LogWarning("[PlayerSpawningState] HouseBuilder instance not found!");
-            }
-            
-            Debug.Log($"[PlayerSpawningState] {spawnedPlayers.Count} players spawned, moving to next state.");
             machine.Next(spawnedPlayers);
         }
 
         private List<PlayerControllerCore> SpawnPlayers()
         {
-            List<PlayerControllerCore> spawnedPlayers = new List<PlayerControllerCore>();
-            RoleKeeper roleKeeper = FindAnyObjectByType<RoleKeeper>();
+            List<PlayerControllerCore> spawnedPlayers = new ();
+            //RoleKeeper roleKeeper = FindAnyObjectByType<RoleKeeper>();
 
-            if (roleKeeper == null)
-            {
-                Debug.LogError("[PlayerSpawningState] RoleKeeper not found in scene!");
-                return spawnedPlayers;
-            }
+            //if (roleKeeper == null)
+            //{
+            //    return spawnedPlayers;
+            //}
 
             int currentSpawnChildIndex = 0;
             int currentSpawnGhostIndex = 0;
-            
-            Debug.Log($"[PlayerSpawningState] Spawning players. Total players: {networkManager.players.Count}");
 
-            foreach (var player in networkManager.players)
+            foreach (PlayerID player in networkManager.players)
             {
-                if (NetworkManager.main.TryGetModule(out GlobalOwnershipModule ownership, true) && ownership.PlayerOwnsSomething(player))
-                {
-                    Debug.Log($"[PlayerSpawningState] Player {player} already owns something, skipping spawn.");
-                    continue;
-                }
+                //if (NetworkManager.main.TryGetModule(out GlobalOwnershipModule ownership, true) && ownership.PlayerOwnsSomething(player))
+                //{
+                //    continue;
+                //}
 
                 //CONNECTION
-                networkManager.GetModule<PlayersManager>(m_isServer).TryGetConnection(player, out Connection conn);
+                //networkManager.GetModule<PlayersManager>(m_isServer).TryGetConnection(player, out Connection conn);
 
-                bool isGhost = roleKeeper.IsGhost(conn.connectionId);
+                bool isGhost = false;// TODO HAAAAAAAAA roleKeeper.IsGhost(conn.connectionId);
 
                 Transform spawnPoint;
                 PlayerControllerCore newPlayer;
@@ -109,20 +96,17 @@ namespace Script.States
                 {
                     spawnPoint = m_ghostSpawnPoints[currentSpawnGhostIndex++ % m_ghostSpawnPoints.Count];
                     newPlayer = UnityProxy.Instantiate(m_ghostPrefab, spawnPoint.position, spawnPoint.rotation);
-                    Debug.Log($"[PlayerSpawningState] Spawned ghost player at {spawnPoint.position}");
                 }
                 else
                 {
                     spawnPoint = m_childSpawnPoints[currentSpawnChildIndex++ % m_childSpawnPoints.Count];
                     newPlayer = UnityProxy.Instantiate(m_childPrefab, spawnPoint.position, spawnPoint.rotation);
-                    Debug.Log($"[PlayerSpawningState] Spawned child player at {spawnPoint.position}");
                 }
                 
                 newPlayer.GiveOwnership(player);
                 spawnedPlayers.Add(newPlayer);
             }
 
-            Debug.Log($"[PlayerSpawningState] Total spawned: {spawnedPlayers.Count}");
             return spawnedPlayers;
         }
 

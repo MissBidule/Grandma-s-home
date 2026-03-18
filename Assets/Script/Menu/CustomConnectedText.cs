@@ -32,12 +32,13 @@ public class CustomConnectedText : MonoBehaviour
         // Number Of players
         m_lobbyDataHolder = FindFirstObjectByType<LobbyDataHolder>();
         if(!m_lobbyDataHolder) {
-            PurrLogger.LogError($"Failed to get {nameof(LobbyDataHolder)} component.", this);
-            return;
+            //PurrLogger.LogError($"Failed to get {nameof(LobbyDataHolder)} component.", this);
+            //// return; TODO HAAAAAAAAAAAAA Panic highjack
+            
         }
 
         string[] messages = m_messageContent.Split("\n");
-        messages[2] = "Currently 0 out of " + m_lobbyDataHolder.GetNumber_of_player_ready_in_lobby();
+        messages[2] = "Currently 0 out of " + 2;//m_lobbyDataHolder.GetNumber_of_player_ready_in_lobby();
         m_playerText.text = messages[2];
 
         m_networkManager.onPlayerJoined += OnPlayerJoined;
@@ -77,7 +78,8 @@ public class CustomConnectedText : MonoBehaviour
     {
         if (!gameObject.activeInHierarchy) 
             return;
-        OnNumberOfPlayersChanged(m_networkManager.playerCount, m_lobbyDataHolder.GetNumber_of_player_ready_in_lobby());
+        // OnNumberOfPlayersChanged(m_networkManager.playerCount, m_lobbyDataHolder.GetNumber_of_player_ready_in_lobby());
+        OnNumberOfPlayersChanged(m_networkManager.playerCount, 2);
     }
 
     private void OnNumberOfPlayersChanged(int _playerNumber, int _maxPlayerNumber)
@@ -94,15 +96,18 @@ public class CustomConnectedText : MonoBehaviour
 
         if (!m_networkManager.isServer)
             return;
-        
+        PurrLogger.Log("HAAAA 1");
         if (_playerNumber != _maxPlayerNumber) return;
+        PurrLogger.Log("HAAAA 2");
         StateMachine stateMachine = FindFirstObjectByType<StateMachine>();
+        PurrLogger.Log("HAAAA 3");
         if (!stateMachine)
         {
             PurrLogger.LogError($"Failed to get {nameof(StateMachine)} component.", this);
             return;
         }
-        else ((PlayerSpawningState)stateMachine.states[1]).StartMachine();
+        ((PlayerSpawningState)stateMachine.states[1]).StartMachine();
+        PurrLogger.Log("HAAAA 3");
     }
 
     private WaitForSeconds m_wait = new(0.005f);

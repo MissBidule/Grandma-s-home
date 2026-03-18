@@ -1,4 +1,5 @@
 using PurrNet;
+using PurrNet.Logging;
 using UnityEngine;
 
 namespace Script.HouseBuilding
@@ -13,6 +14,11 @@ namespace Script.HouseBuilding
     public class PropAnchor : NetworkBehaviour
     {
         [SerializeField] [Tooltip("Prefab that will be instantiated at this anchor during room generation.")] private GameObject m_propPrefab;
+
+        protected override void OnSpawned()
+        {
+            base.OnSpawned();
+        }
 
         /*
          * @brief Instantiates the prop assigned to this anchor.
@@ -31,9 +37,13 @@ namespace Script.HouseBuilding
          * The prop prefab is instantiated as a child of this anchor transform,
          * ensuring correct position, rotation, and hierarchy organization.
          */
-        public void NetworkInitialize()
+        public void NetworkInitialize(Transform _parentTransform)
         {
-            UnityProxy.InstantiateDirectly(m_propPrefab, transform);
+            if (!isServer)
+                return;
+            
+            PurrLogger.Log("Network Prop Initialize");
+            UnityProxy.Instantiate(m_propPrefab, _parentTransform);
             //Instantiate(m_propPrefab, transform);
         }
     }
