@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using PurrNet;
@@ -86,10 +87,17 @@ namespace PurrLobby
             }
         }
 
+        public bool isPlayerHost(string _playerId)
+        {
+            EnsureProviderSet();
+            return _currentProvider.IsPlayerHost(_playerId);
+        }
+
         void Start()
         {
             m_usernameField.text = FindAnyObjectByType<PersistentDataManager>().LoadUsername();  
             EnsureProviderSet();
+            Application.wantsToQuit += WantsToQuit;
         }
 
         private void SetupDataHolder()
@@ -128,7 +136,6 @@ namespace PurrLobby
             await _currentProvider.OnLobbyUpdateData(_currentLobby.LobbyId);
             m_serverType.text = _currentLobby.IsPrivate ? "Private" : "Public";     
             m_playerCount.text = "Max players (" + _currentLobby.MaxPlayers + ")";            
-            viewManager.showHostObjects(_currentLobby.IsOwner);
             viewManager.OnRoomJoined(); 
             //refresh lobby info
             _elapsedTime = _refreshRate;
@@ -525,10 +532,23 @@ namespace PurrLobby
             _lobbyDataHolder = null;
         }
 
-        void OnApplicationQuit()
+        private bool WantsToQuit()
         {
             Debug.Log("LobbyManager OnDestroy called, shutting down provider.");
-            LeaveLobby();
+            if (CurrentLobby.IsValid)
+            {
+                StartCoroutine(RemovePlayerAndQuit());
+                return false;
+            }
+            return true;
+        }
+
+        private IEnumerator RemovePlayerAndQuit()
+        {
+            EnsureProviderSet();
+            yield return _currentProvider.LeaveLobbyAsync();
+            OnRoomLeft?.Invoke();
+            Application.Quit();
         }
 
         private async void CallOnAllReady()

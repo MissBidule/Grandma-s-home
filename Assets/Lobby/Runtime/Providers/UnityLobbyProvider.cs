@@ -88,6 +88,11 @@ namespace PurrLobby.Providers {
         }
         public bool IsLocalPlayerHost { get { return CurrentLobby != null && LocalPlayerId == CurrentLobby.HostId; } }
 
+        public bool IsPlayerHost(string _playerId)
+        {
+            return CurrentLobby != null && _playerId == CurrentLobby.HostId;
+        }
+
         private Unity.Services.Lobbies.Models.Lobby CurrentLobby = null;
 
         private LobbyEventCallbacks LobbyEventCallbacks;
@@ -617,8 +622,19 @@ namespace PurrLobby.Providers {
             CurrentLobby = await LobbyService.Instance.GetLobbyAsync(_lobbyId);
             RoleKeeper roleList = FindAnyObjectByType<RoleKeeper>();
             List<string> disconnectedPlayers = roleList.GetDisconnectedPlayers();
-            CurrentLobby.Players.RemoveAll(x => disconnectedPlayers.Exists(y => y == x.Id));
+            foreach(string disconnectedPlayer in disconnectedPlayers)
+            {
+                await LobbyService.Instance.RemovePlayerAsync(CurrentLobby.Id, disconnectedPlayer);
+            }
+
+            foreach (Player player in CurrentLobby.Players)
+            {
+                await SetIsReadyAsync(player.Id, false);
+                await SetIsInGameAsync(player.Id, false);
+            }
+            
             roleList.DeleteList();
+            CurrentLobby = await LobbyService.Instance.GetLobbyAsync(_lobbyId);
 
             await SubscribeLobbyEventsAsync();
             await InitializeLocalPlayerData();
@@ -626,12 +642,6 @@ namespace PurrLobby.Providers {
             if (IsLocalPlayerHost)
             {
                 await SetLobbyDataAsync("JoinCode", "");
-            }
-
-            foreach (Player player in CurrentLobby.Players)
-            {
-                await SetIsReadyAsync(player.Id, false);
-                await SetIsInGameAsync(player.Id, false);
             }
 
             OnLobbyUpdate();
