@@ -203,7 +203,11 @@ public class GhostInputController : MonoBehaviour
 
             if(m_qteCircle.m_isRunning)
             {
-                m_qteCircle.CheckSuccess();
+                if (m_qteCircle.CheckSuccess())
+                {
+                    //QTE finished
+                    m_ghostClientController.SabotageNotification();
+                }
             }
         }
     }

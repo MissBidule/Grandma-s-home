@@ -87,7 +87,7 @@ namespace PurrLobby
                 entry._lobbyManager = FindAnyObjectByType<LobbyManager>();
                 entry._ownId = await entry._lobbyManager.GetPlayer();
                 entry.Init(member);
-                m_roleKeeper.AddRole(entry.MemberId, entry._isGhost, entry._ownId == entry.MemberId);
+                m_roleKeeper.AddRole(member.Id, member.DisplayName, member.IsGhost, entry._ownId == member.Id);
                 HandleHostOptions(entry, room);
             }
         }

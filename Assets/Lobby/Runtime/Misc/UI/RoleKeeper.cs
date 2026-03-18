@@ -13,6 +13,7 @@ namespace PurrLobby
         [Serializable]
         private struct Role
         {
+            public string m_username;
             public string m_roleId;
             public bool m_isGhost;
             public bool m_isLocal;
@@ -22,9 +23,9 @@ namespace PurrLobby
 
         [SerializeField] private List<Role> m_roles = new List<Role>();
 
-        public void AddRole(string _roleId, bool _isGhost, bool _isLocal)
+        public void AddRole(string _roleId, string _username, bool _isGhost, bool _isLocal)
         {
-            m_roles.Add(new Role() { m_roleId = _roleId, m_isGhost = _isGhost, m_isLocal = _isLocal });
+            m_roles.Add(new Role() { m_roleId = _roleId, m_username = _username, m_isGhost = _isGhost, m_isLocal = _isLocal });
         }
         
         public void RemoveRole(string _roleId)
@@ -43,11 +44,13 @@ namespace PurrLobby
             for (int i = 0; i < m_roles.Count; i++)
             {
                 bool keepLocal = m_roles[i].m_isLocal;
+                string keepUsername = m_roles[i].m_username;
                 if (m_roles[i].m_roleId.Equals(_roleId))
                 {
                     m_roles[i] = new Role()
                     {
                         m_roleId = _roleId,
+                        m_username = keepUsername,
                         m_isGhost = _isGhost,
                         m_isLocal = keepLocal
                     };
@@ -103,11 +106,24 @@ namespace PurrLobby
             return null;
         }
 
+        public string getLocalUsername()
+        {
+            for (int i = 0; i < m_roles.Count; i++)
+            {
+                if (m_roles[i].m_isLocal)
+                {
+                    return m_roles[i].m_username;
+                }
+            }
+            return null;
+        }
+
         public void setConnectionID(string _roleID, int _connectionID)
         {
             for (int i = 0; i < m_roles.Count; i++)
             {
                 string keepRoleID = m_roles[i].m_roleId;
+                string keepUsername = m_roles[i].m_username;
                 bool keepRole = m_roles[i].m_isGhost;
                 bool keepLocal = m_roles[i].m_isLocal;
                 if (m_roles[i].m_roleId == _roleID)
@@ -115,6 +131,7 @@ namespace PurrLobby
                     m_roles[i] = new Role()
                     {
                         m_roleId = keepRoleID,
+                        m_username = keepUsername,
                         m_isGhost = keepRole,
                         m_isLocal = keepLocal,
                         m_connectionID = _connectionID
@@ -129,6 +146,7 @@ namespace PurrLobby
             for (int i = 0; i < m_roles.Count; i++)
             {
                 string keepRoleID = m_roles[i].m_roleId;
+                string keepUsername = m_roles[i].m_username;
                 bool keepRole = m_roles[i].m_isGhost;
                 bool keepLocal = m_roles[i].m_isLocal;
                 int keepConnection = m_roles[i].m_connectionID;
@@ -137,6 +155,7 @@ namespace PurrLobby
                     m_roles[i] = new Role()
                     {
                         m_roleId = keepRoleID,
+                        m_username = keepUsername,
                         m_isGhost = keepRole,
                         m_isLocal = keepLocal,
                         m_connectionID = keepConnection,

@@ -28,6 +28,7 @@ public class PlayerControllerCore : NetworkBehaviour
     public bool m_isClientAccessible = true;
 
     private string m_memberID = "";
+    public string m_username = "";
 
     protected virtual void Awake()
     {
@@ -147,14 +148,16 @@ public class PlayerControllerCore : NetworkBehaviour
 
         if (isOwner) {
             DisableWaitUIObserverRPC();
-            ApplyMemberID(FindAnyObjectByType<RoleKeeper>().getLocalMemberID());
+            RoleKeeper roleKeeper = FindAnyObjectByType<RoleKeeper>();
+            ApplyDataID(roleKeeper.getLocalMemberID(), roleKeeper.getLocalUsername());
         }
     }
 
-    [ServerRpc]
-    private void ApplyMemberID(string _memberID)
+    [ObserversRpc (runLocally: true, requireServer: false)]
+    private void ApplyDataID(string _memberID, string _username)
     {
         m_memberID = _memberID;
+        m_username = _username;
     }
     
     private void OnDisable()
