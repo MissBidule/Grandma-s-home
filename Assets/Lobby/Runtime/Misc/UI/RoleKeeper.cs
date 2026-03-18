@@ -71,6 +71,30 @@ namespace PurrLobby
             return false;
         }
 
+        public string GetUsername(int _connectionID)
+        {
+            for (int i = 0; i < m_roles.Count; i++)
+            {
+                if (m_roles[i].m_connectionID == _connectionID)
+                {
+                    return m_roles[i].m_username;
+                }
+            }
+            return "";
+        }
+
+        public string GetMemberID(int _connectionID)
+        {
+            for (int i = 0; i < m_roles.Count; i++)
+            {
+                if (m_roles[i].m_connectionID == _connectionID)
+                {
+                    return m_roles[i].m_roleId;
+                }
+            }
+            return "";
+        }
+
         void Start()
         {
             DontDestroyOnLoad(gameObject);

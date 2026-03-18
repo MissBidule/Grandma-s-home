@@ -7,6 +7,8 @@ using UI;
 using Script.UI.Views;
 using Script.States;
 using PurrLobby;
+using PurrNet.Modules;
+using PurrNet.Transports;
 
 /*
  * @brief Player Core class inherited by Child & phantom
@@ -19,7 +21,6 @@ public class PlayerControllerCore : NetworkBehaviour
     public CinemachineCamera m_playerCamera;
     [SerializeField] private GameObject m_localRenderCamera;
     [SerializeField] private NetworkAnimator m_playerAnimator;
-    [SerializeField] private List<Renderer> m_renderers = new();
 
     [Header("ServerResponse")]
     public float m_PingCooldown = 5f;
@@ -27,7 +28,7 @@ public class PlayerControllerCore : NetworkBehaviour
     public bool m_isServerAccessible = true;
     public bool m_isClientAccessible = true;
 
-    private string m_memberID = "";
+    public string m_memberID = "";
     public string m_username = "";
 
     protected virtual void Awake()
@@ -104,14 +105,12 @@ public class PlayerControllerCore : NetworkBehaviour
         Debug.Log($"[{gameObject.name}] OnSpawned - isOwner: {isOwner}, localPlayer: {localPlayer}, owner: {owner}");
 
         ApplyOwnership();
-
-        if (!isOwner)
+        RoleKeeper roleKeeper = FindAnyObjectByType<RoleKeeper>();
+        networkManager.GetModule<PlayersManager>(isServer).TryGetConnection((PlayerID)owner, out Connection conn);
+        if (conn.connectionId == 0)
         {
-            // Change color of non-owned players for better visibility
-            foreach (var renderer in m_renderers)
-            {
-                renderer.material.color = Color.HSVToRGB(Random.Range(0f, 1f), 0.8f, 0.9f);
-            }
+            m_memberID = roleKeeper.GetMemberID(conn.connectionId);
+            m_username = roleKeeper.GetUsername(conn.connectionId);
         }
     }
 
@@ -127,7 +126,6 @@ public class PlayerControllerCore : NetworkBehaviour
     {
         if (!InstanceHandler.TryGetInstance(out UIsManager uisManager))
             return;
-        uisManager.HideView<WaitForPlayerView>();
         uisManager.ToggleUIVision();
     }
 
@@ -146,17 +144,18 @@ public class PlayerControllerCore : NetworkBehaviour
         if (m_localRenderCamera != null)
             m_localRenderCamera.SetActive(isOwner);
 
-        if (isOwner) {
+        if (isOwner)
+        {
             DisableWaitUIObserverRPC();
             RoleKeeper roleKeeper = FindAnyObjectByType<RoleKeeper>();
-            ApplyDataID(roleKeeper.getLocalMemberID(), roleKeeper.getLocalUsername());
+            ApplyUserData(roleKeeper.getLocalMemberID(), roleKeeper.getLocalUsername());
         }
     }
 
     [ObserversRpc (runLocally: true, requireServer: false)]
-    private void ApplyDataID(string _memberID, string _username)
+    private void ApplyUserData(string _memberId, string _username)
     {
-        m_memberID = _memberID;
+        m_memberID = _memberId;
         m_username = _username;
     }
     
