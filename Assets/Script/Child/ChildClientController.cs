@@ -118,7 +118,7 @@ public class ChildClientController : NetworkBehaviour
                     }
                     else if (m_oldAnimHash != animStateInfo.shortNameHash)
                     {
-                        m_childController.ChangeVisibleWeapon();
+                        SendChangeVisibleWeapon();
                         m_isSwitchingWeapon = false;
                         m_startedAnimation = false;
                     }
@@ -179,6 +179,12 @@ public class ChildClientController : NetworkBehaviour
             m_animator.SetBool("Cac", m_childController.m_isRanged);
             m_isSwitchingWeapon = true;
         }
+    }
+
+    [ServerRpc]
+    public void SendChangeVisibleWeapon()
+    {
+        m_childController.ChangeVisibleWeapon();
     }
 
 
