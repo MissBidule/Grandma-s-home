@@ -43,12 +43,13 @@ public class ChildSimulateMovement : NetworkBehaviour
     }
 
     /*
-     * @brief   Makes the child jump by applying an impulse force upwards
+    * @brief   Makes the child jump by applying an impulse force upwards
      * @return  void
      */
     public void Jump()
     {
-        if (!IsGrounded()) return;
+        if (!isServer) return;
+        if (!IsGrounded() || m_rigidbody.linearVelocity.y > 0.1f) return;
         m_rigidbody.AddForce(Vector3.up * m_jumpImpulse, ForceMode.Impulse);
     }
 
