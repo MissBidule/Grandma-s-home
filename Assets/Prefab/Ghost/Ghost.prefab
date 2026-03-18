@@ -181,7 +181,7 @@ MonoBehaviour:
   m_playerAnimator: {fileID: 0}
   m_renderers:
   - {fileID: 3675207352629919037}
-  m_PingCooldown: Infinity
+  m_PingCooldown: 5
   m_elapsedTimeSincePing: 0
   m_isServerAccessible: 1
   m_isClientAccessible: 1
@@ -1521,8 +1521,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5516181086441010449}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.14857171, y: 0.84640247, z: 0.30806535, w: 0.40819743}
-  m_LocalPosition: {x: 254.29637, y: 0.6385567, z: -34.619503}
+  m_LocalRotation: {x: 0.078459114, y: 0, z: 0, w: 0.99691737}
+  m_LocalPosition: {x: 0, y: 2, z: -5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1593,7 +1593,7 @@ Camera:
     height: 1
   near clip plane: 0.1
   far clip plane: 5000
-  field of view: 40
+  field of view: 60.000004
   orthographic: 0
   orthographic size: 10
   m_Depth: 0
@@ -1676,7 +1676,7 @@ GameObject:
   - component: {fileID: 5294611605747387766}
   - component: {fileID: 7648256228511695065}
   - component: {fileID: 1950302744553119850}
-  m_Layer: 9
+  m_Layer: 12
   m_Name: PreviewGhost
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1788,6 +1788,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7de7a3b999fcfa4583aee014a16c38f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   m_scanRange: 10
   m_scanLayerMask:
     serializedVersion: 2

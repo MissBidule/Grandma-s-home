@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using PurrNet.Logging;
 using UnityEngine;
 using UnityEngine.UI;
@@ -50,6 +51,24 @@ namespace PurrLobby
                 {
                     member.SetReady(matchingMember.IsReady);
                     member.SetRole(matchingMember.IsGhost);
+                    HandleHostOptions(member, room);
+                }
+            }
+        }
+
+        private void HandleHostOptions(MemberEntry _member, Lobby _room)
+        {
+            if (_member.SetHost())
+            {
+                FindAnyObjectByType<ViewManager>().showHostObjects(true);
+                int readyMembers = _room.Members.Count(x => x.IsReady);
+                if (readyMembers < _room.Members.Count - 1)
+                {
+                    _member.LockReady(true);
+                }
+                else if (readyMembers == _room.Members.Count - 1)
+                {
+                    _member.LockReady(false);
                 }
             }
         }
@@ -65,9 +84,11 @@ namespace PurrLobby
 
                 var entry = Instantiate(memberEntryPrefab, content);
                 entry.readyButton = readyButton;
-                await entry.Init(member);
-                string ownId = await FindAnyObjectByType<LobbyManager>().GetPlayer();
-                m_roleKeeper.AddRole(entry.MemberId, entry._isGhost, ownId == entry.MemberId);
+                entry._lobbyManager = FindAnyObjectByType<LobbyManager>();
+                entry._ownId = await entry._lobbyManager.GetPlayer();
+                entry.Init(member);
+                m_roleKeeper.AddRole(entry.MemberId, entry._isGhost, entry._ownId == entry.MemberId);
+                HandleHostOptions(entry, room);
             }
         }
 
