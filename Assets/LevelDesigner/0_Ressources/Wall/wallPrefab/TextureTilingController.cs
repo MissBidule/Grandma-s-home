@@ -8,6 +8,10 @@ public class TextureTilingController : MonoBehaviour {
 	// We will grab it from the meshRenderer
 	public Texture texture;
 	public float textureToMeshZ = 2f; // Use this to constrain texture to a certain size
+	public float offsetX = 0f;
+	private float offsetXCpy;
+	public float offsetY = 0f;
+	private float offsetYCpy;
     public Material originalMaterial;
     private Material originalMaterialCpy = null;
 
@@ -40,7 +44,7 @@ public class TextureTilingController : MonoBehaviour {
 			RefreshMaterial();
 		}
 		// If something has changed
-		if(gameObject.transform.lossyScale != prevScale || !Mathf.Approximately(this.textureToMeshZ, prevTextureToMeshZ))
+		if(gameObject.transform.lossyScale != prevScale || !Mathf.Approximately(this.textureToMeshZ, prevTextureToMeshZ) || offsetX != offsetXCpy || offsetY != offsetYCpy)
 			this.UpdateTiling();
 
 		// Maintain previous state variables
@@ -58,6 +62,10 @@ public class TextureTilingController : MonoBehaviour {
 		// Figure out texture-to-mesh width based on user set texture-to-mesh height
 		float textureToMeshX = ((float)this.texture.width/this.texture.height)*this.textureToMeshZ;
 
-		gameObject.GetComponent<MeshRenderer>().sharedMaterial.mainTextureScale = new Vector2(planeSizeX*gameObject.transform.lossyScale.x/textureToMeshX, planeSizeZ*gameObject.transform.lossyScale.z/textureToMeshZ);
+		MeshRenderer meshRenderer = gameObject.GetComponent<MeshRenderer>();
+		meshRenderer.sharedMaterial.mainTextureScale = new Vector2(planeSizeX*gameObject.transform.lossyScale.x/textureToMeshX, planeSizeZ*gameObject.transform.lossyScale.z/textureToMeshZ);
+		meshRenderer.sharedMaterial.mainTextureOffset = new Vector2(offsetX, offsetY);
+		offsetXCpy = offsetX;
+		offsetYCpy = offsetY;
 	}
 }
