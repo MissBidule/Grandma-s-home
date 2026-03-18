@@ -225,4 +225,24 @@ public class GhostInputController : MonoBehaviour
             // TODO: ouvrir le menu pause (lucas askip)
         }   
     }
+
+    public void OnPushToTalk(InputAction.CallbackContext _context)
+    {
+        //if(!_pushToTalkOn) return; // , bool _pushToTalkOn
+        // faire un boolen pour activer le push to talk et mettre en return si il n est pas active sinon il fait ca
+        //if(_pushToTalkOn){
+            AudioManager audioManager = FindFirstObjectByType<AudioManager>();
+            if (!isOwner) return;
+            if (_context.started)
+            {
+                // On press
+                audioManager.PushToTalk(true);
+            }
+            else if (_context.canceled)
+            {
+                // On release
+                audioManager.PushToTalk(false);
+            }
+        //}
+    }
 }
