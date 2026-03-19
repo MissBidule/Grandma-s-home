@@ -28,10 +28,6 @@ public class ChildClientController : NetworkBehaviour
     private bool m_isAttacking;
     private bool m_isSneaking;
     private float m_attackTime;
-    AnimatorStateInfo animStateInfo;
-    private bool m_isSwitchingWeapon;
-    private bool m_startedAnimation = false;
-    private float m_oldAnimHash;
 
 
     private bool m_sneakPressed = false;
@@ -106,24 +102,7 @@ public class ChildClientController : NetworkBehaviour
             m_jumpPressed = false;
             m_switchWeaponPressed = false;
             m_attackPressed = false;
-            if (m_isSwitchingWeapon)
-            {
-                animStateInfo = m_animator.GetCurrentAnimatorStateInfo(0);
-                if (animStateInfo.normalizedTime > 0.3f)
-                {
-                    if (!m_startedAnimation)
-                    {
-                        m_startedAnimation = true;
-                        m_oldAnimHash = animStateInfo.shortNameHash;
-                    }
-                    else if (m_oldAnimHash != animStateInfo.shortNameHash)
-                    {
-                        SendChangeVisibleWeapon();
-                        m_isSwitchingWeapon = false;
-                        m_startedAnimation = false;
-                    }
-                }
-            }
+            SendChangeVisibleWeapon();
         }
     }
 
@@ -175,9 +154,9 @@ public class ChildClientController : NetworkBehaviour
         m_switchWeaponPressed = true;
         if(!m_childController.m_shootAnimRunning)
         {
+            print("switch weapon " + m_childController.m_isRanged);
             m_animator.SetTrigger("OnSwitch");
             m_animator.SetBool("Cac", m_childController.m_isRanged);
-            m_isSwitchingWeapon = true;
         }
     }
 
