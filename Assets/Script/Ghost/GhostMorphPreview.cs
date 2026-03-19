@@ -38,6 +38,8 @@ public class GhostMorphPreview : NetworkBehaviour
     private MaterialPropertyBlock m_propertyBlock;
 
     private Transform m_cameraTransform;
+    private bool m_rotateLeft = false;
+    private bool m_rotateRight = false;
 
     [SerializeField] private string m_promptMessageSCAN = "T : SCAN";
     [SerializeField] private string m_promptMessageValid = "F : Valid";
@@ -81,8 +83,8 @@ public class GhostMorphPreview : NetworkBehaviour
         if (m_currentPrefab != null)
         {
             float rotDir = 0f;
-            if (Keyboard.current.qKey.isPressed) rotDir -= 1f;
-            if (Keyboard.current.eKey.isPressed) rotDir += 1f;
+            if (m_rotateLeft) rotDir -= 1f;
+            if (m_rotateRight) rotDir += 1f;
             if (rotDir != 0f)
             {
                 transform.Rotate(0f, rotDir * m_rotateSpeed * Time.deltaTime, 0f, Space.World);
@@ -424,4 +426,7 @@ public class GhostMorphPreview : NetworkBehaviour
             m_currentHighlightedObject = null;
         }
     }
+
+    public void SetRotateLeft(bool active) => m_rotateLeft = active;
+    public void SetRotateRight(bool active) => m_rotateRight = active;
 }

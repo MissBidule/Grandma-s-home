@@ -111,8 +111,17 @@ public class GhostInputController : MonoBehaviour
         }
     }
 
-    public void OnRotatePreviewLeft(InputAction.CallbackContext _context) { }
-    public void OnRotatePreviewRight(InputAction.CallbackContext _context) { }
+    public void OnRotatePreviewLeft(InputAction.CallbackContext _context)
+    {
+        if (!isOwner) return;
+        m_ghostMorphPreview.SetRotateLeft(!_context.canceled);
+    }
+
+    public void OnRotatePreviewRight(InputAction.CallbackContext _context)
+    {
+        if (!isOwner) return;
+        m_ghostMorphPreview.SetRotateRight(!_context.canceled);
+    }
 
     /*
      * @brief OnInteract is called by the Input System when interact input is detected

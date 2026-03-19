@@ -85,9 +85,22 @@ public class PlayerControllerCore : NetworkBehaviour
         if (isOwner) DisableWaitUIObserverRPC();
     }
     
+    private void OnEnable()
+    {
+        PauseMenuView.OnPauseChanged += OnPauseChanged;
+    }
+
     private void OnDisable()
     {
+        PauseMenuView.OnPauseChanged -= OnPauseChanged;
         Cursor.lockState = CursorLockMode.None;
+    }
+
+    private void OnPauseChanged(bool paused)
+    {
+        if (!isOwner) return;
+        var playerInput = GetComponent<PlayerInput>();
+        if (playerInput != null) playerInput.enabled = !paused;
     }
 
     private void Start()
