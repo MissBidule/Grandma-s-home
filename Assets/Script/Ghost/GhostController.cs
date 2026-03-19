@@ -2,6 +2,7 @@ using PurrNet;
 using PurrNet.Logging;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -44,6 +45,8 @@ public class GhostController : PlayerControllerCore, IInteractable
     private GhostController m_reviver = null;
     private float m_reviveTimer = 0f;
     public float m_reviveDuration = 0f;
+    private bool m_isFocused = false;
+    [SerializeField] private string m_promptMessage = "Hold E : Revive";
 
     [Header("Movement")]
     [SerializeField] private float m_walkSpeed = 4f;
@@ -390,15 +393,15 @@ public class GhostController : PlayerControllerCore, IInteractable
 
     private void CompleteRevive()
     {
-        ResNotification();
+        ResNotification(m_reviver.m_username);
         RequestReviveRpc();
         CancelRevive();
     }
 
     [ObserversRpc (requireServer: false)]
-    public void ResNotification()
+    public void ResNotification(string _reviverName)
     {
-        InteractPromptUI.m_Instance.ShowRes(m_reviver.m_username, m_username);
+        InteractPromptUI.m_Instance.ShowRes(_reviverName, m_username);
     }
 
     [ObserversRpc(runLocally:true)]
@@ -435,16 +438,19 @@ public class GhostController : PlayerControllerCore, IInteractable
         m_currentTimerStop = 0f;
     }
 
-    public void OnFocus(Interact who)
+    public void OnFocus(Interact _who)
     {
         print("Found dead ghost");
+        m_isFocused = true;
+        InteractPromptUI.m_Instance.Show(m_promptMessage);
     }
 
-    public void OnUnfocus(Interact who)
+    public void OnUnfocus(Interact _who)
     {
         print("Lost focus on dead ghost");
+        m_isFocused = false;
+        InteractPromptUI.m_Instance.Hide();
     }
-    
     
     public void StartDash()
     {

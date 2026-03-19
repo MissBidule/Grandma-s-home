@@ -105,13 +105,6 @@ public class PlayerControllerCore : NetworkBehaviour
         Debug.Log($"[{gameObject.name}] OnSpawned - isOwner: {isOwner}, localPlayer: {localPlayer}, owner: {owner}");
 
         ApplyOwnership();
-        RoleKeeper roleKeeper = FindAnyObjectByType<RoleKeeper>();
-        networkManager.GetModule<PlayersManager>(isServer).TryGetConnection((PlayerID)owner, out Connection conn);
-        if (conn.connectionId == 0)
-        {
-            m_memberID = roleKeeper.GetMemberID(conn.connectionId);
-            m_username = roleKeeper.GetUsername(conn.connectionId);
-        }
     }
 
     /*
@@ -152,7 +145,7 @@ public class PlayerControllerCore : NetworkBehaviour
         }
     }
 
-    [ObserversRpc (runLocally: true, requireServer: false)]
+    [ObserversRpc (runLocally: true, requireServer: false, bufferLast: true)]
     private void ApplyUserData(string _memberId, string _username)
     {
         m_memberID = _memberId;
