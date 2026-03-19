@@ -32,7 +32,7 @@ public class SceneMenuNavigator : MonoBehaviour
     private Coroutine transitionEnCours;
     private CinemachineVirtualCameraBase derniereCameraActive;
 
-    private void Start()
+    private void Awake()
     {
         // 1. Initialisation : On met TOUTES les caméras à 10
         InitialiserPriorites();
