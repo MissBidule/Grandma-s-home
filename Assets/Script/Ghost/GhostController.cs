@@ -390,8 +390,15 @@ public class GhostController : PlayerControllerCore, IInteractable
 
     private void CompleteRevive()
     {
+        ResNotification();
         RequestReviveRpc();
         CancelRevive();
+    }
+
+    [ObserversRpc (requireServer: false)]
+    public void ResNotification()
+    {
+        InteractPromptUI.m_Instance.ShowRes(m_reviver.m_username, m_username);
     }
 
     [ObserversRpc(runLocally:true)]
