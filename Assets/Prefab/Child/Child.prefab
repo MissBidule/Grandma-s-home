@@ -174,12 +174,12 @@ MonoBehaviour:
   m_playerCamera: {fileID: 3116613213369430143}
   m_localRenderCamera: {fileID: 2479407354322227593}
   m_playerAnimator: {fileID: 0}
-  m_renderers:
-  - {fileID: 962482585755013352}
   m_PingCooldown: 5
   m_elapsedTimeSincePing: 0
   m_isServerAccessible: 1
   m_isClientAccessible: 1
+  m_memberID: 
+  m_username: 
   m_wishDir: {x: 0, y: 0, z: 0}
   m_cameraYaw: 0
   m_isRanged: 0
@@ -546,6 +546,26 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 99071452-9b02-4cc4-9b4c-06f7b819a5dd
     m_ActionName: 'Child/Escape[/Keyboard/escape]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6565872187536608583}
+        m_TargetAssemblyTypeName: ChildInputController, Assembly-CSharp
+        m_MethodName: OnLeaderboard
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 53bbe6f8-79e3-4ed5-9570-bffaf2c33e04
+    m_ActionName: 'Child/Leaderboard[/Keyboard/enter]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: d88c83f4-8b4b-485a-a2f9-0bbb920b086c
+    m_ActionName: 'Ghost/Leaderboard[/Keyboard/enter]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Child
@@ -1579,11 +1599,6 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 3610933806309611657}
   m_SourcePrefab: {fileID: 100100000, guid: e8d4aa88674465540ab232a074cdbaa3, type: 3}
---- !u!137 &962482585755013352 stripped
-SkinnedMeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 7454833676696841113, guid: e8d4aa88674465540ab232a074cdbaa3, type: 3}
-  m_PrefabInstance: {fileID: 7651492023346609009}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1262050018668972031 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8911564534884678798, guid: e8d4aa88674465540ab232a074cdbaa3, type: 3}
