@@ -310,7 +310,7 @@ public class GhostMorphPreview : NetworkBehaviour
                     if(!GetComponentInParent<GhostMorph>().m_isMorphed)
                     {
                        // There is a clone for few seconds...
-                    InteractPromptUI.m_Instance.Show(m_promptMessageSCAN);
+                        InteractPromptUI.m_Instance.Show(m_promptMessageSCAN);
                     }
                     ClearHighlight();
                     HighlightObject(hitObject);
