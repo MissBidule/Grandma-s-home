@@ -2,28 +2,26 @@ using UnityEngine;
 using Unity.Cinemachine;
 using System.Collections;
 
-public class TransitionPorteMenu : MonoBehaviour
+public class TransitionDoublePorteMenu : MonoBehaviour
 {
     [Header("1. La Double Porte")]
-    public Transform pivotPorteGauche;
-    public Transform pivotPorteDroite;
-    public Vector3 angleOuvertureGauche = new Vector3(0f, 90f, 0f);
-    public Vector3 angleOuvertureDroite = new Vector3(0f, -90f, 0f);
-    public float tempsOuverture = 1.5f;
+    public Transform pivotPorteGauche; 
+    public Transform pivotPorteDroite; 
+    public Vector3 angleOuvertureGauche = new Vector3(0f, 90f, 0f); 
+    public Vector3 angleOuvertureDroite = new Vector3(0f, -90f, 0f); 
+    public float tempsOuverture = 1.5f; 
 
     [Header("2. Le Fondu (Fade)")]
-    public CanvasGroup ecranNoir;
-    public float tempsFade = 1f;
+    public CanvasGroup ecranNoir; 
+    public float tempsFade = 1.5f; 
 
-    [Header("3. La S�quence des Cam�ras")]
-    public SceneMenuNavigator navigator;
-    public CinemachineVirtualCameraBase camStart1;    // 1. La cam�ra qui s'approche de la porte
-    public CinemachineVirtualCameraBase camMain1;     // 2. La cam�ra dans le noir (apr�s le fondu)
-    public CinemachineVirtualCameraBase camMainAuto;  // 3. La cam�ra finale (menu auto)
+    [Header("3. Caméras")]
+    public SceneMenuNavigator navigator; 
+    public CinemachineVirtualCameraBase camDepart;    // La caméra devant la porte
+    public CinemachineVirtualCameraBase camSequencer; // <-- TA CAMÉRA SÉQUENCEUR !
 
-    [Header("4. Les Timings (Pauses)")]
-    public float delaiTrajetVersPorte = 1.5f; // Temps pour que la cam�ra s'approche avant d'ouvrir
-    public float pauseAvantAutoCam = 1f;      // Temps d'attente sur Main 1 avant de glisser vers Main Auto
+    [Header("4. Réglages")]
+    public float tempsDansLeNoir = 1f; // Le temps d'attendre que la 1ère cam du séquenceur soit bien placée
 
     private bool sequenceEnCours = false;
 
@@ -37,74 +35,56 @@ public class TransitionPorteMenu : MonoBehaviour
     {
         sequenceEnCours = true;
 
-        // ==========================================
-        // ACTE 1 : S'APPROCHER DE LA PORTE
-        // ==========================================
-        if (navigator != null && camStart1 != null) navigator.SwitchToCamera(camStart1);
+        // ACTE 1 : On s'assure d'être sur la caméra de départ
+        if (navigator != null && camDepart != null) navigator.SwitchToCamera(camDepart);
 
-        // On attend que la cam�ra arrive devant la porte
-        yield return new WaitForSeconds(delaiTrajetVersPorte);
-
-
-        // ==========================================
-        // ACTE 2 : OUVRIR LA PORTE
-        // ==========================================
         Quaternion rotationDepartGauche = pivotPorteGauche.rotation;
         Quaternion rotationDepartDroite = pivotPorteDroite.rotation;
-        Quaternion rotationFinGauche = pivotPorteGauche.rotation * Quaternion.Euler(angleOuvertureGauche);
-        Quaternion rotationFinDroite = pivotPorteDroite.rotation * Quaternion.Euler(angleOuvertureDroite);
+        Quaternion rotationFinGauche = pivotPorteGauche.rotation * Quaternion.Euler(angleOuvertureGauche); 
+        Quaternion rotationFinDroite = pivotPorteDroite.rotation * Quaternion.Euler(angleOuvertureDroite); 
 
+        // ACTE 2 : Portes + Fondu au noir en même temps
+        float tempsMax = Mathf.Max(tempsOuverture, tempsFade);
         float temps = 0f;
-        while (temps < tempsOuverture)
+
+        while (temps < tempsMax)
         {
             temps += Time.deltaTime;
-            float progression = temps / tempsOuverture;
-            pivotPorteGauche.rotation = Quaternion.Slerp(rotationDepartGauche, rotationFinGauche, progression);
-            pivotPorteDroite.rotation = Quaternion.Slerp(rotationDepartDroite, rotationFinDroite, progression);
+            float progressionPorte = Mathf.Clamp01(temps / tempsOuverture);
+            pivotPorteGauche.rotation = Quaternion.Slerp(rotationDepartGauche, rotationFinGauche, progressionPorte);
+            pivotPorteDroite.rotation = Quaternion.Slerp(rotationDepartDroite, rotationFinDroite, progressionPorte);
+
+            float progressionFade = Mathf.Clamp01(temps / tempsFade);
+            ecranNoir.alpha = Mathf.Lerp(0f, 1f, progressionFade);
             yield return null;
         }
 
+        pivotPorteGauche.rotation = rotationFinGauche;
+        pivotPorteDroite.rotation = rotationFinDroite;
+        ecranNoir.alpha = 1f; // Il fait tout noir
 
         // ==========================================
-        // ACTE 3 : FONDU AU NOIR ET TELEPORTATION
+        // ACTE 3 : ON LANCE LE SÉQUENCEUR !
         // ==========================================
+        // En donnant la priorité à ta Sequencer Camera, elle va automatiquement
+        // jouer sa 1ère caméra enfant, puis sa 2ème, selon ses propres réglages !
+        if (navigator != null && camSequencer != null)
+        {
+            navigator.SwitchToCamera(camSequencer);
+        }
+
+        // On patiente un petit peu dans le noir pour que la 1ère caméra du séquenceur soit bien affichée
+        yield return new WaitForSeconds(tempsDansLeNoir);
+
+        // ACTE 4 : Retour à la lumière (Le séquenceur est déjà en train de faire son travail)
         temps = 0f;
         while (temps < tempsFade)
         {
             temps += Time.deltaTime;
-            ecranNoir.alpha = Mathf.Lerp(0f, 1f, temps / tempsFade);
+            ecranNoir.alpha = Mathf.Lerp(1f, 0f, temps / tempsFade); 
             yield return null;
         }
-        ecranNoir.alpha = 1f;
-
-        // On est dans le noir : on saute � la cam�ra "Main 1"
-        if (navigator != null && camMain1 != null) navigator.SwitchToCamera(camMain1);
-
-        // On laisse une demi-seconde � Cinemachine pour s'installer
-        yield return new WaitForSeconds(0.5f);
-
-
-        // ==========================================
-        // ACTE 4 : REVENIR � LA LUMI�RE
-        // ==========================================
-        temps = 0f;
-        while (temps < tempsFade)
-        {
-            temps += Time.deltaTime;
-            ecranNoir.alpha = Mathf.Lerp(1f, 0f, temps / tempsFade);
-            yield return null;
-        }
-        ecranNoir.alpha = 0f;
-
-
-        // ==========================================
-        // ACTE 5 : AUTO-TRANSITION VERS LA FIN
-        // ==========================================
-        // On admire la vue sur Main 1 un petit instant...
-        yield return new WaitForSeconds(pauseAvantAutoCam);
-
-        // ... et on glisse vers la cam�ra finale Main Auto !
-        if (navigator != null && camMainAuto != null) navigator.SwitchToCamera(camMainAuto);
+        ecranNoir.alpha = 0f; 
 
         sequenceEnCours = false;
     }

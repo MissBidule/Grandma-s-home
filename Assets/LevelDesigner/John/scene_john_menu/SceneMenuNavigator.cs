@@ -1,98 +1,121 @@
 using UnityEngine;
 using Unity.Cinemachine;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq; // Nécessaire pour l'astuce de recherche
 
 public class SceneMenuNavigator : MonoBehaviour
 {
-    [Header("Caméras d'Introduction (La Porte)")]
-    public CinemachineVirtualCameraBase startCam;      // La TOUTE PREMIÈRE caméra (Dehors)
-    public CinemachineVirtualCameraBase start1Cam;     // Devant la porte
-    public CinemachineVirtualCameraBase main1Cam;      // Dedans (dans le noir)
-    public CinemachineVirtualCameraBase mainAutoCam;   // Menu final auto
+    // --- NOUVELLE STRUCTURE ---
+    [System.Serializable]
+    public struct MenuCamera
+    {
+        public string nomDuMenu; // Juste pour l'organisation dans l'Inspector (ex: "Options")
+        public CinemachineVirtualCameraBase camera;
+        public Collider[] boutonsAssoicies;
+    }
+    // ----------------------------
 
-    [Header("Caméras des Menus")]
-    public CinemachineVirtualCameraBase mainCam;
-    public CinemachineVirtualCameraBase optionsCam;
-    public CinemachineVirtualCameraBase playCam;
-    public CinemachineVirtualCameraBase quitCam;
-    public CinemachineVirtualCameraBase TVCam;
-    public CinemachineVirtualCameraBase PosterCam;
-    public CinemachineVirtualCameraBase SkinsCam;
+    [Header("Caméra d'Introduction (Obligatoire)")]
+    [Tooltip("La caméra qui se lance automatiquement au début.")]
+    public CinemachineVirtualCameraBase sequencerCam;
 
-    [Header("Réglages de Transition")]
-    public float delaiCamera = 1.5f;
+    [Header("Configuration des Menus")]
+    [Tooltip("Ajoute un élément pour chaque menu (Principal, Options, etc.). Glisse la caméra et ses boutons.")]
+    public MenuCamera[] configurationMenus;
 
-    [Header("Les Colliders des Boutons")]
-    // (J'ai ajouté un groupe pour les boutons de démarrage dehors !)
-    public Collider[] boutonsStart;
-    public Collider[] boutonsMainMenu;
-    public Collider[] boutonsOptions;
-    public Collider[] boutonsPlay;
-    public Collider[] boutonsSkins;
+    [Header("Réglages")]
+    [Tooltip("Temps d'attente avant d'activer les boutons après une transition.")]
+    public float delaiCamera = 1.0f;
 
+    // Références internes
     private Coroutine transitionEnCours;
+    private CinemachineVirtualCameraBase derniereCameraActive;
 
     private void Start()
     {
-        // 🎯 LA CORRECTION EST ICI : On commence dehors !
-        SwitchToCamera(startCam);
+        // 1. Initialisation : On met TOUTES les caméras à 10
+        InitialiserPriorites();
+
+        // 2. On lance la séquence d'intro
+        if (sequencerCam != null)
+        {
+            SwitchToCamera(sequencerCam);
+        }
+        else
+        {
+            Debug.LogError("⚠️ [SceneMenuNavigator] 'sequencerCam' n'est pas assignée dans l'Inspector !");
+        }
     }
 
+    /// <summary>
+    /// Met toutes les caméras (Intro + Menus) à la priorité par défaut (10).
+    /// </summary>
+    private void InitialiserPriorites()
+    {
+        // Caméra d'intro
+        if (sequencerCam != null) sequencerCam.Priority = 10;
+
+        // Toutes les caméras de menus configurées
+        foreach (var menu in configurationMenus)
+        {
+            if (menu.camera != null) menu.camera.Priority = 10;
+        }
+    }
+
+    /// <summary>
+    /// Change la caméra active en gérant les priorités et les boutons.
+    /// </summary>
     public void SwitchToCamera(CinemachineVirtualCameraBase targetCamera)
     {
-        if (transitionEnCours != null)
-        {
-            StopCoroutine(transitionEnCours);
-        }
+        if (targetCamera == null) return;
 
-        // 1. ON REMET ABSOLUMENT TOUTES LES CAMÉRAS À 10 (Le grand ménage)
-        if (startCam != null) startCam.Priority = 10;
-        if (start1Cam != null) start1Cam.Priority = 10;
-        if (main1Cam != null) main1Cam.Priority = 10;
-        if (mainAutoCam != null) mainAutoCam.Priority = 10;
+        // Arrêter la transition précédente si elle n'est pas finie
+        if (transitionEnCours != null) StopCoroutine(transitionEnCours);
 
-        if (mainCam != null) mainCam.Priority = 10;
-        if (optionsCam != null) optionsCam.Priority = 10;
-        if (playCam != null) playCam.Priority = 10;
-        if (quitCam != null) quitCam.Priority = 10;
-        if (TVCam != null) TVCam.Priority = 10;
-        if (PosterCam != null) PosterCam.Priority = 10;
-        if (SkinsCam != null) SkinsCam.Priority = 10;
+        // 1. Désactiver proprement l'ancienne caméra (Priorité 10)
+        if (derniereCameraActive != null) derniereCameraActive.Priority = 10;
 
-        // 2. On allume uniquement la caméra ciblée à 20
-        if (targetCamera != null) targetCamera.Priority = 20;
+        // 2. Activer la nouvelle (Priorité 20)
+        targetCamera.Priority = 20;
+        derniereCameraActive = targetCamera;
 
-        // 3. On lance les boutons
+        // 3. Gérer les boutons avec délai
         transitionEnCours = StartCoroutine(GererBoutonsAvecDelai(targetCamera));
     }
 
     private IEnumerator GererBoutonsAvecDelai(CinemachineVirtualCameraBase targetCamera)
     {
-        // ÉTAPE 1 : On désactive TOUS les boutons
-        ActiverGroupeBoutons(boutonsStart, false);
-        ActiverGroupeBoutons(boutonsMainMenu, false);
-        ActiverGroupeBoutons(boutonsOptions, false);
-        ActiverGroupeBoutons(boutonsPlay, false);
-        ActiverGroupeBoutons(boutonsSkins, false);
+        // ÉTAPE 1 : Désactiver TOUS les boutons de TOUS les menus (Le grand ménage)
+        ActiverTousLesGroupesBoutons(false);
 
-        // ÉTAPE 2 : Pause
+        // ÉTAPE 2 : Pause pendant le mouvement de caméra
         yield return new WaitForSeconds(delaiCamera);
 
-        // ÉTAPE 3 : On réactive les boutons selon la pièce
-        if (targetCamera == startCam) ActiverGroupeBoutons(boutonsStart, true);
-        else if (targetCamera == mainCam || targetCamera == mainAutoCam) ActiverGroupeBoutons(boutonsMainMenu, true);
-        else if (targetCamera == optionsCam) ActiverGroupeBoutons(boutonsOptions, true);
-        else if (targetCamera == playCam) ActiverGroupeBoutons(boutonsPlay, true);
-        else if (targetCamera == SkinsCam) ActiverGroupeBoutons(boutonsSkins, true);
+        // ÉTAPE 3 : Activer UNIQUEMENT les boutons associés à cette caméra
+        // On cherche dans notre tableau de configuration quel menu possède cette caméra
+        var configMenu = configurationMenus.FirstOrDefault(m => m.camera == targetCamera);
+
+        // Si on a trouvé une configuration correspondante
+        if (configMenu.boutonsAssoicies != null && configMenu.boutonsAssoicies.Length > 0)
+        {
+            ActiverGroupeBoutons(configMenu.boutonsAssoicies, true);
+        }
     }
 
-    public void GoBackToMain()
+    // --- Fonctions d'aide (Helpers) ---
+
+    private void ActiverTousLesGroupesBoutons(bool etat)
     {
-        SwitchToCamera(mainCam);
+        foreach (var menu in configurationMenus)
+        {
+            ActiverGroupeBoutons(menu.boutonsAssoicies, etat);
+        }
     }
 
     private void ActiverGroupeBoutons(Collider[] groupe, bool etat)
     {
+        if (groupe == null) return;
         foreach (Collider col in groupe)
         {
             if (col != null) col.enabled = etat;
@@ -101,7 +124,7 @@ public class SceneMenuNavigator : MonoBehaviour
 
     public void QuitterLeJeu()
     {
-        Debug.Log("Le joueur a quitté le jeu !");
+        Debug.Log("Quitter le jeu...");
         Application.Quit();
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
