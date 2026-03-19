@@ -147,7 +147,7 @@ public class PlayerControllerCore : NetworkBehaviour
 
         if (isOwner) {
             DisableWaitUIObserverRPC();
-            ApplyMemberID(FindAnyObjectByType<RoleKeeper>().getLocalMemberID());
+            // ApplyMemberID(FindAnyObjectByType<RoleKeeper>().getLocalMemberID()); TODO Uncoment
         }
     }
 

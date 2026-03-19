@@ -35,6 +35,9 @@ namespace Script.States
         public override void Enter(bool _asServer)
         {
             base.Enter(_asServer);
+            
+            if (!_asServer)
+                return;
 
             m_isServer = _asServer;
             m_hasStarted = false;

@@ -4982,7 +4982,7 @@ MonoBehaviour:
   _startClientFlags: 7
   _cookieScope: 1
   _dontDestroyOnLoad: 0
-  _transport: {fileID: 104676491}
+  _transport: {fileID: 104676492}
   _networkPrefabs: {fileID: 11400000, guid: 5726c24b19a0f47df8d40d3a49706c25, type: 2}
   _networkAssets: {fileID: 11400000, guid: faf0989f52e5ba84985e8c9b97fcd3d1, type: 2}
   _networkRules: {fileID: 11400000, guid: 57ad4cc976c21074181652c4f7179d44, type: 2}
@@ -5012,7 +5012,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 104676486}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 332e746c3c3253246aacad4d5559f1fb, type: 3}
   m_Name: 
@@ -5030,14 +5030,14 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 104676486}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4b76f42349e746b39a324dce6dbd231c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: PurrNet.UTP.Runtime::PurrNet.UTP.UTPTransport
   _serverPort: 5004
-  _dedicatedServer: 0
-  _peerToPeer: 1
+  _dedicatedServer: 1
+  _peerToPeer: 0
   _address: 127.0.0.1
 --- !u!1001 &106397729
 PrefabInstance:
@@ -8216,6 +8216,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b937ba08fa8a8641a88d04b42302609, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Script.States.EndGameState
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -8223,8 +8225,6 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   m_lobbyScene: CustomLobby
 --- !u!1 &178514204
 GameObject:
@@ -15356,6 +15356,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e13f20cbb6cd5ea46ba019af5db5683d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScoreManager
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -15363,8 +15365,6 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   m_scoresSabotage:
     _ownerAuth: 0
     _serializedDict:
@@ -18124,6 +18124,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a741b41c871c0482cb2e47d8939d3bd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SwitchBackToLobby
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -18131,8 +18133,6 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   nextScene: CustomLobby
 --- !u!1001 &448792715
 PrefabInstance:
@@ -55648,6 +55648,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 437f6ffe0d4e71d43b97226e1806fddc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Script.States.PanicState
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -55655,8 +55657,6 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   m_roundDuration: 1
 --- !u!1001 &1472862281
 PrefabInstance:
@@ -82441,6 +82441,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37ef3be4e62ffc44f87186f234870718, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WaitForPlayerState
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -82448,8 +82450,6 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   m_minPlayers: -1
   m_numPlayers: -1
 --- !u!4 &4752898924999934250
@@ -82697,6 +82697,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0fb83a31afbc00745a6e2ecaf4d93fda, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerSpawningState
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -82704,8 +82706,6 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   m_childPrefab: {fileID: 7371193213744557113, guid: ee7beb71280d04a86ad95d7c94c5add9, type: 3}
   m_childSpawnPoints:
   - {fileID: 5563779834483058801}
@@ -82726,6 +82726,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84d4d6f5fe0b766488236f4d24ddb56f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoundRuningState
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -82733,9 +82735,7 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
-  m_roundDuration: 2
+  m_roundDuration: Infinity
   m_sunIncrementNumber: 12
 --- !u!114 &8082025549487354058
 MonoBehaviour:
@@ -82749,6 +82749,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b75530599bfcfa49ae4ecfe6ed3d21e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.StateMachine.StateMachine
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -82756,8 +82758,6 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _ownerAuth: 0
   _states:
   - {fileID: 4345530250655977748}
