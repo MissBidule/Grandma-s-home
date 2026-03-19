@@ -177,14 +177,14 @@ public class QteCircle : MonoBehaviour
             FinishQte(false);
     }
 
-    public void CheckSuccess()
+    public bool CheckSuccess()
     {
         bool success = IsNeedleInZone();
 
         if (!success)
         {
             FinishQte(false);
-            return;
+            return false;
         }
 
         m_currentPhaseIndex++;
@@ -192,11 +192,13 @@ public class QteCircle : MonoBehaviour
         if (m_currentPhaseIndex >= m_zoneToleranceByPhase.Length)
         {
             FinishQte(true);
+            return true;
         }
         else
         {
             PlaceZoneRandomly();
             UpdateZoneVisual();
         }
+        return false;
     }
 }

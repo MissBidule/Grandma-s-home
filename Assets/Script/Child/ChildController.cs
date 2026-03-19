@@ -234,6 +234,7 @@ public class ChildController : PlayerControllerCore
             if (ghost != null)
             {
                 ghost.HitCac();
+                CacNotification(ghost);
             }
             if (col.transform.parent) 
             {
@@ -258,6 +259,11 @@ public class ChildController : PlayerControllerCore
         }
     }
 
+    [ObserversRpc]
+    private void CacNotification (GhostController _ghost)
+    {
+        InteractPromptUI.m_Instance.ShowKill(m_username, _ghost.m_username);
+    }
 
     /*
      * @brief  Instantiates a bullet aimed at the camera's target point
