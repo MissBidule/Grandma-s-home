@@ -17,6 +17,7 @@ public struct ChildInputData
     public bool switchPressed;
     public bool attackPressed;
     public bool sneakPressed;
+    public Vector3 position;
 }
 
 public class ChildClientController : NetworkBehaviour
@@ -43,8 +44,8 @@ public class ChildClientController : NetworkBehaviour
     private float m_attackTime;
     AnimatorStateInfo animStateInfo;
     private bool m_isSwitchingWeapon;
-    [SerializeField]private GameObject m_racket;
-    [SerializeField]private GameObject m_gun;
+    [SerializeField] private GameObject m_racket;
+    [SerializeField] private GameObject m_gun;
     private bool m_startedAnimation = false;
     private float m_oldAnimHash;
 
@@ -121,7 +122,8 @@ public class ChildClientController : NetworkBehaviour
             jumpPressed = m_jumpPressed,
             switchPressed = m_switchWeaponPressed,
             attackPressed = m_attackPressed,
-            sneakPressed = m_sneakPressed
+            sneakPressed = m_sneakPressed,
+            position = transform.position,
         };
 
         m_predictiveMovement.NewInput(inputData);

@@ -5,14 +5,17 @@ using System.Collections.Generic;
 
 public class PredictiveMovement : NetworkBehaviour
 {
-    private readonly float frameRate = 1f / 60f;
+    private readonly float frameRate = 1f / 30f;
 
     private List<ChildInputData> inputHistory = new List<ChildInputData>();
     private int tick = 0;
     private ChildInputController inputController;
     private ChildSimulateMovement simulateMovement;
 
+    private bool alreadySimulated = false;
+
     private ChildInputData currentInput = new();
+    [SerializeField] private float errorThreshold;
 
     private void Start()
     {
@@ -22,6 +25,12 @@ public class PredictiveMovement : NetworkBehaviour
 
         StartCoroutine(PredictiveUpdate());
     }
+
+    protected override void OnOwnerChanged(PurrNet.PlayerID? oldOwner, PurrNet.PlayerID? newOwner, bool asServer)
+    {
+        name = isOwner ? "Owner" : "Remote";
+    }
+
 
 
     public int GetTick()
@@ -33,7 +42,7 @@ public class PredictiveMovement : NetworkBehaviour
     {
         currentInput = new ChildInputData();
         currentInput.wishDirection = Vector3.zero;
-        currentInput.cameraYaw = 0f;
+        currentInput.cameraYaw = -1000f; // Valeur par défaut pour indiquer que la caméra n'a pas été mise à jour
         currentInput.cameraPosition = Vector3.zero;
         currentInput.cameraForward = Vector3.zero;
         currentInput.jumpPressed = false;
@@ -53,20 +62,21 @@ public class PredictiveMovement : NetworkBehaviour
         currentInput.switchPressed = currentInput.switchPressed | _data.switchPressed;
         currentInput.attackPressed = currentInput.attackPressed | _data.attackPressed;
         currentInput.sneakPressed = currentInput.sneakPressed | _data.sneakPressed;
+        currentInput.position = transform.position;
     }
 
     private IEnumerator PredictiveUpdate()
     {
         while (true)
         {
-            name = isOwner ? "Owner":"Remote";
             yield return new WaitForSeconds(frameRate);
-            
+
             if (isOwner) // PREDICTION
             {
                 currentInput.tick = tick;
-                
-                simulateMovement.SimulateMovement(currentInput);
+
+                if (alreadySimulated) simulateMovement.SimulateMovement(currentInput);
+                alreadySimulated = true;
                 if (!isHost) inputHistory.Add(currentInput);
                 clearInputData();
             }
@@ -76,7 +86,8 @@ public class PredictiveMovement : NetworkBehaviour
             {
                 if (!isOwner) // Pas l'owner (= host) car il a déjà appliqué son input en prédiction
                 {
-                    simulateMovement.SimulateMovement(currentInput);
+                    if (alreadySimulated) simulateMovement.SimulateMovement(currentInput);
+                    alreadySimulated = true;
                 }
                 ClientReceiveCorrection(tick, transform.position, transform.rotation);
                 clearInputData();
@@ -95,35 +106,56 @@ public class PredictiveMovement : NetworkBehaviour
     }
 
     [ObserversRpc(runLocally:false)]
-    public void ClientReceiveCorrection(int tick, Vector3 position, Quaternion rotation)
+    public void ClientReceiveCorrection(int serverTick, Vector3 position, Quaternion rotation)
     {
         if (isServer) return;
         if (!isOwner)
         {
-            transform.position = position;
+            transform.position = Vector3.Lerp(transform.position, position, 0.5f);
             transform.rotation = rotation;
             return;
         }
         else
         {
             // On supprime les inputs déjà appliqués par le serveur
-            inputHistory.RemoveAll(input => input.tick <= tick);
+            inputHistory.RemoveAll(input => input.tick < serverTick);
             // On corrige la position du client
-            Reconciliation(position, rotation);
+            Reconciliation(position, rotation, serverTick);
         }
     }
 
-    public void Reconciliation(Vector3 position, Quaternion rotation)
+    public void Reconciliation(Vector3 position, Quaternion _rotation, int serverTick)
     {
-        transform.position = position;
-        transform.rotation = rotation;
-        if (inputHistory.Count == 0) return;
+        var pos = position;
+        var tpos = transform.position;
 
-
+        
         // On réapplique les inputs du client qui n'ont pas encore été appliqués par le serveur
-        foreach (var input in inputHistory)
+        transform.SetPositionAndRotation(pos, _rotation);
+
+        for (var i = 0; i < inputHistory.Count; i++)
         {
-            simulateMovement.SimulateMovement(input);
+            if (i == inputHistory.Count - 1 && alreadySimulated) break;
+            simulateMovement.SimulateMovement(inputHistory[i]);
         }
+        alreadySimulated = true;
+
+        var fpos = transform.position;
+
+        var error = Vector3.Distance(fpos, tpos);
+
+        print(error);
+
+        if (error > 1f)
+        {
+            print("rollback");
+            transform.position = fpos; // donc ça rollback
+        }
+        else
+        {
+            // Si l'erreur est faible, on garde la position du client pour éviter les corrections trop brusques
+            transform.position = Vector3.Lerp(tpos, fpos, Time.deltaTime * 10);
+        }
+
     }
 }

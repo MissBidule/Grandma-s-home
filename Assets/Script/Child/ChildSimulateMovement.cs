@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class ChildSimulateMovement : NetworkBehaviour
 {
-    private readonly float tickRate = 1f / 60f;
+    private readonly float tickRate = 1f / 30f;
     [SerializeField] private float m_speed = 5f;
     [SerializeField] private float m_jumpImpulse = 6.0f;
     public bool m_isScared = false;
@@ -11,16 +11,21 @@ public class ChildSimulateMovement : NetworkBehaviour
     [SerializeField] private float m_sneakAmplitude = 0.5f;
 
     private Rigidbody m_rigidbody;
+    private PredictiveMovement m_predictiveMovement;
+
 
     void Start()
     {
         m_rigidbody = GetComponent<Rigidbody>();
+        m_predictiveMovement = GetComponent<PredictiveMovement>();
     }
 
     public void SimulateMovement(ChildInputData _input)
     {
+
         // Rotation
-        transform.rotation = Quaternion.Euler(0, _input.cameraYaw, 0);
+        if (_input.cameraYaw != -1000)  // -1000 is the default value, meaning no input received
+            transform.rotation = Quaternion.Euler(0, _input.cameraYaw, 0);
 
         // Movement
         var speedModifier = GetSpeedModifier(_input.sneakPressed);
@@ -56,7 +61,7 @@ public class ChildSimulateMovement : NetworkBehaviour
      * @brief   Checks if the child is grounded by casting a ray downwards
      * @return  bool True if grounded, false otherwise
      */
-    private bool IsGrounded()
+    public bool IsGrounded()
     {
         return Physics.Raycast(transform.position, Vector3.down, out _, 1.0f);
     }
