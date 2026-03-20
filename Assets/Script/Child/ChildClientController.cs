@@ -224,6 +224,7 @@ public class ChildClientController : NetworkBehaviour
                 {
                     m_animator.CrossFadeInFixedTime("cac_idle", 0.2f, 0);
                 }
+                m_childController.changeFaceMat(new Vector2(0,0));
             }
             return Vector3.zero;
         }
@@ -245,6 +246,7 @@ public class ChildClientController : NetworkBehaviour
                     {
                         m_animator.CrossFadeInFixedTime("cac_sideWalk_R", 0.2f, 0);
                     }
+                    m_childController.changeFaceMat(new Vector2(.33f, 0));
                 }
                 else
                 {
@@ -256,6 +258,7 @@ public class ChildClientController : NetworkBehaviour
                     {
                         m_animator.CrossFadeInFixedTime("cac_sideRun_R", 0.2f, 0);
                     }
+                    m_childController.changeFaceMat(new Vector2(.66f, 0));
                 }
             }
             else if(m_isMovingLeft == false && _movement.x < 0)
@@ -274,6 +277,7 @@ public class ChildClientController : NetworkBehaviour
                     {
                         m_animator.CrossFadeInFixedTime("cac_sideWalk_L", 0.2f, 0);
                     }
+                    m_childController.changeFaceMat(new Vector2(.33f, 0));
                 }
                 else
                 {
@@ -285,6 +289,7 @@ public class ChildClientController : NetworkBehaviour
                     {
                         m_animator.CrossFadeInFixedTime("cac_sideRun_L", 0.2f, 0);
                     }
+                    m_childController.changeFaceMat(new Vector2(.66f, 0));
                 }
             }
         }
@@ -306,6 +311,7 @@ public class ChildClientController : NetworkBehaviour
                     {
                         m_animator.CrossFadeInFixedTime("cac_walk", 0.2f, 0);
                     }
+                    m_childController.changeFaceMat(new Vector2(.33f, 0));
                 }
                 else
                 {
@@ -317,6 +323,7 @@ public class ChildClientController : NetworkBehaviour
                     {
                         m_animator.CrossFadeInFixedTime("cac_run", 0.2f, 0);
                     }
+                    m_childController.changeFaceMat(new Vector2(.66f, 0));
                 }
             }
             else if (m_isMovingBackward == false && _movement.y < 0)
@@ -335,6 +342,7 @@ public class ChildClientController : NetworkBehaviour
                     {
                         m_animator.CrossFadeInFixedTime("cac_bwalk", 0.2f, 0);
                     }
+                    m_childController.changeFaceMat(new Vector2(.33f, 0));
                 }
                 else
                 {
@@ -346,6 +354,7 @@ public class ChildClientController : NetworkBehaviour
                     {
                         m_animator.CrossFadeInFixedTime("cac_brun", 0.2f, 0);
                     }
+                    m_childController.changeFaceMat(new Vector2(.66f, 0));
                 }
             }
         }

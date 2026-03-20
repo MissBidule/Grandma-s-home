@@ -51,7 +51,8 @@ public class ChildController : PlayerControllerCore
     [Header("Animation")]
     [SerializeField] private NetworkAnimator m_animator;
     public bool m_shootAnimRunning = false;
-     
+    public MaterialInstance m_faceMat;
+
 
 
 
@@ -135,6 +136,7 @@ public class ChildController : PlayerControllerCore
     {
         if (!isServer || m_isScared) return; // Return if the player is scared
         if (m_switchingTime < m_cdSwitch) return;
+        changeFaceMat(new Vector2(0,0.33f));
         if (m_isRanged)
         {
             if (m_lastShot >= m_cdGun)
@@ -198,6 +200,7 @@ public class ChildController : PlayerControllerCore
         //PurrLogger.Log("Ghost Touch", this);
         UpdateScaredToAll(m_isScared);
         StartCoroutine(ScaredTimer(m_scaredDuration));
+        changeFaceMat(new Vector2(0.33f,0.33f));
     }
     
     [ObserversRpc(runLocally:true)]
@@ -323,5 +326,16 @@ public class ChildController : PlayerControllerCore
         {
             m_shootAnimRunning = !m_shootAnimRunning;
         }
+    }
+
+    /*
+     * @brief  This function allows you to change the face material offset based on the current action (or lack thereof).
+     * @return void
+     */
+    [ObserversRpc(runLocally:true)]
+    public void changeFaceMat(Vector2 _surfaceOffset)
+    {
+        print("bah");
+        m_faceMat.surfaceOffset = _surfaceOffset;
     }
 }
