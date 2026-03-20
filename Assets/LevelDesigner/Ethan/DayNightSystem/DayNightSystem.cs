@@ -12,7 +12,8 @@ public class DayNightSystem : MonoBehaviour
     private LightOnSystem lightOnSystem; // référence au script d'allumage des lumières
     private bool lightsActivated = false; //si le script d'allumage des lumières a été activé
 
-    private float gameTime = 30f; // 480 - 8 minutes de jeu, prendre la valeur du serveur
+    public float gameTime = 30f; // 480 - 8 minutes de jeu, prendre la valeur du serveur
+    public bool StillRunningAfterGameTime = false; // permet que les éléments tel que la rotation du ciel continue après la fin du temps de jeu nottament pour le menu principal
     private float currentTime = 0f; // temps actuel dans le cycle jour/nuit
     
     // positions des axes du soleil par défaut
@@ -109,7 +110,7 @@ public class DayNightSystem : MonoBehaviour
     {
         float updateInterval = timeBetweenUpdates / Mathf.Max(refreshMultiplier, 0.01f);
 
-        while (currentTime < gameTime)
+        while (currentTime < gameTime || StillRunningAfterGameTime)
         {
             // UnityEngine.Debug.LogFormat("Game time: {0}", gameTime);
             // UnityEngine.Debug.LogFormat("Updating sky at time: {0}", currentTime);
