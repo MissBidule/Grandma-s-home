@@ -23,7 +23,7 @@
 # Répartitions de l'équipe et réseaux
 
 ### Dev :
-- [Antoine Vuillet](https://www.linkedin.com/in/antoine-vuillet/) (Lead Dev)
+- [Antoine Vuillet](https://www.linkedin.com/in/antoine-vuillet/) **Lead Dev**
 - [Steven Grenier](https://www.linkedin.com/in/steven-grenier-3a8963227/)
 - [Joris Dubois](https://www.linkedin.com/in/joris-dubois-353359232/)
 - [Lilou Alidor](https://www.linkedin.com/in/lilou-alidor-2802481b7/)
@@ -32,7 +32,7 @@
 - [Lucas Journoud](https://www.linkedin.com/in/lucas-journoud/ )
 
 ### I3D :
-- [Léo Ferrand](https://www.linkedin.com/in/ferrand-l%C3%A9o-60428ab2/) (Lead I3D)
+- [Léo Ferrand](https://www.linkedin.com/in/ferrand-l%C3%A9o-60428ab2/) **Lead I3D**
 - [Kelly Morales](https://www.linkedin.com/in/kelly-morales-95a206194/)
 - [Mahault Le Granché](https://www.linkedin.com/in/mahault-le-granch%C3%A9-3705b2288/)
 - [Orane Caissotti](https://www.linkedin.com/in/orane-caissotti-2990192b0/)
@@ -40,7 +40,7 @@
 - [Mattias Desire](https://www.linkedin.com/in/mattias-des/)
 
 ### LD : 
-- [Léo Mougin](https://www.linkedin.com/in/l%C3%A9o-mougin/) (Lead LD)
+- [Léo Mougin](https://www.linkedin.com/in/l%C3%A9o-mougin/) **Lead LD**
 - [John Li](https://www.linkedin.com/in/john-li-2b349226b/)
 - [Serge Diego Lombardi](https://www.linkedin.com/in/serge-diego-lombardi-482846395/)
 - [Ethan Lacomme](https://www.linkedin.com/in/ethan-l-55aa94250/)
