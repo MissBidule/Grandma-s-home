@@ -86,17 +86,33 @@ public class SceneMenuNavigator : MonoBehaviour
 
     private IEnumerator GererBoutonsAvecDelai(CinemachineVirtualCameraBase targetCamera)
     {
-        // ÉTAPE 1 : Désactiver TOUS les boutons de TOUS les menus (Le grand ménage)
+        // ÉTAPE 1 : On désactive TOUS les boutons instantanément
         ActiverTousLesGroupesBoutons(false);
 
-        // ÉTAPE 2 : Pause pendant le mouvement de caméra
-        yield return new WaitForSeconds(delaiCamera);
+        // ÉTAPE 2 : On attend 1 micro-seconde pour que Cinemachine démarre son mouvement
+        yield return null;
 
-        // ÉTAPE 3 : Activer UNIQUEMENT les boutons associés à cette caméra
-        // On cherche dans notre tableau de configuration quel menu possède cette caméra
+        // ÉTAPE 3 : LA MAGIE 🎯 On récupère le Cerveau de la caméra principale
+        CinemachineBrain cerveau = Camera.main.GetComponent<CinemachineBrain>();
+
+        if (cerveau != null)
+        {
+            // Tant que le Cerveau est en train de faire une transition (IsBlending)...
+            while (cerveau.IsBlending)
+            {
+                // ... on met le script en pause !
+                yield return null;
+            }
+        }
+        else
+        {
+            // (Sécurité au cas où le cerveau n'est pas trouvé)
+            yield return new WaitForSeconds(delaiCamera);
+        }
+
+        // ÉTAPE 4 : Le mouvement est 100% terminé ! On allume les boutons du bon menu.
         var configMenu = configurationMenus.FirstOrDefault(m => m.camera == targetCamera);
 
-        // Si on a trouvé une configuration correspondante
         if (configMenu.boutonsAssoicies != null && configMenu.boutonsAssoicies.Length > 0)
         {
             ActiverGroupeBoutons(configMenu.boutonsAssoicies, true);
