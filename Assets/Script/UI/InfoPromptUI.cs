@@ -9,6 +9,7 @@ public class InfoPromptUI : MonoBehaviour
     [SerializeField] private GameObject m_sabotObject;
     [SerializeField] private GameObject m_repairObject;
     [SerializeField] private GameObject m_caughtObject;
+    [SerializeField] private GameObject m_resObject;
     [SerializeField] private float m_fadeDuration = .5f;
     [SerializeField] private float m_VisibleTime = 5f;
     
@@ -40,6 +41,16 @@ public class InfoPromptUI : MonoBehaviour
         var newCaught = Instantiate(m_caughtObject);
         var message = _childName + " caught " + _ghostName;
         InstantiateObject(newCaught, message);
+    }
+
+    /*
+    * @brief Displays which ghost resurrected which ghost
+    */
+    public void GhostResGhost(string _ghostSavior, string _ghostSaved)
+    {
+        var newRes = Instantiate(m_resObject);
+        var message = _ghostSavior + " freed " + _ghostSaved;
+        InstantiateObject(newRes, message);
     }
 
     private void InstantiateObject(GameObject _gameObject, string _message) {
