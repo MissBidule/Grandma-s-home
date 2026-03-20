@@ -64604,6 +64604,56 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: d0b989479b8bd7c4f91dc27d9e1a1743, type: 3}
   m_PrefabInstance: {fileID: 1683229453}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1685313418
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1685313420}
+  - component: {fileID: 1685313419}
+  m_Layer: 0
+  m_Name: PauseMenu
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1685313419
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1685313418}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8dc8c28acfd04bd42a625f0de791a12d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PauseMenuView
+  dropdownRowPrefab: {fileID: 3289626326118836781, guid: e45571bdd64ea934eaac268eb6a22d3b, type: 3}
+  toggleRowPrefab: {fileID: 3989395822767962391, guid: e15a2ccd30e311b4d95911528c97eddf, type: 3}
+  sliderRowPrefab: {fileID: 8825467978936581265, guid: a774b4eae924d6b46bd910040cb213cf, type: 3}
+  buttonRowPrefab: {fileID: 1667323125300928171, guid: 604525a4a64fd314b80f462ac5c6468e, type: 3}
+  keybindingRowPrefab: {fileID: 4287082800369508309, guid: 1af8c954123c27f44985b8d21ada200b, type: 3}
+  sectionTitlePrefab: {fileID: 5802938775449539996, guid: 34b4d5c27b07ba740b04d4af894096f4, type: 3}
+--- !u!4 &1685313420
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1685313418}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1685643039
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -82611,4 +82661,7 @@ SceneRoots:
   - {fileID: 1364236923}
   - {fileID: 3797009236798463491}
   - {fileID: 832090170}
+  - {fileID: 379988950}
+  - {fileID: 1672712856}
+  - {fileID: 1685313420}
   - {fileID: 446502151}
