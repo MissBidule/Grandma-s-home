@@ -12,7 +12,8 @@ public class DayNightSystem : MonoBehaviour
     private LightOnSystem lightOnSystem; // référence au script d'allumage des lumières
     private bool lightsActivated = false; //si le script d'allumage des lumières a été activé
 
-    private float gameTime = 30f; // 480 - 8 minutes de jeu, prendre la valeur du serveur
+    public float gameTime = 30f; // 480 - 8 minutes de jeu, prendre la valeur du serveur
+    public bool StillRunningAfterGameTime = false; // permet que les éléments tel que la rotation du ciel continue après la fin du temps de jeu nottament pour le menu principal
     private float currentTime = 0f; // temps actuel dans le cycle jour/nuit
     
     // positions des axes du soleil par défaut
@@ -20,6 +21,7 @@ public class DayNightSystem : MonoBehaviour
     public float sunInitialY = 0f;
     public bool isRandomSunY = true; // randomiser l'angle y pour différent direction de coucher de soleil
     public float sunIntensity = 3f; // intensité maximale du soleil
+    public float ambientIntensityNight = 0.4f; //intensité de la lumière ambiante la nuit
 
     //température du soleil entre le jour et la nuit
     public float temperatureDay = 6000f; 
@@ -109,7 +111,7 @@ public class DayNightSystem : MonoBehaviour
     {
         float updateInterval = timeBetweenUpdates / Mathf.Max(refreshMultiplier, 0.01f);
 
-        while (currentTime < gameTime)
+        while (currentTime < gameTime || StillRunningAfterGameTime)
         {
             // UnityEngine.Debug.LogFormat("Game time: {0}", gameTime);
             // UnityEngine.Debug.LogFormat("Updating sky at time: {0}", currentTime);
@@ -186,7 +188,7 @@ public class DayNightSystem : MonoBehaviour
         sun.GetComponent<Light>().color = color;
 
         //changement progressif de RenderSettings.ambientIntensity de 1 à 0.4
-        RenderSettings.ambientIntensity = Mathf.Lerp(1f, 0.4f, transitionT);
+        RenderSettings.ambientIntensity = Mathf.Lerp(1f, ambientIntensityNight, transitionT);
     }
 
     // levé de lune
