@@ -158,6 +158,8 @@ public class GhostMorphPreview : NetworkBehaviour
         if (prefabRenderer != null)
         {
             m_meshRenderer.sharedMaterials = prefabRenderer.sharedMaterials;
+            //This one prevents unwanted visuals
+            UpdateMaterial();
 
             InteractPromptUI.m_Instance.Show(m_promptMessageValid);
             m_GhostPreviewOn =true;

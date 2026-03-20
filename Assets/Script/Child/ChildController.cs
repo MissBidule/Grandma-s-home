@@ -3,6 +3,7 @@ using System.Collections;
 using PurrNet;
 using PurrNet.Logging;
 using UnityEngine;
+using UnityEngine.ProBuilder.Shapes;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 
@@ -29,8 +30,9 @@ public class ChildController : PlayerControllerCore
     [SerializeField] public float m_cdSwitch = 0.2f;
     
     [Header("CAC parameters")]
-    private float m_attackRange = 0.5f;
+    [SerializeField]private float m_attackRange = 1f;
     [SerializeField] private LayerMask m_GhostLayerMask;
+    [SerializeField] private Transform m_cacTransform;
     
     [Header("Shooting parameters")]
     [SerializeField] [Tooltip("In seconds")] private float m_cdGun = 1.0f;
@@ -226,7 +228,8 @@ public class ChildController : PlayerControllerCore
     [ServerRpc]
     private void Cac()
     {
-        Collider[] hits = Physics.OverlapSphere(m_bulletSpawnTransform.position, m_attackRange);
+        Vector3 CacPosition = m_cacTransform.position + m_cameraForward.normalized * 1.5f;
+        Collider[] hits = Physics.OverlapSphere(CacPosition, m_attackRange);
 
         foreach (Collider col in hits)
         {

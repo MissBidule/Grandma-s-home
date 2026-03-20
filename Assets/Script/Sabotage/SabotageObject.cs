@@ -13,7 +13,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
 {
     [Header("State Meshes")]
     [SerializeField] private GameObject m_normalMesh;
-    [SerializeField] private GameObject m_sabotagedMesh;
+    [SerializeField] private GameObject m_vfx;
 
     [Header("Score")]
     [SerializeField] private int m_scoreValue = 1;
@@ -21,6 +21,8 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     [Header("Highlight")]
     [SerializeField] private List<Renderer> m_highlightRenderers = new List<Renderer>();
     [SerializeField] private Color m_highlightColor = new Color(0f, 1f, 1f, 1f);
+    [SerializeField] private RenderingLayerMask m_notSabotagedLayer;
+    [SerializeField] private RenderingLayerMask m_sabotagedLayer;
     [SerializeField] private float m_pulseSpeed = 3f;
     [SerializeField] private float m_minIntensity = 0.2f;
     [SerializeField] private float m_maxIntensity = 0.6f;
@@ -77,22 +79,19 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     public void OnFocus(Interact _player)
     {
         m_isFocused = true;
-        if (m_sabotagedMesh != null)
+        if (!m_isSabotaged)
         {
-            if (!m_isSabotaged)
-            {
-                if (_player.m_isGhost) InteractPromptUI.m_Instance.Show(m_promptMessageSABOTAGE);
-                else InteractPromptUI.m_Instance.Hide();
-                SetHighlight(_player.m_isGhost);
+            if (_player.m_isGhost) InteractPromptUI.m_Instance.Show(m_promptMessageSABOTAGE);
+            else InteractPromptUI.m_Instance.Hide();
+            SetHighlight(_player.m_isGhost);
 
-                
-            }
-            if (m_isSabotaged)
-            {
-                if (_player.m_isGhost) InteractPromptUI.m_Instance.Hide();
-                else InteractPromptUI.m_Instance.Show(m_promptMessageREPAIR);
-                SetHighlight(!_player.m_isGhost);
-            }
+            
+        }
+        if (m_isSabotaged)
+        {
+            if (_player.m_isGhost) InteractPromptUI.m_Instance.Hide();
+            else InteractPromptUI.m_Instance.Show(m_promptMessageREPAIR);
+            SetHighlight(!_player.m_isGhost);
         }
         m_saboteurs.Add(_player);
     }
@@ -240,34 +239,22 @@ public class SabotageObject : NetworkBehaviour, IInteractable
      */
     private void ApplyState()
     {
-        if (m_normalMesh != null)
+        foreach (Interact interact in m_saboteurs)
         {
-            var r = m_normalMesh.GetComponent<Renderer>();
-            if (r != null)
-                r.enabled = !m_isSabotaged;
+            
+            interact.OnSabotageOver( true);
 
-            foreach (Interact interact in m_saboteurs)
-            {
-                
-                interact.OnSabotageOver( true);
-
-                Debug.Log("iteration");       
-            }
-            var c = m_normalMesh.GetComponent<Collider>();
-            if (c != null)
-                c.enabled = !m_isSabotaged;
+            Debug.Log("iteration");       
         }
-        
-
-        if (m_sabotagedMesh != null)
+    
+        foreach (Renderer renderer in m_highlightRenderers)
         {
-            var r = m_sabotagedMesh.GetComponent<Renderer>();
-            if (r != null)
-                r.enabled = m_isSabotaged;
-                
-            var c = m_sabotagedMesh.GetComponent<Collider>();
-            if (c != null)
-                c.enabled = m_isSabotaged;
+            renderer.renderingLayerMask = 0;
+            renderer.renderingLayerMask |= m_isSabotaged ? m_sabotagedLayer + (uint)RenderingLayerMask.defaultRenderingLayerMask : m_notSabotagedLayer + (uint)RenderingLayerMask.defaultRenderingLayerMask;
+        }
+        if (m_vfx != null)
+        {
+            m_vfx.SetActive(m_isSabotaged);
         }
     }
 
