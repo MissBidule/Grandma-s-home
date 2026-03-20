@@ -54,6 +54,8 @@
 # Nous suivre 
 
 Si notre projet vous intéresse, n'hésitez pas à nous suivre pour rester à l'affût de toute nouvelle information à propos de Grandma's Home !
+<br>
+
 [LinkedIn](https://www.linkedin.com/company/grandmashome/posts/?feedView=all)
 <br>
 [Instagram](https://www.instagram.com/grandma_s_home_game?igsh=MTQ5bDZ3andwYzFvcg==)
