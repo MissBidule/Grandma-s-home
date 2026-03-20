@@ -73,7 +73,7 @@ public class PlayerControllerCore : NetworkBehaviour
             m_isClientAccessible = false;
             Debug.LogWarning("Client is not accessible. Last ping was " + m_elapsedTimeSincePing + " seconds ago.");
             DisconnectPlayer();
-            Destroy(gameObject, 2f);
+            UnityProxy.Destroy(gameObject, 2f);
         }
     }
 
@@ -92,7 +92,8 @@ public class PlayerControllerCore : NetworkBehaviour
     [ObserversRpc]
     private void DisconnectPlayer()
     {
-        FindAnyObjectByType<RoleKeeper>().setMemberDisconnected(m_memberID);
+        FindAnyObjectByType<RoleKeeper>().SetMemberDisconnected(m_memberID);
+        FindAnyObjectByType<LeaderboardUI>().UpdateDisconnected();
     }
 
     /*
@@ -105,13 +106,6 @@ public class PlayerControllerCore : NetworkBehaviour
         Debug.Log($"[{gameObject.name}] OnSpawned - isOwner: {isOwner}, localPlayer: {localPlayer}, owner: {owner}");
 
         ApplyOwnership();
-        RoleKeeper roleKeeper = FindAnyObjectByType<RoleKeeper>();
-        networkManager.GetModule<PlayersManager>(isServer).TryGetConnection((PlayerID)owner, out Connection conn);
-        if (conn.connectionId == 0)
-        {
-            m_memberID = roleKeeper.GetMemberID(conn.connectionId);
-            m_username = roleKeeper.GetUsername(conn.connectionId);
-        }
     }
 
     /*
@@ -148,11 +142,11 @@ public class PlayerControllerCore : NetworkBehaviour
         {
             DisableWaitUIObserverRPC();
             RoleKeeper roleKeeper = FindAnyObjectByType<RoleKeeper>();
-            ApplyUserData(roleKeeper.getLocalMemberID(), roleKeeper.getLocalUsername());
+            ApplyUserData(roleKeeper.GetLocalMemberID(), roleKeeper.GetLocalUsername());
         }
     }
 
-    [ObserversRpc (runLocally: true, requireServer: false)]
+    [ObserversRpc (runLocally: true, requireServer: false, bufferLast: true)]
     private void ApplyUserData(string _memberId, string _username)
     {
         m_memberID = _memberId;

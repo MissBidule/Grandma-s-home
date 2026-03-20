@@ -11,7 +11,7 @@ namespace PurrLobby
     public class RoleKeeper : MonoBehaviour
     {
         [Serializable]
-        private struct Role
+        public struct Role
         {
             public string m_username;
             public string m_roleId;
@@ -118,7 +118,7 @@ namespace PurrLobby
             m_roles = new List<Role>();
         }
 
-        public string getLocalMemberID()
+        public string GetLocalMemberID()
         {
             for (int i = 0; i < m_roles.Count; i++)
             {
@@ -130,7 +130,7 @@ namespace PurrLobby
             return null;
         }
 
-        public string getLocalUsername()
+        public string GetLocalUsername()
         {
             for (int i = 0; i < m_roles.Count; i++)
             {
@@ -142,7 +142,7 @@ namespace PurrLobby
             return null;
         }
 
-        public void setConnectionID(string _roleID, int _connectionID)
+        public void SetConnectionID(string _roleID, int _connectionID)
         {
             for (int i = 0; i < m_roles.Count; i++)
             {
@@ -165,7 +165,7 @@ namespace PurrLobby
             }
         }
 
-        public void setMemberDisconnected(string _roleID)
+        public void SetMemberDisconnected(string _roleID)
         {
             for (int i = 0; i < m_roles.Count; i++)
             {
@@ -188,6 +188,11 @@ namespace PurrLobby
                     break;
                 }
             }
+        }
+
+        public List<Role> GetPlayersAllInfo() {
+            //prevents the modification
+            return new List<Role>(m_roles);
         }
     }
 }
