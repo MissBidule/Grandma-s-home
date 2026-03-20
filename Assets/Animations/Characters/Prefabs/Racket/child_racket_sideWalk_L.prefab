@@ -1,12 +1,12 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1001 &2535709143171162701
+--- !u!1001 &4018948281225819643
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 5172851502882515310}
+    m_TransformParent: {fileID: 5826840926143972176}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 98baad26d5fe8ee49a684fcb9294cb1c, type: 3}
       propertyPath: m_LocalPosition.x
@@ -57,12 +57,12 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 98baad26d5fe8ee49a684fcb9294cb1c, type: 3}
---- !u!4 &2646462342343165350 stripped
+--- !u!4 &3480320810254389776 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 98baad26d5fe8ee49a684fcb9294cb1c, type: 3}
-  m_PrefabInstance: {fileID: 2535709143171162701}
+  m_PrefabInstance: {fileID: 4018948281225819643}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &5192844311980789334
+--- !u!1001 &6846599086681400424
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -72,7 +72,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: d8b6157bf1c6fcb44a31cff685f1eb2d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -18.06
+      value: -23.25
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: d8b6157bf1c6fcb44a31cff685f1eb2d, type: 3}
       propertyPath: m_LocalPosition.y
@@ -112,50 +112,55 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: d8b6157bf1c6fcb44a31cff685f1eb2d, type: 3}
       propertyPath: m_Name
-      value: child_racket_fall
+      value: child_racket_sideWalk_L
       objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: d8b6157bf1c6fcb44a31cff685f1eb2d, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: 8ba576d4e830bd042b6b42debe035152, type: 2}
+      objectReference: {fileID: 9100000, guid: 557a62f6193c83c42ad4839bbb6d21e7, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 1141971929959081784, guid: d8b6157bf1c6fcb44a31cff685f1eb2d, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2646462342343165350}
+      addedObject: {fileID: 3480320810254389776}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: d8b6157bf1c6fcb44a31cff685f1eb2d, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 3303149199025244738}
+      addedObject: {fileID: 7222929775543050012}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: d8b6157bf1c6fcb44a31cff685f1eb2d, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 878241528482785922}
+      addedObject: {fileID: 1254216903286576801}
   m_SourcePrefab: {fileID: 100100000, guid: d8b6157bf1c6fcb44a31cff685f1eb2d, type: 3}
---- !u!1 &4958984025009615623 stripped
+--- !u!4 &5826840926143972176 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1141971929959081784, guid: d8b6157bf1c6fcb44a31cff685f1eb2d, type: 3}
+  m_PrefabInstance: {fileID: 6846599086681400424}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &6036345541877930297 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: d8b6157bf1c6fcb44a31cff685f1eb2d, type: 3}
-  m_PrefabInstance: {fileID: 5192844311980789334}
+  m_PrefabInstance: {fileID: 6846599086681400424}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &3303149199025244738
+--- !u!114 &7222929775543050012
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4958984025009615623}
+  m_GameObject: {fileID: 6036345541877930297}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b0ef024ecbc86493498142928155214f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScareTrigger
---- !u!65 &878241528482785922
+--- !u!65 &1254216903286576801
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4958984025009615623}
+  m_GameObject: {fileID: 6036345541877930297}
   m_Material: {fileID: 13400000, guid: 55825a194630b124e8dcf06a5948a191, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
@@ -170,8 +175,3 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.3, y: 1.9, z: 0.3}
   m_Center: {x: 0, y: 1, z: 0}
---- !u!4 &5172851502882515310 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 1141971929959081784, guid: d8b6157bf1c6fcb44a31cff685f1eb2d, type: 3}
-  m_PrefabInstance: {fileID: 5192844311980789334}
-  m_PrefabAsset: {fileID: 0}
