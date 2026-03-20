@@ -53,7 +53,7 @@ public class GhostController : PlayerControllerCore, IInteractable
     [SerializeField] private Color m_highlightColor = Color.green;
     [SerializeField] private float m_pulseSpeed = 3f;
     [SerializeField] private float m_minIntensity = 0.2f;
-    [SerializeField] private float m_maxIntensity = 0.6f;
+    [SerializeField] private float m_maxIntensity = 1f;
     private Coroutine m_pulseCoroutine;
     private MaterialPropertyBlock m_propertyBlock;
 
@@ -562,7 +562,7 @@ public class GhostController : PlayerControllerCore, IInteractable
             foreach (Renderer r in m_highlightRenderers)
             {
                 r.GetPropertyBlock(m_propertyBlock);
-                m_propertyBlock.SetColor("_EmissionColor", Color.black);
+                m_propertyBlock.SetColor("_EmissionColor", new Color(0, 0, 0, 0));
                 r.SetPropertyBlock(m_propertyBlock);
             }
         }
