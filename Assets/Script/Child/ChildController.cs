@@ -331,6 +331,17 @@ public class ChildController : PlayerControllerCore
 
     /*
      * @brief  This function allows you to change the face material offset based on the current action (or lack thereof).
+     *         It is called to get the server side of the action
+     * @return void
+     */
+    [ServerRpc]
+    public void callChangeFace(Vector2 _surfaceOffset)
+    {
+        changeFaceMat(_surfaceOffset);
+    }
+
+    /*
+     * @brief  This function allows you to change the face material offset based on the current action (or lack thereof).
      * @return void
      */
     [ObserversRpc(runLocally:true)]
