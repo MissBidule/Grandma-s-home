@@ -52,6 +52,8 @@ public class ChildController : PlayerControllerCore
 
     [Header("Animation")]
     [SerializeField] private NetworkAnimator m_animator;
+    public bool m_shootAnimRunning = false;
+    public MaterialInstance m_faceMat;
 
 
 
@@ -101,6 +103,11 @@ public class ChildController : PlayerControllerCore
     {
         m_lastShot += Time.deltaTime;
         m_switchingTime += Time.deltaTime;
+        if (m_shootAnimRunning && m_switchingTime > m_cdSwitch)
+        {
+            changeAttackAnimStatusServer();
+            changeAttackAnimStatusClient();
+        }
     }
 
     /*
@@ -110,6 +117,7 @@ public class ChildController : PlayerControllerCore
     public void Jump()
     {
         if (!isServer) return;
+        changeFaceMat(new Vector2(0.66f,0.66f));
         if (!IsGrounded() || m_rigidbody.linearVelocity.y > 0.1f) return;
         m_rigidbody.AddForce(Vector3.up * m_jumpImpulse, ForceMode.Impulse);
     }
@@ -131,6 +139,7 @@ public class ChildController : PlayerControllerCore
     {
         if (!isServer || m_isScared) return; // Return if the player is scared
         if (m_switchingTime < m_cdSwitch) return;
+        changeFaceMat(new Vector2(0,0.33f));
         if (m_isRanged)
         {
             if (m_lastShot >= m_cdGun)
@@ -194,6 +203,7 @@ public class ChildController : PlayerControllerCore
         //PurrLogger.Log("Ghost Touch", this);
         UpdateScaredToAll(m_isScared);
         StartCoroutine(ScaredTimer(m_scaredDuration));
+        changeFaceMat(new Vector2(0.33f,0.33f));
     }
     
     [ObserversRpc(runLocally:true)]
@@ -290,7 +300,56 @@ public class ChildController : PlayerControllerCore
     public void SwitchAttackType()
     {
         if (!isServer) return;
+        changeAttackAnimStatusServer();
         m_isRanged = !m_isRanged;
         m_switchingTime = 0;
+        changeAttackAnimStatusClient();
+    }
+
+    /*
+     * @brief  This function allows you to change the attack animation based on the current attack type.
+     *         It is called when switching attack types to update the animation accordingly.
+     * @return void
+     */
+    [ObserversRpc(runLocally:true)]
+    public void changeAttackAnimStatusClient()
+    {
+        if (!isOwner) return;
+        m_isRanged = !m_isRanged;
+        m_shootAnimRunning = !m_shootAnimRunning;
+    }
+
+    /*
+     * @brief  This function allows you to change the attack animation based on the current attack type.
+     *         It is called when switching attack types to update the animation accordingly.
+     * @return void
+     */
+    public void changeAttackAnimStatusServer()
+    {
+        if (!isOwner)
+        {
+            m_shootAnimRunning = !m_shootAnimRunning;
+        }
+    }
+
+    /*
+     * @brief  This function allows you to change the face material offset based on the current action (or lack thereof).
+     *         It is called to get the server side of the action
+     * @return void
+     */
+    [ServerRpc]
+    public void callChangeFace(Vector2 _surfaceOffset)
+    {
+        changeFaceMat(_surfaceOffset);
+    }
+
+    /*
+     * @brief  This function allows you to change the face material offset based on the current action (or lack thereof).
+     * @return void
+     */
+    [ObserversRpc(runLocally:true)]
+    public void changeFaceMat(Vector2 _surfaceOffset)
+    {
+        m_faceMat.surfaceOffset = _surfaceOffset;
     }
 }
