@@ -90,6 +90,8 @@ public class GhostInputController : MonoBehaviour
         if (!isOwner) return;
         if (_context.performed)
         {
+            if (!m_qteCircle) m_qteCircle = FindAnyObjectByType<QteCircle>();
+            if (m_qteCircle != null && m_qteCircle.m_isRunning) return;
             m_ghostClientController.OnOpenWheel();
         }
     }
@@ -104,10 +106,9 @@ public class GhostInputController : MonoBehaviour
         if (!isOwner) return;
         if (_context.performed)
         {
-            
-            
+            if (!m_qteCircle) m_qteCircle = FindAnyObjectByType<QteCircle>();
+            if (m_qteCircle != null && m_qteCircle.m_isRunning) return;
             m_ghostClientController.OnMorph();
-
         }
     }
 
@@ -124,6 +125,7 @@ public class GhostInputController : MonoBehaviour
         if (!isOwner) return;
         if (_context.performed)
         {
+            if (m_ghostClientController.m_wheel != null && m_ghostClientController.m_wheel.IsWheelOpen()) return;
             m_ghostInteract.OnInteract(m_ghostInteract.m_onFocus);
         }
         else if (_context.canceled)

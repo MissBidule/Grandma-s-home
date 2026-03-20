@@ -64,6 +64,17 @@ public class WheelController : MonoBehaviour
         }
         Cursor.lockState = toggle ? CursorLockMode.Confined : CursorLockMode.Locked;
 
+        if (toggle)
+        {
+            InteractPromptUI.m_Instance.Hide();
+        }
+        else
+        {
+            Interact ghostInteract = m_ghostMorph.GetComponentInChildren<Interact>();
+            if (ghostInteract != null)
+                ghostInteract.m_onFocus = null;
+        }
+
         m_anim.SetBool("OpenWheel", toggle);
     }
 
