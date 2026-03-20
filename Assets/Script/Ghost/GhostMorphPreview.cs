@@ -260,6 +260,7 @@ public class GhostMorphPreview : NetworkBehaviour
     void UpdateMaterial()
     {
         if (!isOwner) return;
+        if (m_meshRenderer == null) return;
         Material[] mats = m_meshRenderer.materials;
         Color targetColor = m_canMorph ? m_validColor : m_invalidColor;
         foreach (Material mat in mats)

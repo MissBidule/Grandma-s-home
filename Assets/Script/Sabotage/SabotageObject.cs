@@ -11,9 +11,9 @@ using UnityEngine.SocialPlatforms.Impl;
  */
 public class SabotageObject : NetworkBehaviour, IInteractable
 {
-    [Header("State Meshes")]
-    [SerializeField] private GameObject m_normalMesh;
-    [SerializeField] private GameObject m_vfx;
+    [Header("Sabotaged VFX")]
+    [SerializeField] private GameObject m_vfxPrefab;
+    private GameObject m_vfx;
 
     [Header("Score")]
     [SerializeField] private int m_scoreValue = 1;
@@ -54,6 +54,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     private void Start()
     {
         m_propertyBlock = new MaterialPropertyBlock();
+        m_highlightRenderers.Add(GetComponent<Renderer>());
 
         if (m_highlightRenderers.Count > 0)
         {
@@ -68,6 +69,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
                 }
             }
         }
+        m_vfx = UnityProxy.Instantiate(m_vfxPrefab, transform);
         ApplyState();
         SetHighlight(false);
     }

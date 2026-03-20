@@ -75,6 +75,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 04e7ceaa3a5e5e84d85088b2f9dd48e2, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3054439804070201641}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 04e7ceaa3a5e5e84d85088b2f9dd48e2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7920921855263577064}
   m_SourcePrefab: {fileID: 100100000, guid: 04e7ceaa3a5e5e84d85088b2f9dd48e2, type: 3}
 --- !u!1 &2571120777036854044 stripped
 GameObject:
@@ -103,3 +106,43 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -1136034875827485392, guid: 04e7ceaa3a5e5e84d85088b2f9dd48e2, type: 3}
+--- !u!114 &7920921855263577064
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2571120777036854044}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97340a60afd4ec841aef86574611c237, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SabotageObject
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  m_vfxPrefab: {fileID: 9014274483138591274, guid: c7dd095862eea43ba917028586adfba1, type: 3}
+  m_scoreValue: 1
+  m_highlightRenderers: []
+  m_highlightColor: {r: 0, g: 1, b: 1, a: 1}
+  m_notSabotagedLayer:
+    serializedVersion: 0
+    m_Bits: 256
+  m_sabotagedLayer:
+    serializedVersion: 0
+    m_Bits: 512
+  m_pulseSpeed: 3
+  m_minIntensity: 0.2
+  m_maxIntensity: 0.6
+  m_promptMessageSABOTAGE: 'E : Sabotage'
+  m_promptMessageREPAIR: 'E : Repair'
+  m_promptMessageSPACE: 'SPACE : Valid'
+  m_saboteur: {fileID: 0}
+  m_isSabotaged: 0
+  m_saboteurs: []

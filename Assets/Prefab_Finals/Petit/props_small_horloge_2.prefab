@@ -56,22 +56,31 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 2324a9f56f9e53347b99600e7fe922b0, type: 3}
+    - targetCorrespondingSourceObject: {fileID: -2045257923548263128, guid: 2324a9f56f9e53347b99600e7fe922b0, type: 3}
       insertIndex: -1
-      addedObject: {fileID: -2707993590691088112}
+      addedObject: {fileID: 2431937981242949067}
+    - targetCorrespondingSourceObject: {fileID: -2045257923548263128, guid: 2324a9f56f9e53347b99600e7fe922b0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5535112515924040279}
+    - targetCorrespondingSourceObject: {fileID: -2045257923548263128, guid: 2324a9f56f9e53347b99600e7fe922b0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4303107816367028960}
+    - targetCorrespondingSourceObject: {fileID: -2045257923548263128, guid: 2324a9f56f9e53347b99600e7fe922b0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4439033774429477335}
   m_SourcePrefab: {fileID: 100100000, guid: 2324a9f56f9e53347b99600e7fe922b0, type: 3}
---- !u!1 &8377592484943751416 stripped
+--- !u!1 &1954437900432742529 stripped
 GameObject:
-  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 2324a9f56f9e53347b99600e7fe922b0, type: 3}
+  m_CorrespondingSourceObject: {fileID: -2045257923548263128, guid: 2324a9f56f9e53347b99600e7fe922b0, type: 3}
   m_PrefabInstance: {fileID: 8683580183866824105}
   m_PrefabAsset: {fileID: 0}
---- !u!64 &-2707993590691088112
+--- !u!64 &2431937981242949067
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8377592484943751416}
+  m_GameObject: {fileID: 1954437900432742529}
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -86,4 +95,95 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: 0}
+  m_Mesh: {fileID: -2477511411847689622, guid: 2324a9f56f9e53347b99600e7fe922b0, type: 3}
+--- !u!114 &5535112515924040279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1954437900432742529}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 817fe5016bd0a2a49a95b6eb338bb132, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkTransform
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  _syncPosition: 1
+  _syncRotation: 1
+  _syncScale: 1
+  _syncParent: 1
+  _interpolateSettings: 7
+  _minBufferSize: 1
+  _maxBufferSize: 2
+  _characterControllerPatch: 0
+  _ownerAuth: 1
+  _interpolationTiming: 0
+--- !u!114 &4303107816367028960
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1954437900432742529}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8397364f11af50243bf70bb96ef6da4b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScannableObject
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  m_icon: {fileID: 21300000, guid: d33333b51fab1d2498d54423d22460ff, type: 3}
+--- !u!114 &4439033774429477335
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1954437900432742529}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5acd96b0ff59994d8438732e92270fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BrokeDecor
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  m_additionalMeshes:
+  - {fileID: 5830059264255607572}
+  - {fileID: 6622142206335308215}
+  m_brokenPrefab: {fileID: 4988350463373006251, guid: 463f7b98104d34bafa70e5f6f426de99, type: 3}
+  m_scoreValue: 50
+  m_isBroken: 0
+  m_alreadyBroken: 0
+--- !u!1 &5830059264255607572 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2912366781977761469, guid: 2324a9f56f9e53347b99600e7fe922b0, type: 3}
+  m_PrefabInstance: {fileID: 8683580183866824105}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &6622142206335308215 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2550397945253725214, guid: 2324a9f56f9e53347b99600e7fe922b0, type: 3}
+  m_PrefabInstance: {fileID: 8683580183866824105}
+  m_PrefabAsset: {fileID: 0}
