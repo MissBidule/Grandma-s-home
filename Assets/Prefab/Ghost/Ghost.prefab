@@ -179,8 +179,12 @@ MonoBehaviour:
   m_playerCamera: {fileID: 696320938370797279}
   m_localRenderCamera: {fileID: 5516181086441010449}
   m_playerAnimator: {fileID: 0}
-  m_renderers:
-  - {fileID: 3675207352629919037}
+  m_PingCooldown: 5
+  m_elapsedTimeSincePing: 0
+  m_isServerAccessible: 1
+  m_isClientAccessible: 1
+  m_memberID: 
+  m_username: 
   m_isSlowed: 0
   m_isDashing: 0
   m_isStopped: 0
@@ -196,6 +200,7 @@ MonoBehaviour:
   m_baseReviveTime: 5
   m_maxReviveTime: 30
   m_reviveDuration: 0
+  m_promptMessage: 'Hold E : Revive'
   m_walkSpeed: 4
   m_acceleration: 25
   m_slowAmplitude: 0.5
@@ -601,6 +606,30 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 3d09c0f7-6836-414d-9309-10e51013ab1f
     m_ActionName: 'Ghost/Escape[/Keyboard/escape]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 99071452-9b02-4cc4-9b4c-06f7b819a5dd
+    m_ActionName: 'Child/Escape[/Keyboard/escape]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 53bbe6f8-79e3-4ed5-9570-bffaf2c33e04
+    m_ActionName: 'Child/Leaderboard[/Keyboard/enter]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 8778548429194373776}
+        m_TargetAssemblyTypeName: GhostInputController, Assembly-CSharp
+        m_MethodName: OnLeaderboard
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: d88c83f4-8b4b-485a-a2f9-0bbb920b086c
+    m_ActionName: 'Ghost/Leaderboard[/Keyboard/enter]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Ghost
@@ -1668,7 +1697,7 @@ GameObject:
   - component: {fileID: 5294611605747387766}
   - component: {fileID: 7648256228511695065}
   - component: {fileID: 1950302744553119850}
-  m_Layer: 9
+  m_Layer: 12
   m_Name: PreviewGhost
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2353,11 +2382,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 48e3643fc8fe76f44ad18e428affeb9a, type: 3}
---- !u!137 &3675207352629919037 stripped
-SkinnedMeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 8533157899080244201, guid: 48e3643fc8fe76f44ad18e428affeb9a, type: 3}
-  m_PrefabInstance: {fileID: 5002136321810491092}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &4819292531439862079 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 48e3643fc8fe76f44ad18e428affeb9a, type: 3}

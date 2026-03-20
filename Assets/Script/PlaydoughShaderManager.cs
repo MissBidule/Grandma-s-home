@@ -17,7 +17,6 @@ namespace Antony
         private static readonly int s_normalStrengthID = Shader.PropertyToID("_Playdough_NormalStrength");
         private static readonly int s_normalTilingID = Shader.PropertyToID("_Playdough_NormalTiling");
         private static readonly int s_normalOffsetID = Shader.PropertyToID("_Playdough_NormalOffset");
-        private static readonly int s_displacementStrengthID = Shader.PropertyToID("_Playdough_DisplacementStrength");
         private static readonly int s_maxLODDistanceID = Shader.PropertyToID("_Playdough_MaxLODDistance");
 
         [Tooltip("Height maps used for vertex displacement\nDirectly changes the mesh shape")]
@@ -76,7 +75,6 @@ namespace Antony
         private float roughnessCpy = 0f;
         private float metalnessCpy = 0f;
         private float normalStrengthCpy = 0f;
-        private float displacementStrengthCpy = 0f;
         private float maxLODDistanceCpy = 0f;
         private int heightMapIndex = 0;
         private int normalMapIndex = 0;

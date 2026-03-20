@@ -139,7 +139,17 @@ public class ChildClientController : NetworkBehaviour
     {
         if (!isOwner) return;
         if (!m_qteCircle.m_isRunning) return;
-        m_qteCircle.CheckSuccess();
+        if (m_qteCircle.CheckSuccess())
+        {
+            //QTE finished
+            RepairNotification();
+        }
+    }
+
+    [ObserversRpc (requireServer: false)]
+    public void RepairNotification()
+    {
+        InteractPromptUI.m_Instance.ShowRepair(m_childController.m_username);
     }
 
     public void OnEscape()

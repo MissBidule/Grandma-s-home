@@ -114,7 +114,7 @@ public class ChildController : PlayerControllerCore
     public void Jump()
     {
         if (!isServer) return;
-        if (!IsGrounded()) return;
+        if (!IsGrounded() || m_rigidbody.linearVelocity.y > 0.1f) return;
         m_rigidbody.AddForce(Vector3.up * m_jumpImpulse, ForceMode.Impulse);
     }
 
@@ -240,6 +240,7 @@ public class ChildController : PlayerControllerCore
             if (ghost != null)
             {
                 ghost.HitCac();
+                CacNotification(ghost);
             }
             if (col.transform.parent) 
             {
@@ -264,6 +265,11 @@ public class ChildController : PlayerControllerCore
         }
     }
 
+    [ObserversRpc]
+    private void CacNotification (GhostController _ghost)
+    {
+        InteractPromptUI.m_Instance.ShowKill(m_username, _ghost.m_username);
+    }
 
     /*
      * @brief  Instantiates a bullet aimed at the camera's target point

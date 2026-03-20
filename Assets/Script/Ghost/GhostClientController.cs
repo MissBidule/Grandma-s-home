@@ -261,6 +261,12 @@ public class GhostClientController : NetworkBehaviour
         return wishDir;
     }
 
+    [ObserversRpc (requireServer: false)]
+    public void SabotageNotification()
+    {
+        InteractPromptUI.m_Instance.ShowSabotage(m_ghostController.m_username);
+    }
+
     [ServerRpc]
     private void SendGhostRPC(Vector3 _movement, GameObject _prefab, Vector3 _pos, bool _dashPressed, bool _sneakPressed, Quaternion _rotation)
     {
