@@ -57,6 +57,11 @@ public class WheelController : MonoBehaviour
         }
 
         bool toggle = !m_anim.GetBool("OpenWheel");
+
+        if (toggle && m_ghostMorph != null && m_ghostMorph.m_isMorphed)
+        {
+            return;
+        }
         Cursor.lockState = toggle ? CursorLockMode.Confined : CursorLockMode.Locked;
 
         m_anim.SetBool("OpenWheel", toggle);
