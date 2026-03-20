@@ -29,32 +29,25 @@ namespace Script.States
         [SerializeField] private GhostController m_ghostPrefab;
         [Tooltip("Even if rules are to not despawn on disconnect, this will ignore that and always spawn a player.")]
         [SerializeField] private List<Transform> m_ghostSpawnPoints = new List<Transform>();
-        private bool m_isServer = false;
         private bool m_hasStarted = false;
 
         public override void Enter(bool _asServer)
         {
             base.Enter(_asServer);
             
-            if (!_asServer)
+            if (!isServer)
                 return;
-
-            m_isServer = _asServer;
             m_hasStarted = false;
         }
 
         public void StartMachine()
         {
             PurrLogger.Log("Starting machine ...", this);
-            if (!m_isServer) 
-            {
+            if (!isServer)
                 return;
-            }
             PurrLogger.Log("Check Server", this);
-            if (m_hasStarted) 
-            {
+            if (m_hasStarted)
                 return;
-            }
             PurrLogger.Log("Check HasStarted", this);
             m_hasStarted = true;
             
