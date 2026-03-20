@@ -21,6 +21,7 @@ public class DayNightSystem : MonoBehaviour
     public float sunInitialY = 0f;
     public bool isRandomSunY = true; // randomiser l'angle y pour différent direction de coucher de soleil
     public float sunIntensity = 3f; // intensité maximale du soleil
+    public float ambientIntensityNight = 0.4f; //intensité de la lumière ambiante la nuit
 
     //température du soleil entre le jour et la nuit
     public float temperatureDay = 6000f; 
@@ -187,7 +188,7 @@ public class DayNightSystem : MonoBehaviour
         sun.GetComponent<Light>().color = color;
 
         //changement progressif de RenderSettings.ambientIntensity de 1 à 0.4
-        RenderSettings.ambientIntensity = Mathf.Lerp(1f, 0.4f, transitionT);
+        RenderSettings.ambientIntensity = Mathf.Lerp(1f, ambientIntensityNight, transitionT);
     }
 
     // levé de lune
