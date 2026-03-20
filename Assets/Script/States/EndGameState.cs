@@ -100,12 +100,6 @@ namespace Script.States
             
             uisManager.ShowView<EndGameView>();
             uisManager.ToggleUIVision();
-
-            foreach (var cc in FindObjectsByType<ChildClientController>(FindObjectsSortMode.None))
-                if (cc.m_uiHolder != null) cc.m_uiHolder.SetActive(false);
-
-            foreach (var gc in FindObjectsByType<GhostClientController>(FindObjectsSortMode.None))
-                if (gc.m_uiHolder != null) gc.m_uiHolder.SetActive(false);
         }
     }
 }
