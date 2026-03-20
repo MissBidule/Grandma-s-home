@@ -18,6 +18,24 @@ public class ChildClientController : NetworkBehaviour
     private bool m_jumpPressed = false;
     private bool m_switchWeaponPressed = false;
     private bool m_attackPressed = false;
+
+    //Animations
+    [SerializeField]private NetworkAnimator m_animator;
+    private bool m_isMovingForward;
+    private bool m_isMovingBackward;
+    private bool m_isMovingLeft;
+    private bool m_isMovingRight;
+    private bool m_isAttacking;
+    private bool m_isSneaking;
+    private float m_attackTime;
+    AnimatorStateInfo animStateInfo;
+    private bool m_isSwitchingWeapon;
+    [SerializeField]private GameObject m_racket;
+    [SerializeField]private GameObject m_gun;
+    private bool m_startedAnimation = false;
+    private float m_oldAnimHash;
+
+
     private bool m_sneakPressed = false;
     
     protected override void OnSpawned()
@@ -36,6 +54,11 @@ public class ChildClientController : NetworkBehaviour
     private void InitOwner()
     {
         m_childInputController = GetComponent<ChildInputController>();
+        AudioManager audioManager = FindFirstObjectByType<AudioManager>();
+        if (audioManager != null)
+        {
+            audioManager.MuteGhostByChild();
+        }
         if (m_uiHolder == null)
             m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
             m_qteCircle = m_uiHolder.GetComponentInChildren<QteCircle>();
@@ -53,12 +76,17 @@ public class ChildClientController : NetworkBehaviour
     {
         if (!isOwner) return;
 
+        m_childController.PingClient();
+
         if (m_childInputController != null)
         {
 
-            UpdateLabels();
+            UpdateHUD();
 
             // DebugPrintTrafic();
+
+            if (m_childController.m_isScared && m_qteCircle.m_isRunning)
+                m_qteCircle.CancelQte();
 
             if (m_qteCircle.m_isRunning) return;
             var moveVec = m_childInputController.m_movementInputVector;
@@ -80,6 +108,26 @@ public class ChildClientController : NetworkBehaviour
             m_jumpPressed = false;
             m_switchWeaponPressed = false;
             m_attackPressed = false;
+            if (m_isSwitchingWeapon)
+            {
+                animStateInfo = m_animator.GetCurrentAnimatorStateInfo(0);
+                print(animStateInfo.normalizedTime);
+                if (animStateInfo.normalizedTime > 0.3f)
+                {
+                    if (!m_startedAnimation)
+                    {
+                        m_startedAnimation = true;
+                        m_oldAnimHash = animStateInfo.shortNameHash;
+                    }
+                    else if (m_oldAnimHash != animStateInfo.shortNameHash)
+                    {
+                        m_racket.SetActive(!m_racket.activeInHierarchy);
+                        m_gun.SetActive(!m_gun.activeInHierarchy);
+                        m_isSwitchingWeapon = false;
+                        m_startedAnimation = false;
+                    }
+                }
+            }
         }
     }
 
@@ -94,7 +142,7 @@ public class ChildClientController : NetworkBehaviour
         print(m_attackPressed);
     }
 
-    void UpdateLabels()
+    void UpdateHUD()
     {
         if (!InstanceHandler.TryGetInstance(out ChildHUDView childHUDView))
             return;
@@ -115,19 +163,43 @@ public class ChildClientController : NetworkBehaviour
     {
         if (!isOwner) return;
         if (!m_qteCircle.m_isRunning) return;
-        m_qteCircle.CheckSuccess();
+        if (m_qteCircle.CheckSuccess())
+        {
+            //QTE finished
+            RepairNotification();
+        }
+    }
+
+    [ObserversRpc (requireServer: false)]
+    public void RepairNotification()
+    {
+        InteractPromptUI.m_Instance.ShowRepair(m_childController.m_username);
+    }
+
+    public void OnEscape()
+    {
+        if (!isOwner) return;
+        if (m_qteCircle != null && m_qteCircle.m_isRunning)
+            m_qteCircle.CancelQte();
     }
 
     public void OnSwitchWeapon()
     {
         if (!isOwner) return;
         m_switchWeaponPressed = true;
+        if(m_childController.m_switchingTime > m_childController.m_cdSwitch)
+        {
+            m_animator.SetTrigger("OnSwitch");
+            m_animator.SetBool("Cac", m_childController.m_isRanged);
+            m_isSwitchingWeapon = true;
+        }
     }
 
     public void OnAttack()
     {
         if (!isOwner) return;
         m_attackPressed = true;
+        m_animator.SetTrigger("OnAttack");
     }
     
     /*
@@ -140,8 +212,156 @@ public class ChildClientController : NetworkBehaviour
 
     private Vector3 GetDirectionIntention(Vector2 _movement)
     {
-        if (_movement == Vector2.zero) return Vector3.zero;
-
+        if(m_isSneaking != m_sneakPressed)
+        {
+            m_isMovingForward = false;
+            m_isMovingBackward = false;
+            m_isMovingLeft = false;
+            m_isMovingRight = false;
+            m_isSneaking = m_sneakPressed;
+        }
+        if (_movement == Vector2.zero)
+        {
+            if (m_isMovingForward || m_isMovingBackward || m_isMovingRight || m_isMovingLeft)
+            {
+                m_isMovingForward = false;
+                m_isMovingBackward = false;
+                m_isMovingLeft = false;
+                m_isMovingRight = false;
+                if (m_childController.m_isRanged)
+                {
+                    m_animator.CrossFadeInFixedTime("gun_idle", 0.2f, 0);
+                }
+                else
+                {
+                    m_animator.CrossFadeInFixedTime("cac_idle", 0.2f, 0);
+                }
+            }
+            return Vector3.zero;
+        }
+        if (Mathf.Abs(_movement.x) > Mathf.Abs(_movement.y))
+        {
+            if(m_isMovingRight == false && _movement.x > 0)
+            {
+                m_isMovingRight = true;
+                m_isMovingLeft = false;
+                m_isMovingForward = false;
+                m_isMovingBackward = false;
+                if (m_sneakPressed)
+                {
+                    if (m_childController.m_isRanged)
+                    {
+                        m_animator.CrossFadeInFixedTime("gun_sideWalk_R", 0.2f, 0);
+                    }
+                    else
+                    {
+                        m_animator.CrossFadeInFixedTime("cac_sideWalk_R", 0.2f, 0);
+                    }
+                }
+                else
+                {
+                    if (m_childController.m_isRanged)
+                    {
+                        m_animator.CrossFadeInFixedTime("gun_sideRun_R", 0.2f, 0);
+                    }
+                    else
+                    {
+                        m_animator.CrossFadeInFixedTime("cac_sideRun_R", 0.2f, 0);
+                    }
+                }
+            }
+            else if(m_isMovingLeft == false && _movement.x < 0)
+            {
+                m_isMovingRight = false;
+                m_isMovingLeft = true;
+                m_isMovingForward = false;
+                m_isMovingBackward = false;
+                if (m_sneakPressed)
+                {
+                    if (m_childController.m_isRanged)
+                    {
+                        m_animator.CrossFadeInFixedTime("gun_sideWalk_L", 0.2f, 0);
+                    }
+                    else
+                    {
+                        m_animator.CrossFadeInFixedTime("cac_sideWalk_L", 0.2f, 0);
+                    }
+                }
+                else
+                {
+                    if (m_childController.m_isRanged)
+                    {
+                        m_animator.CrossFadeInFixedTime("gun_sideWalk_L", 0.2f, 0);
+                    }
+                    else
+                    {
+                        m_animator.CrossFadeInFixedTime("cac_sideWalk_L", 0.2f, 0);
+                    }
+                }
+            }
+        }
+        else
+        {
+            if (m_isMovingForward == false && _movement.y > 0)
+            {
+                m_isMovingForward = true;
+                m_isMovingBackward = false;
+                m_isMovingLeft = false;
+                m_isMovingRight = false;
+                if (m_sneakPressed)
+                {
+                    if (m_childController.m_isRanged)
+                    {
+                        m_animator.CrossFadeInFixedTime("gun_walk", 0.2f, 0);
+                    }
+                    else
+                    {
+                        m_animator.CrossFadeInFixedTime("cac_walk", 0.2f, 0);
+                    }
+                }
+                else
+                {
+                    if (m_childController.m_isRanged)
+                    {
+                        m_animator.CrossFadeInFixedTime("gun_run", 0.2f, 0);
+                    }
+                    else
+                    {
+                        m_animator.CrossFadeInFixedTime("cac_run", 0.2f, 0);
+                    }
+                }
+            }
+            else if (m_isMovingBackward == false && _movement.y < 0)
+            {
+                m_isMovingForward = false;
+                m_isMovingBackward = true;
+                m_isMovingLeft = false;
+                m_isMovingRight = false;
+                if (m_sneakPressed)
+                {
+                    if (m_childController.m_isRanged)
+                    {
+                        m_animator.CrossFadeInFixedTime("gun_bwalk", 0.2f, 0);
+                    }
+                    else
+                    {
+                        m_animator.CrossFadeInFixedTime("cac_bwalk", 0.2f, 0);
+                    }
+                }
+                else
+                {
+                    if (m_childController.m_isRanged)
+                    {
+                        m_animator.CrossFadeInFixedTime("gun_brun", 0.2f, 0);
+                    }
+                    else
+                    {
+                        m_animator.CrossFadeInFixedTime("cac_brun", 0.2f, 0);
+                    }
+                }
+            }
+        }
+            
         var wishDir = Vector3.zero;
 
         if (_movement.sqrMagnitude < 0.001f) return wishDir;

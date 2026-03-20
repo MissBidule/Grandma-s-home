@@ -44,8 +44,6 @@ public class GhostClientController : NetworkBehaviour
         m_ghostMorphPreview = GetComponentInChildren<GhostMorphPreview>();
 
         if (isOwner) InitOwner();
-
-        InstanceHandler.TryGetInstance(out m_ghostHUDView);
     }
 
     protected override void OnOwnerChanged(PurrNet.PlayerID? oldOwner, PurrNet.PlayerID? newOwner, bool asServer)
@@ -69,8 +67,12 @@ public class GhostClientController : NetworkBehaviour
         m_wheel.LinkWithGhost(this);
         Debug.Log($"[GhostClientController] InitOwner - m_playerCamera: {m_playerCamera}");
         
+        // Displaying the HUD
         if (InstanceHandler.TryGetInstance(out UIsManager  uisManager))
-            uisManager.ShowView<GhostHUDView>();   
+            uisManager.ShowView<GhostHUDView>();
+        
+        // Getting the HUD refference. (moved here as it could try to get it before it was instanced)
+        InstanceHandler.TryGetInstance(out m_ghostHUDView);
     }
 
     private void DestroyUI()
@@ -82,8 +84,10 @@ public class GhostClientController : NetworkBehaviour
     void Update()
     {
         if (!isOwner) return;
+        m_ghostController.PingClient();
         if (m_ghostController == null || m_ghostInputController == null || m_playerCamera == null) return; // "just in case"
 
+        UpdateHUD();
 
         if (last_stopped != m_ghostController.m_isStopped)
         {
@@ -143,7 +147,7 @@ public class GhostClientController : NetworkBehaviour
         print(m_ghostMorphPreview.transform.localPosition);
     }
 
-    void UpdateLabels()
+    void UpdateHUD()
     {
         if (m_ghostHUDView == null)
             return;
@@ -153,7 +157,7 @@ public class GhostClientController : NetworkBehaviour
             case true:
                 m_ghostHUDView.DashActivate();
                 break;
-            case false when !m_ghostController.m_CanDash:
+            case false when !m_ghostController.m_canDash:
             {
                 if (m_ghostHUDView.m_dash_disabled)
                     return;
@@ -255,6 +259,12 @@ public class GhostClientController : NetworkBehaviour
             wishDir = (forward * _movement.y + right * _movement.x).normalized;
 
         return wishDir;
+    }
+
+    [ObserversRpc (requireServer: false)]
+    public void SabotageNotification()
+    {
+        InteractPromptUI.m_Instance.ShowSabotage(m_ghostController.m_username);
     }
 
     [ServerRpc]
