@@ -115,6 +115,7 @@ public class ChildController : PlayerControllerCore
     public void Jump()
     {
         if (!isServer) return;
+        changeFaceMat(new Vector2(0.66f,0.66f));
         if (!IsGrounded() || m_rigidbody.linearVelocity.y > 0.1f) return;
         m_rigidbody.AddForce(Vector3.up * m_jumpImpulse, ForceMode.Impulse);
     }
@@ -335,7 +336,6 @@ public class ChildController : PlayerControllerCore
     [ObserversRpc(runLocally:true)]
     public void changeFaceMat(Vector2 _surfaceOffset)
     {
-        print("bah");
         m_faceMat.surfaceOffset = _surfaceOffset;
     }
 }
