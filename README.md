@@ -27,7 +27,7 @@
 - [Steven Grenier](https://www.linkedin.com/in/steven-grenier-3a8963227/)
 - [Joris Dubois](https://www.linkedin.com/in/joris-dubois-353359232/)
 - [Lilou Alidor](https://www.linkedin.com/in/lilou-alidor-2802481b7/)
-- [Karima Ouadah](www.linkedin.com/in/karima-ouadah-28045a281)
+- [Karima Ouadah](https://www.linkedin.com/in/karima-ouadah-28045a281)
 - [Justin Villerot](https://www.linkedin.com/in/villerot-justin/)
 - [Lucas Journoud](https://www.linkedin.com/in/lucas-journoud/ )
 
