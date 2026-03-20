@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class InfoEndSwitchScript : StateMachineBehaviour
 {
-    AnimatorStateInfo animStateInfo;
 
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     //override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -20,8 +19,8 @@ public class InfoEndSwitchScript : StateMachineBehaviour
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        animStateInfo = animator.GetCurrentAnimatorStateInfo(0);
-        Debug.Log(animator.gameObject.name);
+        animator.GetComponentInParent<ChildClientController>().ChangeVisibleWeapon();
+        animator.SetBool("Cac",!animator.GetBool("Cac"));
 
     }
 

@@ -50,8 +50,6 @@ public class ChildController : PlayerControllerCore
 
     [Header("Animation")]
     [SerializeField] private NetworkAnimator m_animator;
-    [SerializeField] private GameObject m_racket;
-    [SerializeField] private GameObject m_gun;
     public bool m_shootAnimRunning = false;
      
 
@@ -102,9 +100,10 @@ public class ChildController : PlayerControllerCore
     {
         m_lastShot += Time.deltaTime;
         m_switchingTime += Time.deltaTime;
-        if(m_shootAnimRunning && m_switchingTime > m_cdSwitch)
+        if (m_shootAnimRunning && m_switchingTime > m_cdSwitch)
         {
-            changeAttackAnimStatus();
+            changeAttackAnimStatusServer();
+            changeAttackAnimStatusClient();
         }
     }
 
@@ -288,9 +287,10 @@ public class ChildController : PlayerControllerCore
     public void SwitchAttackType()
     {
         if (!isServer) return;
+        changeAttackAnimStatusServer();
         m_isRanged = !m_isRanged;
         m_switchingTime = 0;
-        changeAttackAnimStatus();
+        changeAttackAnimStatusClient();
     }
 
     /*
@@ -299,21 +299,23 @@ public class ChildController : PlayerControllerCore
      * @return void
      */
     [ObserversRpc(runLocally:true)]
-    public void changeAttackAnimStatus()
+    public void changeAttackAnimStatusClient()
     {
-        if(!isOwner) return;
+        if (!isOwner) return;
         m_isRanged = !m_isRanged;
         m_shootAnimRunning = !m_shootAnimRunning;
     }
 
     /*
-     * @brief  This function allows you to change the visible weapon in the player's hand.
+     * @brief  This function allows you to change the attack animation based on the current attack type.
+     *         It is called when switching attack types to update the animation accordingly.
      * @return void
      */
-    [ObserversRpc(runLocally:true)]
-    public void ChangeVisibleWeapon()
+    public void changeAttackAnimStatusServer()
     {
-        m_racket.SetActive(!m_racket.activeInHierarchy);
-        m_gun.SetActive(!m_gun.activeInHierarchy);
+        if (!isOwner)
+        {
+            m_shootAnimRunning = !m_shootAnimRunning;
+        }
     }
 }

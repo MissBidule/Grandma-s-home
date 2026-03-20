@@ -21,6 +21,8 @@ public class ChildClientController : NetworkBehaviour
 
     //Animations
     [SerializeField]private NetworkAnimator m_animator;
+    [SerializeField] private GameObject m_racket;
+    [SerializeField] private GameObject m_gun;
     private bool m_isMovingForward;
     private bool m_isMovingBackward;
     private bool m_isMovingLeft;
@@ -102,7 +104,6 @@ public class ChildClientController : NetworkBehaviour
             m_jumpPressed = false;
             m_switchWeaponPressed = false;
             m_attackPressed = false;
-            SendChangeVisibleWeapon();
         }
     }
 
@@ -151,19 +152,24 @@ public class ChildClientController : NetworkBehaviour
     public void OnSwitchWeapon()
     {
         if (!isOwner) return;
-        m_switchWeaponPressed = true;
         if(!m_childController.m_shootAnimRunning)
         {
-            print("switch weapon " + m_childController.m_isRanged);
+            m_switchWeaponPressed = true;
             m_animator.SetTrigger("OnSwitch");
-            m_animator.SetBool("Cac", m_childController.m_isRanged);
         }
     }
 
-    [ServerRpc]
-    public void SendChangeVisibleWeapon()
+
+
+    /*
+     * @brief  This function allows you to change the visible weapon in the player's hand.
+     * @return void
+     */
+
+    public void ChangeVisibleWeapon()
     {
-        m_childController.ChangeVisibleWeapon();
+        m_racket.SetActive(!m_racket.activeInHierarchy);
+        m_gun.SetActive(!m_gun.activeInHierarchy);
     }
 
 
