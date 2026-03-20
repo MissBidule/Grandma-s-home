@@ -8,7 +8,7 @@
 # Lore 
 <p align="justify">Le jeu se passe après qu'une grand-mère sorcière-nécromancienne a décidé d'entreprendre des expériences pour pouvoir communiquer avec son mari et son chien qu'elle a perdu un peu trop tôt, suite à ces expériences elle ne reussit à ramener que son chien, Nestor. Elle ne se rend pas compte qu'elle a aussi ramené par accident de petits fantômes malicieux, qui tout en se cachant des humains, tentent de détruire la maison.</p>
 
-<p  align="justify">Depuis la perte de leur grand-père, ses petits-enfants rendent souvent visite à la maison de famille pour tenir compagnie à leur grand-mère maintenant veuve, c'est la qu'il découvre l'existance des fantômes. Afin de les neutralier et de proteger la maison, les enfants décides alors de fabriquer des armes de fortunes avec du slime trouver dans la maison et leurs pistoler à eau</p>
+<p  align="justify">Depuis la perte de leur grand-père, ses petits-enfants rendent souvent visite à la maison de famille pour tenir compagnie à leur grand-mère maintenant veuve, c'est la qu'ils découvrent l'existance des fantômes. Afin de les neutralier et de proteger la maison, les enfants décides alors de fabriquer des armes de fortunes avec du slime trouver dans la maison et leurs pistoler à eau</p>
 
 <br>
 <p align="center"><img width="800" height="670" alt="image" src="https://github.com/user-attachments/assets/abdbcee3-495c-4627-98be-4716916cf4b8" /></p>
