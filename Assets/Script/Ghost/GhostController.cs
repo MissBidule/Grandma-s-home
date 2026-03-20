@@ -48,6 +48,16 @@ public class GhostController : PlayerControllerCore, IInteractable
     private bool m_isFocused = false;
     [SerializeField] private string m_promptMessage = "Hold E : Revive";
 
+    [Header("Highlight")]
+    [SerializeField] private List<Renderer> m_highlightRenderers = new List<Renderer>();
+    [SerializeField] private Color m_highlightColor = Color.green;
+    [SerializeField] private float m_pulseSpeed = 3f;
+    [SerializeField] private float m_minIntensity = 0.2f;
+    [SerializeField] private float m_maxIntensity = 0.6f;
+    private Coroutine m_pulseCoroutine;
+    private MaterialPropertyBlock m_propertyBlock;
+
+
     [Header("Movement")]
     [SerializeField] private float m_walkSpeed = 4f;
     [SerializeField] private float m_acceleration = 25f;
@@ -94,6 +104,26 @@ public class GhostController : PlayerControllerCore, IInteractable
 
         m_ghostMorph = GetComponent<GhostMorph>();
 
+    }
+
+    public void Start()
+    {
+        m_propertyBlock = new MaterialPropertyBlock();
+
+        if (m_highlightRenderers.Count > 0)
+        {
+            foreach (Renderer r in m_highlightRenderers)
+            {
+                foreach (Material mat in r.sharedMaterials)
+                {
+                    if (mat != null)
+                    {
+                        mat.EnableKeyword("_EMISSION");
+                    }
+                }
+            }
+        }
+        SetHighlight(false);
     }
 
     void Update()
@@ -443,6 +473,7 @@ public class GhostController : PlayerControllerCore, IInteractable
         print("Found dead ghost");
         m_isFocused = true;
         InteractPromptUI.m_Instance.Show(m_promptMessage);
+        SetHighlight(true);
     }
 
     public void OnUnfocus(Interact _who)
@@ -450,6 +481,7 @@ public class GhostController : PlayerControllerCore, IInteractable
         print("Lost focus on dead ghost");
         m_isFocused = false;
         InteractPromptUI.m_Instance.Hide();
+        SetHighlight(false);
     }
     
     public void StartDash()
@@ -495,5 +527,69 @@ public class GhostController : PlayerControllerCore, IInteractable
     public float GetScaryCooldownDuration()
     {
         return m_cdChildScare;
+    }
+
+    /*
+     * @brief Starts or stops the pulsing highlight coroutine on the highlight renderer
+     * Resets emission to black when disabled
+     * @param _enabled: Whether the highlight should be active
+     * @return void
+     */
+    private void SetHighlight(bool _enabled)
+    {
+        if (m_highlightRenderers.Count == 0)
+        {
+            return;
+        }
+
+        if (_enabled)
+        {
+            if (m_pulseCoroutine != null)
+            {
+                StopCoroutine(m_pulseCoroutine);
+            }
+            m_pulseCoroutine = StartCoroutine(PulseHighlight());
+        }
+        else
+        {
+            if (m_pulseCoroutine != null)
+            {
+                StopCoroutine(m_pulseCoroutine);
+                m_pulseCoroutine = null;
+            }
+
+
+            foreach (Renderer r in m_highlightRenderers)
+            {
+                r.GetPropertyBlock(m_propertyBlock);
+                m_propertyBlock.SetColor("_EmissionColor", Color.black);
+                r.SetPropertyBlock(m_propertyBlock);
+            }
+        }
+    }
+
+    /*
+     * @brief Animates the highlight renderer with a pulsing emission effect
+     * @return IEnumerator for coroutine
+     */
+    private IEnumerator PulseHighlight()
+    {
+        float time = 0f;
+
+        while (true)
+        {
+            float pulse = Mathf.Lerp(m_minIntensity, m_maxIntensity,
+                                     (Mathf.Sin(time * m_pulseSpeed) + 1f) * 0.5f);
+
+            foreach (Renderer r in m_highlightRenderers)
+            {
+                r.GetPropertyBlock(m_propertyBlock);
+                m_propertyBlock.SetColor("_EmissionColor", m_highlightColor * pulse);
+                r.SetPropertyBlock(m_propertyBlock);
+            }
+
+            time += Time.deltaTime;
+            yield return null;
+        }
     }
 }
