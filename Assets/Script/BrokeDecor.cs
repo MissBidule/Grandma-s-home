@@ -9,7 +9,7 @@ using System.Collections.Generic;
 public class BrokeDecor : NetworkBehaviour
 {
     [Header("State Meshes")]
-    private GameObject m_brokenMesh;
+    [SerializeField] private GameObject m_brokenMesh;
     [SerializeField] private List<GameObject> m_additionalMeshes = new();
     [SerializeField] private GameObject m_brokenPrefab;
 
@@ -19,11 +19,10 @@ public class BrokeDecor : NetworkBehaviour
     public bool m_isBroken;
     public bool m_alreadyBroken=false;
 
-    public void OnSpawn()
+    public void Start()
     {
-        base.OnSpawned();
-
         m_brokenMesh = UnityProxy.Instantiate(m_brokenPrefab, transform);
+        m_brokenMesh.transform.localPosition = Vector3.zero;
     }
 
     [ObserversRpc(runLocally:true)]

@@ -249,17 +249,16 @@ public class ChildController : PlayerControllerCore
                 ghost.HitCac();
                 CacNotification(ghost);
             }
+            if (col.GetComponent<BrokeDecor>())
+            {
+                var brokeDecor = col.gameObject.GetComponent<BrokeDecor>();
+                if(brokeDecor != null)
+                {
+                    brokeDecor.Broke();
+                }
+            }
             if (col.transform.parent) 
             {
-                if (col.transform.parent.gameObject.GetComponent<BrokeDecor>())
-                {
-                    var brokeDecor = col.transform.parent.gameObject.GetComponent<BrokeDecor>();
-                    if(brokeDecor != null)
-                    {
-                        brokeDecor.Broke();
-                    }
-                }
-            
                 if (col.transform.parent.gameObject.layer == LayerMask.NameToLayer("Ghost"))
                 {
                     var ghostMorph = col.transform.parent.gameObject.GetComponent<GhostMorph>();
