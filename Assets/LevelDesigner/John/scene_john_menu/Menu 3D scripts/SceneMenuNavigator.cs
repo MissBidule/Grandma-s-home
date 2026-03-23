@@ -25,8 +25,6 @@ public class SceneMenuNavigator : MonoBehaviour
     [Header("Configuration des Menus")]
     public MenuCamera[] configurationMenus;
 
-    [Header("Raccourci Options")]
-    public CinemachineVirtualCameraBase optionsSequencerCam;
 
     [Header("Réglages")]
     public float delaiCamera = 1.0f;
@@ -55,10 +53,6 @@ public class SceneMenuNavigator : MonoBehaviour
         }
     }
 
-    public void AllerAuxOptions()
-    {
-        if (optionsSequencerCam != null) SwitchToCamera(optionsSequencerCam);
-    }
 
     private void NettoyerTousLesTextes()
     {
