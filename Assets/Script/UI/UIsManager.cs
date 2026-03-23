@@ -2,7 +2,6 @@ using UnityEngine;
 using PurrNet;
 using System.Collections;
 using UnityEngine.Serialization;
-using Script.UI.Views;
 
 namespace UI
 {
@@ -52,7 +51,6 @@ namespace UI
         {
             if (m_UIAlreadyToggled) return;
             m_UIAlreadyToggled = true;
-            HideView<WaitForPlayerView>();
             Debug.Log("Toggling UI Vision");
             m_UICamera.enabled = !m_UICamera.enabled;
             m_UIAudioListener.enabled = !m_UIAudioListener.enabled;

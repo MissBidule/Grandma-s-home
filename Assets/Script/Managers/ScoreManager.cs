@@ -15,6 +15,7 @@ public class ScoreManager : NetworkBehaviour
     [SerializeField] private SyncDictionary<PlayerID, ScoreData> m_scoresSabotage = new();
     [SerializeField] private SyncDictionary<PlayerID, ScoreData2> m_scoresBroken = new();
     [SerializeField] private SyncVar<float> m_sabotageBonusTotal = new();
+    [SerializeField] private int m_scoreBroken;
     [SerializeField] private float m_maxScoreSabotage=5.0f;
     [SerializeField] private int m_maxScoreBroken=5;
     
@@ -246,7 +247,7 @@ public class ScoreManager : NetworkBehaviour
      */
     private void RefreshUI() // GetFinalScore() et totalBroken a utiliser sur une view plutot qu un canvas!
     {
-        int totalBroken = 0;
+        float totalBroken = 0;
 
         foreach (KeyValuePair<PlayerID, ScoreData2> entry in m_scoresBroken)
         {
@@ -254,9 +255,9 @@ public class ScoreManager : NetworkBehaviour
         }
         
         if (InstanceHandler.TryGetInstance(out GhostHUDView ghostHUDView))
-            ghostHUDView.UpdateScore(GetFinalScoreSabotage(), m_maxScoreSabotage, totalBroken, m_maxScoreBroken);
+            ghostHUDView.UpdateScore(GetFinalScoreSabotage(), m_maxScoreSabotage, m_scoreBroken, m_maxScoreBroken);
         
         if (InstanceHandler.TryGetInstance(out ChildHUDView childHUDView))
-            childHUDView.UpdateScore(GetFinalScoreSabotage(), m_maxScoreSabotage, totalBroken, m_maxScoreBroken);
+            childHUDView.UpdateScore(GetFinalScoreSabotage(), m_maxScoreSabotage, m_scoreBroken, m_maxScoreBroken);
     }
 }

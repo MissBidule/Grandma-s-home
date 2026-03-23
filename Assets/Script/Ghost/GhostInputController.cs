@@ -184,25 +184,6 @@ public class GhostInputController : MonoBehaviour
         }
     }
 
-    /*
-     * @brief OnLeaderboard is called by the Input System when the leaderboard input is held used to display the controls hint
-     * @param _context: The context of the input action
-     * @return void
-     */
-    public void OnLeaderboard(InputAction.CallbackContext _context)
-    {
-        if (!isOwner) return;
-        if (!InstanceHandler.TryGetInstance(out UIsManager uisManager))
-            return;
-        if (_context.performed)
-        {
-            uisManager.ToggleView<LeaderboardUI>();
-        }
-        else if (_context.canceled)
-        {
-            uisManager.ToggleView<LeaderboardUI>();
-        }
-    }
 
     /*
      * @brief OnValidate is called by the Input System when validate input is detected
@@ -222,11 +203,7 @@ public class GhostInputController : MonoBehaviour
 
             if(m_qteCircle.m_isRunning)
             {
-                if (m_qteCircle.CheckSuccess())
-                {
-                    //QTE finished
-                    m_ghostClientController.SabotageNotification();
-                }
+                m_qteCircle.CheckSuccess();
             }
         }
     }

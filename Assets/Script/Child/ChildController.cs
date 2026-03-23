@@ -3,7 +3,6 @@ using System.Collections;
 using PurrNet;
 using PurrNet.Logging;
 using UnityEngine;
-using UnityEngine.ProBuilder.Shapes;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 
@@ -30,9 +29,8 @@ public class ChildController : PlayerControllerCore
     [SerializeField] public float m_cdSwitch = 0.2f;
     
     [Header("CAC parameters")]
-    [SerializeField]private float m_attackRange = 1f;
+    private float m_attackRange = 0.5f;
     [SerializeField] private LayerMask m_GhostLayerMask;
-    [SerializeField] private Transform m_cacTransform;
     
     [Header("Shooting parameters")]
     [SerializeField] [Tooltip("In seconds")] private float m_cdGun = 1.0f;
@@ -52,8 +50,6 @@ public class ChildController : PlayerControllerCore
 
     [Header("Animation")]
     [SerializeField] private NetworkAnimator m_animator;
-    public bool m_shootAnimRunning = false;
-    public MaterialInstance m_faceMat;
 
 
 
@@ -103,11 +99,6 @@ public class ChildController : PlayerControllerCore
     {
         m_lastShot += Time.deltaTime;
         m_switchingTime += Time.deltaTime;
-        if (m_shootAnimRunning && m_switchingTime > m_cdSwitch)
-        {
-            changeAttackAnimStatusServer();
-            changeAttackAnimStatusClient();
-        }
     }
 
     /*
@@ -117,8 +108,7 @@ public class ChildController : PlayerControllerCore
     public void Jump()
     {
         if (!isServer) return;
-        changeFaceMat(new Vector2(0.66f,0.66f));
-        if (!IsGrounded() || m_rigidbody.linearVelocity.y > 0.1f) return;
+        if (!IsGrounded()) return;
         m_rigidbody.AddForce(Vector3.up * m_jumpImpulse, ForceMode.Impulse);
     }
 
@@ -139,7 +129,6 @@ public class ChildController : PlayerControllerCore
     {
         if (!isServer || m_isScared) return; // Return if the player is scared
         if (m_switchingTime < m_cdSwitch) return;
-        changeFaceMat(new Vector2(0,0.33f));
         if (m_isRanged)
         {
             if (m_lastShot >= m_cdGun)
@@ -203,7 +192,6 @@ public class ChildController : PlayerControllerCore
         //PurrLogger.Log("Ghost Touch", this);
         UpdateScaredToAll(m_isScared);
         StartCoroutine(ScaredTimer(m_scaredDuration));
-        changeFaceMat(new Vector2(0.33f,0.33f));
     }
     
     [ObserversRpc(runLocally:true)]
@@ -238,8 +226,7 @@ public class ChildController : PlayerControllerCore
     [ServerRpc]
     private void Cac()
     {
-        Vector3 CacPosition = m_cacTransform.position + m_cameraForward.normalized * 1.5f;
-        Collider[] hits = Physics.OverlapSphere(CacPosition, m_attackRange);
+        Collider[] hits = Physics.OverlapSphere(m_bulletSpawnTransform.position, m_attackRange);
 
         foreach (Collider col in hits)
         {
@@ -247,18 +234,18 @@ public class ChildController : PlayerControllerCore
             if (ghost != null)
             {
                 ghost.HitCac();
-                CacNotification(ghost);
-            }
-            if (col.GetComponent<BrokeDecor>())
-            {
-                var brokeDecor = col.gameObject.GetComponent<BrokeDecor>();
-                if(brokeDecor != null)
-                {
-                    brokeDecor.Broke();
-                }
             }
             if (col.transform.parent) 
             {
+                if (col.transform.parent.gameObject.GetComponent<BrokeDecor>())
+                {
+                    var brokeDecor = col.transform.parent.gameObject.GetComponent<BrokeDecor>();
+                    if(brokeDecor != null)
+                    {
+                        brokeDecor.Broke();
+                    }
+                }
+            
                 if (col.transform.parent.gameObject.layer == LayerMask.NameToLayer("Ghost"))
                 {
                     var ghostMorph = col.transform.parent.gameObject.GetComponent<GhostMorph>();
@@ -271,11 +258,6 @@ public class ChildController : PlayerControllerCore
         }
     }
 
-    [ObserversRpc]
-    private void CacNotification (GhostController _ghost)
-    {
-        InteractPromptUI.m_Instance.ShowKill(m_username, _ghost.m_username);
-    }
 
     /*
      * @brief  Instantiates a bullet aimed at the camera's target point
@@ -299,56 +281,7 @@ public class ChildController : PlayerControllerCore
     public void SwitchAttackType()
     {
         if (!isServer) return;
-        changeAttackAnimStatusServer();
         m_isRanged = !m_isRanged;
         m_switchingTime = 0;
-        changeAttackAnimStatusClient();
-    }
-
-    /*
-     * @brief  This function allows you to change the attack animation based on the current attack type.
-     *         It is called when switching attack types to update the animation accordingly.
-     * @return void
-     */
-    [ObserversRpc(runLocally:true)]
-    public void changeAttackAnimStatusClient()
-    {
-        if (!isOwner) return;
-        m_isRanged = !m_isRanged;
-        m_shootAnimRunning = !m_shootAnimRunning;
-    }
-
-    /*
-     * @brief  This function allows you to change the attack animation based on the current attack type.
-     *         It is called when switching attack types to update the animation accordingly.
-     * @return void
-     */
-    public void changeAttackAnimStatusServer()
-    {
-        if (!isOwner)
-        {
-            m_shootAnimRunning = !m_shootAnimRunning;
-        }
-    }
-
-    /*
-     * @brief  This function allows you to change the face material offset based on the current action (or lack thereof).
-     *         It is called to get the server side of the action
-     * @return void
-     */
-    [ServerRpc]
-    public void callChangeFace(Vector2 _surfaceOffset)
-    {
-        changeFaceMat(_surfaceOffset);
-    }
-
-    /*
-     * @brief  This function allows you to change the face material offset based on the current action (or lack thereof).
-     * @return void
-     */
-    [ObserversRpc(runLocally:true)]
-    public void changeFaceMat(Vector2 _surfaceOffset)
-    {
-        m_faceMat.surfaceOffset = _surfaceOffset;
     }
 }
