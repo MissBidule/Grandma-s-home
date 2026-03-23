@@ -133,7 +133,16 @@ public class PlayerControllerCore : NetworkBehaviour
     {
 
         var playerInput = GetComponent<PlayerInput>();
-        if (playerInput != null) playerInput.enabled = isOwner;
+        if (playerInput != null)
+        {
+            playerInput.enabled = isOwner;
+            if (isOwner)
+            {
+                string saved = PlayerPrefs.GetString("Settings_Keybindings", "");
+                if (!string.IsNullOrEmpty(saved))
+                    playerInput.actions.LoadBindingOverridesFromJson(saved);
+            }
+        }
 
         if (!m_playerCamera) m_playerCamera = GetComponentInChildren<CinemachineCamera>();
         if (m_playerCamera != null)
@@ -174,7 +183,14 @@ public class PlayerControllerCore : NetworkBehaviour
     {
         if (!isOwner) return;
         var playerInput = GetComponent<PlayerInput>();
-        if (playerInput != null) playerInput.enabled = !paused;
+        if (playerInput == null) return;
+        playerInput.enabled = !paused;
+        if (!paused)
+        {
+            string saved = PlayerPrefs.GetString("Settings_Keybindings", "");
+            if (!string.IsNullOrEmpty(saved))
+                playerInput.actions.LoadBindingOverridesFromJson(saved);
+        }
     }
 
     private void Start()

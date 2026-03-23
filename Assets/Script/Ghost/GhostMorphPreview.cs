@@ -41,8 +41,8 @@ public class GhostMorphPreview : NetworkBehaviour
     private bool m_rotateLeft = false;
     private bool m_rotateRight = false;
 
-    [SerializeField] private string m_promptMessageSCAN = "T : SCAN";
-    [SerializeField] private string m_promptMessageValid = "F : Valid";
+    [SerializeField] private string m_promptLabelSCAN = "SCAN";
+    [SerializeField] private string m_promptLabelValid = "Valid";
     [SerializeField] private float m_rotateSpeed = 120f;
 
     [SerializeField] private bool m_GhostPreviewOn;
@@ -160,7 +160,7 @@ public class GhostMorphPreview : NetworkBehaviour
         {
             m_meshRenderer.sharedMaterials = prefabRenderer.sharedMaterials;
 
-            InteractPromptUI.m_Instance.Show(m_promptMessageValid);
+            InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "TransformConfirm", m_promptLabelValid));
             m_GhostPreviewOn =true;
         }
         m_colliders.Clear();
@@ -312,7 +312,7 @@ public class GhostMorphPreview : NetworkBehaviour
                     if(!GetComponentInParent<GhostMorph>().m_isMorphed)
                     {
                        // There is a clone for few seconds...
-                    InteractPromptUI.m_Instance.Show(m_promptMessageSCAN);
+                    InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "Scan", m_promptLabelSCAN));
                     }
                     ClearHighlight();
                     HighlightObject(hitObject);
@@ -330,7 +330,7 @@ public class GhostMorphPreview : NetworkBehaviour
             InteractPromptUI.m_Instance.Hide();
 
             if(m_GhostPreviewOn == true){
-            InteractPromptUI.m_Instance.Show(m_promptMessageValid);
+            InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "TransformConfirm", m_promptLabelValid));
             
             } 
         }

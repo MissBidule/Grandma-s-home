@@ -30,12 +30,13 @@ namespace PurrLobby
         private static readonly Dictionary<string, string> m_ActionLabels = new Dictionary<string, string>
         {
             // Child
-            { "Player/Attack", "Attack" },
-            { "Player/Interact", "Interact" },
-            { "Player/Jump", "Jump" },
-            { "Player/Sprint", "Sprint" },
-            { "Player/Crouch", "Crouch" },
-            { "Player/Change_weapon", "Change Weapon" },
+            { "Child/Attack", "Attack" },
+            { "Child/Interact", "Interact" },
+            { "Child/Jump", "Jump" },
+            { "Child/Sneak", "Sneak" },
+            { "Child/Change_weapon", "Change Weapon" },
+            { "Child/Hint", "Show Hint" },
+            { "Child/PushToTalk", "Push to Talk" },
             // Ghost
             { "Ghost/Interact", "Interact" },
             { "Ghost/TransformConfirm", "Transform" },
@@ -44,7 +45,22 @@ namespace PurrLobby
             { "Ghost/Sneak", "Sneak" },
             { "Ghost/RotatePreviewLeft", "Rotate Left" },
             { "Ghost/RotatePreviewRight", "Rotate Right" },
+            { "Ghost/OpenProps", "Roue de transformation" },
             { "Ghost/Hint", "Show Hint" },
+            { "Ghost/PushToTalk", "Push to Talk" },
+        };
+
+        // Composite part labels: "MapName/ActionName/partName" → display name
+        private static readonly Dictionary<string, string> m_CompositePartLabels = new Dictionary<string, string>
+        {
+            { "Child/Move/up",    "Avancer" },
+            { "Child/Move/down",  "Reculer" },
+            { "Child/Move/left",  "Gauche" },
+            { "Child/Move/right", "Droite" },
+            { "Ghost/Move/up",    "Avancer" },
+            { "Ghost/Move/down",  "Reculer" },
+            { "Ghost/Move/left",  "Gauche" },
+            { "Ghost/Move/right", "Droite" },
         };
 
         private InputActionRebindingExtensions.RebindingOperation m_rebindOp;
@@ -136,7 +152,7 @@ namespace PurrLobby
             }
 
             SpawnSectionTitle("─── Child ───");
-            BuildSection("Player");
+            BuildSection("Child");
             SpawnSectionTitle("─── Ghost ───");
             BuildSection("Ghost");
         }
@@ -166,21 +182,44 @@ namespace PurrLobby
                 return;
             }
 
+            var spawnedComposites = new HashSet<string>();
             foreach (var action in map.actions)
             {
+                // Actions simples (non-composites)
                 string key = $"{_mapName}/{action.name}";
-                if (!m_ActionLabels.TryGetValue(key, out string displayName))
+                if (m_ActionLabels.TryGetValue(key, out string displayName))
                 {
+                    int bindingIndex = FindKeyboardBindingIndex(action);
+                    if (bindingIndex >= 0)
+                    {
+                        SpawnKeybindingRow(action, bindingIndex, displayName);
+                    }
                     continue;
                 }
 
-                int bindingIndex = FindKeyboardBindingIndex(action);
-                if (bindingIndex < 0)
+                // Actions composites (ex: Move = WASD)
+                for (int i = 0; i < action.bindings.Count; i++)
                 {
-                    continue;
+                    var b = action.bindings[i];
+                    if (!b.isPartOfComposite)
+                    {
+                        continue;
+                    }
+                    string compositeKey = $"{_mapName}/{action.name}/{b.name}";
+                    if (!m_CompositePartLabels.TryGetValue(compositeKey, out string partLabel))
+                    {
+                        continue;
+                    }
+                    if (!b.path.StartsWith("<Keyboard>"))
+                    {
+                        continue;
+                    }
+                    if (!spawnedComposites.Add(compositeKey))
+                    {
+                        continue; // doublon (ex: WASD + flèches)
+                    }
+                    SpawnKeybindingRow(action, i, partLabel);
                 }
-
-                SpawnKeybindingRow(action, bindingIndex, displayName);
             }
         }
 
@@ -279,8 +318,17 @@ namespace PurrLobby
                 _btnImage.color = m_buttonNormalColor;
             }
             SaveBindings();
+            PropagateToPlayerInputs();
             m_rebindOp?.Dispose();
             m_rebindOp = null;
+        }
+
+        private void PropagateToPlayerInputs()
+        {
+            if (m_inputActions == null) return;
+            string json = m_inputActions.SaveBindingOverridesAsJson();
+            foreach (var pi in UnityEngine.InputSystem.PlayerInput.all)
+                pi.actions.LoadBindingOverridesFromJson(json);
         }
 
         private void LoadBindings()

@@ -24,7 +24,7 @@ public class GhostInputController : MonoBehaviour
 
     private bool isOwner => m_ghostClientController != null && m_ghostClientController.isOwner;
 
-    [SerializeField] private string m_promptMessageValid = "F : Valid";
+    [SerializeField] private string m_promptLabelValid = "Valid";
 
     /*
      * @brief Awake is called when the script instance is being loaded
@@ -76,7 +76,7 @@ public class GhostInputController : MonoBehaviour
         if (_context.performed)
         {
             m_ghostClientController.OnScan();
-            InteractPromptUI.m_Instance.Show(m_promptMessageValid);
+            InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "TransformConfirm", m_promptLabelValid));
         }
     }
 
