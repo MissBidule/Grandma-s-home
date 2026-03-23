@@ -2,124 +2,149 @@ using UnityEngine;
 using Unity.Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq; // Nécessaire pour l'astuce de recherche
+using System.Linq;
 
 public class SceneMenuNavigator : MonoBehaviour
 {
-    // --- NOUVELLE STRUCTURE ---
     [System.Serializable]
     public struct MenuCamera
     {
-        public string nomDuMenu; // Juste pour l'organisation dans l'Inspector (ex: "Options")
+        public string nomDuMenu;
         public CinemachineVirtualCameraBase camera;
         public Collider[] boutonsAssoicies;
+
+        [Header("Animation des Textes")]
+        [Tooltip("Glisse ici TOUS les textes TextMeshPro de ce menu qui doivent rebondir")]
+        public EffetTextePlop[] textesTMPAssocies; // 🎯 NOUVEAU : C'est un tableau maintenant [] !
+
+        [Header("Réglage Séquenceur")]
+        public float tempsAttenteSequencer;
     }
-    // ----------------------------
 
     [Header("Caméra d'Introduction (Obligatoire)")]
-    [Tooltip("La caméra qui se lance automatiquement au début.")]
     public CinemachineVirtualCameraBase sequencerCam;
 
     [Header("Configuration des Menus")]
-    [Tooltip("Ajoute un élément pour chaque menu (Principal, Options, etc.). Glisse la caméra et ses boutons.")]
     public MenuCamera[] configurationMenus;
 
     [Header("Réglages")]
-    [Tooltip("Temps d'attente avant d'activer les boutons après une transition.")]
     public float delaiCamera = 1.0f;
 
-    // Références internes
+    [HideInInspector]
+    public bool verrouillageAbsolu = false;
+
     private Coroutine transitionEnCours;
     private CinemachineVirtualCameraBase derniereCameraActive;
 
     private void Awake()
     {
-        // 1. Initialisation : On met TOUTES les caméras à 10
         InitialiserPriorites();
 
-        // 2. On lance la séquence d'intro
         if (sequencerCam != null)
         {
             SwitchToCamera(sequencerCam);
         }
         else
         {
-            Debug.LogError("⚠️ [SceneMenuNavigator] 'sequencerCam' n'est pas assignée dans l'Inspector !");
+            Debug.LogError("⚠️ [SceneMenuNavigator] 'sequencerCam' n'est pas assignée !");
         }
     }
 
-    /// <summary>
-    /// Met toutes les caméras (Intro + Menus) à la priorité par défaut (10).
-    /// </summary>
     private void InitialiserPriorites()
     {
-        // Caméra d'intro
         if (sequencerCam != null) sequencerCam.Priority = 10;
 
-        // Toutes les caméras de menus configurées
         foreach (var menu in configurationMenus)
         {
             if (menu.camera != null) menu.camera.Priority = 10;
         }
     }
 
-    /// <summary>
-    /// Change la caméra active en gérant les priorités et les boutons.
-    /// </summary>
     public void SwitchToCamera(CinemachineVirtualCameraBase targetCamera)
     {
         if (targetCamera == null) return;
 
-        // Arrêter la transition précédente si elle n'est pas finie
         if (transitionEnCours != null) StopCoroutine(transitionEnCours);
 
-        // 1. Désactiver proprement l'ancienne caméra (Priorité 10)
         if (derniereCameraActive != null) derniereCameraActive.Priority = 10;
 
-        // 2. Activer la nouvelle (Priorité 20)
         targetCamera.Priority = 20;
         derniereCameraActive = targetCamera;
 
-        // 3. Gérer les boutons avec délai
         transitionEnCours = StartCoroutine(GererBoutonsAvecDelai(targetCamera));
     }
 
     private IEnumerator GererBoutonsAvecDelai(CinemachineVirtualCameraBase targetCamera)
     {
-        // ÉTAPE 1 : On désactive TOUS les boutons instantanément
+        // 1. Désactiver tous les boutons
         ActiverTousLesGroupesBoutons(false);
 
-        // ÉTAPE 2 : On attend 1 micro-seconde pour que Cinemachine démarre son mouvement
+        // 2. Cacher TOUS les textes de TOUS les menus
+        foreach (var menu in configurationMenus)
+        {
+            if (menu.textesTMPAssocies != null)
+            {
+                foreach (var texte in menu.textesTMPAssocies)
+                {
+                    if (texte != null) texte.gameObject.SetActive(false);
+                }
+            }
+        }
+
         yield return null;
 
-        // ÉTAPE 3 : LA MAGIE 🎯 On récupère le Cerveau de la caméra principale
-        CinemachineBrain cerveau = Camera.main.GetComponent<CinemachineBrain>();
-
-        if (cerveau != null)
+        // 3. Attendre que Cinemachine termine son mouvement
+        if (Camera.main != null)
         {
-            // Tant que le Cerveau est en train de faire une transition (IsBlending)...
-            while (cerveau.IsBlending)
+            CinemachineBrain cerveau = Camera.main.GetComponent<CinemachineBrain>();
+
+            if (cerveau != null)
             {
-                // ... on met le script en pause !
-                yield return null;
+                while (cerveau.IsBlending || verrouillageAbsolu)
+                {
+                    yield return null;
+                }
+            }
+            else
+            {
+                float temps = 0f;
+                while (temps < delaiCamera || verrouillageAbsolu)
+                {
+                    temps += Time.deltaTime;
+                    yield return null;
+                }
             }
         }
         else
         {
-            // (Sécurité au cas où le cerveau n'est pas trouvé)
             yield return new WaitForSeconds(delaiCamera);
         }
 
-        // ÉTAPE 4 : Le mouvement est 100% terminé ! On allume les boutons du bon menu.
+        // ==========================================
+        // LA CAMÉRA S'EST ARRÊTÉE !
+        // ==========================================
         var configMenu = configurationMenus.FirstOrDefault(m => m.camera == targetCamera);
 
+        if (configMenu.tempsAttenteSequencer > 0f)
+        {
+            yield return new WaitForSeconds(configMenu.tempsAttenteSequencer);
+        }
+
+        // 🎯 NOUVEAU : On fait apparaître TOUS les textes de ce menu précis !
+        if (configMenu.textesTMPAssocies != null)
+        {
+            foreach (var texte in configMenu.textesTMPAssocies)
+            {
+                if (texte != null) texte.Apparaitre();
+            }
+        }
+
+        // On allume les boutons du menu
         if (configMenu.boutonsAssoicies != null && configMenu.boutonsAssoicies.Length > 0)
         {
             ActiverGroupeBoutons(configMenu.boutonsAssoicies, true);
         }
     }
-
-    // --- Fonctions d'aide (Helpers) ---
 
     private void ActiverTousLesGroupesBoutons(bool etat)
     {
