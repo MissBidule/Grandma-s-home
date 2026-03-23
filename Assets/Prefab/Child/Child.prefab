@@ -201,6 +201,8 @@ MonoBehaviour:
   m_isSneaking: 0
   m_sneakAmplitude: 0.5
   m_animator: {fileID: 3610933806309611657}
+  m_shootAnimRunning: 0
+  m_faceMat: {fileID: 2546100076293216404}
 --- !u!114 &30589635987039035
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1598,6 +1600,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8911564534884678798, guid: e8d4aa88674465540ab232a074cdbaa3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3610933806309611657}
+    - targetCorrespondingSourceObject: {fileID: 3219200413811789945, guid: e8d4aa88674465540ab232a074cdbaa3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2546100076293216404}
   m_SourcePrefab: {fileID: 100100000, guid: e8d4aa88674465540ab232a074cdbaa3, type: 3}
 --- !u!1 &1262050018668972031 stripped
 GameObject:
@@ -1639,6 +1644,27 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8135730831176328756, guid: e8d4aa88674465540ab232a074cdbaa3, type: 3}
   m_PrefabInstance: {fileID: 7651492023346609009}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &5081022232554498824 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3219200413811789945, guid: e8d4aa88674465540ab232a074cdbaa3, type: 3}
+  m_PrefabInstance: {fileID: 7651492023346609009}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2546100076293216404
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5081022232554498824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a2380e91627f2c4d8354ab78d594382, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MaterialInstance
+  go: {fileID: 0}
+  material: {fileID: 0}
+  surfaceOffset: {x: 0, y: 0}
+  textureProperty: _BaseMap
 --- !u!95 &5487723789930694463 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 2740370839899257934, guid: e8d4aa88674465540ab232a074cdbaa3, type: 3}
