@@ -104,10 +104,7 @@ public class GhostInputController : MonoBehaviour
         if (!isOwner) return;
         if (_context.performed)
         {
-            
-            
             m_ghostClientController.OnMorph();
-
         }
     }
 
@@ -124,6 +121,7 @@ public class GhostInputController : MonoBehaviour
         if (!isOwner) return;
         if (_context.performed)
         {
+            if (m_ghostClientController.m_wheel != null && m_ghostClientController.m_wheel.IsWheelOpen()) return;
             m_ghostInteract.OnInteract(m_ghostInteract.m_onFocus);
         }
         else if (_context.canceled)
