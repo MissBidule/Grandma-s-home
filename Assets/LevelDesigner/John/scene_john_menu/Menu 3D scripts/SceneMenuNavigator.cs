@@ -3,6 +3,7 @@ using Unity.Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPEffects.Components;
 
 public class SceneMenuNavigator : MonoBehaviour
 {
@@ -13,12 +14,9 @@ public class SceneMenuNavigator : MonoBehaviour
         public CinemachineVirtualCameraBase camera;
         public Collider[] boutonsAssoicies;
 
-        [Header("Animation des Textes")]
-        [Tooltip("Glisse ici TOUS les textes TextMeshPro de ce menu qui doivent rebondir")]
-        public EffetTextePlop[] textesTMPAssocies; // 🎯 NOUVEAU : C'est un tableau maintenant [] !
+        [Header("Animation des Textes (TMPEffects)")]
+        public TMPWriter[] textesTMPWriters;
 
-        [Header("Réglage Séquenceur")]
-        public float tempsAttenteSequencer;
     }
 
     [Header("Caméra d'Introduction (Obligatoire)")]
@@ -26,6 +24,9 @@ public class SceneMenuNavigator : MonoBehaviour
 
     [Header("Configuration des Menus")]
     public MenuCamera[] configurationMenus;
+
+    [Header("Raccourci Options")]
+    public CinemachineVirtualCameraBase optionsSequencerCam;
 
     [Header("Réglages")]
     public float delaiCamera = 1.0f;
@@ -39,35 +40,51 @@ public class SceneMenuNavigator : MonoBehaviour
     private void Awake()
     {
         InitialiserPriorites();
+        NettoyerTousLesTextes(); // 🎯 Force tout à disparaître au démarrage
 
         if (sequencerCam != null)
-        {
             SwitchToCamera(sequencerCam);
-        }
-        else
-        {
-            Debug.LogError("⚠️ [SceneMenuNavigator] 'sequencerCam' n'est pas assignée !");
-        }
     }
 
     private void InitialiserPriorites()
     {
         if (sequencerCam != null) sequencerCam.Priority = 10;
-
         foreach (var menu in configurationMenus)
         {
             if (menu.camera != null) menu.camera.Priority = 10;
         }
     }
 
+    public void AllerAuxOptions()
+    {
+        if (optionsSequencerCam != null) SwitchToCamera(optionsSequencerCam);
+    }
+
+    private void NettoyerTousLesTextes()
+    {
+        foreach (var menu in configurationMenus)
+        {
+            if (menu.textesTMPWriters != null)
+            {
+                foreach (var writer in menu.textesTMPWriters)
+                {
+                    if (writer != null)
+                    {
+                        writer.StopWriter();  // 🛑 Arrête l'animation en cours
+                        writer.ResetWriter(); // ⏪ Rembobine
+                        writer.gameObject.SetActive(false); // 🙈 Cache l'objet
+                    }
+                }
+            }
+        }
+    }
+
     public void SwitchToCamera(CinemachineVirtualCameraBase targetCamera)
     {
         if (targetCamera == null) return;
-
         if (transitionEnCours != null) StopCoroutine(transitionEnCours);
 
         if (derniereCameraActive != null) derniereCameraActive.Priority = 10;
-
         targetCamera.Priority = 20;
         derniereCameraActive = targetCamera;
 
@@ -76,70 +93,41 @@ public class SceneMenuNavigator : MonoBehaviour
 
     private IEnumerator GererBoutonsAvecDelai(CinemachineVirtualCameraBase targetCamera)
     {
-        // 1. Désactiver tous les boutons
         ActiverTousLesGroupesBoutons(false);
+        NettoyerTousLesTextes(); // 🎯 On nettoie à nouveau au début de chaque switch
 
-        // 2. Cacher TOUS les textes de TOUS les menus
-        foreach (var menu in configurationMenus)
-        {
-            if (menu.textesTMPAssocies != null)
-            {
-                foreach (var texte in menu.textesTMPAssocies)
-                {
-                    if (texte != null) texte.gameObject.SetActive(false);
-                }
-            }
-        }
+        // 🛑 PETITE PAUSE DE SÉCURITÉ (0.1s)
+        // Indispensable pour que Cinemachine ait le temps de lancer le "Blending"
+        yield return new WaitForSeconds(0.1f);
 
-        yield return null;
-
-        // 3. Attendre que Cinemachine termine son mouvement
         if (Camera.main != null)
         {
             CinemachineBrain cerveau = Camera.main.GetComponent<CinemachineBrain>();
-
             if (cerveau != null)
             {
                 while (cerveau.IsBlending || verrouillageAbsolu)
-                {
                     yield return null;
-                }
             }
-            else
-            {
-                float temps = 0f;
-                while (temps < delaiCamera || verrouillageAbsolu)
-                {
-                    temps += Time.deltaTime;
-                    yield return null;
-                }
-            }
-        }
-        else
-        {
-            yield return new WaitForSeconds(delaiCamera);
         }
 
-        // ==========================================
-        // LA CAMÉRA S'EST ARRÊTÉE !
-        // ==========================================
         var configMenu = configurationMenus.FirstOrDefault(m => m.camera == targetCamera);
 
-        if (configMenu.tempsAttenteSequencer > 0f)
-        {
-            yield return new WaitForSeconds(configMenu.tempsAttenteSequencer);
-        }
+       
 
-        // 🎯 NOUVEAU : On fait apparaître TOUS les textes de ce menu précis !
-        if (configMenu.textesTMPAssocies != null)
+        // ÉTAPE 4 : Apparition
+        if (configMenu.textesTMPWriters != null)
         {
-            foreach (var texte in configMenu.textesTMPAssocies)
+            foreach (var writer in configMenu.textesTMPWriters)
             {
-                if (texte != null) texte.Apparaitre();
+                if (writer != null)
+                {
+                    writer.gameObject.SetActive(true);
+                    writer.ResetWriter(); // Sécurité
+                    writer.StartWriter(); // 🎬 Play !
+                }
             }
         }
 
-        // On allume les boutons du menu
         if (configMenu.boutonsAssoicies != null && configMenu.boutonsAssoicies.Length > 0)
         {
             ActiverGroupeBoutons(configMenu.boutonsAssoicies, true);
@@ -148,27 +136,12 @@ public class SceneMenuNavigator : MonoBehaviour
 
     private void ActiverTousLesGroupesBoutons(bool etat)
     {
-        foreach (var menu in configurationMenus)
-        {
-            ActiverGroupeBoutons(menu.boutonsAssoicies, etat);
-        }
+        foreach (var menu in configurationMenus) ActiverGroupeBoutons(menu.boutonsAssoicies, etat);
     }
 
     private void ActiverGroupeBoutons(Collider[] groupe, bool etat)
     {
         if (groupe == null) return;
-        foreach (Collider col in groupe)
-        {
-            if (col != null) col.enabled = etat;
-        }
-    }
-
-    public void QuitterLeJeu()
-    {
-        Debug.Log("Quitter le jeu...");
-        Application.Quit();
-#if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-#endif
+        foreach (Collider col in groupe) if (col != null) col.enabled = etat;
     }
 }
