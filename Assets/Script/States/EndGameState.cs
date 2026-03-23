@@ -15,7 +15,7 @@ namespace Script.States
         [PurrScene, SerializeField] private string m_lobbyScene;
         
         private PlayerSpawningState m_spawnState;
-        private static bool _hasAlreadySwitched = false;
+        private bool _hasAlreadySwitched = false;
         
         private void Awake()
         {
