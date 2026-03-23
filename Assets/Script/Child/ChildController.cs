@@ -21,7 +21,9 @@ public class ChildController : PlayerControllerCore
     public float m_cameraYaw;
     [NonSerialized] public Vector3 m_cameraPosition;
     [NonSerialized] public Vector3 m_cameraForward;
-    
+
+    [SerializeField] private JumpTriggerScript m_jumpTriggerScript;
+
     [Header("Weapon Switching")]
     public bool m_isRanged;
     public float m_lastShot;
@@ -126,7 +128,7 @@ public class ChildController : PlayerControllerCore
      */
     private bool IsGrounded()
     {
-        return Physics.Raycast(transform.position, Vector3.down, out _, 1.0f);
+        return m_jumpTriggerScript.m_colliders.Count > 0;
     }
 
     /*
