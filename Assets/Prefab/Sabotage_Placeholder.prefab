@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7506536898928165685}
   - component: {fileID: 3544463009789581124}
   m_Layer: 3
-  m_Name: MeshNonSabote
+  m_Name: Mesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -64,7 +64,7 @@ MeshRenderer:
   m_SmallMeshCulling: 1
   m_ForceMeshLod: -1
   m_MeshLodSelectionBias: 0
-  m_RenderingLayerMask: 257
+  m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 22fbf2a76bb8c0948b1a90915abe4a90, type: 2}
@@ -168,12 +168,17 @@ MonoBehaviour:
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
   m_normalMesh: {fileID: 5058939095065862159}
-  m_sabotagedMesh: {fileID: 8554978192234837727}
+  m_vfx: {fileID: 8554978192234837727}
   m_scoreValue: 1
   m_highlightRenderers:
   - {fileID: 7506536898928165685}
-  - {fileID: 2091922555540639281}
   m_highlightColor: {r: 0, g: 1, b: 1, a: 1}
+  m_notSabotagedLayer:
+    serializedVersion: 0
+    m_Bits: 256
+  m_sabotagedLayer:
+    serializedVersion: 0
+    m_Bits: 512
   m_pulseSpeed: 3
   m_minIntensity: 0.2
   m_maxIntensity: 0.6
@@ -196,7 +201,7 @@ GameObject:
   - component: {fileID: 2091922555540639281}
   - component: {fileID: 6002683269968367981}
   m_Layer: 3
-  m_Name: MeshSabote
+  m_Name: VFX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -212,7 +217,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 0.13683, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8415188937912499505}
@@ -232,7 +237,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8554978192234837727}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
