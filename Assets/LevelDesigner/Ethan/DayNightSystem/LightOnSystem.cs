@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class LightOnSystem : MonoBehaviour
 {
-    public float LightOnDuration = 5f;
+    public float LightOnDuration = 10f;
     [HideInInspector] public List<LightData> lights;
 
     private bool running = true;
@@ -17,9 +17,9 @@ public class LightOnSystem : MonoBehaviour
         }
 
         //print les éléments de la liste pour vérification
-        foreach (var ld in lights) {
-            UnityEngine.Debug.LogFormat("Light found: {0} with intensity {1}", ld.gameObject.name, ld.lightIntensity);
-        }
+        // foreach (var ld in lights) {
+        //     UnityEngine.Debug.LogFormat("Light found: {0} with intensity {1}", ld.gameObject.name, ld.lightIntensity);
+        // }
     }
 
     public void TurnOnLights() {
