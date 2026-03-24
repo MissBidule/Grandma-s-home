@@ -124,8 +124,6 @@ public class ChildController : PlayerControllerCore
     public void Jump()
     {
         if (!isServer) return;
-        print(m_rigidbody.linearVelocity.y);
-        print(IsGrounded());
         if (!IsGrounded()) return;
         changeFaceMat(new Vector2(0.66f, 0.66f));
         m_animator.SetTrigger("OnJump");

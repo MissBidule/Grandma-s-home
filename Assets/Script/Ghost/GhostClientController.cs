@@ -25,6 +25,7 @@ public class GhostClientController : NetworkBehaviour
     public WheelController m_wheel;
 
     private GhostHUDView m_ghostHUDView;
+    private QteCircle m_qteCircle;
 
     private bool morphPressed = false;
     private bool dashPressed = false;
@@ -208,12 +209,16 @@ public class GhostClientController : NetworkBehaviour
     {
         if (!isOwner) return;
         if (m_ghostController.m_isStopped) return;
+        if (!m_qteCircle) m_qteCircle = FindAnyObjectByType<QteCircle>();
+        if (m_qteCircle != null && m_qteCircle.m_isRunning) return;
         m_wheel.Toggle();
     }
     public void OnMorph()
     {
         if (!isOwner) return;
         if (m_ghostController.m_isStopped) return;
+        if (!m_qteCircle) m_qteCircle = FindAnyObjectByType<QteCircle>();
+        if (m_qteCircle != null && m_qteCircle.m_isRunning) return;
         if (!m_ghostMorphPreview.m_canMorph || !m_ghostMorphPreview.m_currentPrefab || m_ghostMorph.m_isMorphed) return;
         if (m_wheel.IsWheelOpen()) m_wheel.Toggle();
         
