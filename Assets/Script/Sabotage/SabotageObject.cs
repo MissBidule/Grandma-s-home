@@ -123,6 +123,11 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         {
             return;
         }
+        GhostMorph ghostMorph = _player.GetComponentInParent<GhostMorph>();
+        if (ghostMorph != null && ghostMorph.m_isMorphed)
+        {
+            return;
+        }
         ChildController childController = _player.GetComponentInParent<ChildController>();
         if (childController != null && childController.m_isScared) return;
         Rigidbody rb = _player.GetComponentInParent<Rigidbody>();

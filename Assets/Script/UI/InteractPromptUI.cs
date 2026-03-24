@@ -68,4 +68,9 @@ public class InteractPromptUI : MonoBehaviour
     {
         m_currentInfo.ChildCaughtGhost(_childName, _ghostName);
     }
+
+    public void ShowRes(string _ghostSavior, string _ghostSaved)
+    {
+        m_currentInfo.GhostResGhost(_ghostSavior, _ghostSaved);
+    }
 }
