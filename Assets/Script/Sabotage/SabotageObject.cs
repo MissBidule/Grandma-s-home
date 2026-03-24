@@ -240,7 +240,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         SetSabotableForAll(_sabotable);
     }
 
-    [ObserversRpc(runLocally:true, requireServer:true)]
+    [ObserversRpc(runLocally:true, requireServer:true, bufferLast:true)]
     private void SetSabotableForAll(bool _sabotable)
     {
         m_isSabotable = _sabotable;
