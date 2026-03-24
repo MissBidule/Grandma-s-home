@@ -22,7 +22,10 @@ public class ChildController : PlayerControllerCore
     public float m_cameraYaw;
     [NonSerialized] public Vector3 m_cameraPosition;
     [NonSerialized] public Vector3 m_cameraForward;
-    
+
+    [SerializeField] private JumpTriggerScript m_jumpTriggerScript;
+    [SerializeField] private bool m_isJumping = false;
+
     [Header("Weapon Switching")]
     public bool m_isRanged;
     public float m_lastShot;
@@ -88,8 +91,14 @@ public class ChildController : PlayerControllerCore
         m_rigidbody.MovePosition(
             m_rigidbody.position + m_wishDir * (m_speed * Time.deltaTime * m_speedModifier)
         );
+        
+        m_animator.SetFloat("VerticalSpeed", m_rigidbody.linearVelocity.y);
 
-
+        print(m_rigidbody.linearVelocity.y);
+        if(m_rigidbody.linearVelocity.y < -0.1f)
+        {
+            changeFaceMat(new Vector2(0.33f, 0.66f));
+        }
     }
     
     void SetSpeedModifier()
@@ -117,8 +126,10 @@ public class ChildController : PlayerControllerCore
     public void Jump()
     {
         if (!isServer) return;
-        changeFaceMat(new Vector2(0.66f,0.66f));
-        if (!IsGrounded() || m_rigidbody.linearVelocity.y > 0.1f) return;
+        if (!IsGrounded()) return;
+        changeFaceMat(new Vector2(0.66f, 0.66f));
+        m_animator.SetTrigger("OnJump");
+        m_isJumping = true;
         m_rigidbody.AddForce(Vector3.up * m_jumpImpulse, ForceMode.Impulse);
     }
 
@@ -128,7 +139,8 @@ public class ChildController : PlayerControllerCore
      */
     private bool IsGrounded()
     {
-        return Physics.Raycast(transform.position, Vector3.down, out _, 1.0f);
+        if(Physics.Raycast(transform.position, Vector3.down, out _, 1.0f)) return true;
+        else return (m_jumpTriggerScript.m_colliders.Count > 0 && m_rigidbody.linearVelocity.y == 0f);
     }
 
     /*
