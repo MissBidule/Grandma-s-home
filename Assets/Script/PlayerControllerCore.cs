@@ -7,8 +7,6 @@ using UI;
 using Script.UI.Views;
 using Script.States;
 using PurrLobby;
-using PurrNet.Modules;
-using PurrNet.Transports;
 
 /*
  * @brief Player Core class inherited by Child & phantom
@@ -21,6 +19,7 @@ public class PlayerControllerCore : NetworkBehaviour
     public CinemachineCamera m_playerCamera;
     [SerializeField] private GameObject m_localRenderCamera;
     [SerializeField] private NetworkAnimator m_playerAnimator;
+    [SerializeField] private List<Renderer> m_renderers = new();
 
     [Header("ServerResponse")]
     public float m_PingCooldown = 5f;
@@ -28,8 +27,7 @@ public class PlayerControllerCore : NetworkBehaviour
     public bool m_isServerAccessible = true;
     public bool m_isClientAccessible = true;
 
-    public string m_memberID = "";
-    public string m_username = "";
+    private string m_memberID = "";
 
     protected virtual void Awake()
     {
@@ -73,7 +71,7 @@ public class PlayerControllerCore : NetworkBehaviour
             m_isClientAccessible = false;
             Debug.LogWarning("Client is not accessible. Last ping was " + m_elapsedTimeSincePing + " seconds ago.");
             DisconnectPlayer();
-            UnityProxy.Destroy(gameObject, 2f);
+            Destroy(gameObject, 2f);
         }
     }
 
@@ -92,8 +90,7 @@ public class PlayerControllerCore : NetworkBehaviour
     [ObserversRpc]
     private void DisconnectPlayer()
     {
-        FindAnyObjectByType<RoleKeeper>().SetMemberDisconnected(m_memberID);
-        FindAnyObjectByType<LeaderboardUI>().UpdateDisconnected();
+        FindAnyObjectByType<RoleKeeper>().setMemberDisconnected(m_memberID);
     }
 
     /*
@@ -106,6 +103,15 @@ public class PlayerControllerCore : NetworkBehaviour
         Debug.Log($"[{gameObject.name}] OnSpawned - isOwner: {isOwner}, localPlayer: {localPlayer}, owner: {owner}");
 
         ApplyOwnership();
+
+        if (!isOwner)
+        {
+            // Change color of non-owned players for better visibility
+            foreach (var renderer in m_renderers)
+            {
+                renderer.material.color = Color.HSVToRGB(Random.Range(0f, 1f), 0.8f, 0.9f);
+            }
+        }
     }
 
     /*
@@ -120,8 +126,8 @@ public class PlayerControllerCore : NetworkBehaviour
     {
         if (!InstanceHandler.TryGetInstance(out UIsManager uisManager))
             return;
+        uisManager.HideView<WaitForPlayerView>();
         uisManager.ToggleUIVision();
-        Cursor.lockState = CursorLockMode.Locked;
     }
 
     private void ApplyOwnership()
@@ -139,19 +145,16 @@ public class PlayerControllerCore : NetworkBehaviour
         if (m_localRenderCamera != null)
             m_localRenderCamera.SetActive(isOwner);
 
-        if (isOwner)
-        {
+        if (isOwner) {
             DisableWaitUIObserverRPC();
-            RoleKeeper roleKeeper = FindAnyObjectByType<RoleKeeper>();
-            ApplyUserData(roleKeeper.GetLocalMemberID(), roleKeeper.GetLocalUsername());
+            ApplyMemberID(FindAnyObjectByType<RoleKeeper>().getLocalMemberID());
         }
     }
 
-    [ObserversRpc (runLocally: true, requireServer: false, bufferLast: true)]
-    private void ApplyUserData(string _memberId, string _username)
+    [ServerRpc]
+    private void ApplyMemberID(string _memberID)
     {
-        m_memberID = _memberId;
-        m_username = _username;
+        m_memberID = _memberID;
     }
     
     private void OnDisable()

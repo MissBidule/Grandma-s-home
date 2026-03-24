@@ -15,7 +15,7 @@ namespace Script.States
         [PurrScene, SerializeField] private string m_lobbyScene;
         
         private PlayerSpawningState m_spawnState;
-        private bool _hasAlreadySwitched = false;
+        private static bool _hasAlreadySwitched = false;
         
         private void Awake()
         {
@@ -46,7 +46,6 @@ namespace Script.States
                 return;
             
             SetupEndGameUI(_childWin);
-            InteractPromptUI.m_Instance.Hide();
             
             if (!InstanceHandler.TryGetInstance(out EndGameView endGameView))
                 return;
@@ -100,7 +99,6 @@ namespace Script.States
             
             uisManager.ShowView<EndGameView>();
             uisManager.ToggleUIVision();
-
         }
     }
 }
