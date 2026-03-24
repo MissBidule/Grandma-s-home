@@ -12,7 +12,7 @@ public class TChildClientController : MonoBehaviour
     public GameObject m_uiHolder;
     private CinemachineCamera m_playerCamera;
     private TChildInputController m_childInputController;
-    private ChildController m_childController;
+    private TChildController m_childController;
     private QteCircle m_qteCircle;
 
     private bool m_jumpPressed = false;
@@ -60,8 +60,8 @@ public class TChildClientController : MonoBehaviour
 
             // DebugPrintTrafic();
 
-            if (m_childController.m_isScared && m_qteCircle.m_isRunning)
-                m_qteCircle.CancelQte();
+            //if (m_childController.m_isScared && m_qteCircle.m_isRunning)
+              //  m_qteCircle.CancelQte();
 
             if (m_qteCircle.m_isRunning) return;
             var moveVec = m_childInputController.m_movementInputVector;
