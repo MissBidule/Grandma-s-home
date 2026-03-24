@@ -89,14 +89,6 @@ namespace Script.States
             return spawnedPlayers;
         }
 
-        [ObserversRpc]
-        private void DisableWaitInterface()
-        {
-            if (!InstanceHandler.TryGetInstance(out UIsManager uisManager))
-                return;
-            uisManager.HideView<WaitForPlayerView>();
-        }
-
         private void DespawnPlayers()
         {
             PlayerControllerCore[] allPlayers = FindObjectsByType<PlayerControllerCore>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
