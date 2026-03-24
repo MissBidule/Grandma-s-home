@@ -58,20 +58,47 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 054d23204be6bfa4daf7e879656877a2, type: 3}
       insertIndex: -1
-      addedObject: {fileID: -4588770171644975701}
+      addedObject: {fileID: 506685043872941656}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 054d23204be6bfa4daf7e879656877a2, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1363201140963190019}
+      addedObject: {fileID: 7237118116099267947}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 054d23204be6bfa4daf7e879656877a2, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 4724654143905608030}
+      addedObject: {fileID: -7567008072072891878}
   m_SourcePrefab: {fileID: 100100000, guid: 054d23204be6bfa4daf7e879656877a2, type: 3}
 --- !u!1 &6278870531912128262 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 054d23204be6bfa4daf7e879656877a2, type: 3}
   m_PrefabInstance: {fileID: 6620976081720011351}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &-4588770171644975701
+--- !u!114 &506685043872941656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6278870531912128262}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5acd96b0ff59994d8438732e92270fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BrokeDecor
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  m_brokenMesh: {fileID: 0}
+  m_additionalMeshes: []
+  m_brokenPrefab: {fileID: 4988350463373006251, guid: 463f7b98104d34bafa70e5f6f426de99, type: 3}
+  m_scoreValue: 50
+  m_isBroken: 0
+  m_alreadyBroken: 0
+--- !u!114 &7237118116099267947
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -93,59 +120,25 @@ MonoBehaviour:
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
   m_icon: {fileID: 21300000, guid: d33333b51fab1d2498d54423d22460ff, type: 3}
---- !u!114 &1363201140963190019
-MonoBehaviour:
+--- !u!64 &-7567008072072891878
+MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6278870531912128262}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 817fe5016bd0a2a49a95b6eb338bb132, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkTransform
-  _isSetup: 0
-  _prefabId: -2147483648
-  _componentIndex: -2147483648
-  _shouldBePooled: 0
-  _parent: {fileID: 0}
-  _invertedPathToNearestParent: 
-  _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
-  _syncPosition: 1
-  _syncRotation: 1
-  _syncScale: 1
-  _syncParent: 1
-  _interpolateSettings: 7
-  _minBufferSize: 1
-  _maxBufferSize: 2
-  _characterControllerPatch: 0
-  _ownerAuth: 1
-  _interpolationTiming: 0
---- !u!114 &4724654143905608030
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6278870531912128262}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5acd96b0ff59994d8438732e92270fb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BrokeDecor
-  _isSetup: 0
-  _prefabId: -2147483648
-  _componentIndex: -2147483648
-  _shouldBePooled: 0
-  _parent: {fileID: 0}
-  _invertedPathToNearestParent: 
-  _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
-  m_brokenPrefab: {fileID: 4988350463373006251, guid: 463f7b98104d34bafa70e5f6f426de99, type: 3}
-  m_scoreValue: 50
-  m_isBroken: 0
-  m_alreadyBroken: 0
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 2534964839176971238, guid: 054d23204be6bfa4daf7e879656877a2, type: 3}
