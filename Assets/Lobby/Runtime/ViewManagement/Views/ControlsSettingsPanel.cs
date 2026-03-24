@@ -37,6 +37,7 @@ namespace PurrLobby
             { "Child/Change_weapon", "Change Weapon" },
             { "Child/Hint", "Show Hint" },
             { "Child/PushToTalk", "Push to Talk" },
+            { "Child/Leaderboard", "Leaderboard" },
             // Ghost
             { "Ghost/Interact", "Interact" },
             { "Ghost/TransformConfirm", "Transform" },
@@ -45,9 +46,10 @@ namespace PurrLobby
             { "Ghost/Sneak", "Sneak" },
             { "Ghost/RotatePreviewLeft", "Rotate Left" },
             { "Ghost/RotatePreviewRight", "Rotate Right" },
-            { "Ghost/OpenProps", "Roue de transformation" },
+            { "Ghost/OpenProps", "Transform Wheel" },
             { "Ghost/Hint", "Show Hint" },
             { "Ghost/PushToTalk", "Push to Talk" },
+            { "Ghost/Leaderboard", "Leaderboard" },
         };
 
         // Composite part labels: "MapName/ActionName/partName" → display name
