@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class ChildSimulateMovement : NetworkBehaviour
 {
-    private readonly float tickRate = 1f / 30f;
     [SerializeField] private float m_speed = 5f;
     [SerializeField] private float m_jumpImpulse = 6.0f;
     public bool m_isScared = false;
@@ -29,11 +28,9 @@ public class ChildSimulateMovement : NetworkBehaviour
 
         // Movement
         var speedModifier = GetSpeedModifier(_input.sneakPressed);
-        Vector3 movement = _input.wishDirection * (m_speed * tickRate * speedModifier);
+        Vector3 movement = _input.wishDirection * (m_speed * Time.fixedDeltaTime * speedModifier);
 
-        m_rigidbody.MovePosition(
-            m_rigidbody.position + movement
-        );
+        m_rigidbody.position += movement;
 
         if (_input.jumpPressed) Jump();
     }
