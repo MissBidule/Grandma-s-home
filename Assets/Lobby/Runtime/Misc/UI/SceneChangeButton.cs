@@ -10,6 +10,7 @@ namespace PurrLobby
 
         public void ChangeScene()
         {
+            FindAnyObjectByType<LobbyDataHolder>().SetCurrentLobby(default);
             SceneManager.LoadSceneAsync(scene);
         }
     }
