@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1039192897393351244
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4642070448543893612}
+  m_Layer: 0
+  m_Name: CacTransform
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4642070448543893612
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1039192897393351244}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.156, y: 0.747, z: 0.198}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2873181202271193540}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2220852981099475913
 GameObject:
   m_ObjectHideFlags: 0
@@ -47,6 +78,7 @@ Transform:
   - {fileID: 83983048607550061}
   - {fileID: 2721519371250250100}
   - {fileID: 8286851940836659514}
+  - {fileID: 4642070448543893612}
   - {fileID: 7433275401712138537}
   - {fileID: 4667881100763494844}
   - {fileID: 1929901715859594565}
@@ -189,9 +221,11 @@ MonoBehaviour:
   m_lastShot: 0
   m_switchingTime: 0
   m_cdSwitch: 0.2
+  m_attackRange: 1
   m_GhostLayerMask:
     serializedVersion: 2
     m_Bits: 512
+  m_cacTransform: {fileID: 4642070448543893612}
   m_cdGun: 0.2
   m_bulletSpawnTransform: {fileID: 8286851940836659514}
   m_bulletPrefab: {fileID: 366779594710045177, guid: 90e50898fd15e4755813076e701192cc, type: 3}
@@ -535,42 +569,6 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 3d09c0f7-6836-414d-9309-10e51013ab1f
     m_ActionName: 'Ghost/Escape[/Keyboard/escape]'
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 6565872187536608583}
-        m_TargetAssemblyTypeName: ChildInputController, Assembly-CSharp
-        m_MethodName: OnEscape
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: 99071452-9b02-4cc4-9b4c-06f7b819a5dd
-    m_ActionName: 'Child/Escape[/Keyboard/escape]'
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 6565872187536608583}
-        m_TargetAssemblyTypeName: ChildInputController, Assembly-CSharp
-        m_MethodName: OnLeaderboard
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: 53bbe6f8-79e3-4ed5-9570-bffaf2c33e04
-    m_ActionName: 'Child/Leaderboard[/Keyboard/enter]'
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: d88c83f4-8b4b-485a-a2f9-0bbb920b086c
-    m_ActionName: 'Ghost/Leaderboard[/Keyboard/enter]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Child
@@ -601,6 +599,7 @@ MonoBehaviour:
   _syncRotation: 1
   _syncScale: 0
   _syncParent: 1
+  _forceSleepRb: 1
   _interpolateSettings: 7
   _minBufferSize: 1
   _maxBufferSize: 2
@@ -829,20 +828,14 @@ MonoBehaviour:
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
   _ownerAuth: 0
-  _acceptableError: 0.05
-  _hardCorrectionThreshold: 2
-  _maxCorrectionTime: -1
-  _springConstant: 80
-  _dampingConstant: 5
-  _rotationSpringMultiplier: 0.3
-  _minRotationCorrectionAngle: 1
-  _uncertaintySpringDampening: 0.5
-  _accelerationDecay: 0.85
-  _hardCorrectionAccelerationScale: 0.1
-  _maxHardCorrectionMultiplier: 5
-  _lowSpeedThreshold: 1.5
-  _lowSpeedSpringMultiplier: 0.1
-  _extrapolateBasedOnPing: 0
+  _interpolationDelay: 0.05
+  _predictionFactor: 0
+  _positionStrength: 5
+  _correctionRange: 2
+  _rotationStrength: 3
+  _hardSnapDistance: 3
+  _hardSnapAngle: 210
+  _acceptableRotationError: 1
   _positionChangeThreshold: 0.001
   _rotationChangeThreshold: 0.001
   _velocityStopThreshold: 0.001
@@ -945,6 +938,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1
   m_pivotOffset: {x: 0, y: 1.6, z: 0}
+  m_xOffset: 0.95
 --- !u!1 &2479407354322227593
 GameObject:
   m_ObjectHideFlags: 0
