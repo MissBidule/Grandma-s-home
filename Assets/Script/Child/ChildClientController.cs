@@ -37,13 +37,9 @@ public class ChildClientController : NetworkBehaviour
     protected override void OnSpawned()
     {
         base.OnSpawned();
+        m_childController = GetComponent<ChildController>();
 
         if (isOwner) InitOwner();
-    }
-
-    void Start()
-    {
-        m_childController = GetComponent<ChildController>();
     }
 
     protected override void OnOwnerChanged(PurrNet.PlayerID? oldOwner, PurrNet.PlayerID? newOwner, bool asServer)

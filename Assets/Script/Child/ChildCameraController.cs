@@ -18,7 +18,7 @@ public class ChildCameraController : MonoBehaviour
 
     private float m_yaw;
     private float m_pitch;
-    [SerializeField] private float m_xOffset;
+    private float m_xOffset;
 
     private ChildInputController m_childInputController;
     private Transform m_target;
@@ -34,6 +34,7 @@ public class ChildCameraController : MonoBehaviour
         m_childInputController = GetComponentInParent<ChildInputController>();
         m_target = transform.parent;
         m_rigidbody = GetComponentInParent<Rigidbody>();
+        m_xOffset = transform.position.x;
 
         UnityEngine.Cursor.lockState = CursorLockMode.Locked;
     }

@@ -566,6 +566,42 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 3d09c0f7-6836-414d-9309-10e51013ab1f
     m_ActionName: 'Ghost/Escape[/Keyboard/escape]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6565872187536608583}
+        m_TargetAssemblyTypeName: ChildInputController, Assembly-CSharp
+        m_MethodName: OnEscape
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 99071452-9b02-4cc4-9b4c-06f7b819a5dd
+    m_ActionName: 'Child/Escape[/Keyboard/escape]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6565872187536608583}
+        m_TargetAssemblyTypeName: ChildInputController, Assembly-CSharp
+        m_MethodName: OnLeaderboard
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 53bbe6f8-79e3-4ed5-9570-bffaf2c33e04
+    m_ActionName: 'Child/Leaderboard[/Keyboard/enter]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: d88c83f4-8b4b-485a-a2f9-0bbb920b086c
+    m_ActionName: 'Ghost/Leaderboard[/Keyboard/enter]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Child
@@ -596,7 +632,6 @@ MonoBehaviour:
   _syncRotation: 1
   _syncScale: 0
   _syncParent: 1
-  _forceSleepRb: 1
   _interpolateSettings: 7
   _minBufferSize: 1
   _maxBufferSize: 2
@@ -825,14 +860,20 @@ MonoBehaviour:
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
   _ownerAuth: 0
-  _interpolationDelay: 0.05
-  _predictionFactor: 0
-  _positionStrength: 5
-  _correctionRange: 2
-  _rotationStrength: 3
-  _hardSnapDistance: 3
-  _hardSnapAngle: 210
-  _acceptableRotationError: 1
+  _acceptableError: 0.05
+  _hardCorrectionThreshold: 2
+  _maxCorrectionTime: -1
+  _springConstant: 80
+  _dampingConstant: 5
+  _rotationSpringMultiplier: 0.3
+  _minRotationCorrectionAngle: 1
+  _uncertaintySpringDampening: 0.5
+  _accelerationDecay: 0.85
+  _hardCorrectionAccelerationScale: 0.1
+  _maxHardCorrectionMultiplier: 5
+  _lowSpeedThreshold: 1.5
+  _lowSpeedSpringMultiplier: 0.1
+  _extrapolateBasedOnPing: 0
   _positionChangeThreshold: 0.001
   _rotationChangeThreshold: 0.001
   _velocityStopThreshold: 0.001
@@ -935,7 +976,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1
   m_pivotOffset: {x: 0, y: 1.6, z: 0}
-  m_xOffset: 0.95
 --- !u!1 &2479407354322227593
 GameObject:
   m_ObjectHideFlags: 0
