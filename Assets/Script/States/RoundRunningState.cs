@@ -157,6 +157,9 @@ namespace Script.States
 
             m_startingDoor.OpenDoors();
 
+            SabotageManager sabotageManager = FindAnyObjectByType<SabotageManager>();
+            sabotageManager?.Initialize();
+
             for (int i = 0; i < m_sunIncrementNumber; i++)
             {
                 yield return new WaitForSeconds(_roundDuration/m_sunIncrementNumber);

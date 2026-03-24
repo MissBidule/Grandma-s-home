@@ -20,11 +20,9 @@ public class SabotageManager : NetworkBehaviour
     protected override void OnSpawned()
     {
         base.OnSpawned();
-        if (!isServer) return;
-        Initialize();
     }
 
-    private void Initialize()
+    public void Initialize()
     {
         m_allObjects = new List<SabotageObject>(FindObjectsByType<SabotageObject>(FindObjectsSortMode.None));
         m_activeSabotable.Clear();
