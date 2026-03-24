@@ -17,7 +17,7 @@ namespace Script.States
         [Header("Round Settings")]
         [SerializeField] [Tooltip("Duration of the round in minutes")] private float m_roundDuration;
         [SerializeField] [Tooltip("Number of time the sky will move in the round.")] private int m_sunIncrementNumber = 12;
-        [SerializeField] [Tooltip("DOOR opening duration")] private float m_startDelay = 10f;
+        [SerializeField] [Tooltip("Start duration")] private float m_startDelay = 10f;
 
         [Header("Door")]
         [SerializeField] [Tooltip("The DOOR")] private StartingDoor m_startingDoor;
