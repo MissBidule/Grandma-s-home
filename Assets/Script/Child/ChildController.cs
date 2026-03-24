@@ -91,6 +91,12 @@ public class ChildController : PlayerControllerCore
         );
         
         m_animator.SetFloat("VerticalSpeed", m_rigidbody.linearVelocity.y);
+
+        print(m_rigidbody.linearVelocity.y);
+        if(m_rigidbody.linearVelocity.y < -0.1f)
+        {
+            changeFaceMat(new Vector2(0.33f, 0.66f));
+        }
     }
     
     void SetSpeedModifier()
@@ -123,6 +129,7 @@ public class ChildController : PlayerControllerCore
         if (!IsGrounded()) return;
         changeFaceMat(new Vector2(0.66f, 0.66f));
         m_animator.SetTrigger("OnJump");
+        m_isJumping = true;
         m_rigidbody.AddForce(Vector3.up * m_jumpImpulse, ForceMode.Impulse);
     }
 
