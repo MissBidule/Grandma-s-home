@@ -171,6 +171,7 @@ public class ChildInputController : MonoBehaviour
         if (_context.performed)
         {
             m_childClientController.OnEscape();
+            PauseMenuView.Instance?.OnEscapePressed();
         }
     }
 }

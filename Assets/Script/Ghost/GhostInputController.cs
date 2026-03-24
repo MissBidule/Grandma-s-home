@@ -235,7 +235,7 @@ public class GhostInputController : MonoBehaviour
                 return;
             }
 
-            // TODO: ouvrir le menu pause (lucas askip)
+            PauseMenuView.Instance?.OnEscapePressed();
         }   
     }
 }

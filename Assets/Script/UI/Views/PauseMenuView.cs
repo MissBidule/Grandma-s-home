@@ -2,7 +2,6 @@ using PurrLobby;
 using PurrNet;
 using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 /*
@@ -28,6 +27,8 @@ public class PauseMenuView : MonoBehaviour
     [UnityEngine.Serialization.FormerlySerializedAs("sectionTitlePrefab")]
     [SerializeField] private OptionSectionTitle m_sectionTitlePrefab;
 
+    public static PauseMenuView Instance { get; private set; }
+
     private Canvas m_canvas;
     private CanvasGroup m_canvasGroup;
     private GameObject m_mainPanel;
@@ -36,35 +37,26 @@ public class PauseMenuView : MonoBehaviour
 
     private void Awake()
     {
+        Instance = this;
         BuildCanvas();
         m_optionsPanel = CreateOptionsPanel();
         BuildMainPanel();
         SetVisible(false);
     }
 
-    private void Update()
+    private void OnDestroy()
     {
-        if (Keyboard.current == null)
-        {
-            return;
-        }
-        if (!Keyboard.current.escapeKey.wasPressedThisFrame)
-        {
-            return;
-        }
+        if (Instance == this) Instance = null;
+    }
 
+    public void OnEscapePressed()
+    {
         if (m_optionsPanel.gameObject.activeSelf)
-        {
             CloseOptions();
-        }
         else if (m_isPaused)
-        {
             Resume();
-        }
         else
-        {
             OpenMenu();
-        }
     }
 
     /*
