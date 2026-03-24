@@ -34,6 +34,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     [SerializeField] private Interact m_saboteur;
 
     public bool m_isSabotaged;
+    public bool m_isSabotable { get; private set; }
     private bool m_isQteRunning;
     private bool m_isFocused;
 
@@ -83,11 +84,10 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         m_isFocused = true;
         if (!m_isSabotaged)
         {
-            if (_player.m_isGhost) InteractPromptUI.m_Instance.Show(m_promptMessageSABOTAGE);
+            bool canSabotage = _player.m_isGhost && m_isSabotable;
+            if (canSabotage) InteractPromptUI.m_Instance.Show(m_promptMessageSABOTAGE);
             else InteractPromptUI.m_Instance.Hide();
-            SetHighlight(_player.m_isGhost);
-
-            
+            SetHighlight(canSabotage);
         }
         if (m_isSabotaged)
         {
@@ -120,6 +120,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
      */
     public void OnInteract(Interact _player)
     {
+        if (_player.m_isGhost && !m_isSabotable) return;
         if ((m_isSabotaged && _player.m_isGhost) || (!_player.m_isGhost && !m_isSabotaged) || m_isQteRunning)
         {
             return;
@@ -227,9 +228,23 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         UnsabotageForAll();
 
         if(InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
-        {
             scoreManager.SubPointSabotage(info.sender);
-        }
+
+        SabotageManager sabotageManager = FindAnyObjectByType<SabotageManager>();
+        sabotageManager?.OnObjectRepaired(this);
+    }
+
+    public void SetSabotable(bool _sabotable)
+    {
+        if (!isServer) return;
+        SetSabotableForAll(_sabotable);
+    }
+
+    [ObserversRpc(runLocally:true, requireServer:true)]
+    private void SetSabotableForAll(bool _sabotable)
+    {
+        m_isSabotable = _sabotable;
+        ApplyState();
     }
 
     [ObserversRpc(runLocally:true, requireServer:true)]
@@ -257,7 +272,8 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         foreach (Renderer renderer in m_highlightRenderers)
         {
             renderer.renderingLayerMask = 0;
-            renderer.renderingLayerMask |= m_isSabotaged ? m_sabotagedLayer + (uint)RenderingLayerMask.defaultRenderingLayerMask : m_notSabotagedLayer + (uint)RenderingLayerMask.defaultRenderingLayerMask;
+            RenderingLayerMask activeLayer = m_isSabotaged ? m_sabotagedLayer : (m_isSabotable ? m_notSabotagedLayer : default);
+            renderer.renderingLayerMask |= activeLayer + (uint)RenderingLayerMask.defaultRenderingLayerMask;
         }
         if (m_vfx != null)
         {
