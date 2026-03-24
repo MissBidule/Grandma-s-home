@@ -21,6 +21,8 @@ public class ChildClientController : NetworkBehaviour
 
     //Animations
     [SerializeField]private NetworkAnimator m_animator;
+    [SerializeField] private GameObject m_racket;
+    [SerializeField] private GameObject m_gun;
     private bool m_isMovingForward;
     private bool m_isMovingBackward;
     private bool m_isMovingLeft;
@@ -28,12 +30,6 @@ public class ChildClientController : NetworkBehaviour
     private bool m_isAttacking;
     private bool m_isSneaking;
     private float m_attackTime;
-    AnimatorStateInfo animStateInfo;
-    private bool m_isSwitchingWeapon;
-    [SerializeField]private GameObject m_racket;
-    [SerializeField]private GameObject m_gun;
-    private bool m_startedAnimation = false;
-    private float m_oldAnimHash;
 
 
     private bool m_sneakPressed = false;
@@ -41,9 +37,13 @@ public class ChildClientController : NetworkBehaviour
     protected override void OnSpawned()
     {
         base.OnSpawned();
-        m_childController = GetComponent<ChildController>();
 
         if (isOwner) InitOwner();
+    }
+
+    void Start()
+    {
+        m_childController = GetComponent<ChildController>();
     }
 
     protected override void OnOwnerChanged(PurrNet.PlayerID? oldOwner, PurrNet.PlayerID? newOwner, bool asServer)
@@ -85,6 +85,9 @@ public class ChildClientController : NetworkBehaviour
 
             // DebugPrintTrafic();
 
+            if (m_childController.m_isScared && m_qteCircle.m_isRunning)
+                m_qteCircle.CancelQte();
+
             if (m_qteCircle.m_isRunning) return;
             var moveVec = m_childInputController.m_movementInputVector;
             var wishDir = GetDirectionIntention(moveVec);
@@ -105,26 +108,6 @@ public class ChildClientController : NetworkBehaviour
             m_jumpPressed = false;
             m_switchWeaponPressed = false;
             m_attackPressed = false;
-            if (m_isSwitchingWeapon)
-            {
-                animStateInfo = m_animator.GetCurrentAnimatorStateInfo(0);
-                print(animStateInfo.normalizedTime);
-                if (animStateInfo.normalizedTime > 0.3f)
-                {
-                    if (!m_startedAnimation)
-                    {
-                        m_startedAnimation = true;
-                        m_oldAnimHash = animStateInfo.shortNameHash;
-                    }
-                    else if (m_oldAnimHash != animStateInfo.shortNameHash)
-                    {
-                        m_racket.SetActive(!m_racket.activeInHierarchy);
-                        m_gun.SetActive(!m_gun.activeInHierarchy);
-                        m_isSwitchingWeapon = false;
-                        m_startedAnimation = false;
-                    }
-                }
-            }
         }
     }
 
@@ -160,20 +143,49 @@ public class ChildClientController : NetworkBehaviour
     {
         if (!isOwner) return;
         if (!m_qteCircle.m_isRunning) return;
-        m_qteCircle.CheckSuccess();
+        if (m_qteCircle.CheckSuccess())
+        {
+            //QTE finished
+            RepairNotification();
+        }
+    }
+
+    [ObserversRpc (requireServer: false)]
+    public void RepairNotification()
+    {
+        InteractPromptUI.m_Instance.ShowRepair(m_childController.m_username);
+    }
+
+    public void OnEscape()
+    {
+        if (!isOwner) return;
+        if (m_qteCircle != null && m_qteCircle.m_isRunning)
+            m_qteCircle.CancelQte();
     }
 
     public void OnSwitchWeapon()
     {
         if (!isOwner) return;
-        m_switchWeaponPressed = true;
-        if(m_childController.m_switchingTime > m_childController.m_cdSwitch)
+        if(!m_childController.m_shootAnimRunning)
         {
+            m_switchWeaponPressed = true;
             m_animator.SetTrigger("OnSwitch");
-            m_animator.SetBool("Cac", m_childController.m_isRanged);
-            m_isSwitchingWeapon = true;
         }
     }
+
+
+
+    /*
+     * @brief  This function allows you to change the visible weapon in the player's hand.
+     * @return void
+     */
+
+    public void ChangeVisibleWeapon()
+    {
+        m_racket.SetActive(!m_racket.activeInHierarchy);
+        m_gun.SetActive(!m_gun.activeInHierarchy);
+    }
+
 
     public void OnAttack()
     {
@@ -216,6 +228,7 @@ public class ChildClientController : NetworkBehaviour
                 {
                     m_animator.CrossFadeInFixedTime("cac_idle", 0.2f, 0);
                 }
+                m_childController.callChangeFace(new Vector2(0,0));
             }
             return Vector3.zero;
         }
@@ -237,6 +250,7 @@ public class ChildClientController : NetworkBehaviour
                     {
                         m_animator.CrossFadeInFixedTime("cac_sideWalk_R", 0.2f, 0);
                     }
+                    m_childController.callChangeFace(new Vector2(.33f, 0));
                 }
                 else
                 {
@@ -248,6 +262,7 @@ public class ChildClientController : NetworkBehaviour
                     {
                         m_animator.CrossFadeInFixedTime("cac_sideRun_R", 0.2f, 0);
                     }
+                    m_childController.callChangeFace(new Vector2(.66f, 0));
                 }
             }
             else if(m_isMovingLeft == false && _movement.x < 0)
@@ -266,17 +281,19 @@ public class ChildClientController : NetworkBehaviour
                     {
                         m_animator.CrossFadeInFixedTime("cac_sideWalk_L", 0.2f, 0);
                     }
+                    m_childController.callChangeFace(new Vector2(.33f, 0));
                 }
                 else
                 {
                     if (m_childController.m_isRanged)
                     {
-                        m_animator.CrossFadeInFixedTime("gun_sideWalk_L", 0.2f, 0);
+                        m_animator.CrossFadeInFixedTime("gun_sideRun_L", 0.2f, 0);
                     }
                     else
                     {
-                        m_animator.CrossFadeInFixedTime("cac_sideWalk_L", 0.2f, 0);
+                        m_animator.CrossFadeInFixedTime("cac_sideRun_L", 0.2f, 0);
                     }
+                    m_childController.callChangeFace(new Vector2(.66f, 0));
                 }
             }
         }
@@ -298,6 +315,7 @@ public class ChildClientController : NetworkBehaviour
                     {
                         m_animator.CrossFadeInFixedTime("cac_walk", 0.2f, 0);
                     }
+                    m_childController.callChangeFace(new Vector2(.33f, 0));
                 }
                 else
                 {
@@ -309,6 +327,7 @@ public class ChildClientController : NetworkBehaviour
                     {
                         m_animator.CrossFadeInFixedTime("cac_run", 0.2f, 0);
                     }
+                    m_childController.callChangeFace(new Vector2(.66f, 0));
                 }
             }
             else if (m_isMovingBackward == false && _movement.y < 0)
@@ -327,6 +346,7 @@ public class ChildClientController : NetworkBehaviour
                     {
                         m_animator.CrossFadeInFixedTime("cac_bwalk", 0.2f, 0);
                     }
+                    m_childController.callChangeFace(new Vector2(.33f, 0));
                 }
                 else
                 {
@@ -338,6 +358,7 @@ public class ChildClientController : NetworkBehaviour
                     {
                         m_animator.CrossFadeInFixedTime("cac_brun", 0.2f, 0);
                     }
+                    m_childController.callChangeFace(new Vector2(.66f, 0));
                 }
             }
         }
