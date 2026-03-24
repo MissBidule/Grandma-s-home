@@ -551,7 +551,10 @@ namespace PurrLobby
 
         private void ApplyTextureQuality(int _i)
         {
-            // TODO
+            // 0 = Very Low, 1 = Low, 2 = Medium, 3 = High
+            // globalTextureMipmapLimit: 0 = full res, 1 = half, 2 = quarter, 3 = eighth
+            int[] mipmapLimits = { 3, 2, 1, 0 };
+            QualitySettings.globalTextureMipmapLimit = _i < mipmapLimits.Length ? mipmapLimits[_i] : 0;
         }
 
         /*
