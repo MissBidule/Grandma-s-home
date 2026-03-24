@@ -39,11 +39,14 @@ public class GhostClientController : NetworkBehaviour
     {
         base.OnSpawned();
 
+        if (isOwner) InitOwner();
+    }
+
+    void Start()
+    {
         m_ghostController = GetComponent<GhostController>();
         m_ghostMorph = GetComponent<GhostMorph>();
         m_ghostMorphPreview = GetComponentInChildren<GhostMorphPreview>();
-
-        if (isOwner) InitOwner();
     }
 
     protected override void OnOwnerChanged(PurrNet.PlayerID? oldOwner, PurrNet.PlayerID? newOwner, bool asServer)
