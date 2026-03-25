@@ -16,10 +16,11 @@ public class GhostMorphPreview : MonoBehaviour
     [SerializeField] private float m_scanRange = 10f;
     [SerializeField] private LayerMask m_scanLayerMask;
     [SerializeField] private GameObject m_mesh;
+    [SerializeField] private Shader m_shader;
 
     private HashSet<Collider> m_colliders = new HashSet<Collider>();
     private MeshRenderer m_meshRenderer;
-    private Collider m_previewCollider;
+    public Collider m_previewCollider;
     public WheelController m_wheel;
     public bool m_canMorph => m_colliders.Count == 0;
 
@@ -137,7 +138,7 @@ public class GhostMorphPreview : MonoBehaviour
         m_currentPrefab = _prefab;
 
         MeshFilter meshFilter = _prefab.GetComponentInChildren<MeshFilter>();
-        BoxCollider collider = _prefab.GetComponentInChildren<BoxCollider>();
+        MeshCollider collider = _prefab.GetComponentInChildren<MeshCollider>();
         MeshRenderer prefabRenderer = _prefab.GetComponentInChildren<MeshRenderer>();
 
         m_meshRenderer.enabled = true;
@@ -146,6 +147,8 @@ public class GhostMorphPreview : MonoBehaviour
         if (prefabRenderer != null)
         {
             m_meshRenderer.sharedMaterials = prefabRenderer.sharedMaterials;
+            //This one prevents unwanted visuals
+            UpdateMaterial();
 
             InteractPromptUI.m_Instance.Show(m_promptMessageValid);
             m_GhostPreviewOn =true;
@@ -188,16 +191,16 @@ public class GhostMorphPreview : MonoBehaviour
      * @param _target: The target Collider to copy from.
      * @return void
      */
-    void ReplaceCollider(BoxCollider _target)
+    void ReplaceCollider(MeshCollider _target)
     {
         if (m_previewCollider != null)
         {
             Destroy(m_previewCollider);
         }
 
-        BoxCollider box = gameObject.AddComponent<BoxCollider>();
-        box.center = _target.center;
-        box.size = _target.size;
+        MeshCollider box = gameObject.AddComponent<MeshCollider>();
+        box.sharedMesh = _target.sharedMesh;
+        box.convex = true;
         box.isTrigger = true;
         m_previewCollider = box;
     }
@@ -245,10 +248,13 @@ public class GhostMorphPreview : MonoBehaviour
      */
     void UpdateMaterial()
     {
+        if (!isOwner) return;
+        if (m_meshRenderer == null) return;
         Material[] mats = m_meshRenderer.materials;
         Color targetColor = m_canMorph ? m_validColor : m_invalidColor;
         foreach (Material mat in mats)
         {
+            mat.shader = m_shader;
             mat.color = targetColor;
 
             mat.SetFloat("_Surface", 1);
@@ -297,7 +303,7 @@ public class GhostMorphPreview : MonoBehaviour
                     if(!GetComponentInParent<GhostMorph>().m_isMorphed)
                     {
                        // There is a clone for few seconds...
-                    InteractPromptUI.m_Instance.Show(m_promptMessageSCAN);
+                        InteractPromptUI.m_Instance.Show(m_promptMessageSCAN);
                     }
                     ClearHighlight();
                     HighlightObject(hitObject);

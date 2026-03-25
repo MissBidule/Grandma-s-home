@@ -16,7 +16,7 @@ public class CustomAuthenticator : AuthenticationBehaviour<string>
     protected override Task<AuthenticationRequest<string>> GetClientPayload()
     {
         // the client will send his password and ID to the server
-        return Task.FromResult(new AuthenticationRequest<string>(_password + " " +FindAnyObjectByType<RoleKeeper>().getLocalMemberID()));
+        return Task.FromResult(new AuthenticationRequest<string>(_password + " " +FindAnyObjectByType<RoleKeeper>().GetLocalMemberID()));
     }
 
     protected override void UnAuthenticateClient(Connection conn)
@@ -26,7 +26,7 @@ public class CustomAuthenticator : AuthenticationBehaviour<string>
 
     protected override Task<AuthenticationResponse> ValidateClientPayload(Connection conn, string payload)
     {
-        FindAnyObjectByType<RoleKeeper>().setConnectionID(payload.Split(' ')[1], conn.connectionId);
+        FindAnyObjectByType<RoleKeeper>().SetConnectionID(payload.Split(' ')[1], conn.connectionId);
         bool isValid = _password == payload.Split(' ')[0];
         return Task.FromResult(new AuthenticationResponse() {success = isValid});
     }
