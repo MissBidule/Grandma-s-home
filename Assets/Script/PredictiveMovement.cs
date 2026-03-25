@@ -5,8 +5,16 @@ using System.Collections.Generic;
 
 public class PredictiveMovement : NetworkBehaviour
 {
+    public struct HistoricalState
+    {
+        public int tick;
+        public Vector3 position;
+        public Quaternion rotation;
+        public Vector3 velocity;
+    }
 
     private List<ChildInputData> inputHistory = new List<ChildInputData>();
+    private List<HistoricalState> stateHistory = new List<HistoricalState>();
     private int tick = 0;
     private int lastProcessedClientTick = 0;
     private int lastSentCorrectionTick = -1;
@@ -83,13 +91,23 @@ public class PredictiveMovement : NetworkBehaviour
 
     private void Tick()
     {
+        var rb = GetComponent<Rigidbody>();
         if (isOwner) // PREDICTION
         {
             currentInput.tick = tick;
 
             if (alreadySimulated) simulateMovement.SimulateMovement(currentInput);
             alreadySimulated = true;
-            if (!isHost) inputHistory.Add(currentInput);
+            if (!isHost) 
+            {
+                inputHistory.Add(currentInput);
+                stateHistory.Add(new HistoricalState {
+                    tick = tick,
+                    position = transform.position,
+                    rotation = transform.rotation,
+                    velocity = rb.linearVelocity
+                });
+            }
             clearInputData();
         }
 
@@ -104,13 +122,13 @@ public class PredictiveMovement : NetworkBehaviour
                 // Le serveur ne renvoie une correction que s'il a traité un NOUVEL input du client
                 if (lastProcessedClientTick != lastSentCorrectionTick)
                 {
-                    ClientReceiveCorrection(lastProcessedClientTick, transform.position, transform.rotation);
+                    ClientReceiveCorrection(lastProcessedClientTick, transform.position, transform.rotation, rb.linearVelocity);
                     lastSentCorrectionTick = lastProcessedClientTick;
                 }
             }
             else
             {
-                ClientReceiveCorrection(tick, transform.position, transform.rotation);
+                ClientReceiveCorrection(tick, transform.position, transform.rotation, rb.linearVelocity);
             }
             clearInputData();
         }
@@ -127,7 +145,7 @@ public class PredictiveMovement : NetworkBehaviour
     }
 
     [ObserversRpc(runLocally:false)]
-    public void ClientReceiveCorrection(int serverTick, Vector3 position, Quaternion rotation)
+    public void ClientReceiveCorrection(int serverTick, Vector3 position, Quaternion rotation, Vector3 velocity)
     {
         if (isServer) return;
         if (!isOwner)
@@ -139,33 +157,39 @@ public class PredictiveMovement : NetworkBehaviour
         else
         {
             // On corrige la position du client
-            Reconciliation(position, rotation, serverTick);
+            Reconciliation(position, rotation, velocity, serverTick);
         }
     }
 
-    public void Reconciliation(Vector3 serverPos, Quaternion serverRot, int serverTick)
+    public void Reconciliation(Vector3 serverPos, Quaternion serverRot, Vector3 serverVel, int serverTick)
     {
         var rb = GetComponent<Rigidbody>();
         
-        // 1. Oter tous les inputs jusqu'au tick serveur INCLUS
-        inputHistory.RemoveAll(input => input.tick <= serverTick);
-
-        // 2. Vérifier si l'erreur est suffisamment grande pour justifier un rollback
-        float distanceError = Vector3.Distance(rb.position, serverPos);
-        if (distanceError < errorThreshold) // ex: errorThreshold = 0.1f
+        bool shouldRollback = true;
+        int stateIndex = stateHistory.FindIndex(s => s.tick == serverTick);
+        
+        if (stateIndex != -1)
         {
-            return; // Prédiction "assez bonne", on ne corrige pas pour éviter les saccades
+            HistoricalState pastState = stateHistory[stateIndex];
+            float distanceError = Vector3.Distance(pastState.position, serverPos);
+            
+            if (distanceError < errorThreshold)
+            {
+                shouldRollback = false; // La prédiction passée était exacte ! Pas de rollback !
+            }
         }
 
-        // Sinon, on remet le joueur sur la position stricte du serveur
+        // On libère la mémoire de l'historique approuvé
+        inputHistory.RemoveAll(input => input.tick <= serverTick);
+        stateHistory.RemoveAll(s => s.tick <= serverTick);
+
+        if (!shouldRollback) return; 
+
+        // Sinon, la réalité diffère, on effectue un vrai rollback strict
         rb.rotation = serverRot;
         rb.position = serverPos; 
-        // Au lieu de Lerp ou MoveTowards ici, en vrai CSP on snap, et on rejoue l'history
-        // Si vous voulez du lissage visuel, mettez un objet visuel enfant lissé, mais le Rigidbody DOIT snaper.
+        rb.linearVelocity = serverVel; // Indispensable pour la courbe de saut !
 
-        // 3. Réappliquer la physique/les inputs ratés (Re-simulation)
-        // ATTENTION: ChildSimulateMovement doit modifier rb.position et PAS MovePosition pendant cette boucle, 
-        // ou alors vous devez appeler Physics.Simulate() si c'est indispensable.
         foreach (var input in inputHistory)
         {
             simulateMovement.SimulateMovement(input);
