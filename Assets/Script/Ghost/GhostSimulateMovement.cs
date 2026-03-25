@@ -8,29 +8,23 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
     [SerializeField] private float m_acceleration = 25f;
     [SerializeField] private float m_slowAmplitude = 0.5f;
     [SerializeField] private float m_dashAmplitude = 1.5f;
-    [SerializeField] private float m_sneakAmplitude = 0.5f;
+
+    [Header("Fly")]
+    [SerializeField] private float m_flySpeed = 3.5f;
 
     [Header("Rotation")]
     [SerializeField] private float m_rotationSpeed = 12f;
 
-    [Header("Auto Climb")]
-    [SerializeField] private float m_climbSpeed = 3.5f;
-    [SerializeField] private float m_climbCheckDistance = 0.6f;
-    [SerializeField] private float m_wallNormalMaxY = 0.4f; 
-    [SerializeField] private float m_raycastHeightOffset = 0.5f;
-    [SerializeField] private LayerMask m_climbableLayerMask = ~0;
-
     private Rigidbody m_rigidbody;
     private GhostController m_ghostController;
-    private QteCircle m_qteCircle;
-    
-    private bool m_canClimbThisFrame;
-    private Vector3 m_wallNormal;
+    private GhostMorph m_ghostMorph;
+    private bool m_isFlying;
 
     void Start()
     {
         m_rigidbody = GetComponent<Rigidbody>();
         m_ghostController = GetComponent<GhostController>();
+        m_ghostMorph = GetComponent<GhostMorph>();
     }
 
     public void SimulateMovement(PredictiveInputData _input)
@@ -39,8 +33,7 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
         if (m_ghostController.m_isStopped) return;
 
         Vector3 wishDir = _input.wishDirection;
-
-        float speedModifier = GetSpeedModifier(_input);
+        float speedModifier = GetSpeedModifier();
 
         if (wishDir.sqrMagnitude > 0.0001f
             && !m_ghostController.m_isStopped
@@ -49,86 +42,55 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
         )
         {
             Quaternion targetRotation = Quaternion.LookRotation(wishDir, Vector3.up);
-
             m_rigidbody.rotation = Quaternion.Slerp(
-                    m_rigidbody.rotation,
-                    targetRotation,
-                    m_rotationSpeed * Time.fixedDeltaTime
+                m_rigidbody.rotation,
+                targetRotation,
+                m_rotationSpeed * Time.fixedDeltaTime
             );
         }
 
-        if (CheckForClimbableWall())
+        // Re-enable fly when grounded while fly is disabled
+        bool isGrounded = m_ghostController.IsGrounded();
+        if (m_ghostController.m_isFlyDisabled && isGrounded)
+            m_ghostController.RemoveFlyDisabledToAll();
+
+        bool isMorphed = m_ghostMorph != null && m_ghostMorph.m_isMorphed;
+        bool forceGravity = m_ghostController.m_isFlyDisabled || isMorphed;
+
+        if (_input.jumpPressed || _input.sneakPressed) m_isFlying = true;
+        if (forceGravity || (isGrounded && !_input.jumpPressed && !_input.sneakPressed)) m_isFlying = false;
+
+        m_rigidbody.useGravity = !m_isFlying;
+
+        // Vertical fly
+        float verticalVel = 0f;
+        if (m_isFlying)
         {
-            m_canClimbThisFrame = true;
+            if (_input.jumpPressed) verticalVel = m_flySpeed * speedModifier;
+            else if (_input.sneakPressed) verticalVel = -m_flySpeed * speedModifier;
         }
 
-        if (m_canClimbThisFrame &&
-            !m_ghostController.m_isReviving &&
-            wishDir.sqrMagnitude > 0.0001f)
-        {
-            Vector3 vel = m_rigidbody.linearVelocity;
-
-            float targetUp = m_climbSpeed * speedModifier;
-            vel.y = Mathf.Max(vel.y, targetUp);
-
-            m_rigidbody.linearVelocity = vel;
-
-            ResetClimbFlags();
-            return;
-        }
-
+        // Horizontal movement
         Vector3 targetVel = speedModifier * m_walkSpeed * wishDir;
-
         Vector3 currentVel = m_rigidbody.linearVelocity;
         Vector3 currentHorizontal = new Vector3(currentVel.x, 0f, currentVel.z);
-
         Vector3 delta = targetVel - currentHorizontal;
         Vector3 accel = Vector3.ClampMagnitude(delta * (m_acceleration * speedModifier), m_acceleration);
 
-        // When physics runs in re-simulation, adding force instantly might not compute as expected immediately,
-        // but since we sync transforms and preserve linear velocity, Euler velocity integration directly works best.
-        m_rigidbody.linearVelocity += new Vector3(accel.x, 0f, accel.z) * Time.fixedDeltaTime;
-
-        ResetClimbFlags();
+        float newY = m_isFlying ? verticalVel : currentVel.y;
+        m_rigidbody.linearVelocity = new Vector3(
+            currentVel.x + accel.x * Time.fixedDeltaTime,
+            newY,
+            currentVel.z + accel.z * Time.fixedDeltaTime
+        );
     }
 
-    float GetSpeedModifier(PredictiveInputData _input)
+    float GetSpeedModifier()
     {
         float speedModifier = 1f;
         if (m_ghostController.m_isSlowed) speedModifier *= m_slowAmplitude;
-        if (m_ghostController.m_isDashing) speedModifier *= m_dashAmplitude; // isDashing is from GhostController tracking Server-side dashes
-        if (_input.sneakPressed) speedModifier *= m_sneakAmplitude;
-        
+        if (m_ghostController.m_isDashing) speedModifier *= m_dashAmplitude;
         if (m_ghostController.m_isStopped || m_ghostController.m_isReviving) speedModifier = 0f;
-
         return speedModifier;
-    }
-
-    private bool CheckForClimbableWall()
-    {
-        if (m_qteCircle == null) m_qteCircle = FindAnyObjectByType<QteCircle>();
-        if (m_qteCircle != null && m_qteCircle.m_isRunning)
-        {
-            return false;
-        }
-        
-        Vector3 rayOrigin = transform.position + Vector3.up * m_raycastHeightOffset;
-        Vector3 rayDirection = transform.forward;
-
-        if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, m_climbCheckDistance, m_climbableLayerMask))
-        {
-            if (hit.normal.y <= m_wallNormalMaxY)
-            {
-                m_wallNormal = hit.normal;
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private void ResetClimbFlags()
-    {
-        m_canClimbThisFrame = false;
-        m_wallNormal = Vector3.zero;
     }
 }

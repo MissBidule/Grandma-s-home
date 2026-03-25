@@ -31,6 +31,7 @@ public class GhostClientController : NetworkBehaviour
     private bool morphPressed = false;
     private bool dashPressed = false;
     private bool sneakPressed = false;
+    private bool jumpPressed = false;
 
     private bool m_reviveUIActive = false;
     private ReviveBarUI m_reviveBarUI;
@@ -112,6 +113,7 @@ public class GhostClientController : NetworkBehaviour
             wishDirection = wishDir,
             dashPressed = dashPressed,
             sneakPressed = sneakPressed,
+            jumpPressed = jumpPressed,
             position = transform.position,
         };
 
@@ -241,6 +243,11 @@ public class GhostClientController : NetworkBehaviour
     public void OnDash()
     {
         dashPressed = true;
+    }
+
+    public void Jump(bool _jumpStatus)
+    {
+        jumpPressed = _jumpStatus;
     }
     
     /*

@@ -145,6 +145,13 @@ public class GhostInputController : MonoBehaviour
         }
     }
     
+    public void OnJump(InputAction.CallbackContext _context)
+    {
+        if (!isOwner) return;
+        if (_context.started) m_ghostClientController.Jump(true);
+        else if (_context.canceled) m_ghostClientController.Jump(false);
+    }
+
     /*
      * @brief OnSneak  is called by the Input System when sneak input is detected
      * @param _context: The context of the input action

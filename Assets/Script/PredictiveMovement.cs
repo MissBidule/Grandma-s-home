@@ -68,7 +68,7 @@ public class PredictiveMovement : NetworkBehaviour
     {
         currentInput = new PredictiveInputData();
         currentInput.wishDirection = Vector3.zero;
-        currentInput.cameraYaw = -1000f; // Valeur par défaut pour indiquer que la caméra n'a pas été mise à jour
+        currentInput.cameraYaw = -1000f; // Valeur par defaut pour indiquer que la camera n'a pas ete mise a jour
         currentInput.cameraPosition = Vector3.zero;
         currentInput.cameraForward = Vector3.zero;
         currentInput.jumpPressed = false;
@@ -80,9 +80,8 @@ public class PredictiveMovement : NetworkBehaviour
 
     private void clearInputData()
     {
-        // Seules les actions one-shot (boutons) doivent être reset. 
-        // Ne PAS reset wishDirection, cameraYaw ou sneakPressed, sinon le perso s'arrête entre deux FixedUpdates ou requêtes réseau !
-        currentInput.jumpPressed = false;
+        // Seules les actions one-shot (boutons) doivent etre reset.
+        // Ne PAS reset wishDirection, cameraYaw, sneakPressed ou jumpPressed, sinon le perso s'arrete entre deux FixedUpdates ou requetes reseau !
         currentInput.switchPressed = false;
         currentInput.attackPressed = false;
         currentInput.dashPressed = false;
@@ -95,16 +94,15 @@ public class PredictiveMovement : NetworkBehaviour
         currentInput.cameraYaw = _data.cameraYaw;
         currentInput.cameraPosition = _data.cameraPosition;
         currentInput.cameraForward = _data.cameraForward;
-        currentInput.jumpPressed = currentInput.jumpPressed | _data.jumpPressed;
+        currentInput.jumpPressed = _data.jumpPressed;
         currentInput.switchPressed = currentInput.switchPressed | _data.switchPressed;
         currentInput.attackPressed = currentInput.attackPressed | _data.attackPressed;
-        currentInput.sneakPressed = currentInput.sneakPressed | _data.sneakPressed;
+        currentInput.sneakPressed = _data.sneakPressed;
         currentInput.dashPressed = currentInput.dashPressed | _data.dashPressed;
         currentInput.position = transform.position;
-        // On enregistre le tick que le client nous a envoyé
-        lastProcessedClientTick = _data.tick; 
+        // On enregistre le tick que le client nous a envoye
+        lastProcessedClientTick = _data.tick;
     }
-
     private void Tick()
     {
         var rb = GetComponent<Rigidbody>();
@@ -130,12 +128,12 @@ public class PredictiveMovement : NetworkBehaviour
         // SERVER SIDE. ON APPLIQUE LES INPUTS DES AUTRES.
         if (isServer)
         {
-            if (!isOwner) // Pas l'owner (= host) car il a déjà appliqué son input en prédiction
+            if (!isOwner) // Pas l'owner (= host) car il a deja applique son input en prediction
             {
                 if (alreadySimulated) simulateMovement.SimulateMovement(currentInput);
                 alreadySimulated = true;
                 
-                // Le serveur ne renvoie une correction que s'il a traité un NOUVEL input du client
+                // Le serveur ne renvoie une correction que s'il a traite un NOUVEL input du client
                 if (lastProcessedClientTick != lastSentCorrectionTick)
                 {
                     ClientReceiveCorrection(lastProcessedClientTick, transform.position, transform.rotation, rb.linearVelocity);
@@ -191,17 +189,17 @@ public class PredictiveMovement : NetworkBehaviour
             
             if (distanceError < errorThreshold)
             {
-                shouldRollback = false; // La prédiction passée était exacte ! Pas de rollback !
+                shouldRollback = false; // La prediction passee etait exacte ! Pas de rollback !
             }
         }
 
-        // On libère la mémoire de l'historique approuvé
+        // On libere la memoire de l'historique approuve
         inputHistory.RemoveAll(input => input.tick <= serverTick);
         stateHistory.RemoveAll(s => s.tick <= serverTick);
 
         if (!shouldRollback) return; 
 
-        // Sinon, la réalité diffère, on effectue un vrai rollback strict
+        // Sinon, la realite differe, on effectue un vrai rollback strict
         rb.rotation = serverRot;
         rb.position = serverPos; 
         rb.linearVelocity = serverVel; // Indispensable pour la courbe de saut !
@@ -211,7 +209,7 @@ public class PredictiveMovement : NetworkBehaviour
             simulateMovement.SimulateMovement(input);
         }
 
-        Physics.SyncTransforms(); // Appliquer immédiatement la physique des nouveaux transform modifiés
+        Physics.SyncTransforms(); // Appliquer immediatement la physique des nouveaux transform modifies
         alreadySimulated = true;
     }
 }

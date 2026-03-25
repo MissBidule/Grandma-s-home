@@ -15,6 +15,7 @@ public class GhostController : PlayerControllerCore, IInteractable
     // Network Variables
     [NonSerialized] public Vector3 m_wishDir;
     public bool m_isSlowed = false;
+    public bool m_isFlyDisabled = false;
     public bool m_isDashing = false;
     public bool m_isStopped = false;
     public bool m_isSneaking = false;
@@ -30,8 +31,10 @@ public class GhostController : PlayerControllerCore, IInteractable
 
     [Header("Status Timers")]
     [SerializeField] private float m_timerSlowed;
+    [SerializeField] private float m_timerFlyDisabled = 10f;
     public float m_timerStop;
     private float m_currentTimerSlowed;
+    private float m_currentTimerFlyDisabled;
     private float m_currentTimerStop;
     
     [Header("Scary Parameters")]
@@ -141,9 +144,14 @@ public class GhostController : PlayerControllerCore, IInteractable
         {
             m_currentTimerSlowed -= Time.deltaTime;
             if (m_currentTimerSlowed <= 0f)
-            {
                 RemoveSlowToAll();
-            }
+        }
+
+        if (m_isFlyDisabled)
+        {
+            m_currentTimerFlyDisabled -= Time.deltaTime;
+            if (m_currentTimerFlyDisabled <= 0f)
+                RemoveFlyDisabledToAll();
         }
     }
 
@@ -176,6 +184,8 @@ public class GhostController : PlayerControllerCore, IInteractable
         if (!isServer) return;
         ApplySlowToAll();
         m_currentTimerSlowed = m_timerSlowed;
+        ApplyFlyDisabledToAll();
+        m_currentTimerFlyDisabled = m_timerFlyDisabled;
     }
 
     [ObserversRpc(runLocally:true)]
@@ -188,6 +198,18 @@ public class GhostController : PlayerControllerCore, IInteractable
     public void RemoveSlowToAll()
     {
         m_isSlowed = false;
+    }
+
+    [ObserversRpc(runLocally:true)]
+    public void ApplyFlyDisabledToAll()
+    {
+        m_isFlyDisabled = true;
+    }
+
+    [ObserversRpc(runLocally:true)]
+    public void RemoveFlyDisabledToAll()
+    {
+        m_isFlyDisabled = false;
     }
 
     /**
