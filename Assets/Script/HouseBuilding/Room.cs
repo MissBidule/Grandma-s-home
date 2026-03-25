@@ -68,6 +68,8 @@ namespace Script.HouseBuilding
         {
             base.OnSpawned();
             
+            PurrLogger.LogWarning("Room Spawned", this);
+            
             if (!isServer)
                 return;
             

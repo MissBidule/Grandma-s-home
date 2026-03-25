@@ -94,7 +94,7 @@ public class ChildController : PlayerControllerCore
         
         m_animator.SetFloat("VerticalSpeed", m_rigidbody.linearVelocity.y);
 
-        print(m_rigidbody.linearVelocity.y);
+        // print(m_rigidbody.linearVelocity.y); // Commented to unclutter logs
         if(m_rigidbody.linearVelocity.y < -0.1f)
         {
             changeFaceMat(new Vector2(0.33f, 0.66f));
