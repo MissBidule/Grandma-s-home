@@ -25,6 +25,7 @@ public class GhostClientController : NetworkBehaviour
     public WheelController m_wheel;
 
     private GhostHUDView m_ghostHUDView;
+    private QteCircle m_qteCircle;
 
     private bool morphPressed = false;
     private bool dashPressed = false;
@@ -39,11 +40,14 @@ public class GhostClientController : NetworkBehaviour
     {
         base.OnSpawned();
 
+        if (isOwner) InitOwner();
+    }
+
+    void Start()
+    {
         m_ghostController = GetComponent<GhostController>();
         m_ghostMorph = GetComponent<GhostMorph>();
         m_ghostMorphPreview = GetComponentInChildren<GhostMorphPreview>();
-
-        if (isOwner) InitOwner();
     }
 
     protected override void OnOwnerChanged(PurrNet.PlayerID? oldOwner, PurrNet.PlayerID? newOwner, bool asServer)
@@ -208,12 +212,16 @@ public class GhostClientController : NetworkBehaviour
     {
         if (!isOwner) return;
         if (m_ghostController.m_isStopped) return;
+        if (!m_qteCircle) m_qteCircle = FindAnyObjectByType<QteCircle>();
+        if (m_qteCircle != null && m_qteCircle.m_isRunning) return;
         m_wheel.Toggle();
     }
     public void OnMorph()
     {
         if (!isOwner) return;
         if (m_ghostController.m_isStopped) return;
+        if (!m_qteCircle) m_qteCircle = FindAnyObjectByType<QteCircle>();
+        if (m_qteCircle != null && m_qteCircle.m_isRunning) return;
         if (!m_ghostMorphPreview.m_canMorph || !m_ghostMorphPreview.m_currentPrefab || m_ghostMorph.m_isMorphed) return;
         if (m_wheel.IsWheelOpen()) m_wheel.Toggle();
         
@@ -259,6 +267,12 @@ public class GhostClientController : NetworkBehaviour
             wishDir = (forward * _movement.y + right * _movement.x).normalized;
 
         return wishDir;
+    }
+
+    [ObserversRpc (requireServer: false)]
+    public void SabotageNotification()
+    {
+        InteractPromptUI.m_Instance.ShowSabotage(m_ghostController.m_username);
     }
 
     [ServerRpc]
