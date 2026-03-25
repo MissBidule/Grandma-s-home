@@ -12,13 +12,19 @@ public class ChildSimulateMovement : NetworkBehaviour, ISimulateMovement
     private Rigidbody m_rigidbody;
     private PredictiveMovement m_predictiveMovement;
 
+    private ChildController m_childController;
+    private NetworkAnimator m_animator;
+
+    private JumpTriggerScript m_jumpTriggerScript;
+    private bool m_isJumping = false;
 
     void Start()
     {
         m_childController = GetComponent<ChildController>();
-        m_animator = GetComponent<NetworkAnimator>();
+        m_animator = GetComponentInChildren<NetworkAnimator>();
         m_rigidbody = GetComponent<Rigidbody>();
         m_predictiveMovement = GetComponent<PredictiveMovement>();
+        m_jumpTriggerScript = GetComponentInChildren<JumpTriggerScript>();
     }
 
     public void SimulateMovement(PredictiveInputData _input)

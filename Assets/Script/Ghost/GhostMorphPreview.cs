@@ -88,7 +88,6 @@ public class GhostMorphPreview : MonoBehaviour
      */
     public void ScanForPrefab()
     {
-        
         Debug.Log("Scan");
 
         Vector3 rayOrigin = m_cameraTransform.transform.position;
@@ -248,7 +247,6 @@ public class GhostMorphPreview : MonoBehaviour
      */
     void UpdateMaterial()
     {
-        if (!isOwner) return;
         if (m_meshRenderer == null) return;
         Material[] mats = m_meshRenderer.materials;
         Color targetColor = m_canMorph ? m_validColor : m_invalidColor;

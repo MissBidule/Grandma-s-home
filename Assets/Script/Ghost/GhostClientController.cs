@@ -37,13 +37,6 @@ public class GhostClientController : NetworkBehaviour
     private float m_reviveTimer = 0f;
     private float m_reviveDuration = 0f;
 
-    protected override void OnSpawned()
-    {
-        base.OnSpawned();
-
-        if (isOwner) InitOwner();
-    }
-
     void Start()
     {
         m_ghostController = GetComponent<GhostController>();

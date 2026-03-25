@@ -18,9 +18,6 @@ public class ChildController : PlayerControllerCore
     [NonSerialized] public Vector3 m_cameraPosition;
     [NonSerialized] public Vector3 m_cameraForward;
 
-    [SerializeField] private JumpTriggerScript m_jumpTriggerScript;
-    [SerializeField] private bool m_isJumping = false;
-
     [Header("Weapon Switching")]
     public bool m_isRanged;
     public float m_lastShot;
@@ -36,15 +33,15 @@ public class ChildController : PlayerControllerCore
     [SerializeField] [Tooltip("In seconds")] private float m_cdGun = 1.0f;
     [SerializeField] private Transform m_bulletSpawnTransform;
     [SerializeField] private GameObject m_bulletPrefab;
-    [SerializeField] private float m_shootRange = 50f;
     
     [Header("Speed Modifiers")]
-    [SerializeField][Tooltip("Duration of scared by ghost in seconds")] private float m_scaredDuration = 5.0f;
+    [SerializeField] [Tooltip("Duration of scared by ghost in seconds")] private float m_scaredDuration = 5.0f;
 
     [Header("Animation")]
     [SerializeField] private NetworkAnimator m_animator;
     public bool m_shootAnimRunning = false;
     public MaterialInstance m_faceMat;
+    private Rigidbody m_rigidbody;
 
 
 
@@ -56,6 +53,7 @@ public class ChildController : PlayerControllerCore
         if (!isServer) return;
         m_lastShot = m_cdGun;
         m_switchingTime = m_cdSwitch;
+        m_rigidbody = GetComponent<Rigidbody>();
     }
 
     /*

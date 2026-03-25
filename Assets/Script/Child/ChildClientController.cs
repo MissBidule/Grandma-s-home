@@ -37,18 +37,10 @@ public class ChildClientController : NetworkBehaviour
 
     private bool m_gotOwner = false;
 
-    protected override void OnSpawned()
-    {
-        base.OnSpawned();
-        m_predictiveMovement = GetComponent<PredictiveMovement>();
-        m_childController = GetComponent<ChildController>();
-
-        if (isOwner) InitOwner();
-    }
-
     void Start()
     {
         m_childController = GetComponent<ChildController>();
+        m_predictiveMovement = GetComponent<PredictiveMovement>();
     }
 
     protected override void OnOwnerChanged(PurrNet.PlayerID? oldOwner, PurrNet.PlayerID? newOwner, bool asServer)
@@ -101,6 +93,8 @@ public class ChildClientController : NetworkBehaviour
         var moveVec = m_childInputController.m_movementInputVector;
         var wishDir = GetDirectionIntention(moveVec);
 
+        print(m_predictiveMovement);
+
         var inputData = new PredictiveInputData
         {
             tick = m_predictiveMovement.GetTick(),
@@ -119,28 +113,6 @@ public class ChildClientController : NetworkBehaviour
         m_predictiveMovement.NewInput(inputData);
         SendChildRPC(
             inputData
-        );
-
-            // DebugPrintTrafic();
-
-        if (m_childController.m_isScared && m_qteCircle.m_isRunning)
-            m_qteCircle.CancelQte();
-
-        if (m_qteCircle.m_isRunning) return;
-        var moveVec = m_childInputController.m_movementInputVector;
-        var wishDir = GetDirectionIntention(moveVec);
-        var cameraYaw = m_playerCamera.transform.eulerAngles.y;
-
-
-        SendChildRPC(
-            wishDir,
-            m_playerCamera.transform.eulerAngles.y,
-            m_playerCamera.transform.position,
-            m_playerCamera.transform.forward,
-            m_jumpPressed,
-            m_switchWeaponPressed,
-            m_attackPressed,
-            m_sneakPressed
         );
 
         m_jumpPressed = false;
