@@ -105,7 +105,7 @@ public class ScoreManager : NetworkBehaviour
             totalSabotage += entry.Value.pointSabotage;
         }
 
-        m_sabotageBonusTotal.value += totalSabotage * 0.3f;  
+        m_sabotageBonusTotal.value += totalSabotage * 0.01f;  
     }
 
     /*
