@@ -628,18 +628,18 @@ namespace PurrLobby.Providers {
 
             CurrentLobby = await LobbyService.Instance.GetLobbyAsync(_lobbyId);
 
+            await SubscribeLobbyEventsAsync();
+            _ = InitializeLocalPlayerData();
+            
             if (IsLocalPlayerHost)
             {
-                await SetLobbyDataAsync("JoinCode", "");
+                _ = SetLobbyDataAsync("JoinCode", "");
             }
-
-            await SubscribeLobbyEventsAsync();
-            await InitializeLocalPlayerData();
 
             foreach (Player player in CurrentLobby.Players)
             {
-                await SetIsReadyAsync(player.Id, false);
-                await SetIsInGameAsync(player.Id, false);
+                _ = SetIsReadyAsync(player.Id, false);
+                _ = SetIsInGameAsync(player.Id, false);
             }
             
             roleList.DeleteList();
