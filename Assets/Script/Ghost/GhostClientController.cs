@@ -11,6 +11,7 @@ public class GhostClientController : NetworkBehaviour
     private GhostController m_ghostController;
     private GhostMorph m_ghostMorph;
     private GhostMorphPreview m_ghostMorphPreview;
+    private PredictiveMovement m_predictiveMovement;
 
     public CinemachineCamera m_playerCamera;
     public DeathEffect m_cameraEffect;
@@ -42,6 +43,7 @@ public class GhostClientController : NetworkBehaviour
         m_ghostController = GetComponent<GhostController>();
         m_ghostMorph = GetComponent<GhostMorph>();
         m_ghostMorphPreview = GetComponentInChildren<GhostMorphPreview>();
+        m_predictiveMovement = GetComponent<PredictiveMovement>();
         InstanceHandler.TryGetInstance(out m_ghostHUDView);
     }
 
@@ -103,14 +105,23 @@ public class GhostClientController : NetworkBehaviour
             last_slowed = m_ghostController.m_isSlowed;
         }
 
-        // DebugPrintTrafic();
+        var wishDir = GetDirectionIntention(m_ghostInputController.m_movementInputVector);
+
+        var inputData = new PredictiveInputData
+        {
+            tick = m_predictiveMovement.GetTick(),
+            wishDirection = wishDir,
+            dashPressed = dashPressed,
+            sneakPressed = sneakPressed,
+            position = transform.position,
+        };
+
+        m_predictiveMovement.NewInput(inputData);
 
         SendGhostRPC(
-            GetDirectionIntention(m_ghostInputController.m_movementInputVector),
+            inputData,
             morphPressed ? m_ghostMorphPreview.m_currentPrefab : null,                  // Morph Parameters
             m_ghostMorphPreview.transform.localPosition,                                 // Morph Parameters
-            dashPressed,
-            sneakPressed,
             m_ghostMorphPreview.transform.localRotation
         );
 
@@ -261,8 +272,10 @@ public class GhostClientController : NetworkBehaviour
     }
 
     [ServerRpc]
-    private void SendGhostRPC(Vector3 _movement, GameObject _prefab, Vector3 _pos, bool _dashPressed, bool _sneakPressed, Quaternion _rotation)
+    private void SendGhostRPC(PredictiveInputData _input, GameObject _prefab, Vector3 _pos, Quaternion _rotation)
     {
+        m_predictiveMovement.ServerReceiveInput(_input);
+
         if (_prefab)
         {
             // On morph: freeze movement and require input release before allowing revert
@@ -273,17 +286,17 @@ public class GhostClientController : NetworkBehaviour
         else if (!m_ghostController.m_morphInputReleased)
         {
             // Keep frozen until player actually releases all movement input
-            if ((Vector2)_movement == Vector2.zero)
+            if ((Vector2)_input.wishDirection == Vector2.zero)
                 m_ghostController.m_morphInputReleased = true;
             m_ghostController.m_wishDir = Vector3.zero;
         }
         else
         {
-            m_ghostController.m_wishDir = _movement;
-        if (_dashPressed)
+            m_ghostController.m_wishDir = _input.wishDirection;
+        if (_input.dashPressed)
             m_ghostController.StartDash();
         
-        m_ghostController.m_isSneaking = _sneakPressed;
+        m_ghostController.m_isSneaking = _input.sneakPressed;
         }
     }
 }

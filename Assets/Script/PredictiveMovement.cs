@@ -3,6 +3,21 @@ using PurrNet;
 using System.Collections;
 using System.Collections.Generic;
 
+public struct PredictiveInputData
+{
+    public int tick;
+    public Vector3 wishDirection;
+    public float cameraYaw;
+    public Vector3 cameraPosition;
+    public Vector3 cameraForward;
+    public bool jumpPressed;
+    public bool switchPressed;
+    public bool attackPressed;
+    public bool sneakPressed;
+    public bool dashPressed;
+    public Vector3 position;
+}
+
 public class PredictiveMovement : NetworkBehaviour
 {
     public struct HistoricalState
@@ -13,23 +28,21 @@ public class PredictiveMovement : NetworkBehaviour
         public Vector3 velocity;
     }
 
-    private List<ChildInputData> inputHistory = new List<ChildInputData>();
+    private List<PredictiveInputData> inputHistory = new List<PredictiveInputData>();
     private List<HistoricalState> stateHistory = new List<HistoricalState>();
     private int tick = 0;
     private int lastProcessedClientTick = 0;
     private int lastSentCorrectionTick = -1;
-    private ChildInputController inputController;
-    private ChildSimulateMovement simulateMovement;
+    private ISimulateMovement simulateMovement;
 
     private bool alreadySimulated = false;
 
-    private ChildInputData currentInput = new();
+    private PredictiveInputData currentInput = new();
     [SerializeField] private float errorThreshold;
 
     private void Start()
     {
-        inputController = GetComponent<ChildInputController>();
-        simulateMovement = GetComponent<ChildSimulateMovement>();
+        simulateMovement = GetComponent<ISimulateMovement>();
         InitInputData();
 
         //StartCoroutine(PredictiveUpdate());
@@ -53,7 +66,7 @@ public class PredictiveMovement : NetworkBehaviour
 
     private void InitInputData()
     {
-        currentInput = new ChildInputData();
+        currentInput = new PredictiveInputData();
         currentInput.wishDirection = Vector3.zero;
         currentInput.cameraYaw = -1000f; // Valeur par défaut pour indiquer que la caméra n'a pas été mise à jour
         currentInput.cameraPosition = Vector3.zero;
@@ -62,6 +75,7 @@ public class PredictiveMovement : NetworkBehaviour
         currentInput.switchPressed = false;
         currentInput.attackPressed = false;
         currentInput.sneakPressed = false;
+        currentInput.dashPressed = false;
     }
 
     private void clearInputData()
@@ -71,10 +85,11 @@ public class PredictiveMovement : NetworkBehaviour
         currentInput.jumpPressed = false;
         currentInput.switchPressed = false;
         currentInput.attackPressed = false;
+        currentInput.dashPressed = false;
     }
 
     // It was supposed to be revolutionary, it's just dogshit.
-    public void NewInput(ChildInputData _data)
+    public void NewInput(PredictiveInputData _data)
     {
         currentInput.wishDirection = _data.wishDirection;
         currentInput.cameraYaw = _data.cameraYaw;
@@ -84,6 +99,7 @@ public class PredictiveMovement : NetworkBehaviour
         currentInput.switchPressed = currentInput.switchPressed | _data.switchPressed;
         currentInput.attackPressed = currentInput.attackPressed | _data.attackPressed;
         currentInput.sneakPressed = currentInput.sneakPressed | _data.sneakPressed;
+        currentInput.dashPressed = currentInput.dashPressed | _data.dashPressed;
         currentInput.position = transform.position;
         // On enregistre le tick que le client nous a envoyé
         lastProcessedClientTick = _data.tick; 
@@ -137,7 +153,7 @@ public class PredictiveMovement : NetworkBehaviour
         tick += 1;
     }
 
-    public void ServerReceiveInput(ChildInputData _data)
+    public void ServerReceiveInput(PredictiveInputData _data)
     {
         if (!isServer) return;
         if (isOwner) return;

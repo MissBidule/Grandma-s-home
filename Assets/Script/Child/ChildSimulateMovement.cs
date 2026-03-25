@@ -1,7 +1,7 @@
 using PurrNet;
 using UnityEngine;
 
-public class ChildSimulateMovement : NetworkBehaviour
+public class ChildSimulateMovement : NetworkBehaviour, ISimulateMovement
 {
     [SerializeField] private float m_speed = 5f;
     [SerializeField] private float m_jumpImpulse = 6.0f;
@@ -19,7 +19,7 @@ public class ChildSimulateMovement : NetworkBehaviour
         m_predictiveMovement = GetComponent<PredictiveMovement>();
     }
 
-    public void SimulateMovement(ChildInputData _input)
+    public void SimulateMovement(PredictiveInputData _input)
     {
 
         // Rotation

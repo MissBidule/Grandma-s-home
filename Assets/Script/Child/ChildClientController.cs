@@ -6,20 +6,6 @@ using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public struct ChildInputData
-{
-    public int tick;
-    public Vector3 wishDirection;
-    public float cameraYaw;
-    public Vector3 cameraPosition;
-    public Vector3 cameraForward;
-    public bool jumpPressed;
-    public bool switchPressed;
-    public bool attackPressed;
-    public bool sneakPressed;
-    public Vector3 position;
-}
-
 public class ChildClientController : NetworkBehaviour
 {
     [SerializeField] private GameObject m_uiHolder_prefab;
@@ -112,7 +98,7 @@ public class ChildClientController : NetworkBehaviour
         var moveVec = m_childInputController.m_movementInputVector;
         var wishDir = GetDirectionIntention(moveVec);
 
-        var inputData = new ChildInputData
+        var inputData = new PredictiveInputData
         {
             tick = m_predictiveMovement.GetTick(),
             wishDirection = wishDir,
@@ -123,6 +109,7 @@ public class ChildClientController : NetworkBehaviour
             switchPressed = m_switchWeaponPressed,
             attackPressed = m_attackPressed,
             sneakPressed = m_sneakPressed,
+            dashPressed = false,
             position = transform.position,
         };
 
@@ -406,7 +393,7 @@ public class ChildClientController : NetworkBehaviour
     }
 
     [ServerRpc]
-    private void SendChildRPC(ChildInputData _data)
+    private void SendChildRPC(PredictiveInputData _data)
     {
         m_predictiveMovement.ServerReceiveInput(_data);
         m_childController.m_cameraPosition = _data.cameraPosition;

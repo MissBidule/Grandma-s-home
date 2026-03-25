@@ -2,5 +2,5 @@ using UnityEngine;
 
 public interface ISimulateMovement
 {
-    public void SimulateMovement(ChildInputData d);
+    public void SimulateMovement(PredictiveInputData d);
 }
