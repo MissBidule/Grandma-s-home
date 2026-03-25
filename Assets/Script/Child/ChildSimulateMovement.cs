@@ -15,6 +15,8 @@ public class ChildSimulateMovement : NetworkBehaviour, ISimulateMovement
 
     void Start()
     {
+        m_childController = GetComponent<ChildController>();
+        m_animator = GetComponent<NetworkAnimator>();
         m_rigidbody = GetComponent<Rigidbody>();
         m_predictiveMovement = GetComponent<PredictiveMovement>();
     }
@@ -50,9 +52,14 @@ public class ChildSimulateMovement : NetworkBehaviour, ISimulateMovement
      */
     public void Jump()
     {
-        if (!IsGrounded() || m_rigidbody.linearVelocity.y > 0.1f) return;
+        if(m_isJumping) return;
+        if (!IsGrounded()) return;
         m_rigidbody.AddForce(Vector3.up * m_jumpImpulse, ForceMode.Impulse);
+        m_childController.callChangeFace(new Vector2(0.66f, 0.66f));
+        m_animator.SetTrigger("OnJump");
+        m_isJumping = true;
     }
+
 
     /*
      * @brief   Checks if the child is grounded by casting a ray downwards
@@ -60,6 +67,19 @@ public class ChildSimulateMovement : NetworkBehaviour, ISimulateMovement
      */
     public bool IsGrounded()
     {
-        return Physics.Raycast(transform.position, Vector3.down, out _, 1.0f);
+        if (Physics.Raycast(transform.position, Vector3.down, out _, 1.0f) || (m_jumpTriggerScript.m_colliders.Count > 0 && m_rigidbody.linearVelocity.y == 0f))
+        {
+            if (m_rigidbody.linearVelocity.y < 1.0E-07f && m_rigidbody.linearVelocity.y > -1.0E-07f)
+            {
+                m_isJumping = false;
+            }
+            return true;
+        }
+        else return false;
     }
+
+
+
+
+
 }
