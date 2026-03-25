@@ -93,8 +93,6 @@ public class ChildController : PlayerControllerCore
         );
         
         m_animator.SetFloat("VerticalSpeed", m_rigidbody.linearVelocity.y);
-
-        print(m_rigidbody.linearVelocity.y);
         if(m_rigidbody.linearVelocity.y < -0.1f)
         {
             changeFaceMat(new Vector2(0.33f, 0.66f));
@@ -127,6 +125,7 @@ public class ChildController : PlayerControllerCore
     {
         if (!isServer) return;
         if (!IsGrounded()) return;
+        if(m_isJumping) return;
         changeFaceMat(new Vector2(0.66f, 0.66f));
         m_animator.SetTrigger("OnJump");
         m_isJumping = true;
@@ -139,8 +138,15 @@ public class ChildController : PlayerControllerCore
      */
     private bool IsGrounded()
     {
-        if(Physics.Raycast(transform.position, Vector3.down, out _, 1.0f)) return true;
-        else return (m_jumpTriggerScript.m_colliders.Count > 0 && m_rigidbody.linearVelocity.y == 0f);
+        if (Physics.Raycast(transform.position, Vector3.down, out _, 1.0f) || (m_jumpTriggerScript.m_colliders.Count > 0 && m_rigidbody.linearVelocity.y == 0f))
+        {
+            if (m_rigidbody.linearVelocity.y < 1.0E-07f && m_rigidbody.linearVelocity.y > -1.0E-07f)
+            {
+                m_isJumping = false;
+            }
+            return true;
+        }
+        else return false;
     }
 
     /*
