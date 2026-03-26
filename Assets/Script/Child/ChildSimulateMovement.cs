@@ -76,8 +76,8 @@ public class ChildSimulateMovement : NetworkBehaviour, ISimulateMovement
      */
     public void Jump()
     {
-        if(m_isJumping) return;
         if (!IsGrounded()) return;
+        if (m_isJumping) return;
         m_rigidbody.AddForce(Vector3.up * m_jumpImpulse, ForceMode.Impulse);
         m_childController.callChangeFace(new Vector2(0.66f, 0.66f));
         m_animator.SetTrigger("OnJump");
