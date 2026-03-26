@@ -350,11 +350,11 @@ public class ChildClientController : NetworkBehaviour
                 {
                     if (m_childController.m_isRanged)
                     {
-                        m_childController.callAnimationCrossFade("gun_backWalk", 0.2f);
+                        m_childController.callAnimationCrossFade("gun_bwalk", 0.2f);
                     }
                     else
                     {
-                        m_childController.callAnimationCrossFade("cac_backWalk", 0.2f);
+                        m_childController.callAnimationCrossFade("cac_bwalk", 0.2f);
                     }
                     m_childController.callChangeFace(new Vector2(.33f, 0));
                 }
@@ -362,11 +362,11 @@ public class ChildClientController : NetworkBehaviour
                 {
                     if (m_childController.m_isRanged)
                     {
-                        m_childController.callAnimationCrossFade("gun_backRun", 0.2f);
+                        m_childController.callAnimationCrossFade("gun_brun", 0.2f);
                     }
                     else
                     {
-                        m_childController.callAnimationCrossFade("cac_backRun", 0.2f);
+                        m_childController.callAnimationCrossFade("cac_brun", 0.2f);
                     }
                     m_childController.callChangeFace(new Vector2(.66f, 0));
                 }
