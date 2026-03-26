@@ -54,7 +54,7 @@ public class TutoInteract : MonoBehaviour
 
         foreach (TutoIInteractable interactable in m_interactable)
         {
-            var ghost = interactable as GhostController;
+            var ghost = interactable as TutoGhostController;
             if (ghost != null)
             {
                 if (!m_isGhost || !ghost.m_isStopped) continue; // Only interact with downed ghosts

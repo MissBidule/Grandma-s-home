@@ -7,7 +7,7 @@ using UnityEngine.Serialization;
 public class TutoGhostController :  MonoBehaviour, TutoIInteractable
 {
     [Header("Ghost references")]
-    public bool m_isStopped = false;
+    public bool m_isStopped = true;
     public bool m_beingRevived = false;
     public bool m_isReviving = false;
 
@@ -19,7 +19,7 @@ public class TutoGhostController :  MonoBehaviour, TutoIInteractable
     public float m_baseReviveTime = 5f;
     public float m_maxReviveTime = 30f;
     private int m_deathCount = 0;
-    private GhostController m_reviver = null;
+    private TutoGhostController m_reviver = null;
     private float m_reviveTimer = 0f;
     public float m_reviveDuration = 0f;
     private bool m_isFocused = false;
@@ -71,11 +71,11 @@ public class TutoGhostController :  MonoBehaviour, TutoIInteractable
         if (m_isReviving) return;
         if (m_isStopped)
         {
-            m_reviver = _who.GetComponentInParent<GhostController>();
+            m_reviver = _who.GetComponentInParent<TutoGhostController>();
             StartRevive(m_reviver);
         }
     }
-    private void StartRevive(GhostController _reviver)
+    private void StartRevive(TutoGhostController _reviver)
     {
         m_reviver = _reviver;
         if (m_reviver.m_isStopped) return;
@@ -83,9 +83,17 @@ public class TutoGhostController :  MonoBehaviour, TutoIInteractable
         m_reviveTimer = 0f;
         m_beingRevived = true;
         m_reviver.RevivingBuddy(m_reviveDuration);
-        m_reviver.FreezeReviverRpc();
+        //m_reviver.FreezeReviverRpc();
         if (InteractPromptUI.m_Instance != null) InteractPromptUI.m_Instance.Hide();
     }
+
+    public void RevivingBuddy(float _duration)
+    {
+        m_reviveDuration = _duration;
+        m_reviveTimer = 0f;
+        m_isReviving = true;
+    }
+
 
     public float GetReviveTime()
     {
