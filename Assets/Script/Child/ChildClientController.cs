@@ -20,7 +20,6 @@ public class ChildClientController : NetworkBehaviour
     private bool m_attackPressed = false;
 
     //Animations
-    [SerializeField]private NetworkAnimator m_animator;
     [SerializeField] private GameObject m_racket;
     [SerializeField] private GameObject m_gun;
     private bool m_isMovingForward;

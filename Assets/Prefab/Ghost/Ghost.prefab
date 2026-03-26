@@ -208,6 +208,7 @@ MonoBehaviour:
   m_minIntensity: 0.2
   m_maxIntensity: 1
   m_dashDuration: 2.5
+  m_animator: {fileID: 6470790388057966885}
 --- !u!114 &4420112834733810732
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2323,11 +2324,23 @@ PrefabInstance:
       propertyPath: m_Name
       value: ghost_tpose
       objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: 556a428bac6d09f4b85cacf6f336d9e4, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 434913ac2bb455042ab36aaf6b77c5ea, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 556a428bac6d09f4b85cacf6f336d9e4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6470790388057966885}
   m_SourcePrefab: {fileID: 100100000, guid: 556a428bac6d09f4b85cacf6f336d9e4, type: 3}
+--- !u!95 &1601542752875096862 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: 556a428bac6d09f4b85cacf6f336d9e4, type: 3}
+  m_PrefabInstance: {fileID: 5139529716733580943}
+  m_PrefabAsset: {fileID: 0}
 --- !u!137 &3546755036577467750 stripped
 SkinnedMeshRenderer:
   m_CorrespondingSourceObject: {fileID: 8533157899080244201, guid: 556a428bac6d09f4b85cacf6f336d9e4, type: 3}
@@ -2338,6 +2351,36 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 556a428bac6d09f4b85cacf6f336d9e4, type: 3}
   m_PrefabInstance: {fileID: 5139529716733580943}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &5445466429966330846 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 556a428bac6d09f4b85cacf6f336d9e4, type: 3}
+  m_PrefabInstance: {fileID: 5139529716733580943}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &6470790388057966885
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5445466429966330846}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7b598b9d8509d64abb9fdaf07fa3f6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkAnimator
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  _animator: {fileID: 1601542752875096862}
+  _ownerAuth: 0
+  _autoSyncParameters: 1
+  _dontSyncParameters: []
 --- !u!1 &8937564316610690164 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -4946117424107656453, guid: 556a428bac6d09f4b85cacf6f336d9e4, type: 3}

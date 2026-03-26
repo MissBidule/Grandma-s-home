@@ -1,8 +1,9 @@
-using PurrNet;
-using PurrNet.Logging;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using PurrNet;
+using PurrNet.Logging;
+using TMPEffects.Components;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -64,6 +65,10 @@ public class GhostController : PlayerControllerCore, IInteractable
     private Rigidbody m_rigidbody;
 
     public Action<bool, PlayerID> OnDeathChange; // true for death | false for resurrection
+
+
+    [Header("Animation")]
+    [SerializeField] private NetworkAnimator m_animator;
 
     // -------------------------------------------
     // --- Everything Down Here is Server-Side ---
@@ -143,6 +148,7 @@ public class GhostController : PlayerControllerCore, IInteractable
             if (m_currentTimerSlowed <= 0f)
             {
                 RemoveSlowToAll();
+                m_animator.SetBool("GotShot", false);
             }
         }
     }
@@ -176,6 +182,8 @@ public class GhostController : PlayerControllerCore, IInteractable
         if (!isServer) return;
         ApplySlowToAll();
         m_currentTimerSlowed = m_timerSlowed;
+        callAnimationTrigger("OnHit");
+        m_animator.SetBool("GotShot", true);
     }
 
     [ObserversRpc(runLocally:true)]
@@ -202,6 +210,8 @@ public class GhostController : PlayerControllerCore, IInteractable
         OnDeathChange?.Invoke(true, owner.Value); // True because he dies
         ApplyStopToAll();
         m_currentTimerStop = m_timerStop;
+        m_animator.SetBool("GotShot", false);
+        callAnimationTrigger("OnHit");
     }
 
     [ObserversRpc(runLocally:true)]
@@ -298,6 +308,7 @@ public class GhostController : PlayerControllerCore, IInteractable
         ResNotification(m_reviver.m_username);
         RequestReviveRpc();
         CancelRevive();
+        callAnimationTrigger("Revived");
     }
 
     [ObserversRpc (requireServer: false)]
@@ -463,5 +474,17 @@ public class GhostController : PlayerControllerCore, IInteractable
             time += Time.deltaTime;
             yield return null;
         }
+    }
+
+    [ServerRpc]
+    public void callAnimationTrigger(string _triggerName)
+    {
+        m_animator.SetTrigger(_triggerName);
+    }
+
+    [ServerRpc]
+    public void callAnimationCrossFade(string _animationName, float _transitionDuration)
+    {
+        m_animator.CrossFadeInFixedTime(_animationName, _transitionDuration, 0);
     }
 }

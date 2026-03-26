@@ -18,6 +18,7 @@ public class GhostClientController : NetworkBehaviour
 
     private bool last_stopped = false;
     private bool last_slowed = false;
+    private bool m_isMoving = false;
 
 
     [Header("Canva")]
@@ -256,6 +257,21 @@ public class GhostClientController : NetworkBehaviour
      */
     private Vector3 GetDirectionIntention(Vector2 _movement)
     {
+        if(_movement == Vector2.zero)
+        {
+            if (m_isMoving)
+            {
+                m_ghostController.callAnimationCrossFade("ghost_idle", 0.2f);
+                m_isMoving = false;
+            }
+        }else
+        {
+            if (!m_isMoving)
+            {
+                m_ghostController.callAnimationCrossFade("ghost_walk", 0.2f);
+                m_isMoving = true;
+            }
+        }
         Transform cam = m_playerCamera.transform;
 
         Vector3 forward = cam.forward;
