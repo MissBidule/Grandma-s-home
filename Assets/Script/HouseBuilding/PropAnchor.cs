@@ -19,6 +19,8 @@ namespace Script.HouseBuilding
         protected override void OnSpawned()
         {
             base.OnSpawned();
+            if (m_propPrefab == null)
+                PurrLogger.LogError($"PropAnchor {name} (prefab is null)", this);
         }
         
         /*
@@ -31,7 +33,7 @@ namespace Script.HouseBuilding
         {
             if (m_propPrefab == null)
             {
-                PurrLogger.LogError("PropAnchor Network initialization failed (prefab is null)", this);
+                PurrLogger.LogError($"PropAnchor {name} Network initialization failed (prefab is null)", this);
                 return;
             }
             Instantiate(m_propPrefab, transform);
@@ -41,7 +43,7 @@ namespace Script.HouseBuilding
         {
             if (m_propPrefab == null)
             {
-                PurrLogger.LogError("PropAnchor Network initialization failed (prefab is null)", this);
+                PurrLogger.LogError($"PropAnchor {name} Network initialization failed (prefab is null)", this);
                 return;
             }
             UnityProxy.Instantiate(m_propPrefab, _parent);

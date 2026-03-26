@@ -19,9 +19,9 @@ namespace Script.HouseBuilding
     {
         [Header("Networked Objects")]
         [SerializeField] [Tooltip("Sabotage Object.")] private SabotageObject m_sabotageObject;
-        [SerializeField] [Tooltip("Entry Trapdoor (the one you go in)")] private GameObject m_trapdoorEntry;
-        [SerializeField] [Tooltip("Exit Trapdoor (the one you exit from)")] private GameObject m_trapdoorExit; // TODO change to trapdoor type
-        [SerializeField] [Tooltip("The room type of the exit of this room trapdoor. (Where you go after entering the trapdoor in this room.")] private RoomType m_trapdoorExitRoomType;
+        [SerializeField] [Tooltip("(The one you go in)")] private GameObject m_trapdoorEntry;
+        [SerializeField] [Tooltip("(The one you exit from)")] private GameObject m_trapdoorExit; // TODO change to trapdoor type
+        [SerializeField] [Tooltip("(Where you go after entering the trapdoor in this room.)")] private RoomType m_trapdoorExitRoomType;
         
         [Header("Props Infos")]
         [SerializeField] [Tooltip("Anchors used to spawn small props (books, decorations, small furniture, etc.).")] private List<PropAnchor> m_smallPropsAnchors;
