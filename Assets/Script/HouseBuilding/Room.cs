@@ -68,17 +68,11 @@ namespace Script.HouseBuilding
         {
             base.OnSpawned();
             
-            PurrLogger.LogWarning("Room Spawned", this);
-            
             if (!isServer)
                 return;
             
-            PurrLogger.LogWarning("Spawn Room Server", this);
-            
             if (!InstanceHandler.TryGetInstance(out HouseBuilder houseBuilder))
                 return;
-
-            PurrLogger.LogWarning("Spawn Room Got houseBuilder", this);
             
             PopulateRoomNetwork(houseBuilder.m_smallPropsPercentage, houseBuilder.m_mediumPropsPercentage,
                 houseBuilder.m_masterSeed);
@@ -150,7 +144,7 @@ namespace Script.HouseBuilding
                     continue;
                 }
                     
-                m_smallPropsAnchors[index].NetworkInitialize();
+                m_smallPropsAnchors[index].NetworkInitialize(m_smallPropsAnchors[index].transform);
             }
 
             for (int index = 0; index < m_mediumPropsAnchors.Count * _mediumPropsPercentage; index++)
@@ -160,7 +154,7 @@ namespace Script.HouseBuilding
                     PurrLogger.LogError($"PropAnchor Network initialization failed (Anchor {index} malformed)", this);
                     continue;
                 }
-                m_mediumPropsAnchors[index].NetworkInitialize();
+                m_mediumPropsAnchors[index].NetworkInitialize(m_mediumPropsAnchors[index].transform);
             }
         }
     }

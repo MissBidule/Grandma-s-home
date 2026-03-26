@@ -1,6 +1,7 @@
 using PurrNet;
 using PurrNet.Logging;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Script.HouseBuilding
 {
@@ -36,14 +37,14 @@ namespace Script.HouseBuilding
             Instantiate(m_propPrefab, transform);
         }
 
-        public void NetworkInitialize()
+        public void NetworkInitialize(Transform _parent)
         {
             if (m_propPrefab == null)
             {
                 PurrLogger.LogError("PropAnchor Network initialization failed (prefab is null)", this);
                 return;
             }
-            UnityProxy.Instantiate(m_propPrefab, transform);
+            UnityProxy.Instantiate(m_propPrefab, _parent);
         }
     }
 }
