@@ -3,6 +3,10 @@ using PurrNet;
 using System.Collections;
 using System.Collections.Generic;
 
+/*
+ * @brief Struct to hold shared input states (Movement, camera, actions) between client and server across multiple network ticks.
+ * @details Instances of this are used to feed ISimulateMovement execution loops and replay missed inputs during reconciliations.
+ */
 public struct PredictiveInputData
 {
     public int tick;
@@ -18,8 +22,15 @@ public struct PredictiveInputData
     public Vector3 position;
 }
 
+/*
+ * @brief Core engine handling Client-Side Prediction (CSP) loops and rollbacks.
+ * @details Keeps a buffer of inputs and states. Re-simulates mechanics via the ISimulateMovement interface whenever real Server data proves a past local prediction was incorrect.
+ */
 public class PredictiveMovement : NetworkBehaviour
 {
+    /*
+     * @brief Struct to hold physical transform data natively at a recorded past tick in order to check prediction threshold mismatches securely.
+     */
     public struct HistoricalState
     {
         public int tick;
@@ -28,21 +39,21 @@ public class PredictiveMovement : NetworkBehaviour
         public Vector3 velocity;
     }
 
-    private List<PredictiveInputData> inputHistory = new List<PredictiveInputData>();
-    private List<HistoricalState> stateHistory = new List<HistoricalState>();
-    private int tick = 0;
-    private int lastProcessedClientTick = 0;
-    private int lastSentCorrectionTick = -1;
-    private ISimulateMovement simulateMovement;
+    private List<PredictiveInputData> m_inputHistory = new List<PredictiveInputData>();
+    private List<HistoricalState> m_stateHistory = new List<HistoricalState>();
+    private int m_tick = 0;
+    private int m_lastProcessedClientTick = 0;
+    private int m_lastSentCorrectionTick = -1;
+    private ISimulateMovement m_simulateMovement;
 
-    private bool alreadySimulated = false;
+    private bool m_alreadySimulated = false;
 
-    private PredictiveInputData currentInput = new();
-    [SerializeField] private float errorThreshold;
+    private PredictiveInputData m_currentInput = new();
+    [SerializeField] private float m_errorThreshold;
 
     private void Start()
     {
-        simulateMovement = GetComponent<ISimulateMovement>();
+        m_simulateMovement = GetComponent<ISimulateMovement>();
         InitInputData();
 
         //StartCoroutine(PredictiveUpdate());
@@ -53,7 +64,7 @@ public class PredictiveMovement : NetworkBehaviour
         Tick();
     }
 
-    protected override void OnOwnerChanged(PurrNet.PlayerID? oldOwner, PurrNet.PlayerID? newOwner, bool asServer)
+    protected override void OnOwnerChanged(PurrNet.PlayerID? _oldOwner, PurrNet.PlayerID? _newOwner, bool _asServer)
     {
         name = isOwner ? "Owner" : "Remote";
     }
@@ -61,64 +72,80 @@ public class PredictiveMovement : NetworkBehaviour
 
     public int GetTick()
     {
-        return tick;
+        return m_tick;
     }
 
+    /*
+     * @brief Initializes the input data structure with default values
+     * @return void
+     */
     private void InitInputData()
     {
-        currentInput = new PredictiveInputData();
-        currentInput.wishDirection = Vector3.zero;
-        currentInput.cameraYaw = -1000f; // Valeur par défaut pour indiquer que la caméra n'a pas été mise à jour
-        currentInput.cameraPosition = Vector3.zero;
-        currentInput.cameraForward = Vector3.zero;
-        currentInput.jumpPressed = false;
-        currentInput.switchPressed = false;
-        currentInput.attackPressed = false;
-        currentInput.sneakPressed = false;
-        currentInput.dashPressed = false;
+        m_currentInput = new PredictiveInputData();
+        m_currentInput.wishDirection = Vector3.zero;
+        m_currentInput.cameraYaw = -1000f; // Default value indicating camera has not been updated
+        m_currentInput.cameraPosition = Vector3.zero;
+        m_currentInput.cameraForward = Vector3.zero;
+        m_currentInput.jumpPressed = false;
+        m_currentInput.switchPressed = false;
+        m_currentInput.attackPressed = false;
+        m_currentInput.sneakPressed = false;
+        m_currentInput.dashPressed = false;
     }
 
+    /*
+     * @brief Clears the one-shot actions from current input
+     * @return void
+     */
     private void clearInputData()
     {
-        // Seules les actions one-shot (boutons) doivent être reset. 
-        // Ne PAS reset wishDirection, cameraYaw ou sneakPressed, sinon le perso s'arrête entre deux FixedUpdates ou requêtes réseau !
-        currentInput.jumpPressed = false;
-        currentInput.switchPressed = false;
-        currentInput.attackPressed = false;
-        currentInput.dashPressed = false;
+        // Only one-shot actions (buttons) should be reset. 
+        // DO NOT reset wishDirection, cameraYaw or sneakPressed, otherwise the character stops between two FixedUpdates or network requests!
+        m_currentInput.jumpPressed = false;
+        m_currentInput.switchPressed = false;
+        m_currentInput.attackPressed = false;
+        m_currentInput.dashPressed = false;
     }
 
-    // It was supposed to be revolutionary, it's just dogshit.
+    /*
+     * @brief Registers new input data from the client
+     * @param _data The predictive input data received
+     * @return void
+     */
     public void NewInput(PredictiveInputData _data)
     {
-        currentInput.wishDirection = _data.wishDirection;
-        currentInput.cameraYaw = _data.cameraYaw;
-        currentInput.cameraPosition = _data.cameraPosition;
-        currentInput.cameraForward = _data.cameraForward;
-        currentInput.jumpPressed = currentInput.jumpPressed | _data.jumpPressed;
-        currentInput.switchPressed = currentInput.switchPressed | _data.switchPressed;
-        currentInput.attackPressed = currentInput.attackPressed | _data.attackPressed;
-        currentInput.sneakPressed = currentInput.sneakPressed | _data.sneakPressed;
-        currentInput.dashPressed = currentInput.dashPressed | _data.dashPressed;
-        currentInput.position = transform.position;
-        // On enregistre le tick que le client nous a envoyé
-        lastProcessedClientTick = _data.tick; 
+        m_currentInput.wishDirection = _data.wishDirection;
+        m_currentInput.cameraYaw = _data.cameraYaw;
+        m_currentInput.cameraPosition = _data.cameraPosition;
+        m_currentInput.cameraForward = _data.cameraForward;
+        m_currentInput.jumpPressed = m_currentInput.jumpPressed | _data.jumpPressed;
+        m_currentInput.switchPressed = m_currentInput.switchPressed | _data.switchPressed;
+        m_currentInput.attackPressed = m_currentInput.attackPressed | _data.attackPressed;
+        m_currentInput.sneakPressed = m_currentInput.sneakPressed | _data.sneakPressed;
+        m_currentInput.dashPressed = m_currentInput.dashPressed | _data.dashPressed;
+        m_currentInput.position = transform.position;
+        // Save the tick sent by the client
+        m_lastProcessedClientTick = _data.tick; 
     }
 
+    /*
+     * @brief Physics tick handling prediction and server reconciliation
+     * @return void
+     */
     private void Tick()
     {
         var rb = GetComponent<Rigidbody>();
         if (isOwner) // PREDICTION
         {
-            currentInput.tick = tick;
+            m_currentInput.tick = m_tick;
 
-            if (alreadySimulated) simulateMovement.SimulateMovement(currentInput);
-            alreadySimulated = true;
+            if (m_alreadySimulated) m_simulateMovement.SimulateMovement(m_currentInput);
+            m_alreadySimulated = true;
             if (!isHost) 
             {
-                inputHistory.Add(currentInput);
-                stateHistory.Add(new HistoricalState {
-                    tick = tick,
+                m_inputHistory.Add(m_currentInput);
+                m_stateHistory.Add(new HistoricalState {
+                    tick = m_tick,
                     position = transform.position,
                     rotation = transform.rotation,
                     velocity = rb.linearVelocity
@@ -127,32 +154,37 @@ public class PredictiveMovement : NetworkBehaviour
             clearInputData();
         }
 
-        // SERVER SIDE. ON APPLIQUE LES INPUTS DES AUTRES.
+        // SERVER SIDE. APPLY OTHER PLAYERS' INPUTS.
         if (isServer)
         {
-            if (!isOwner) // Pas l'owner (= host) car il a déjà appliqué son input en prédiction
+            if (!isOwner) // Not the owner (= host) because they already applied their input in prediction
             {
-                if (alreadySimulated) simulateMovement.SimulateMovement(currentInput);
-                alreadySimulated = true;
+                if (m_alreadySimulated) m_simulateMovement.SimulateMovement(m_currentInput);
+                m_alreadySimulated = true;
                 
-                // Le serveur ne renvoie une correction que s'il a traité un NOUVEL input du client
-                if (lastProcessedClientTick != lastSentCorrectionTick)
+                // The server only sends a correction if it has processed a NEW input from the client
+                if (m_lastProcessedClientTick != m_lastSentCorrectionTick)
                 {
-                    ClientReceiveCorrection(lastProcessedClientTick, transform.position, transform.rotation, rb.linearVelocity);
-                    lastSentCorrectionTick = lastProcessedClientTick;
+                    ClientReceiveCorrection(m_lastProcessedClientTick, transform.position, transform.rotation, rb.linearVelocity);
+                    m_lastSentCorrectionTick = m_lastProcessedClientTick;
                 }
             }
             else
             {
-                ClientReceiveCorrection(tick, transform.position, transform.rotation, rb.linearVelocity);
+                ClientReceiveCorrection(m_tick, transform.position, transform.rotation, rb.linearVelocity);
             }
             clearInputData();
         }
 
 
-        tick += 1;
+        m_tick += 1;
     }
 
+    /*
+     * @brief Server receives the input data from the client
+     * @param _data The predictive input data
+     * @return void
+     */
     public void ServerReceiveInput(PredictiveInputData _data)
     {
         if (!isServer) return;
@@ -160,58 +192,74 @@ public class PredictiveMovement : NetworkBehaviour
         NewInput(_data);
     }
 
+    /*
+     * @brief Client receives the corrected position and velocity from the server
+     * @param _serverTick The server tick corresponding to the state
+     * @param _position The server position
+     * @param _rotation The server rotation
+     * @param _velocity The server velocity
+     * @return void
+     */
     [ObserversRpc(runLocally:false)]
-    public void ClientReceiveCorrection(int serverTick, Vector3 position, Quaternion rotation, Vector3 velocity)
+    public void ClientReceiveCorrection(int _serverTick, Vector3 _position, Quaternion _rotation, Vector3 _velocity)
     {
         if (isServer) return;
         if (!isOwner)
         {
-            transform.position = Vector3.Lerp(transform.position, position, 0.5f);
-            transform.rotation = rotation;
+            transform.position = Vector3.Lerp(transform.position, _position, 0.5f);
+            transform.rotation = _rotation;
             return;
         }
         else
         {
-            // On corrige la position du client
-            Reconciliation(position, rotation, velocity, serverTick);
+            // Correct the client's position
+            Reconciliation(_position, _rotation, _velocity, _serverTick);
         }
     }
 
-    public void Reconciliation(Vector3 serverPos, Quaternion serverRot, Vector3 serverVel, int serverTick)
+    /*
+     * @brief Reconciles the client's state with the server's authoritative state
+     * @param _serverPos The true server position
+     * @param _serverRot The true server rotation
+     * @param _serverVel The true server velocity
+     * @param _serverTick The tick at which the server recorded this state
+     * @return void
+     */
+    public void Reconciliation(Vector3 _serverPos, Quaternion _serverRot, Vector3 _serverVel, int _serverTick)
     {
         var rb = GetComponent<Rigidbody>();
         
         bool shouldRollback = true;
-        int stateIndex = stateHistory.FindIndex(s => s.tick == serverTick);
+        int stateIndex = m_stateHistory.FindIndex(s => s.tick == _serverTick);
         
         if (stateIndex != -1)
         {
-            HistoricalState pastState = stateHistory[stateIndex];
-            float distanceError = Vector3.Distance(pastState.position, serverPos);
+            HistoricalState pastState = m_stateHistory[stateIndex];
+            float distanceError = Vector3.Distance(pastState.position, _serverPos);
             
-            if (distanceError < errorThreshold)
+            if (distanceError < m_errorThreshold)
             {
-                shouldRollback = false; // La prédiction passée était exacte ! Pas de rollback !
+                shouldRollback = false; // The past prediction was accurate! No rollback!
             }
         }
 
-        // On libère la mémoire de l'historique approuvé
-        inputHistory.RemoveAll(input => input.tick <= serverTick);
-        stateHistory.RemoveAll(s => s.tick <= serverTick);
+        // Free the memory of the approved history
+        m_inputHistory.RemoveAll(input => input.tick <= _serverTick);
+        m_stateHistory.RemoveAll(s => s.tick <= _serverTick);
 
         if (!shouldRollback) return; 
 
-        // Sinon, la réalité diffère, on effectue un vrai rollback strict
-        rb.rotation = serverRot;
-        rb.position = serverPos; 
-        rb.linearVelocity = serverVel; // Indispensable pour la courbe de saut !
+        // Otherwise, reality differs, perform a true strict rollback
+        rb.rotation = _serverRot;
+        rb.position = _serverPos; 
+        rb.linearVelocity = _serverVel; // Essential for the jump curve!
 
-        foreach (var input in inputHistory)
+        foreach (var input in m_inputHistory)
         {
-            simulateMovement.SimulateMovement(input);
+            m_simulateMovement.SimulateMovement(input);
         }
 
-        Physics.SyncTransforms(); // Appliquer immédiatement la physique des nouveaux transform modifiés
-        alreadySimulated = true;
+        Physics.SyncTransforms(); // Immediately apply the physics of the newly modified transforms
+        m_alreadySimulated = true;
     }
 }
