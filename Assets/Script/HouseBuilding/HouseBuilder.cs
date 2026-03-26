@@ -52,7 +52,7 @@ namespace Script.HouseBuilding
      * anchor where the room should be instantiated, and a list of possible
      * room layouts that can be randomly selected.
      */
-    [System.Serializable]
+    [Serializable]
     public class RoomConfig
     {
         public RoomType m_roomType;
