@@ -11,15 +11,16 @@ using UnityEngine.Rendering;
  * @brief Contains class declaration for TransformPreviewGhost
  * @details The TransformPreviewGhost class handles the preview of transformations, checking for collisions and updating materials accordingly.
  */
-public class GhostMorphPreview : NetworkBehaviour
+public class GhostMorphPreview : MonoBehaviour
 {
     [SerializeField] private float m_scanRange = 10f;
     [SerializeField] private LayerMask m_scanLayerMask;
     [SerializeField] private GameObject m_mesh;
+    [SerializeField] private Shader m_shader;
 
     private HashSet<Collider> m_colliders = new HashSet<Collider>();
     private MeshRenderer m_meshRenderer;
-    private Collider m_previewCollider;
+    public Collider m_previewCollider;
     public WheelController m_wheel;
     public bool m_canMorph => m_colliders.Count == 0;
 
@@ -53,17 +54,6 @@ public class GhostMorphPreview : NetworkBehaviour
      */
     void Start()
     {
-        if (!isOwner) return;
-        InitOwner();
-    }
-
-    protected override void OnOwnerChanged(PurrNet.PlayerID? oldOwner, PurrNet.PlayerID? newOwner, bool asServer)
-    {
-        if (isOwner && m_cameraTransform == null) InitOwner();
-    }
-
-    private void InitOwner()
-    {
         m_meshRenderer = GetComponent<MeshRenderer>();
         m_previewCollider = GetComponent<Collider>();
         m_meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
@@ -75,9 +65,9 @@ public class GhostMorphPreview : NetworkBehaviour
             m_cameraTransform = core.m_playerCamera.transform;
     }
 
+
     private void Update()
     {
-        if (!isOwner) return;
         CheckForScannableObject();
 
         if (m_currentPrefab != null)
@@ -100,7 +90,6 @@ public class GhostMorphPreview : NetworkBehaviour
      */
     public void ScanForPrefab()
     {
-        
         Debug.Log("Scan");
 
         Vector3 rayOrigin = m_cameraTransform.transform.position;
@@ -150,7 +139,7 @@ public class GhostMorphPreview : NetworkBehaviour
         m_currentPrefab = _prefab;
 
         MeshFilter meshFilter = _prefab.GetComponentInChildren<MeshFilter>();
-        BoxCollider collider = _prefab.GetComponentInChildren<BoxCollider>();
+        MeshCollider collider = _prefab.GetComponentInChildren<MeshCollider>();
         MeshRenderer prefabRenderer = _prefab.GetComponentInChildren<MeshRenderer>();
 
         m_meshRenderer.enabled = true;
@@ -159,6 +148,8 @@ public class GhostMorphPreview : NetworkBehaviour
         if (prefabRenderer != null)
         {
             m_meshRenderer.sharedMaterials = prefabRenderer.sharedMaterials;
+            //This one prevents unwanted visuals
+            UpdateMaterial();
 
             InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "TransformConfirm", m_promptLabelValid));
             m_GhostPreviewOn =true;
@@ -201,16 +192,16 @@ public class GhostMorphPreview : NetworkBehaviour
      * @param _target: The target Collider to copy from.
      * @return void
      */
-    void ReplaceCollider(BoxCollider _target)
+    void ReplaceCollider(MeshCollider _target)
     {
         if (m_previewCollider != null)
         {
             Destroy(m_previewCollider);
         }
 
-        BoxCollider box = gameObject.AddComponent<BoxCollider>();
-        box.center = _target.center;
-        box.size = _target.size;
+        MeshCollider box = gameObject.AddComponent<MeshCollider>();
+        box.sharedMesh = _target.sharedMesh;
+        box.convex = true;
         box.isTrigger = true;
         m_previewCollider = box;
     }
@@ -258,11 +249,12 @@ public class GhostMorphPreview : NetworkBehaviour
      */
     void UpdateMaterial()
     {
-        if (!isOwner) return;
+        if (m_meshRenderer == null) return;
         Material[] mats = m_meshRenderer.materials;
         Color targetColor = m_canMorph ? m_validColor : m_invalidColor;
         foreach (Material mat in mats)
         {
+            mat.shader = m_shader;
             mat.color = targetColor;
 
             mat.SetFloat("_Surface", 1);
@@ -280,7 +272,6 @@ public class GhostMorphPreview : NetworkBehaviour
      */
     private void CheckForScannableObject()
     {
-        if (!isOwner) return;
         if (m_cameraTransform == null || GetComponentInParent<GhostMorph>().m_isMorphed)
         {
             ClearHighlight();

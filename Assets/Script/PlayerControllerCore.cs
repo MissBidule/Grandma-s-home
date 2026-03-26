@@ -121,6 +121,7 @@ public class PlayerControllerCore : NetworkBehaviour
         if (!InstanceHandler.TryGetInstance(out UIsManager uisManager))
             return;
         uisManager.ToggleUIVision();
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     private void ApplyOwnership()

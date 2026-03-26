@@ -48,34 +48,21 @@ public class GhostController : PlayerControllerCore, IInteractable
     private bool m_isFocused = false;
     [SerializeField] private string m_promptMessage = "Hold E : Revive";
 
-    [Header("Movement")]
-    [SerializeField] private float m_walkSpeed = 4f;
-    [SerializeField] private float m_acceleration = 25f;
-    [SerializeField] private float m_slowAmplitude = 0.5f;
-    [SerializeField] private float m_dashAmplitude = 1.5f;
+    [Header("Highlight")]
+    [SerializeField] private List<Renderer> m_highlightRenderers = new List<Renderer>();
+    [SerializeField] private Color m_highlightColor = Color.green;
+    [SerializeField] private float m_pulseSpeed = 3f;
+    [SerializeField] private float m_minIntensity = 0.2f;
+    [SerializeField] private float m_maxIntensity = 1f;
+    private Coroutine m_pulseCoroutine;
+    private MaterialPropertyBlock m_propertyBlock;
+
+
+    [Header("Abilities Parameters")]
     [SerializeField] [Tooltip("In seconds")] private float m_dashDuration = 2.5f;
-    // [SerializeField] [Tooltip("In seconds")] private float m_dashCooldown = 30.0f;
-    [SerializeField] private float m_sneakAmplitude = 0.5f;
-    
-
-    [Header("Rotation")]
-    [SerializeField] private float m_rotationSpeed = 12f;
-
-    [Header("Auto Climb")]
-    [SerializeField] private float m_climbSpeed = 3.5f;
-    [SerializeField] private float m_climbCheckDistance = 0.6f;
-    [SerializeField] private float m_wallNormalMaxY = 0.4f; 
-    [SerializeField] private float m_raycastHeightOffset = 0.5f;
-    [SerializeField] private LayerMask m_climbableLayerMask = ~0;
-    private QteCircle m_qteCircle;
 
     private Rigidbody m_rigidbody;
 
-    private bool m_canClimbThisFrame;
-    private Vector3 m_wallNormal;
-
-    private float m_speedModifier = 1f;
-    
     public Action<bool, PlayerID> OnDeathChange; // true for death | false for resurrection
 
     // -------------------------------------------
@@ -96,6 +83,26 @@ public class GhostController : PlayerControllerCore, IInteractable
 
     }
 
+    public void Start()
+    {
+        m_propertyBlock = new MaterialPropertyBlock();
+
+        if (m_highlightRenderers.Count > 0)
+        {
+            foreach (Renderer r in m_highlightRenderers)
+            {
+                foreach (Material mat in r.sharedMaterials)
+                {
+                    if (mat != null)
+                    {
+                        mat.EnableKeyword("_EMISSION");
+                    }
+                }
+            }
+        }
+        SetHighlight(false);
+    }
+
     void Update()
     {
         if (!isServer) return;
@@ -103,8 +110,6 @@ public class GhostController : PlayerControllerCore, IInteractable
         PingServer();
      
         UpdateTimers();
-
-        SetSpeedModifier();
 
         if (m_beingRevived)
         {
@@ -117,65 +122,6 @@ public class GhostController : PlayerControllerCore, IInteractable
         {
             m_ghostMorph.RevertToOriginal();
         }
-    }
-
-    /**
-    @brief      Physics update handling movement and climbing
-    @details    Applies camera-relative movement, rotation and automatic climbing when facing a wall
-    */
-    private void FixedUpdate()
-    {
-        if (!isServer) return;
-        if (m_isStopped) return;
-
-        if (m_wishDir.sqrMagnitude > 0.0001f
-            && !m_isStopped
-            && !m_isReviving
-            && !m_rigidbody.constraints.HasFlag(RigidbodyConstraints.FreezeRotationY)
-        )
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(m_wishDir, Vector3.up);
-
-            m_rigidbody.MoveRotation(
-                Quaternion.Slerp(
-                    m_rigidbody.rotation,
-                    targetRotation,
-                    m_rotationSpeed * Time.fixedDeltaTime
-                )
-            );
-        }
-
-        if (CheckForClimbableWall())
-        {
-            m_canClimbThisFrame = true;
-        }
-
-        if (m_canClimbThisFrame &&
-            !m_isReviving &&
-            m_wishDir.sqrMagnitude > 0.0001f)
-        {
-            Vector3 vel = m_rigidbody.linearVelocity;
-
-            float targetUp = m_climbSpeed * m_speedModifier;
-            vel.y = Mathf.Max(vel.y, targetUp);
-
-            m_rigidbody.linearVelocity = vel;
-
-            ResetClimbFlags();
-            return;
-        }
-
-        Vector3 targetVel = m_speedModifier * m_walkSpeed * m_wishDir;
-
-        Vector3 currentVel = m_rigidbody.linearVelocity;
-        Vector3 currentHorizontal = new Vector3(currentVel.x, 0f, currentVel.z);
-
-        Vector3 delta = targetVel - currentHorizontal;
-        Vector3 accel = Vector3.ClampMagnitude(delta * (m_acceleration * m_speedModifier), m_acceleration);
-
-        m_rigidbody.AddForce(new Vector3(accel.x, 0f, accel.z), ForceMode.Acceleration);
-
-        ResetClimbFlags();
     }
 
     void UpdateTimers()
@@ -213,16 +159,6 @@ public class GhostController : PlayerControllerCore, IInteractable
             CompleteRevive();
     }
 
-    void SetSpeedModifier()
-    {
-        m_speedModifier = 1f;
-        if (m_isSlowed) m_speedModifier *= m_slowAmplitude;
-        if (m_isDashing) m_speedModifier *= m_dashAmplitude;
-        if (m_isSneaking) m_speedModifier *= m_sneakAmplitude;
-        // Place between those lines the speedModifier change for when the player will "dash" / "sprint"
-        if (m_isStopped || m_isReviving) m_speedModifier = 0f;
-    }
-
     /**
     @brief      Check if the ghost is grounded
     @return     True if a surface is detected below the character
@@ -230,40 +166,6 @@ public class GhostController : PlayerControllerCore, IInteractable
     public bool IsGrounded()
     {
         return Physics.Raycast(transform.position, Vector3.down, out _, 1.0f);
-    }
-
-    /**
-    @brief      Check for climbable wall in front of the player using raycast
-    @return     True if a climbable wall is detected
-    */
-    private bool CheckForClimbableWall()
-    {
-        if (m_qteCircle == null) m_qteCircle = FindAnyObjectByType<QteCircle>();
-        if (m_qteCircle != null && m_qteCircle.m_isRunning)
-        {
-            return false;
-        }
-        Vector3 rayOrigin = transform.position + Vector3.up * m_raycastHeightOffset;
-        Vector3 rayDirection = transform.forward;
-
-        if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, m_climbCheckDistance, m_climbableLayerMask))
-        {
-            if (hit.normal.y <= m_wallNormalMaxY)
-            {
-                m_wallNormal = hit.normal;
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-    @brief      Reset climb flags
-    */
-    private void ResetClimbFlags()
-    {
-        m_canClimbThisFrame = false;
-        m_wallNormal = Vector3.zero;
     }
 
     /**
@@ -443,6 +345,7 @@ public class GhostController : PlayerControllerCore, IInteractable
         print("Found dead ghost");
         m_isFocused = true;
         InteractPromptUI.m_Instance.Show(m_promptMessage);
+        SetHighlight(true);
     }
 
     public void OnUnfocus(Interact _who)
@@ -450,6 +353,7 @@ public class GhostController : PlayerControllerCore, IInteractable
         print("Lost focus on dead ghost");
         m_isFocused = false;
         InteractPromptUI.m_Instance.Hide();
+        SetHighlight(false);
     }
     
     public void StartDash()
@@ -495,5 +399,69 @@ public class GhostController : PlayerControllerCore, IInteractable
     public float GetScaryCooldownDuration()
     {
         return m_cdChildScare;
+    }
+
+    /*
+     * @brief Starts or stops the pulsing highlight coroutine on the highlight renderer
+     * Resets emission to black when disabled
+     * @param _enabled: Whether the highlight should be active
+     * @return void
+     */
+    private void SetHighlight(bool _enabled)
+    {
+        if (m_highlightRenderers.Count == 0)
+        {
+            return;
+        }
+
+        if (_enabled)
+        {
+            if (m_pulseCoroutine != null)
+            {
+                StopCoroutine(m_pulseCoroutine);
+            }
+            m_pulseCoroutine = StartCoroutine(PulseHighlight());
+        }
+        else
+        {
+            if (m_pulseCoroutine != null)
+            {
+                StopCoroutine(m_pulseCoroutine);
+                m_pulseCoroutine = null;
+            }
+
+
+            foreach (Renderer r in m_highlightRenderers)
+            {
+                r.GetPropertyBlock(m_propertyBlock);
+                m_propertyBlock.SetColor("_EmissionColor", new Color(0, 0, 0, 0));
+                r.SetPropertyBlock(m_propertyBlock);
+            }
+        }
+    }
+
+    /*
+     * @brief Animates the highlight renderer with a pulsing emission effect
+     * @return IEnumerator for coroutine
+     */
+    private IEnumerator PulseHighlight()
+    {
+        float time = 0f;
+
+        while (true)
+        {
+            float pulse = Mathf.Lerp(m_minIntensity, m_maxIntensity,
+                                     (Mathf.Sin(time * m_pulseSpeed) + 1f) * 0.5f);
+
+            foreach (Renderer r in m_highlightRenderers)
+            {
+                r.GetPropertyBlock(m_propertyBlock);
+                m_propertyBlock.SetColor("_EmissionColor", m_highlightColor * pulse);
+                r.SetPropertyBlock(m_propertyBlock);
+            }
+
+            time += Time.deltaTime;
+            yield return null;
+        }
     }
 }

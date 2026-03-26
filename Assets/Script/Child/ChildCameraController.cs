@@ -18,7 +18,7 @@ public class ChildCameraController : MonoBehaviour
 
     private float m_yaw;
     private float m_pitch;
-    private float m_xOffset;
+    [SerializeField] private float m_xOffset;
 
     private ChildInputController m_childInputController;
     private Transform m_target;
@@ -34,14 +34,13 @@ public class ChildCameraController : MonoBehaviour
         m_childInputController = GetComponentInParent<ChildInputController>();
         m_target = transform.parent;
         m_rigidbody = GetComponentInParent<Rigidbody>();
-        m_xOffset = transform.position.x;
 
-        m_sensitivity = PlayerPrefs.GetFloat("Settings_MouseSensitivityChild", m_sensitivity);
+        m_sensitivity = PlayerPrefs.GetFloat("Settings_MouseSensitivity", m_sensitivity);
         UnityEngine.Cursor.lockState = CursorLockMode.Locked;
     }
 
-    private void OnEnable()  => PurrLobby.AccessibilitySettingsPanel.OnChildSensitivityChanged += OnSensitivityChanged;
-    private void OnDisable() => PurrLobby.AccessibilitySettingsPanel.OnChildSensitivityChanged -= OnSensitivityChanged;
+    private void OnEnable()  => PurrLobby.AccessibilitySettingsPanel.OnSensitivityChanged += OnSensitivityChanged;
+    private void OnDisable() => PurrLobby.AccessibilitySettingsPanel.OnSensitivityChanged -= OnSensitivityChanged;
     private void OnSensitivityChanged(float v) => m_sensitivity = v;
 
     /*

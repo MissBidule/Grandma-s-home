@@ -42,6 +42,7 @@ namespace PurrLobby
         public ILobbyProvider CurrentProvider => currentProvider as ILobbyProvider;
 
         private bool _restartGame = false;
+        private bool _restartAsked = false;
 
         private Lobby _currentLobby
         {
@@ -72,10 +73,11 @@ namespace PurrLobby
 
         private void Awake()
         {
+            DontDestroyOnLoad(gameObject);
             _lastKnownState = new Lobby { IsValid = false };
 
-            SetupDataHolder();
             SetupRoleKeeper();
+            SetupDataHolder();
 
             if (CurrentProvider != null)
             {
@@ -114,7 +116,7 @@ namespace PurrLobby
             {
                 //Here we reloaded the scene while still being a lobby so we can reconnect again
                 Debug.Log("Valid lobby found in data holder on Awake, rejoining room...");
-                _restartGame = true;
+                _restartAsked = true;
             }
         }
 
@@ -139,14 +141,20 @@ namespace PurrLobby
             viewManager.OnRoomJoined(); 
             //refresh lobby info
             _elapsedTime = _refreshRate;
+            _restartGame = false;
         }
 
         private void Update()
         {
-            if (_restartGame)
+            if (_restartAsked)
             {
                 _ = ReconnectToLobbyAsync();
-                _restartGame = false;
+                _restartAsked = false;
+                _restartGame = true;
+            }
+            if (_restartGame)
+            {
+                return;
             }
             while (_delayedActions.Count > 0)
             {

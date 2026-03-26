@@ -38,7 +38,6 @@ public class Interact : NetworkBehaviour
             m_onFocus?.OnUnfocus(this);
             m_onFocus = closest;
         }
-        print(m_onFocus);
     }
 
     private float SqDistanceTo(Transform _transform)

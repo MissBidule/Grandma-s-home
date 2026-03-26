@@ -96,7 +96,6 @@ public class PauseMenuView : MonoBehaviour
      */
     public void QuitGame()
     {
-        var networkManager = InstanceHandler.GetInstance<NetworkManager>();
         Application.Quit();
     }
 
@@ -184,14 +183,6 @@ public class PauseMenuView : MonoBehaviour
         rect.anchorMax = new Vector2(0.5f, 0.5f);
         rect.pivot = new Vector2(0.5f, 0.5f);
         rect.sizeDelta = new Vector2(340f, 300f);
-
-        var title = CreateText(m_mainPanel.transform, "PAUSE", 32, FontStyles.Bold);
-        var titleRect = title.GetComponent<RectTransform>();
-        titleRect.anchorMin = new Vector2(0f, 1f);
-        titleRect.anchorMax = new Vector2(1f, 1f);
-        titleRect.pivot = new Vector2(0.5f, 1f);
-        titleRect.offsetMin = new Vector2(0f, -70f);
-        titleRect.offsetMax = new Vector2(0f, -20f);
 
         CreateButton(m_mainPanel.transform, "Resume",   new Vector2(0f,  80f), Resume);
         CreateButton(m_mainPanel.transform, "Options",  new Vector2(0f,  10f), OpenOptions);

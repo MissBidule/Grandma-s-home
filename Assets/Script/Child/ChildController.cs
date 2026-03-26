@@ -3,6 +3,7 @@ using System.Collections;
 using PurrNet;
 using PurrNet.Logging;
 using UnityEngine;
+using UnityEngine.ProBuilder.Shapes;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 
@@ -13,15 +14,10 @@ using UnityEngine.Serialization;
  */
 public class ChildController : PlayerControllerCore
 {
-    private Rigidbody m_rigidbody;
-
-    public Vector3 m_wishDir;
-    
     // Camera Parameters
-    public float m_cameraYaw;
     [NonSerialized] public Vector3 m_cameraPosition;
     [NonSerialized] public Vector3 m_cameraForward;
-    
+
     [Header("Weapon Switching")]
     public bool m_isRanged;
     public float m_lastShot;
@@ -29,29 +25,23 @@ public class ChildController : PlayerControllerCore
     [SerializeField] public float m_cdSwitch = 0.2f;
     
     [Header("CAC parameters")]
-    private float m_attackRange = 0.5f;
+    [SerializeField]private float m_attackRange = 1f;
     [SerializeField] private LayerMask m_GhostLayerMask;
+    [SerializeField] private Transform m_cacTransform;
     
     [Header("Shooting parameters")]
     [SerializeField] [Tooltip("In seconds")] private float m_cdGun = 1.0f;
     [SerializeField] private Transform m_bulletSpawnTransform;
     [SerializeField] private GameObject m_bulletPrefab;
-    [SerializeField] private float m_shootRange = 50f;
     
     [Header("Speed Modifiers")]
-    [SerializeField] private float m_speed = 5f;
-    [SerializeField] private float m_jumpImpulse = 6.0f;
-    public bool m_isScared = false;
-    [SerializeField] private float m_scaredAmplitude = 0.5f;
     [SerializeField] [Tooltip("Duration of scared by ghost in seconds")] private float m_scaredDuration = 5.0f;
-    public bool m_isSneaking = false;
-    [SerializeField] private float m_sneakAmplitude = 0.5f;
-    private float m_speedModifier = 1.0f; // Default speed modifier
 
     [Header("Animation")]
     [SerializeField] private NetworkAnimator m_animator;
     public bool m_shootAnimRunning = false;
     public MaterialInstance m_faceMat;
+    private Rigidbody m_rigidbody;
 
 
 
@@ -59,12 +49,11 @@ public class ChildController : PlayerControllerCore
     protected override void OnSpawned()
     {
         base.OnSpawned();
-        m_rigidbody = GetComponent<Rigidbody>();
 
         if (!isServer) return;
         m_lastShot = m_cdGun;
         m_switchingTime = m_cdSwitch;
-
+        m_rigidbody = GetComponent<Rigidbody>();
     }
 
     /*
@@ -74,28 +63,17 @@ public class ChildController : PlayerControllerCore
     private void Update()
     {
         if (!isServer) return;
-
         PingServer();
-     
         UpdateTimers();
         
-        transform.rotation = Quaternion.Euler(0, m_cameraYaw, 0);
-
-        SetSpeedModifier();
-
-        m_rigidbody.MovePosition(
-            m_rigidbody.position + m_wishDir * (m_speed * Time.deltaTime * m_speedModifier)
-        );
-
-
+        m_animator.SetFloat("VerticalSpeed", m_rigidbody.linearVelocity.y);
+        if(m_rigidbody.linearVelocity.y < -0.1f)
+        {
+            changeFaceMat(new Vector2(0.33f, 0.66f));
+        }
     }
     
-    void SetSpeedModifier()
-    {
-        m_speedModifier = 1f;
-        if (m_isSneaking) m_speedModifier *= m_sneakAmplitude;
-        if (m_isScared) m_speedModifier *= m_scaredAmplitude;
-    }
+    
 
     void UpdateTimers()
     {
@@ -108,26 +86,7 @@ public class ChildController : PlayerControllerCore
         }
     }
 
-    /*
-     * @brief   Makes the child jump by applying an impulse force upwards
-     * @return  void
-     */
-    public void Jump()
-    {
-        if (!isServer) return;
-        changeFaceMat(new Vector2(0.66f,0.66f));
-        if (!IsGrounded() || m_rigidbody.linearVelocity.y > 0.1f) return;
-        m_rigidbody.AddForce(Vector3.up * m_jumpImpulse, ForceMode.Impulse);
-    }
-
-    /*
-     * @brief   Checks if the child is grounded by casting a ray downwards
-     * @return  bool True if grounded, false otherwise
-     */
-    private bool IsGrounded()
-    {
-        return Physics.Raycast(transform.position, Vector3.down, out _, 1.0f);
-    }
+    
 
     /*
      * @brief function called when the child inputs the hit command
@@ -135,7 +94,8 @@ public class ChildController : PlayerControllerCore
      */
     public void Attack()
     {
-        if (!isServer || m_isScared) return; // Return if the player is scared
+        if (!isServer) return;
+        //if (m_isScared) return; // Return if the player is scared
         if (m_switchingTime < m_cdSwitch) return;
         changeFaceMat(new Vector2(0,0.33f));
         if (m_isRanged)
@@ -143,12 +103,11 @@ public class ChildController : PlayerControllerCore
             if (m_lastShot >= m_cdGun)
             {
                 m_lastShot = 0;
-                Debug.Log("shoot");
                 Vector3 aimTarget;
-                if (Physics.Raycast(m_cameraPosition, m_cameraForward, out RaycastHit hit, m_shootRange))
+                if (Physics.Raycast(m_cameraPosition, m_cameraForward, out RaycastHit hit, 50f))
                     aimTarget = hit.point;
                 else
-                    aimTarget = m_cameraPosition + m_cameraForward * m_shootRange;
+                    aimTarget = m_cameraPosition + m_cameraForward * 50f;
                 Vector3 shootDir = (aimTarget - m_bulletSpawnTransform.position).normalized;
                 ShootForAll(Quaternion.LookRotation(shootDir));
             }
@@ -158,10 +117,7 @@ public class ChildController : PlayerControllerCore
             Cac();
             Debug.Log("cac");
         }
-
     }
-    
-    
     
     /*
      * @brief   Called when the child collides with a ghost to apply the scared debuff, the collider is quite small to prevent from triggering while trying to hit a ghost with the bat
@@ -188,13 +144,13 @@ public class ChildController : PlayerControllerCore
         //PurrLogger.Log($"Ghost Can Scare", this);
         //PurrLogger.Log("Ghost", this);
         ghost.StartSpookyScary();
-        GhostTouch();
+        //GhostTouch();
     }
     
     /**
     @brief      Apply scared effect from ghost
     */
-    private void GhostTouch()
+    /*private void GhostTouch()
     {
         if (!isServer) return;
         m_isScared = true;
@@ -212,7 +168,7 @@ public class ChildController : PlayerControllerCore
             m_animator.SetTrigger("OnScared");
         }
         m_isScared = _isScared;
-    }
+    }*/
 
     /*
      * @brief Timer for scared debuff
@@ -220,8 +176,8 @@ public class ChildController : PlayerControllerCore
     private IEnumerator ScaredTimer(float _scaredDuration)
     {
         yield return new WaitForSeconds(_scaredDuration);
-        m_isScared = false;
-        UpdateScaredToAll(m_isScared);
+        //m_isScared = false;
+        //UpdateScaredToAll(m_isScared);
     }
 
     public float GetScaredDuration()
@@ -236,7 +192,8 @@ public class ChildController : PlayerControllerCore
     [ServerRpc]
     private void Cac()
     {
-        Collider[] hits = Physics.OverlapSphere(m_bulletSpawnTransform.position, m_attackRange);
+        Vector3 CacPosition = m_cacTransform.position + m_cameraForward.normalized * 1.5f;
+        Collider[] hits = Physics.OverlapSphere(CacPosition, m_attackRange);
 
         foreach (Collider col in hits)
         {
@@ -246,17 +203,16 @@ public class ChildController : PlayerControllerCore
                 ghost.HitCac();
                 CacNotification(ghost);
             }
+            if (col.GetComponent<BrokeDecor>())
+            {
+                var brokeDecor = col.gameObject.GetComponent<BrokeDecor>();
+                if(brokeDecor != null)
+                {
+                    brokeDecor.Broke();
+                }
+            }
             if (col.transform.parent) 
             {
-                if (col.transform.parent.gameObject.GetComponent<BrokeDecor>())
-                {
-                    var brokeDecor = col.transform.parent.gameObject.GetComponent<BrokeDecor>();
-                    if(brokeDecor != null)
-                    {
-                        brokeDecor.Broke();
-                    }
-                }
-            
                 if (col.transform.parent.gameObject.layer == LayerMask.NameToLayer("Ghost"))
                 {
                     var ghostMorph = col.transform.parent.gameObject.GetComponent<GhostMorph>();

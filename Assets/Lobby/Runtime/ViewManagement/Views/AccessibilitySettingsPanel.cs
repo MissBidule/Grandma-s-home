@@ -20,17 +20,14 @@ namespace PurrLobby
 
         private OptionRowDropdown _colorblindRow;
         private OptionRowSlider   _colorblindIntensityRow;
-        private OptionRowSlider   _sensitivityChildRow;
-        private OptionRowSlider   _sensitivityGhostRow;
+        private OptionRowSlider   _sensitivityRow;
 
         private static readonly string KeyColorblind          = "Settings_Colorblind";
         private static readonly string KeyColorblindIntensity = "Settings_ColorblindIntensity";
-        private static readonly string KeySensitivityChild    = "Settings_MouseSensitivityChild";
-        private static readonly string KeySensitivityGhost    = "Settings_MouseSensitivityGhost";
+        private static readonly string KeySensitivity         = "Settings_MouseSensitivity";
         public  static readonly float  DefaultSensitivity     = 120f;
 
-        public static event System.Action<float> OnChildSensitivityChanged;
-        public static event System.Action<float> OnGhostSensitivityChanged;
+        public static event System.Action<float> OnSensitivityChanged;
 
         private static Volume       _colorblindVolume;
         private static ChannelMixer _channelMixer;
@@ -60,8 +57,7 @@ namespace PurrLobby
             foreach (Transform child in _container)
                 Destroy(child.gameObject);
 
-            _sensitivityChildRow    = SpawnSlider("Sensitivity (Child)", 10f, 300f, DefaultSensitivity);
-            _sensitivityGhostRow    = SpawnSlider("Sensitivity (Ghost)", 10f, 300f, DefaultSensitivity);
+            _sensitivityRow         = SpawnSlider("Sensitivity", 10f, 300f, DefaultSensitivity);
             _colorblindRow          = SpawnDropdown("Colorblind Mode");
             _colorblindIntensityRow = SpawnSlider("Colorblind Intensity", 0f, 1f, 1f);
             _built = true;
@@ -101,29 +97,16 @@ namespace PurrLobby
 
         private void LoadAndApply()
         {
-            if (_sensitivityChildRow?.m_slider != null)
+            if (_sensitivityRow?.m_slider != null)
             {
-                float saved = PlayerPrefs.GetFloat(KeySensitivityChild, DefaultSensitivity);
-                _sensitivityChildRow.m_slider.value = saved;
-                UpdateSensitivityLabel(_sensitivityChildRow, saved);
-                _sensitivityChildRow.m_slider.onValueChanged.AddListener(v =>
+                float saved = PlayerPrefs.GetFloat(KeySensitivity, DefaultSensitivity);
+                _sensitivityRow.m_slider.value = saved;
+                UpdateSensitivityLabel(_sensitivityRow, saved);
+                _sensitivityRow.m_slider.onValueChanged.AddListener(v =>
                 {
-                    PlayerPrefs.SetFloat(KeySensitivityChild, v);
-                    UpdateSensitivityLabel(_sensitivityChildRow, v);
-                    OnChildSensitivityChanged?.Invoke(v);
-                });
-            }
-
-            if (_sensitivityGhostRow?.m_slider != null)
-            {
-                float saved = PlayerPrefs.GetFloat(KeySensitivityGhost, DefaultSensitivity);
-                _sensitivityGhostRow.m_slider.value = saved;
-                UpdateSensitivityLabel(_sensitivityGhostRow, saved);
-                _sensitivityGhostRow.m_slider.onValueChanged.AddListener(v =>
-                {
-                    PlayerPrefs.SetFloat(KeySensitivityGhost, v);
-                    UpdateSensitivityLabel(_sensitivityGhostRow, v);
-                    OnGhostSensitivityChanged?.Invoke(v);
+                    PlayerPrefs.SetFloat(KeySensitivity, v);
+                    UpdateSensitivityLabel(_sensitivityRow, v);
+                    OnSensitivityChanged?.Invoke(v);
                 });
             }
 
@@ -167,21 +150,18 @@ namespace PurrLobby
         {
             PlayerPrefs.DeleteKey(KeyColorblind);
             PlayerPrefs.DeleteKey(KeyColorblindIntensity);
-            PlayerPrefs.DeleteKey(KeySensitivityChild);
-            PlayerPrefs.DeleteKey(KeySensitivityGhost);
+            PlayerPrefs.DeleteKey(KeySensitivity);
             PlayerPrefs.Save();
             ApplyColorblind(0);
             ApplyColorblindIntensity(1f);
-            OnChildSensitivityChanged?.Invoke(DefaultSensitivity);
-            OnGhostSensitivityChanged?.Invoke(DefaultSensitivity);
+            OnSensitivityChanged?.Invoke(DefaultSensitivity);
             OnDisable();
             LoadAndApply();
         }
 
         private void OnDisable()
         {
-            if (_sensitivityChildRow?.m_slider)     _sensitivityChildRow.m_slider.onValueChanged.RemoveAllListeners();
-            if (_sensitivityGhostRow?.m_slider)     _sensitivityGhostRow.m_slider.onValueChanged.RemoveAllListeners();
+            if (_sensitivityRow?.m_slider)          _sensitivityRow.m_slider.onValueChanged.RemoveAllListeners();
             if (_colorblindRow?.m_dropdown)        _colorblindRow.m_dropdown.onValueChanged.RemoveAllListeners();
             if (_colorblindIntensityRow?.m_slider) _colorblindIntensityRow.m_slider.onValueChanged.RemoveAllListeners();
         }
@@ -208,8 +188,7 @@ namespace PurrLobby
         {
             ApplyColorblind(PlayerPrefs.GetInt(KeyColorblind, 0));
             ApplyColorblindIntensity(PlayerPrefs.GetFloat(KeyColorblindIntensity, 1f));
-            OnChildSensitivityChanged?.Invoke(PlayerPrefs.GetFloat(KeySensitivityChild, DefaultSensitivity));
-            OnGhostSensitivityChanged?.Invoke(PlayerPrefs.GetFloat(KeySensitivityGhost, DefaultSensitivity));
+            OnSensitivityChanged?.Invoke(PlayerPrefs.GetFloat(KeySensitivity, DefaultSensitivity));
         }
 
         // ── Colorblind correction ─────────────────────────────────────────────
