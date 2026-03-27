@@ -31,9 +31,8 @@ namespace Script.HouseBuilding
 
         private void Awake()
         {
-            //I know I must not forget to uncomment but please Justin, do not put logerror which will appear EVERY TIME in develop
             // Object Validation
-            /*if (m_sabotageObject == null)
+            if (m_sabotageObject == null)
                 PurrLogger.LogError($"{m_roomType} Sabotage Object is null", this);
             if (m_trapdoorEntry == null)
                 PurrLogger.LogError($"{m_roomType} Trapdoor Entry is null", this);
@@ -42,7 +41,7 @@ namespace Script.HouseBuilding
             if (m_smallPropsAnchors == null)
                 PurrLogger.LogError($"{m_roomType} Small Props Anchors is null", this);
             if (m_mediumPropsAnchors == null)
-                PurrLogger.LogError($"{m_roomType} Medium Props Anchors is null", this);*/
+                PurrLogger.LogError($"{m_roomType} Medium Props Anchors is null", this);
         }
         
         public SabotageObject GetSabotageObject()
@@ -141,7 +140,7 @@ namespace Script.HouseBuilding
             {
                 if (m_smallPropsAnchors[index] == null)
                 {
-                    //PurrLogger.LogError($"PropAnchor Network initialization failed (Anchor {index} malformed)", this);
+                    PurrLogger.LogError($"PropAnchor Network initialization failed (Anchor {index} malformed)", this);
                     continue;
                 }
                     
@@ -152,7 +151,7 @@ namespace Script.HouseBuilding
             {
                 if (m_mediumPropsAnchors[index] == null)
                 {
-                    //PurrLogger.LogError($"PropAnchor Network initialization failed (Anchor {index} malformed)", this);
+                    PurrLogger.LogError($"PropAnchor Network initialization failed (Anchor {index} malformed)", this);
                     continue;
                 }
                 m_mediumPropsAnchors[index].NetworkInitialize(m_mediumPropsAnchors[index].transform);

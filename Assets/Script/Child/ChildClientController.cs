@@ -399,7 +399,6 @@ public class ChildClientController : NetworkBehaviour
     private Vector3 GetCameraForward() {
         Transform cameraTransform = m_playerCamera.transform;
         Vector3 forward = cameraTransform.forward;
-        forward.y = 0f;
         return forward.normalized;
     }
 
