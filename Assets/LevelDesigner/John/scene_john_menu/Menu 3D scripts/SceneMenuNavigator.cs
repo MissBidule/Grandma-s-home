@@ -106,7 +106,7 @@ public class SceneMenuNavigator : MonoBehaviour
 
         var configMenu = configurationMenus.FirstOrDefault(m => m.camera == targetCamera);
 
-       
+
 
         // ÉTAPE 4 : Apparition
         if (configMenu.textesTMPWriters != null)
@@ -137,5 +137,18 @@ public class SceneMenuNavigator : MonoBehaviour
     {
         if (groupe == null) return;
         foreach (Collider col in groupe) if (col != null) col.enabled = etat;
+    }
+
+    public void QuitterLeJeu()
+    {
+        Debug.Log("Quitter le jeu...");
+
+        // Ça, ça fermera le vrai jeu une fois compilé
+        Application.Quit();
+
+        // 🎯 NOUVEAU : Ça, ça arrête le mode "Play" dans l'éditeur Unity
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
     }
 }
