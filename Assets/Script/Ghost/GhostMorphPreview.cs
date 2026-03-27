@@ -11,7 +11,7 @@ using UnityEngine.Rendering;
  * @brief Contains class declaration for TransformPreviewGhost
  * @details The TransformPreviewGhost class handles the preview of transformations, checking for collisions and updating materials accordingly.
  */
-public class GhostMorphPreview : NetworkBehaviour
+public class GhostMorphPreview : MonoBehaviour
 {
     [SerializeField] private float m_scanRange = 10f;
     [SerializeField] private LayerMask m_scanLayerMask;
@@ -39,9 +39,11 @@ public class GhostMorphPreview : NetworkBehaviour
     private MaterialPropertyBlock m_propertyBlock;
 
     private Transform m_cameraTransform;
+    private bool m_rotateLeft = false;
+    private bool m_rotateRight = false;
 
-    [SerializeField] private string m_promptMessageSCAN = "T : SCAN";
-    [SerializeField] private string m_promptMessageValid = "F : Valid";
+    [SerializeField] private string m_promptLabelSCAN = "SCAN";
+    [SerializeField] private string m_promptLabelValid = "Valid";
     [SerializeField] private float m_rotateSpeed = 120f;
 
     [SerializeField] private bool m_GhostPreviewOn;
@@ -51,17 +53,6 @@ public class GhostMorphPreview : NetworkBehaviour
      * @return void
      */
     void Start()
-    {
-        if (!isOwner) return;
-        InitOwner();
-    }
-
-    protected override void OnOwnerChanged(PurrNet.PlayerID? oldOwner, PurrNet.PlayerID? newOwner, bool asServer)
-    {
-        if (isOwner && m_cameraTransform == null) InitOwner();
-    }
-
-    private void InitOwner()
     {
         m_meshRenderer = GetComponent<MeshRenderer>();
         m_previewCollider = GetComponent<Collider>();
@@ -74,16 +65,16 @@ public class GhostMorphPreview : NetworkBehaviour
             m_cameraTransform = core.m_playerCamera.transform;
     }
 
+
     private void Update()
     {
-        if (!isOwner) return;
         CheckForScannableObject();
 
         if (m_currentPrefab != null)
         {
             float rotDir = 0f;
-            if (Keyboard.current.qKey.isPressed) rotDir -= 1f;
-            if (Keyboard.current.eKey.isPressed) rotDir += 1f;
+            if (m_rotateLeft) rotDir -= 1f;
+            if (m_rotateRight) rotDir += 1f;
             if (rotDir != 0f)
             {
                 transform.Rotate(0f, rotDir * m_rotateSpeed * Time.deltaTime, 0f, Space.World);
@@ -99,7 +90,6 @@ public class GhostMorphPreview : NetworkBehaviour
      */
     public void ScanForPrefab()
     {
-        
         Debug.Log("Scan");
 
         Vector3 rayOrigin = m_cameraTransform.transform.position;
@@ -161,7 +151,7 @@ public class GhostMorphPreview : NetworkBehaviour
             //This one prevents unwanted visuals
             UpdateMaterial();
 
-            InteractPromptUI.m_Instance.Show(m_promptMessageValid);
+            InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "TransformConfirm", m_promptLabelValid));
             m_GhostPreviewOn =true;
         }
         m_colliders.Clear();
@@ -259,7 +249,6 @@ public class GhostMorphPreview : NetworkBehaviour
      */
     void UpdateMaterial()
     {
-        if (!isOwner) return;
         if (m_meshRenderer == null) return;
         Material[] mats = m_meshRenderer.materials;
         Color targetColor = m_canMorph ? m_validColor : m_invalidColor;
@@ -283,7 +272,6 @@ public class GhostMorphPreview : NetworkBehaviour
      */
     private void CheckForScannableObject()
     {
-        if (!isOwner) return;
         if (m_cameraTransform == null || GetComponentInParent<GhostMorph>().m_isMorphed)
         {
             ClearHighlight();
@@ -315,7 +303,7 @@ public class GhostMorphPreview : NetworkBehaviour
                     if(!GetComponentInParent<GhostMorph>().m_isMorphed)
                     {
                        // There is a clone for few seconds...
-                        InteractPromptUI.m_Instance.Show(m_promptMessageSCAN);
+                    InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "Scan", m_promptLabelSCAN));
                     }
                     ClearHighlight();
                     HighlightObject(hitObject);
@@ -333,7 +321,7 @@ public class GhostMorphPreview : NetworkBehaviour
             InteractPromptUI.m_Instance.Hide();
 
             if(m_GhostPreviewOn == true){
-            InteractPromptUI.m_Instance.Show(m_promptMessageValid);
+            InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "TransformConfirm", m_promptLabelValid));
             
             } 
         }
@@ -429,4 +417,7 @@ public class GhostMorphPreview : NetworkBehaviour
             m_currentHighlightedObject = null;
         }
     }
+
+    public void SetRotateLeft(bool active) => m_rotateLeft = active;
+    public void SetRotateRight(bool active) => m_rotateRight = active;
 }

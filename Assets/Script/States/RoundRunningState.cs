@@ -17,6 +17,10 @@ namespace Script.States
         [Header("Round Settings")]
         [SerializeField] [Tooltip("Duration of the round in minutes")] private float m_roundDuration;
         [SerializeField] [Tooltip("Number of time the sky will move in the round.")] private int m_sunIncrementNumber = 12;
+        [SerializeField] [Tooltip("Start duration")] private float m_startDelay = 10f;
+
+        [Header("Door")]
+        [SerializeField] [Tooltip("The DOOR")] private StartingDoor m_startingDoor;
         // TODO Skybox & directional light reference.
         
         // State Reference
@@ -30,6 +34,9 @@ namespace Script.States
         
         private List<PlayerID> m_aliveGhosts = new();
         private List<PlayerID> m_deadGhosts = new();
+        
+        // Sabotage Info
+        private List<SabotageObject> m_sabotageObjects;
         
         // Coroutine
         private Coroutine m_roundTimer;
@@ -104,7 +111,12 @@ namespace Script.States
             
             m_aliveGhosts.Clear();
             m_deadGhosts.Clear();
-        } 
+        }
+
+        public void SetSabotageObjects(List<SabotageObject> _sabotageObjects)
+        {
+            m_sabotageObjects = _sabotageObjects;
+        }
 
         private void RegisteringListener(List<PlayerControllerCore> _players)
         {
@@ -148,6 +160,14 @@ namespace Script.States
          */
         private IEnumerator RoundTimer(float _roundDuration)
         {
+            // Wait for players to settle in the starting room before opening the doors
+            yield return new WaitForSeconds(m_startDelay);
+
+            m_startingDoor.OpenDoors();
+
+            SabotageManager sabotageManager = FindAnyObjectByType<SabotageManager>();
+            sabotageManager?.Initialize();
+
             for (int i = 0; i < m_sunIncrementNumber; i++)
             {
                 yield return new WaitForSeconds(_roundDuration/m_sunIncrementNumber);

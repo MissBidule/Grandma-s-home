@@ -24,7 +24,7 @@ public class GhostInputController : MonoBehaviour
 
     private bool isOwner => m_ghostClientController != null && m_ghostClientController.isOwner;
 
-    [SerializeField] private string m_promptMessageValid = "F : Valid";
+    [SerializeField] private string m_promptLabelValid = "Valid";
 
     /*
      * @brief Awake is called when the script instance is being loaded
@@ -76,7 +76,7 @@ public class GhostInputController : MonoBehaviour
         if (_context.performed)
         {
             m_ghostClientController.OnScan();
-            InteractPromptUI.m_Instance.Show(m_promptMessageValid);
+            InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "TransformConfirm", m_promptLabelValid));
         }
     }
 
@@ -108,8 +108,17 @@ public class GhostInputController : MonoBehaviour
         }
     }
 
-    public void OnRotatePreviewLeft(InputAction.CallbackContext _context) { }
-    public void OnRotatePreviewRight(InputAction.CallbackContext _context) { }
+    public void OnRotatePreviewLeft(InputAction.CallbackContext _context)
+    {
+        if (!isOwner) return;
+        m_ghostMorphPreview.SetRotateLeft(!_context.canceled);
+    }
+
+    public void OnRotatePreviewRight(InputAction.CallbackContext _context)
+    {
+        if (!isOwner) return;
+        m_ghostMorphPreview.SetRotateRight(!_context.canceled);
+    }
 
     /*
      * @brief OnInteract is called by the Input System when interact input is detected
@@ -165,23 +174,6 @@ public class GhostInputController : MonoBehaviour
         }
     }
     
-    /*
-     * @brief OnHint is called by the Input System when hint input is detected used to display the controls hint
-     * @param _context: The context of the input action
-     * @return void
-     */
-    public void OnHint(InputAction.CallbackContext _context)
-    {
-        if (!isOwner) return;
-        if (_context.performed)
-        {
-            if (!InstanceHandler.TryGetInstance(out UIsManager uisManager))
-                return;
-            
-            uisManager.ToggleView<InstructionsView>();
-        }
-    }
-
     /*
      * @brief OnLeaderboard is called by the Input System when the leaderboard input is held used to display the controls hint
      * @param _context: The context of the input action
@@ -243,7 +235,7 @@ public class GhostInputController : MonoBehaviour
                 return;
             }
 
-            // TODO: ouvrir le menu pause (lucas askip)
+            PauseMenuView.Instance?.OnEscapePressed();
         }   
     }
 }

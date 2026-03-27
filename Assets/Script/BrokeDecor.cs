@@ -30,6 +30,8 @@ public class BrokeDecor : NetworkBehaviour
     [ObserversRpc(runLocally:true)]
     public void Broke()
     {
+        if (!m_isBroken)
+            FloatingDamageText.Spawn(transform.position, m_scoreValue);
         m_isBroken = true;
         ApplyState();
     }

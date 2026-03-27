@@ -47,14 +47,15 @@ GameObject:
   - component: {fileID: 6565872187536608583}
   - component: {fileID: 7371193213744557113}
   - component: {fileID: 30589635987039035}
-  - component: {fileID: 5856400788904567461}
   - component: {fileID: -6533943818096053305}
   - component: {fileID: -3510194049335302436}
   - component: {fileID: 613093929203921896}
   - component: {fileID: 8610913410535433184}
   - component: {fileID: -7897050309470336131}
   - component: {fileID: 6962044170748144648}
-  - component: {fileID: 3504036722481472221}
+  - component: {fileID: 7318928801757874475}
+  - component: {fileID: 8426097431854167158}
+  - component: {fileID: 1021629915726153006}
   m_Layer: 8
   m_Name: Child
   m_TagString: Untagged
@@ -207,16 +208,12 @@ MonoBehaviour:
   m_playerCamera: {fileID: 3116613213369430143}
   m_localRenderCamera: {fileID: 2479407354322227593}
   m_playerAnimator: {fileID: 0}
-  m_PingCooldown: 5
+  m_PingCooldown: Infinity
   m_elapsedTimeSincePing: 0
   m_isServerAccessible: 1
   m_isClientAccessible: 1
   m_memberID: 
   m_username: 
-  m_wishDir: {x: 0, y: 0, z: 0}
-  m_cameraYaw: 0
-  m_jumpTriggerScript: {fileID: 2944687093560265915}
-  m_isJumping: 0
   m_isRanged: 0
   m_lastShot: 0
   m_switchingTime: 0
@@ -229,14 +226,7 @@ MonoBehaviour:
   m_cdGun: 0.2
   m_bulletSpawnTransform: {fileID: 8286851940836659514}
   m_bulletPrefab: {fileID: 366779594710045177, guid: 90e50898fd15e4755813076e701192cc, type: 3}
-  m_shootRange: 50
-  m_speed: 5
-  m_jumpImpulse: 6
-  m_isScared: 0
-  m_scaredAmplitude: 0.5
   m_scaredDuration: 5
-  m_isSneaking: 0
-  m_sneakAmplitude: 0.5
   m_animator: {fileID: 3610933806309611657}
   m_shootAnimRunning: 0
   m_faceMat: {fileID: 2546100076293216404}
@@ -554,6 +544,22 @@ MonoBehaviour:
     m_ActionId: 643f7f59-890d-4dfd-bbde-6c698d799d56
     m_ActionName: 'Child/Sneak[/Keyboard/leftCtrl]'
   - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6565872187536608583}
+        m_TargetAssemblyTypeName: ChildInputController, Assembly-CSharp
+        m_MethodName: OnEscape
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument:
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 99071452-9b02-4cc4-9b4c-06f7b819a5dd
+    m_ActionName: 'Child/Escape[/Keyboard/escape]'
+  - m_PersistentCalls:
       m_Calls: []
     m_ActionId: 20a70707-862b-48b5-9a47-d8b9fce4a69a
     m_ActionName: 'Ghost/Sneak[/Keyboard/leftCtrl]'
@@ -574,38 +580,6 @@ MonoBehaviour:
   m_DefaultActionMap: Child
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
---- !u!114 &5856400788904567461
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2220852981099475913}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 817fe5016bd0a2a49a95b6eb338bb132, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkTransform
-  _isSetup: 0
-  _prefabId: -2147483648
-  _componentIndex: -2147483648
-  _shouldBePooled: 0
-  _parent: {fileID: 0}
-  _invertedPathToNearestParent: 
-  _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
-  _syncPosition: 1
-  _syncRotation: 1
-  _syncScale: 0
-  _syncParent: 1
-  _forceSleepRb: 1
-  _interpolateSettings: 7
-  _minBufferSize: 1
-  _maxBufferSize: 2
-  _characterControllerPatch: 0
-  _ownerAuth: 0
-  _interpolationTiming: 0
 --- !u!114 &-6533943818096053305
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -806,7 +780,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: PurrVoice.Runtime::PurrNet.Voice.PurrVoicePlayerDebug
   timeWindow: 3
---- !u!114 &3504036722481472221
+--- !u!114 &7318928801757874475
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -815,9 +789,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 2220852981099475913}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d497b70c6fb6adc46b663609bee66dfd, type: 3}
+  m_Script: {fileID: 11500000, guid: 5681fe548eb84304ea28a286062791f5, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkRigidbody
+  m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkIdentity
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -827,20 +801,54 @@ MonoBehaviour:
   _directChildren: []
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
-  _ownerAuth: 0
-  _interpolationDelay: 0.05
-  _predictionFactor: 0
-  _positionStrength: 5
-  _correctionRange: 2
-  _rotationStrength: 3
-  _hardSnapDistance: 3
-  _hardSnapAngle: 210
-  _acceptableRotationError: 1
-  _positionChangeThreshold: 0.001
-  _rotationChangeThreshold: 0.001
-  _velocityStopThreshold: 0.001
-  _debugGizmos: 0
-  _debugTextOffset: 2
+--- !u!114 &8426097431854167158
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2220852981099475913}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f4200a6cbd99a248bdb02181c4ca497, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PredictiveMovement
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  errorThreshold: 0.75
+--- !u!114 &1021629915726153006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2220852981099475913}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1f174e5903fe8340ae065ea130d4979, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ChildSimulateMovement
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  m_speed: 5
+  m_jumpImpulse: 6
+  m_isScared: 0
+  m_scaredAmplitude: 0.5
+  m_sneakAmplitude: 0.5
 --- !u!1 &2316951510614423555
 GameObject:
   m_ObjectHideFlags: 0
@@ -929,7 +937,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf3dbbb59f393bc47824f38fe12e7a48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChildCameraController
-  m_sensitivity: 120
+  m_sensitivity: 15
   m_distance: 4.9
   m_minPitch: -40
   m_maxPitch: 70
@@ -1695,7 +1703,7 @@ MonoBehaviour:
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
   _animator: {fileID: 5487723789930694463}
-  _ownerAuth: 1
+  _ownerAuth: 0
   _autoSyncParameters: 1
   _dontSyncParameters: []
 --- !u!4 &1340880220062391702 stripped

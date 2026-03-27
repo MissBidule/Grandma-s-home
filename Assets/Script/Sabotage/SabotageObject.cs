@@ -28,12 +28,13 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     [SerializeField] private float m_maxIntensity = 0.6f;
 
     [Header("Interaction")]
-    [SerializeField] private string m_promptMessageSABOTAGE = "E : Sabotage";
-    [SerializeField] private string m_promptMessageREPAIR = "E : Repair";
-    [SerializeField] private string m_promptMessageSPACE = "SPACE : Valid";
+    [SerializeField] private string m_promptLabelSABOTAGE = "Sabotage";
+    [SerializeField] private string m_promptLabelREPAIR = "Repair";
+    [SerializeField] private string m_promptLabelVALID = "Valid";
     [SerializeField] private Interact m_saboteur;
 
     public bool m_isSabotaged;
+    public bool m_isSabotable { get; private set; }
     private bool m_isQteRunning;
     private bool m_isFocused;
 
@@ -83,16 +84,15 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         m_isFocused = true;
         if (!m_isSabotaged)
         {
-            if (_player.m_isGhost) InteractPromptUI.m_Instance.Show(m_promptMessageSABOTAGE);
+            bool canSabotage = _player.m_isGhost && m_isSabotable;
+            if (canSabotage) InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelSABOTAGE));
             else InteractPromptUI.m_Instance.Hide();
-            SetHighlight(_player.m_isGhost);
-
-            
+            SetHighlight(canSabotage);
         }
         if (m_isSabotaged)
         {
             if (_player.m_isGhost) InteractPromptUI.m_Instance.Hide();
-            else InteractPromptUI.m_Instance.Show(m_promptMessageREPAIR);
+            else InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Child", "Interact", m_promptLabelREPAIR));
             SetHighlight(!_player.m_isGhost);
         }
         m_saboteurs.Add(_player);
@@ -120,6 +120,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
      */
     public void OnInteract(Interact _player)
     {
+        if (_player.m_isGhost && !m_isSabotable) return;
         if ((m_isSabotaged && _player.m_isGhost) || (!_player.m_isGhost && !m_isSabotaged) || m_isQteRunning)
         {
             return;
@@ -130,7 +131,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
             return;
         }
         ChildController childController = _player.GetComponentInParent<ChildController>();
-        if (childController != null && childController.m_isScared) return;
+        //if (childController != null && childController.m_isScared) return;
         Rigidbody rb = _player.GetComponentInParent<Rigidbody>();
         rb.constraints = (RigidbodyConstraints)(RigidbodyConstraints.FreezeAll - RigidbodyConstraints.FreezePositionY);
         StartQte(_player);
@@ -150,8 +151,9 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         m_isQteRunning = true;
         SetHighlight(false);
 
-        InteractPromptUI.m_Instance.Show(m_promptMessageSPACE);
-        
+        string validMap = _sabo.m_isGhost ? "Ghost" : "Child";
+        InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt(validMap, "Validate", m_promptLabelVALID));
+
         m_saboteur = _sabo;
         QteCircle qte = FindAnyObjectByType<QteCircle>();
         qte.StartQte(OnQteFinished);
@@ -187,7 +189,9 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         }
         else
         {
-            string prompt = m_saboteur.m_isGhost ? m_promptMessageSABOTAGE : m_promptMessageREPAIR;
+            string prompt = m_saboteur.m_isGhost
+                ? InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelSABOTAGE)
+                : InputBindingHelper.BuildPrompt("Child", "Interact", m_promptLabelREPAIR);
             InteractPromptUI.m_Instance.Show(prompt);
         }
 
@@ -227,9 +231,23 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         UnsabotageForAll();
 
         if(InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
-        {
             scoreManager.SubPointSabotage(info.sender);
-        }
+
+        SabotageManager sabotageManager = FindAnyObjectByType<SabotageManager>();
+        sabotageManager?.OnObjectRepaired(this);
+    }
+
+    public void SetSabotable(bool _sabotable)
+    {
+        if (!isServer) return;
+        SetSabotableForAll(_sabotable);
+    }
+
+    [ObserversRpc(runLocally:true, requireServer:true, bufferLast:true)]
+    private void SetSabotableForAll(bool _sabotable)
+    {
+        m_isSabotable = _sabotable;
+        ApplyState();
     }
 
     [ObserversRpc(runLocally:true, requireServer:true)]
@@ -257,7 +275,8 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         foreach (Renderer renderer in m_highlightRenderers)
         {
             renderer.renderingLayerMask = 0;
-            renderer.renderingLayerMask |= m_isSabotaged ? m_sabotagedLayer + (uint)RenderingLayerMask.defaultRenderingLayerMask : m_notSabotagedLayer + (uint)RenderingLayerMask.defaultRenderingLayerMask;
+            RenderingLayerMask activeLayer = m_isSabotaged ? m_sabotagedLayer : (m_isSabotable ? m_notSabotagedLayer : default);
+            renderer.renderingLayerMask |= activeLayer + (uint)RenderingLayerMask.defaultRenderingLayerMask;
         }
         if (m_vfx != null)
         {
