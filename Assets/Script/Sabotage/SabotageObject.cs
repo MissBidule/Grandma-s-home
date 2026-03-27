@@ -134,10 +134,23 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         //if (childController != null && childController.m_isScared) return;
         Rigidbody rb = _player.GetComponentInParent<Rigidbody>();
         rb.constraints = (RigidbodyConstraints)(RigidbodyConstraints.FreezeAll - RigidbodyConstraints.FreezePositionY);
+        SetQteRunningServer(true);
         StartQte(_player);
     }
 
     public void OnStopInteract(Interact _player) { }
+
+    [ServerRpc(requireOwnership: false)]
+    private void SetQteRunningServer(bool _running)
+    {
+        SetQteRunningForAll(_running);
+    }
+
+    [ObserversRpc(runLocally: true, requireServer: true)]
+    private void SetQteRunningForAll(bool _running)
+    {
+        m_isQteRunning = _running;
+    }
 
     /*
      * @brief Starts the QTE sequence for the given ghost interactor
@@ -168,12 +181,12 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     private void OnQteFinished(bool _success)
     {
         m_isQteRunning = false;
-        
+
         m_saboteur.OnSabotageOver(_success);
         if (_success)
         {
             InteractPromptUI.m_Instance.Hide();
-            
+
             m_saboteur.OnSuccessSabotage();
             if (m_saboteur.m_isGhost)
             {
@@ -196,11 +209,11 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         }
 
         m_saboteur = null;
+        SetQteRunningServer(false);
 
         if (m_isFocused)
         {
             SetHighlight(true);
-
         }
     }
 
@@ -208,13 +221,13 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     [ServerRpc(requireOwnership:false)]
     private void SabotageRPC(RPCInfo info = default)
     {
+        if (m_isSabotaged) return;
         SabotageForAll();
-
         if(InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
         {
             scoreManager.AddPointSabotage(info.sender);
         }
-        
+
     }
 
     [ObserversRpc(runLocally:true, requireServer:true)]
