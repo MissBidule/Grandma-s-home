@@ -72,12 +72,15 @@ public class TutoGhostController :  MonoBehaviour, TutoIInteractable
         if (m_isStopped)
         {
             m_reviver = _who.GetComponentInParent<TutoGhostController>();
+            Debug.Log("c qui ce _who"+ _who);
+            Debug.Log("c qui ce con de m_reviver"+ m_reviver);
             StartRevive(m_reviver);
         }
     }
     private void StartRevive(TutoGhostController _reviver)
     {
         m_reviver = _reviver;
+        Debug.Log("c qui ce _reviver"+_reviver);
         if (m_reviver.m_isStopped) return;
         m_reviveDuration = GetReviveTime();
         m_reviveTimer = 0f;
