@@ -39,9 +39,11 @@ public class GhostMorphPreview : MonoBehaviour
     private MaterialPropertyBlock m_propertyBlock;
 
     private Transform m_cameraTransform;
+    private bool m_rotateLeft = false;
+    private bool m_rotateRight = false;
 
-    [SerializeField] private string m_promptMessageSCAN = "T : SCAN";
-    [SerializeField] private string m_promptMessageValid = "F : Valid";
+    [SerializeField] private string m_promptLabelSCAN = "SCAN";
+    [SerializeField] private string m_promptLabelValid = "Valid";
     [SerializeField] private float m_rotateSpeed = 120f;
 
     [SerializeField] private bool m_GhostPreviewOn;
@@ -71,8 +73,8 @@ public class GhostMorphPreview : MonoBehaviour
         if (m_currentPrefab != null)
         {
             float rotDir = 0f;
-            if (Keyboard.current.qKey.isPressed) rotDir -= 1f;
-            if (Keyboard.current.eKey.isPressed) rotDir += 1f;
+            if (m_rotateLeft) rotDir -= 1f;
+            if (m_rotateRight) rotDir += 1f;
             if (rotDir != 0f)
             {
                 transform.Rotate(0f, rotDir * m_rotateSpeed * Time.deltaTime, 0f, Space.World);
@@ -149,7 +151,7 @@ public class GhostMorphPreview : MonoBehaviour
             //This one prevents unwanted visuals
             UpdateMaterial();
 
-            InteractPromptUI.m_Instance.Show(m_promptMessageValid);
+            InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "TransformConfirm", m_promptLabelValid));
             m_GhostPreviewOn =true;
         }
         m_colliders.Clear();
@@ -301,7 +303,7 @@ public class GhostMorphPreview : MonoBehaviour
                     if(!GetComponentInParent<GhostMorph>().m_isMorphed)
                     {
                        // There is a clone for few seconds...
-                        InteractPromptUI.m_Instance.Show(m_promptMessageSCAN);
+                    InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "Scan", m_promptLabelSCAN));
                     }
                     ClearHighlight();
                     HighlightObject(hitObject);
@@ -319,7 +321,7 @@ public class GhostMorphPreview : MonoBehaviour
             InteractPromptUI.m_Instance.Hide();
 
             if(m_GhostPreviewOn == true){
-            InteractPromptUI.m_Instance.Show(m_promptMessageValid);
+            InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "TransformConfirm", m_promptLabelValid));
             
             } 
         }
@@ -415,4 +417,7 @@ public class GhostMorphPreview : MonoBehaviour
             m_currentHighlightedObject = null;
         }
     }
+
+    public void SetRotateLeft(bool active) => m_rotateLeft = active;
+    public void SetRotateRight(bool active) => m_rotateRight = active;
 }

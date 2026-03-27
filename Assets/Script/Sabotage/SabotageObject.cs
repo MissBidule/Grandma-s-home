@@ -28,9 +28,9 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     [SerializeField] private float m_maxIntensity = 0.6f;
 
     [Header("Interaction")]
-    [SerializeField] private string m_promptMessageSABOTAGE = "E : Sabotage";
-    [SerializeField] private string m_promptMessageREPAIR = "E : Repair";
-    [SerializeField] private string m_promptMessageSPACE = "SPACE : Valid";
+    [SerializeField] private string m_promptLabelSABOTAGE = "Sabotage";
+    [SerializeField] private string m_promptLabelREPAIR = "Repair";
+    [SerializeField] private string m_promptLabelVALID = "Valid";
     [SerializeField] private Interact m_saboteur;
 
     public bool m_isSabotaged;
@@ -85,14 +85,14 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         if (!m_isSabotaged)
         {
             bool canSabotage = _player.m_isGhost && m_isSabotable;
-            if (canSabotage) InteractPromptUI.m_Instance.Show(m_promptMessageSABOTAGE);
+            if (canSabotage) InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelSABOTAGE));
             else InteractPromptUI.m_Instance.Hide();
             SetHighlight(canSabotage);
         }
         if (m_isSabotaged)
         {
             if (_player.m_isGhost) InteractPromptUI.m_Instance.Hide();
-            else InteractPromptUI.m_Instance.Show(m_promptMessageREPAIR);
+            else InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Child", "Interact", m_promptLabelREPAIR));
             SetHighlight(!_player.m_isGhost);
         }
         m_saboteurs.Add(_player);
@@ -151,8 +151,9 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         m_isQteRunning = true;
         SetHighlight(false);
 
-        InteractPromptUI.m_Instance.Show(m_promptMessageSPACE);
-        
+        string validMap = _sabo.m_isGhost ? "Ghost" : "Child";
+        InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt(validMap, "Validate", m_promptLabelVALID));
+
         m_saboteur = _sabo;
         QteCircle qte = FindAnyObjectByType<QteCircle>();
         qte.StartQte(OnQteFinished);
@@ -188,7 +189,9 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         }
         else
         {
-            string prompt = m_saboteur.m_isGhost ? m_promptMessageSABOTAGE : m_promptMessageREPAIR;
+            string prompt = m_saboteur.m_isGhost
+                ? InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelSABOTAGE)
+                : InputBindingHelper.BuildPrompt("Child", "Interact", m_promptLabelREPAIR);
             InteractPromptUI.m_Instance.Show(prompt);
         }
 

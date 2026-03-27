@@ -35,8 +35,13 @@ public class ChildCameraController : MonoBehaviour
         m_target = transform.parent;
         m_rigidbody = GetComponentInParent<Rigidbody>();
 
+        m_sensitivity = PlayerPrefs.GetFloat("Settings_MouseSensitivity", m_sensitivity);
         UnityEngine.Cursor.lockState = CursorLockMode.Locked;
     }
+
+    private void OnEnable()  => PurrLobby.AccessibilitySettingsPanel.OnSensitivityChanged += OnSensitivityChanged;
+    private void OnDisable() => PurrLobby.AccessibilitySettingsPanel.OnSensitivityChanged -= OnSensitivityChanged;
+    private void OnSensitivityChanged(float v) => m_sensitivity = v;
 
     /*
      * @brief   Updates camera rotation and position after player movement

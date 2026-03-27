@@ -32,6 +32,7 @@ public class GhostClientController : NetworkBehaviour
     private bool morphPressed = false;
     private bool dashPressed = false;
     private bool sneakPressed = false;
+    private bool m_waitingForInputRelease = false;
 
     private bool m_reviveUIActive = false;
     private ReviveBarUI m_reviveBarUI;
@@ -107,6 +108,15 @@ public class GhostClientController : NetworkBehaviour
 
         var wishDir = GetDirectionIntention(m_ghostInputController.m_movementInputVector);
 
+        // Client-side freeze: wait for player to fully release movement after morphing
+        if (m_waitingForInputRelease)
+        {
+            if (wishDir == Vector3.zero)
+                m_waitingForInputRelease = false;
+            else
+                wishDir = Vector3.zero;
+        }
+
         var inputData = new PredictiveInputData
         {
             tick = m_predictiveMovement.GetTick(),
@@ -126,7 +136,7 @@ public class GhostClientController : NetworkBehaviour
         );
 
         // Reset values after sending to server
-        if (morphPressed) m_ghostMorphPreview.HidePreview();
+        if (morphPressed) { m_ghostMorphPreview.HidePreview(); m_waitingForInputRelease = true; }
         morphPressed = false;
         
         // Dash 
@@ -299,29 +309,31 @@ public class GhostClientController : NetworkBehaviour
     [ServerRpc]
     private void SendGhostRPC(PredictiveInputData _input, GameObject _prefab, Vector3 _pos, Quaternion _rotation)
     {
-        m_predictiveMovement.ServerReceiveInput(_input);
-
         if (_prefab)
         {
-            // On morph: freeze movement and require input release before allowing revert
+            // On morph: freeze movement server-side before passing to PredictiveMovement
+            _input.wishDirection = Vector3.zero;
+            m_predictiveMovement.ServerReceiveInput(_input);
             m_ghostController.m_wishDir = Vector3.zero;
             m_ghostController.m_morphInputReleased = false;
             m_ghostMorph.Morphing(_prefab, _pos, _rotation);
         }
         else if (!m_ghostController.m_morphInputReleased)
         {
-            // Keep frozen until player actually releases all movement input
-            if ((Vector2)_input.wishDirection == Vector2.zero)
+            // Keep frozen until player releases all movement input
+            if (_input.wishDirection == Vector3.zero)
                 m_ghostController.m_morphInputReleased = true;
+            _input.wishDirection = Vector3.zero;
+            m_predictiveMovement.ServerReceiveInput(_input);
             m_ghostController.m_wishDir = Vector3.zero;
         }
         else
         {
+            m_predictiveMovement.ServerReceiveInput(_input);
             m_ghostController.m_wishDir = _input.wishDirection;
-        if (_input.dashPressed)
-            m_ghostController.StartDash();
-        
-        m_ghostController.m_isSneaking = _input.sneakPressed;
+            if (_input.dashPressed)
+                m_ghostController.StartDash();
+            m_ghostController.m_isSneaking = _input.sneakPressed;
         }
     }
 }
