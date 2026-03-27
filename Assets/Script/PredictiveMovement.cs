@@ -121,7 +121,7 @@ public class PredictiveMovement : NetworkBehaviour
         m_currentInput.jumpPressed = m_currentInput.jumpPressed | _data.jumpPressed;
         m_currentInput.switchPressed = m_currentInput.switchPressed | _data.switchPressed;
         m_currentInput.attackPressed = m_currentInput.attackPressed | _data.attackPressed;
-        m_currentInput.sneakPressed = m_currentInput.sneakPressed | _data.sneakPressed;
+        m_currentInput.sneakPressed = _data.sneakPressed;
         m_currentInput.dashPressed = m_currentInput.dashPressed | _data.dashPressed;
         m_currentInput.position = transform.position;
         // Save the tick sent by the client
