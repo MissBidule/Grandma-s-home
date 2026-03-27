@@ -74,15 +74,27 @@ namespace Script.States
             PurrLogger.Log($"Switching to scene: {m_lobbyScene}", this);
             
             // Load game scene - ConnectionStarter in new scene will handle network initialization
-            Destroy(FindAnyObjectByType<LobbyManager>().gameObject);
             SceneManager.LoadSceneAsync(m_lobbyScene);
+        }
+
+        public void StopGame() {
+            Destroy(FindAnyObjectByType<LobbyManager>().gameObject);
+            BackToLobby();
+        }
+
+        public void BackToMenu()
+        {
+            StartCoroutine(FindAnyObjectByType<LobbyManager>().RemovePlayerAndDestroy());
+            PurrLogger.Log("Returning to menu.", this);
+            FindAnyObjectByType<LobbyDataHolder>().SetCurrentLobby(default);
+            BackToLobby();
         }
 
         public void ServerLost()
         {
-            PurrLogger.LogWarning("Server is not accessible. Returning to lobby.", this);
+            PurrLogger.LogWarning("Server is not accessible. Returning to menu.", this);
             FindAnyObjectByType<LobbyDataHolder>().SetCurrentLobby(default);
-            BackToLobby();
+            StopGame();
         }
 
         [ObserversRpc]

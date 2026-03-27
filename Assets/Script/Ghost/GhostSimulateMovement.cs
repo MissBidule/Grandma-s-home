@@ -1,6 +1,10 @@
 using PurrNet;
 using UnityEngine;
 
+/*
+ * @brief Manages the application of physics and state modifications for the Ghost entity structure during standard timesteps and prediction reconciliations.
+ * @details Calculates climbing scenarios, acceleration, rotations, and dashes consistently within identical predictive simulation ticks.
+ */
 public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
 {
     [Header("Movement")]
@@ -33,6 +37,11 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
         m_ghostController = GetComponent<GhostController>();
     }
 
+    /*
+     * @brief Simulates the movement and rotation of the ghost based on predictive inputs
+     * @param _input The predictive input data
+     * @return void
+     */
     public void SimulateMovement(PredictiveInputData _input)
     {
         if (m_ghostController == null) return;
@@ -92,6 +101,11 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
         ResetClimbFlags();
     }
 
+    /*
+     * @brief Calculates the speed modifier for the ghost based on its current statuses
+     * @param _input The predictive input data containing sneak status
+     * @return float The computed speed modifier
+     */
     float GetSpeedModifier(PredictiveInputData _input)
     {
         float speedModifier = 1f;
@@ -104,6 +118,10 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
         return speedModifier;
     }
 
+    /*
+     * @brief Checks if there is a climbable wall in front of the ghost
+     * @return bool True if a climbable wall is detected, false otherwise
+     */
     private bool CheckForClimbableWall()
     {
         if (m_qteCircle == null) m_qteCircle = FindAnyObjectByType<QteCircle>();
@@ -126,6 +144,10 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
         return false;
     }
 
+    /*
+     * @brief Resets the climbing flags and normal vector
+     * @return void
+     */
     private void ResetClimbFlags()
     {
         m_canClimbThisFrame = false;

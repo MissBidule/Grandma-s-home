@@ -305,4 +305,16 @@ public class ChildController : PlayerControllerCore
     {
         m_faceMat.surfaceOffset = _surfaceOffset;
     }
+
+    [ServerRpc]
+    public void callAnimationTrigger(string _triggerName)
+    {
+        m_animator.SetTrigger(_triggerName);
+    }
+
+    [ServerRpc]
+    public void callAnimationCrossFade(string _animationName, float _transitionDuration)
+    {
+        m_animator.CrossFadeInFixedTime(_animationName, _transitionDuration, 0);
+    }
 }
