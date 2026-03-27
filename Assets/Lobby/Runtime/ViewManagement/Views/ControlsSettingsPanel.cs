@@ -55,14 +55,14 @@ namespace PurrLobby
         // Composite part labels: "MapName/ActionName/partName" → display name
         private static readonly Dictionary<string, string> m_CompositePartLabels = new Dictionary<string, string>
         {
-            { "Child/Move/up",    "Avancer" },
-            { "Child/Move/down",  "Reculer" },
-            { "Child/Move/left",  "Gauche" },
-            { "Child/Move/right", "Droite" },
-            { "Ghost/Move/up",    "Avancer" },
-            { "Ghost/Move/down",  "Reculer" },
-            { "Ghost/Move/left",  "Gauche" },
-            { "Ghost/Move/right", "Droite" },
+            { "Child/Move/up",    "Forward" },
+            { "Child/Move/down",  "Backward" },
+            { "Child/Move/left",  "Left" },
+            { "Child/Move/right", "Right" },
+            { "Ghost/Move/up",    "Forward" },
+            { "Ghost/Move/down",  "Backward" },
+            { "Ghost/Move/left",  "Left" },
+            { "Ghost/Move/right", "Right" },
         };
 
         private InputActionRebindingExtensions.RebindingOperation m_rebindOp;
@@ -70,8 +70,8 @@ namespace PurrLobby
 
         /*
          * @brief Injects prefab references from a parent panel, overriding Inspector values.
-         * @param _keybinding    Prefab used to spawn keybinding rows.
-         * @param _sectionTitle  Prefab used to spawn section header rows.
+         * @param _keybinding Prefab used to spawn keybinding rows.
+         * @param _sectionTitle Prefab used to spawn section header rows.
          */
         public void Initialize(OptionRowKeybinding _keybinding, OptionSectionTitle _sectionTitle)
         {
@@ -174,7 +174,7 @@ namespace PurrLobby
 
         /*
          * @brief Spawns a keybinding row for each whitelisted action in the given action map.
-         * @param _mapName  Name of the InputActionMap to iterate ("Player" or "Ghost").
+         * @param _mapName Name of the InputActionMap to iterate ("Player" or "Ghost").
          */
         private void BuildSection(string _mapName)
         {
@@ -187,7 +187,7 @@ namespace PurrLobby
             var spawnedComposites = new HashSet<string>();
             foreach (var action in map.actions)
             {
-                // Actions simples (non-composites)
+                // Simple actions (non-composite)
                 string key = $"{_mapName}/{action.name}";
                 if (m_ActionLabels.TryGetValue(key, out string displayName))
                 {
@@ -199,7 +199,7 @@ namespace PurrLobby
                     continue;
                 }
 
-                // Actions composites (ex: Move = WASD)
+                // Composite actions (e.g., Move = WASD)
                 for (int i = 0; i < action.bindings.Count; i++)
                 {
                     var b = action.bindings[i];
@@ -218,7 +218,7 @@ namespace PurrLobby
                     }
                     if (!spawnedComposites.Add(compositeKey))
                     {
-                        continue; // doublon (ex: WASD + flèches)
+                        continue;  // duplicate (e.g., WASD + arrow keys)
                     }
                     SpawnKeybindingRow(action, i, partLabel);
                 }
@@ -278,10 +278,10 @@ namespace PurrLobby
         /*
          * @brief Begins an interactive rebind for the given action binding.
          * Tints the button image and shows "..." until the player presses a key or cancels with Escape.
-         * @param _action        Action whose binding is being changed.
-         * @param _bindingIndex  Index of the specific binding to rebind.
-         * @param _btnImage      Button background image to tint while waiting.
-         * @param _btnText       Button label to update with "..." and then the new key name.
+         * @param _action Action whose binding is being changed.
+         * @param _bindingIndex Index of the specific binding to rebind.
+         * @param _btnImage Button background image to tint while waiting.
+         * @param _btnText Button label to update with "..." and then the new key name.
          */
         private void StartRebind(InputAction _action, int _bindingIndex, Image _btnImage, TextMeshProUGUI _btnText)
         {
