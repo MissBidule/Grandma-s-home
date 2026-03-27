@@ -3,6 +3,7 @@ using PurrNet;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Script.States;
 
 /*
  * @brief In-game pause menu built entirely at runtime (no prefab required).
@@ -89,6 +90,17 @@ public class PauseMenuView : MonoBehaviour
     {
         m_optionsPanel.gameObject.SetActive(false);
         m_mainPanel.SetActive(true);
+    }
+
+    /*
+     * @brief Back to the home screen.
+     */
+    public void BackToMenu()
+    {
+        if (InstanceHandler.TryGetInstance(out EndGameState endGameState))
+        {
+            endGameState.BackToLobby();
+        }
     }
 
     /*
@@ -186,7 +198,9 @@ public class PauseMenuView : MonoBehaviour
 
         CreateButton(m_mainPanel.transform, "Resume",   new Vector2(0f,  80f), Resume);
         CreateButton(m_mainPanel.transform, "Options",  new Vector2(0f,  10f), OpenOptions);
-        CreateButton(m_mainPanel.transform, "Quit",     new Vector2(0f, -60f), QuitGame,
+        CreateButton(m_mainPanel.transform, "Back to menu", new Vector2(0f, -60f), BackToMenu,
+             new Color(0.72f, 0.18f, 0.18f));
+        CreateButton(m_mainPanel.transform, "Quit",     new Vector2(0f, -130f), QuitGame,
                      new Color(0.72f, 0.18f, 0.18f));
     }
 
