@@ -79,7 +79,7 @@ public class TutoInteract : MonoBehaviour
     public void OnInteract(TutoIInteractable _currentFocus)
     {
         if (_currentFocus == null) return;
-        if (_currentFocus is GhostController ghost)
+        if (_currentFocus is TutoGhostController ghost)
         {
             OnRevive(_currentFocus);
             return;
@@ -92,18 +92,18 @@ public class TutoInteract : MonoBehaviour
         _currentFocus.OnInteract(this);
     }
 
-    public void OnSuccessSabotage()
-    {
-        if (m_isGhost)
-        {
-            GetComponentInParent<GhostController>().ApplyDashToAll(false, true);
-        }
-        else
-        {
+    //public void OnSuccessSabotage()
+    //{
+      //  if (m_isGhost)
+        //{
+          //  GetComponentInParent<TutoGhostController>().ApplyDashToAll(false, true);
+        //}
+        //else
+        //{
             // If one day we give a score or something for repairing as the child
             // It should be put here.
-        }
-    }
+        //}
+    //}
 
     /**
     @brief      Called when the interact button is released
@@ -116,16 +116,16 @@ public class TutoInteract : MonoBehaviour
 
 
 
-    public void OnSabotageOver(bool success)
-    {
-        Rigidbody rb = GetComponentInParent<Rigidbody>();
-        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
-        if (success)
-        {
-            m_interactable.Remove(m_onFocus);
-            m_onFocus = null;
-        }
-    }
+    //public void OnSabotageOver(bool success)
+    //{
+      //  Rigidbody rb = GetComponentInParent<Rigidbody>();
+        //rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        //if (success)
+        //{
+          //  m_interactable.Remove(m_onFocus);
+            //m_onFocus = null;
+        //}
+    //}
 
     /*
      * @brief OnTriggerEnter is called when another collider enters the trigger

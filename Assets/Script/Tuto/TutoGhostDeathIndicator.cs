@@ -12,14 +12,14 @@ public class TutoGhostDeathIndicator : MonoBehaviour
     [Header("References")]
     [SerializeField] private Canvas m_indicatorCanvas;
 
-    private GhostController m_ghostController;
+    private TutoGhostController m_ghostController;
     private bool m_isLocalPlayerGhost;
     private bool m_initialized;
     private Transform m_cameraTransform;
 
     private void Start()
     {
-        m_ghostController = GetComponent<GhostController>();
+        m_ghostController = GetComponent<TutoGhostController>();
 
         // Set all UI graphics to render through walls (ZTest Always)
         foreach (var graphic in m_indicatorCanvas.GetComponentsInChildren<Graphic>(true))
@@ -42,8 +42,8 @@ public class TutoGhostDeathIndicator : MonoBehaviour
         if (!m_initialized)
         {
             // Find the ghost owned by the local player
-            GhostController localGhost = null;
-            foreach (var ghost in FindObjectsByType<GhostController>(FindObjectsSortMode.None))
+            TutoGhostController localGhost = null;
+            foreach (var ghost in FindObjectsByType<TutoGhostController>(FindObjectsSortMode.None))
             {
                
                     localGhost = ghost;
@@ -51,27 +51,27 @@ public class TutoGhostDeathIndicator : MonoBehaviour
                 
             }
 
-            if (localGhost != null)
-            {
-                m_isLocalPlayerGhost = true;
-                if (localGhost.m_playerCamera != null)
-                    m_cameraTransform = localGhost.m_playerCamera.transform;
-                m_initialized = true;
-            }
-            else
-            {
+            //if (localGhost != null)
+            //{
+              //  m_isLocalPlayerGhost = true;
+                //if (localGhost.m_playerCamera != null)
+                  //  m_cameraTransform = localGhost.m_playerCamera.transform;
+                //m_initialized = true;
+            //}
+            //else
+            //{
                 // If a child player is already owned locally, the local player is not a ghost
-                foreach (var child in FindObjectsByType<ChildController>(FindObjectsSortMode.None))
-                {
+              //  foreach (var child in FindObjectsByType<ChildController>(FindObjectsSortMode.None))
+                //{
                     
-                        m_isLocalPlayerGhost = false;
-                        m_initialized = true;
-                        break;
+                  //      m_isLocalPlayerGhost = false;
+                    //    m_initialized = true;
+                      //  break;
                     
-                }
-            }
+                //}
+            //}
 
-            if (!m_initialized) return;
+            //if (!m_initialized) return;
         }
 
        // bool shouldShow = m_isLocalPlayerGhost && m_ghostController.m_isStopped;
