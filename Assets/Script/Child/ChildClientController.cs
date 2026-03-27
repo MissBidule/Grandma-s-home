@@ -20,7 +20,6 @@ public class ChildClientController : NetworkBehaviour
     private bool m_attackPressed = false;
 
     //Animations
-    [SerializeField]private NetworkAnimator m_animator;
     [SerializeField] private GameObject m_racket;
     [SerializeField] private GameObject m_gun;
     private bool m_isMovingForward;
@@ -179,7 +178,7 @@ public class ChildClientController : NetworkBehaviour
         if(!m_childController.m_shootAnimRunning)
         {
             m_switchWeaponPressed = true;
-            m_animator.SetTrigger("OnSwitch");
+            m_childController.callAnimationTrigger("OnSwitch");
         }
     }
 
@@ -201,7 +200,7 @@ public class ChildClientController : NetworkBehaviour
     {
         if (!isOwner) return;
         m_attackPressed = true;
-        m_animator.SetTrigger("OnAttack");
+        m_childController.callAnimationTrigger("OnAttack");
     }
 
     /*
@@ -232,11 +231,11 @@ public class ChildClientController : NetworkBehaviour
                 m_isMovingRight = false;
                 if (m_childController.m_isRanged)
                 {
-                    m_animator.CrossFadeInFixedTime("gun_idle", 0.2f, 0);
+                    m_childController.callAnimationCrossFade("gun_idle", 0.2f);
                 }
                 else
                 {
-                    m_animator.CrossFadeInFixedTime("cac_idle", 0.2f, 0);
+                    m_childController.callAnimationCrossFade("cac_idle", 0.2f);
                 }
                 m_childController.callChangeFace(new Vector2(0,0));
             }
@@ -254,11 +253,11 @@ public class ChildClientController : NetworkBehaviour
                 {
                     if (m_childController.m_isRanged)
                     {
-                        m_animator.CrossFadeInFixedTime("gun_sideWalk_R", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("gun_sideWalk_R", 0.2f);
                     }
                     else
                     {
-                        m_animator.CrossFadeInFixedTime("cac_sideWalk_R", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("cac_sideWalk_R", 0.2f);
                     }
                     m_childController.callChangeFace(new Vector2(.33f, 0));
                 }
@@ -266,11 +265,11 @@ public class ChildClientController : NetworkBehaviour
                 {
                     if (m_childController.m_isRanged)
                     {
-                        m_animator.CrossFadeInFixedTime("gun_sideRun_R", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("gun_sideRun_R", 0.2f);
                     }
                     else
                     {
-                        m_animator.CrossFadeInFixedTime("cac_sideRun_R", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("cac_sideRun_R", 0.2f);
                     }
                     m_childController.callChangeFace(new Vector2(.66f, 0));
                 }
@@ -285,11 +284,11 @@ public class ChildClientController : NetworkBehaviour
                 {
                     if (m_childController.m_isRanged)
                     {
-                        m_animator.CrossFadeInFixedTime("gun_sideWalk_L", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("gun_sideWalk_L", 0.2f);
                     }
                     else
                     {
-                        m_animator.CrossFadeInFixedTime("cac_sideWalk_L", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("cac_sideWalk_L", 0.2f);
                     }
                     m_childController.callChangeFace(new Vector2(.33f, 0));
                 }
@@ -297,11 +296,11 @@ public class ChildClientController : NetworkBehaviour
                 {
                     if (m_childController.m_isRanged)
                     {
-                        m_animator.CrossFadeInFixedTime("gun_sideRun_L", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("gun_sideRun_L", 0.2f);
                     }
                     else
                     {
-                        m_animator.CrossFadeInFixedTime("cac_sideRun_L", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("cac_sideRun_L", 0.2f);
                     }
                     m_childController.callChangeFace(new Vector2(.66f, 0));
                 }
@@ -319,11 +318,11 @@ public class ChildClientController : NetworkBehaviour
                 {
                     if (m_childController.m_isRanged)
                     {
-                        m_animator.CrossFadeInFixedTime("gun_walk", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("gun_walk", 0.2f);
                     }
                     else
                     {
-                        m_animator.CrossFadeInFixedTime("cac_walk", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("cac_walk", 0.2f);
                     }
                     m_childController.callChangeFace(new Vector2(.33f, 0));
                 }
@@ -331,11 +330,11 @@ public class ChildClientController : NetworkBehaviour
                 {
                     if (m_childController.m_isRanged)
                     {
-                        m_animator.CrossFadeInFixedTime("gun_run", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("gun_run", 0.2f);
                     }
                     else
                     {
-                        m_animator.CrossFadeInFixedTime("cac_run", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("cac_run", 0.2f);
                     }
                     m_childController.callChangeFace(new Vector2(.66f, 0));
                 }
@@ -350,11 +349,11 @@ public class ChildClientController : NetworkBehaviour
                 {
                     if (m_childController.m_isRanged)
                     {
-                        m_animator.CrossFadeInFixedTime("gun_bwalk", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("gun_bwalk", 0.2f);
                     }
                     else
                     {
-                        m_animator.CrossFadeInFixedTime("cac_bwalk", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("cac_bwalk", 0.2f);
                     }
                     m_childController.callChangeFace(new Vector2(.33f, 0));
                 }
@@ -362,11 +361,11 @@ public class ChildClientController : NetworkBehaviour
                 {
                     if (m_childController.m_isRanged)
                     {
-                        m_animator.CrossFadeInFixedTime("gun_brun", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("gun_brun", 0.2f);
                     }
                     else
                     {
-                        m_animator.CrossFadeInFixedTime("cac_brun", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("cac_brun", 0.2f);
                     }
                     m_childController.callChangeFace(new Vector2(.66f, 0));
                 }

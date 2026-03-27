@@ -35,6 +35,9 @@ namespace Script.States
         private List<PlayerID> m_aliveGhosts = new();
         private List<PlayerID> m_deadGhosts = new();
         
+        // Sabotage Info
+        private List<SabotageObject> m_sabotageObjects;
+        
         // Coroutine
         private Coroutine m_roundTimer;
         
@@ -108,7 +111,12 @@ namespace Script.States
             
             m_aliveGhosts.Clear();
             m_deadGhosts.Clear();
-        } 
+        }
+
+        public void SetSabotageObjects(List<SabotageObject> _sabotageObjects)
+        {
+            m_sabotageObjects = _sabotageObjects;
+        }
 
         private void RegisteringListener(List<PlayerControllerCore> _players)
         {

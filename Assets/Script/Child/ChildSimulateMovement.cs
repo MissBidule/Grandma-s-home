@@ -1,6 +1,10 @@
 using PurrNet;
 using UnityEngine;
 
+/*
+ * @brief Manages the application of physics and state modifications for the Child entity layout during standard timesteps and prediction rollbacks.
+ * @details Replaces standard continuous native FixedUpdate movements. Exposes a SimulateMovement that processes one structural tick of input natively via rigidbody parameters.
+ */
 public class ChildSimulateMovement : NetworkBehaviour, ISimulateMovement
 {
     [SerializeField] private float m_speed = 5f;
@@ -18,6 +22,10 @@ public class ChildSimulateMovement : NetworkBehaviour, ISimulateMovement
     private JumpTriggerScript m_jumpTriggerScript;
     private bool m_isJumping = false;
 
+    /*
+     * @brief Initializes component references
+     * @return void
+     */
     void Start()
     {
         m_childController = GetComponent<ChildController>();
@@ -27,6 +35,11 @@ public class ChildSimulateMovement : NetworkBehaviour, ISimulateMovement
         m_jumpTriggerScript = GetComponentInChildren<JumpTriggerScript>();
     }
 
+    /*
+     * @brief Simulates the movement and rotation of the child based on predictive inputs
+     * @param _input The predictive input data
+     * @return void
+     */
     public void SimulateMovement(PredictiveInputData _input)
     {
 
@@ -43,6 +56,11 @@ public class ChildSimulateMovement : NetworkBehaviour, ISimulateMovement
         if (_input.jumpPressed) Jump();
     }
 
+    /*
+     * @brief Calculates the speed modifier for the child based on its statuses
+     * @param _sneak The current sneak status
+     * @return float The computed speed modifier
+     */
     float GetSpeedModifier(bool _sneak)
     {
         var speedModifier = 1f;
@@ -58,8 +76,8 @@ public class ChildSimulateMovement : NetworkBehaviour, ISimulateMovement
      */
     public void Jump()
     {
-        if(m_isJumping) return;
         if (!IsGrounded()) return;
+        if (m_isJumping) return;
         m_rigidbody.AddForce(Vector3.up * m_jumpImpulse, ForceMode.Impulse);
         m_childController.callChangeFace(new Vector2(0.66f, 0.66f));
         m_animator.SetTrigger("OnJump");
