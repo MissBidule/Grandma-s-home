@@ -11,6 +11,7 @@ public class ChildClientController : NetworkBehaviour
     [SerializeField] private GameObject m_uiHolder_prefab;
     public GameObject m_uiHolder;
     private CinemachineCamera m_playerCamera;
+    private ChildCameraController m_cameraOptions;
     private ChildInputController m_childInputController;
     private ChildController m_childController;
     private QteCircle m_qteCircle;
@@ -66,7 +67,10 @@ public class ChildClientController : NetworkBehaviour
         // Use PlayerControllerCore.m_playerCamera (Inspector-assigned, always valid)
         // instead of GetComponentInChildren which can fail in multi-instance scenarios
         var core = GetComponent<PlayerControllerCore>();
-        if (core != null) m_playerCamera = core.m_playerCamera;
+        if (core != null) {
+            m_playerCamera = core.m_playerCamera;
+            m_cameraOptions = m_playerCamera.GetComponent<ChildCameraController>();
+        }
         Debug.Log($"[ChildClientController] InitOwner - m_playerCamera: {m_playerCamera}, m_childInputController: {m_childInputController}");
 
         if (InstanceHandler.TryGetInstance(out UIsManager uisManager))
@@ -92,13 +96,13 @@ public class ChildClientController : NetworkBehaviour
         var moveVec = m_childInputController.m_movementInputVector;
         var wishDir = GetDirectionIntention(moveVec);
 
-        print(m_predictiveMovement);
+        //print(m_predictiveMovement);
 
         var inputData = new PredictiveInputData
         {
             tick = m_predictiveMovement.GetTick(),
             wishDirection = wishDir,
-            cameraYaw = m_playerCamera.transform.eulerAngles.y,
+            cameraYaw = m_cameraOptions.m_yaw,
             cameraPosition = m_playerCamera.transform.position,
             cameraForward = GetCameraForward(),
             jumpPressed = m_jumpPressed,
