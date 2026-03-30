@@ -111,6 +111,7 @@ public class Interact : NetworkBehaviour
     /**
     @brief      Called when the interact button is released
     */
+    [ServerRpc]
     public void StopInteract(IInteractable _currentFocus)
     {
         if (_currentFocus == null) return;

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using PurrLobby;
 using PurrNet;
 using PurrNet.Logging;
 using PurrNet.StateMachine;
@@ -40,7 +41,9 @@ namespace Script.States
         
         // Coroutine
         private Coroutine m_roundTimer;
-        
+
+        private RoleKeeper m_roleKeeper;
+
         public override void Enter(List<PlayerControllerCore> _players, bool _asServer)
         {
             base.Enter(_players, _asServer);
@@ -66,6 +69,8 @@ namespace Script.States
             RegisteringListener(_players);
 
             m_roundTimer = StartCoroutine(RoundTimer(m_roundDuration*60));
+
+            m_roleKeeper = FindAnyObjectByType<RoleKeeper>();
         }
 
         protected override void OnDestroy()
@@ -192,7 +197,7 @@ namespace Script.States
                     m_deadGhosts.Add(_playerID);
                 }
 
-                if (m_deadGhosts.Count >= m_ghosts.Count)
+                if (m_deadGhosts.Count + m_roleKeeper.GetDisconnectedPlayers().Count >= m_ghosts.Count)
                 {
                     MoveToEnd(true);
                 }
