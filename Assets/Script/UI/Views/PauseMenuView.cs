@@ -56,7 +56,7 @@ public class PauseMenuView : MonoBehaviour
             CloseOptions();
         else if (m_isPaused)
             Resume();
-        else
+        else if (!InstanceHandler.TryGetInstance(out Script.States.EndGameState endGameState) || !endGameState.IsGameOver)
             OpenMenu();
     }
 
@@ -99,7 +99,7 @@ public class PauseMenuView : MonoBehaviour
     {
         if (InstanceHandler.TryGetInstance(out EndGameState endGameState))
         {
-            endGameState.BackToLobby();
+            endGameState.BackToMenu();
         }
     }
 
@@ -199,9 +199,9 @@ public class PauseMenuView : MonoBehaviour
         CreateButton(m_mainPanel.transform, "Resume",   new Vector2(0f,  80f), Resume);
         CreateButton(m_mainPanel.transform, "Options",  new Vector2(0f,  10f), OpenOptions);
         CreateButton(m_mainPanel.transform, "Back to menu", new Vector2(0f, -60f), BackToMenu,
-             new Color(0.72f, 0.18f, 0.18f));
+             new Color(0.75f, 0.38f, 0.02f));
         CreateButton(m_mainPanel.transform, "Quit",     new Vector2(0f, -130f), QuitGame,
-                     new Color(0.72f, 0.18f, 0.18f));
+                     new Color(0.60f, 0.04f, 0.04f));
     }
 
     /*

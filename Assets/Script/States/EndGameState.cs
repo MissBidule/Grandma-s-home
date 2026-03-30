@@ -14,12 +14,15 @@ namespace Script.States
     {
         [PurrScene, SerializeField] private string m_lobbyScene;
         
+        public bool IsGameOver { get; private set; }
+
         private PlayerSpawningState m_spawnState;
         private bool _hasAlreadySwitched = false;
-        
+
         private void Awake()
         {
             InstanceHandler.RegisterInstance(this);
+            IsGameOver = false;
             
             _hasAlreadySwitched = false; // Reset flag on start to allow scene switching in new lobby sessions
         }
@@ -32,6 +35,7 @@ namespace Script.States
 
         public override void Enter(bool _childWin, bool _asServer)
         {
+            IsGameOver = true;
             base.Enter(_asServer);
 
             foreach (StateNode state in machine.states)

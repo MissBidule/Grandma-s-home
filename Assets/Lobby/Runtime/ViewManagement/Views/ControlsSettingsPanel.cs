@@ -40,7 +40,6 @@ namespace PurrLobby
             { "Child/Leaderboard", "Leaderboard" },
             // Ghost
             { "Ghost/Interact", "Interact" },
-            { "Ghost/TransformConfirm", "Transform" },
             { "Ghost/Scan", "Scan" },
             { "Ghost/Dash", "Dash" },
             { "Ghost/Sneak", "Sneak" },
@@ -307,14 +306,12 @@ namespace PurrLobby
 
         /*
          * @brief Completes or cancels an interactive rebind, re-enables the action and saves to PlayerPrefs.
+         * Also clears any conflicting binding within the same action map.
          */
         private void FinishRebind(InputAction _action, int _bindingIndex, Image _btnImage, TextMeshProUGUI _btnText)
         {
             _action.Enable();
-            if (_btnText)
-            {
-                _btnText.text = _action.GetBindingDisplayString(_bindingIndex, InputBinding.DisplayStringOptions.DontIncludeInteractions);
-            }
+            ResolveConflicts(_action, _bindingIndex);
             if (_btnImage)
             {
                 _btnImage.color = m_buttonNormalColor;
@@ -323,6 +320,41 @@ namespace PurrLobby
             PropagateToPlayerInputs();
             m_rebindOp?.Dispose();
             m_rebindOp = null;
+            RebuildUI();
+        }
+
+        /*
+         * @brief Clears any binding in the same action map that uses the same path as the newly-bound action.
+         * Ghost and Child maps are independent: a key bound in Ghost can still be used in Child.
+         * Also checks other parts of the same composite action (e.g. Move/up vs Move/right).
+         * @param _reboundAction The action that was just rebound.
+         * @param _bindingIndex  The binding index that was modified.
+         */
+        private void ResolveConflicts(InputAction _reboundAction, int _bindingIndex)
+        {
+            string newPath = _reboundAction.bindings[_bindingIndex].effectivePath;
+            if (string.IsNullOrEmpty(newPath))
+            {
+                return;
+            }
+            foreach (var action in _reboundAction.actionMap.actions)
+            {
+                for (int i = 0; i < action.bindings.Count; i++)
+                {
+                    if (action == _reboundAction && i == _bindingIndex)
+                    {
+                        continue;
+                    }
+                    if (action.bindings[i].isComposite)
+                    {
+                        continue;
+                    }
+                    if (action.bindings[i].effectivePath == newPath)
+                    {
+                        action.ApplyBindingOverride(i, "");
+                    }
+                }
+            }
         }
 
         private void PropagateToPlayerInputs()
