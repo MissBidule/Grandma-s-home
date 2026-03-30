@@ -2,7 +2,7 @@
 
 public class SkinItem : MonoBehaviour
 {
-    public enum Camp { Kids, Ghost } //enum pour les camps sur les skins
+    public enum Camp { Child, Ghost } //enum pour les camps sur les skins
 
     [Header("Configuration")]
     public Camp monCamp; //depend du skin à mettre sur chaque skin

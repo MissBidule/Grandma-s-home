@@ -6,10 +6,10 @@ public class CampSelector : MonoBehaviour
     [Tooltip("tous les skins (kids et ghost)")]
     public SkinItem[] toutesLesSkins;//ref de tous les skins du menu pour les changer quand on switch de camp
 
-    //onclick sur le bouton Kids
-    public void SelectionnerKids()
+    //onclick sur le bouton Child
+    public void SelectionnerChild()
     {
-        AppliquerFiltre(SkinItem.Camp.Kids);
+        AppliquerFiltre(SkinItem.Camp.Child);
     }
     //onclick sur le bouton Ghost
     public void SelectionnerGhost()
