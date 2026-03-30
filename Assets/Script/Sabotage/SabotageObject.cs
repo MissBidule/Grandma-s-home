@@ -127,7 +127,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
                 StartCoroutine(ShowTempPrompt("<color=red>Already in use</color>", 2f));
             return;
         }
-        if ((m_isSabotaged && _player.m_isGhost) || (!_player.m_isGhost && !m_isSabotaged) || m_isQteRunning)
+        if ((m_isSabotaged && _player.m_isGhost) || (!_player.m_isGhost && !m_isSabotaged))
             return;
         GhostMorph ghostMorph = _player.GetComponentInParent<GhostMorph>();
         if (ghostMorph != null && ghostMorph.m_isMorphed)
