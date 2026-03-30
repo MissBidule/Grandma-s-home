@@ -136,7 +136,17 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         }
         ChildController childController = _player.GetComponentInParent<ChildController>();
         //if (childController != null && childController.m_isScared) return;
-        Rigidbody rb = _player.GetComponentInParent<Rigidbody>();
+        ChildClientController childClientController = _player.GetComponentInParent<ChildClientController>();
+        if (childClientController != null)
+        {
+            childClientController.RepairAnimation(true);
+        }
+        else
+        {
+            GhostClientController ghostClientController = _player.GetComponentInParent<GhostClientController>();
+            ghostClientController.SabotageAnimation(true);
+        }
+            Rigidbody rb = _player.GetComponentInParent<Rigidbody>();
         rb.constraints = (RigidbodyConstraints)(RigidbodyConstraints.FreezeAll - RigidbodyConstraints.FreezePositionY);
         SetQteRunningServer(true);
         StartQte(_player);
@@ -194,6 +204,17 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         m_isQteRunning = false;
 
         m_saboteur.OnSabotageOver(_success);
+
+        ChildClientController childClientController = m_saboteur.GetComponentInParent<ChildClientController>();
+        if (childClientController != null)
+        {
+            childClientController.RepairAnimation(false);
+        }
+        else
+        {
+            GhostClientController ghostClientController = m_saboteur.GetComponentInParent<GhostClientController>();
+            ghostClientController.SabotageAnimation(false);
+        }
         if (_success)
         {
             InteractPromptUI.m_Instance.Hide();

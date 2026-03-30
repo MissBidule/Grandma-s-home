@@ -336,4 +336,9 @@ public class GhostClientController : NetworkBehaviour
             m_ghostController.m_isSneaking = _input.sneakPressed;
         }
     }
+
+    public void SabotageAnimation(bool _value)
+    {
+        m_ghostController.callAnimationSetBool("IsSabotaging", _value);
+    }
 }
