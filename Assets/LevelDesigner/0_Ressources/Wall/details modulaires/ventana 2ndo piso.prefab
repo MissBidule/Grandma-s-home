@@ -11,7 +11,9 @@ GameObject:
   - component: {fileID: 6459301714596982354}
   - component: {fileID: 5316445254535692931}
   - component: {fileID: 7589099001765460819}
-  - component: {fileID: 2380998807823193051}
+  - component: {fileID: 4679238425858387517}
+  - component: {fileID: 8065377797102334139}
+  - component: {fileID: 9074084732566884551}
   m_Layer: 0
   m_Name: ventana 2ndo piso
   m_TagString: Untagged
@@ -71,8 +73,8 @@ MeshRenderer:
   m_Materials:
   - {fileID: 2100000, guid: 955df5408c6cf4b9ebfd81addf83e0cb, type: 2}
   - {fileID: 2100000, guid: 5e4a9d36f340f4e21b9eae4d6f83bda9, type: 2}
-  - {fileID: 2100000, guid: 4829483e1411449528c292fd4fbea66d, type: 2}
-  - {fileID: 2100000, guid: 901e83cef8dcc084c8af1bc0ea556f2f, type: 2}
+  - {fileID: 0}
+  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -96,8 +98,44 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &2380998807823193051
-MeshCollider:
+--- !u!114 &4679238425858387517
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4127094416435837459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ddad23101bde04ea193530505a28ecfe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TextureTilingController
+  texture: {fileID: 2800000, guid: f8b5a8a685bebcd40abbb693c8c87a80, type: 3}
+  textureToMeshZ: 2
+  offsetX: 0
+  offsetY: 0
+  originalMaterial: {fileID: 2100000, guid: e9b85cdfc0ed74f0a8545c6d6e5c6a30, type: 2}
+  materialIndex: 2
+--- !u!114 &8065377797102334139
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4127094416435837459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ddad23101bde04ea193530505a28ecfe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TextureTilingController
+  texture: {fileID: 2800000, guid: 558637228d37c4177b4f82f4a9c0d00a, type: 3}
+  textureToMeshZ: 9
+  offsetX: -0.08
+  offsetY: 0.06
+  originalMaterial: {fileID: 2100000, guid: 901e83cef8dcc084c8af1bc0ea556f2f, type: 2}
+  materialIndex: 3
+--- !u!65 &9074084732566884551
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -114,10 +152,9 @@ MeshCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: -1550514412580984892, guid: 72cacd7958654e441ba3a572eabc6b19, type: 3}
+  serializedVersion: 3
+  m_Size: {x: 2.9620347, y: 5.8245106, z: 0.66315556}
+  m_Center: {x: -0.00000029802317, y: 3.034699, z: 0.02741824}
 --- !u!1001 &2505794384769936694
 PrefabInstance:
   m_ObjectHideFlags: 0
