@@ -51,11 +51,11 @@ public class BrokeDecor : NetworkBehaviour
         {
             foreach (var m in m_additionalMeshes)
             {
-                r = m_brokenMesh.GetComponent<Renderer>();
+                r = m.GetComponent<Renderer>();
                 if (r != null)
                     r.enabled = !m_isBroken;
                 
-                c = m_brokenMesh.GetComponent<Collider>();
+                c = m.GetComponent<Collider>();
                 if (c != null)
                     c.enabled = !m_isBroken;
             }

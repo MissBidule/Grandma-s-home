@@ -16,7 +16,7 @@ public class ChildCameraController : MonoBehaviour
     public LayerMask m_collisionMask;
     public Vector3 m_pivotOffset = new Vector3(0f, 1.6f, 0f); // approx head height
 
-    private float m_yaw;
+    public float m_yaw;
     private float m_pitch;
     [SerializeField] private float m_xOffset;
 

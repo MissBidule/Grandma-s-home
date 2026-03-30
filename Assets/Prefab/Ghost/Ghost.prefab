@@ -246,7 +246,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GhostInputController
   m_qteCircle: {fileID: 0}
-  m_promptMessageValid: 'F : Valid'
+  m_promptLabelValid: Valid
 --- !u!114 &1100208937895637651
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -522,10 +522,6 @@ MonoBehaviour:
     m_ActionName: 'Ghost/Validate[/Keyboard/space]'
   - m_PersistentCalls:
       m_Calls: []
-    m_ActionId: ea2e3932-0535-40f3-9dcc-9236d288a500
-    m_ActionName: 'Child/Hint[/Keyboard/h]'
-  - m_PersistentCalls:
-      m_Calls: []
     m_ActionId: 643f7f59-890d-4dfd-bbde-6c698d799d56
     m_ActionName: 'Child/Sneak[/Keyboard/leftShift]'
   - m_PersistentCalls:
@@ -544,22 +540,6 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 46160aee-2a43-444d-a6f1-377c688007c1
     m_ActionName: 'Ghost/Dash[/Keyboard/leftShift]'
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 8778548429194373776}
-        m_TargetAssemblyTypeName: GhostInputController, Assembly-CSharp
-        m_MethodName: OnHint
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: 63ac072b-1e83-4270-932d-4bbaf1fdb089
-    m_ActionName: 'Ghost/Hint[/Keyboard/h]'
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 8778548429194373776}
@@ -624,6 +604,26 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 3d09c0f7-6836-414d-9309-10e51013ab1f
     m_ActionName: 'Ghost/Escape[/Keyboard/escape]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 99071452-9b02-4cc4-9b4c-06f7b819a5dd
+    m_ActionName: 'Child/Escape[/Keyboard/escape]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: c3a731d8-4118-4b9c-95c0-f220f2fbb833
+    m_ActionName: 'Child/PushToTalk[/Keyboard/t]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 53bbe6f8-79e3-4ed5-9570-bffaf2c33e04
+    m_ActionName: 'Child/Leaderboard[/Keyboard/l]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 61bab1c3-7cd0-463b-bacb-6885ab4e4463
+    m_ActionName: 'Ghost/PushToTalk[/Keyboard/t]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: d88c83f4-8b4b-485a-a2f9-0bbb920b086c
+    m_ActionName: Ghost/Leaderboard
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Ghost
@@ -911,7 +911,7 @@ MonoBehaviour:
   _directChildren: []
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
-  errorThreshold: 0.75
+  m_errorThreshold: 0
 --- !u!114 &1053912558784888777
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1801,8 +1801,8 @@ MonoBehaviour:
   m_pulseSpeed: 3
   m_minIntensity: 0.2
   m_maxIntensity: 0.6
-  m_promptMessageSCAN: 'T : SCAN'
-  m_promptMessageValid: 'F : Valid'
+  m_promptLabelSCAN: SCAN
+  m_promptLabelValid: Valid
   m_rotateSpeed: 120
   m_GhostPreviewOn: 0
 --- !u!1 &6245523746651433690
@@ -2352,6 +2352,14 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: 434913ac2bb455042ab36aaf6b77c5ea, type: 2}
+    - target: {fileID: 8533157899080244201, guid: 556a428bac6d09f4b85cacf6f336d9e4, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: d9b7dd0f45a6448efbd06b96edf37216, type: 2}
+    - target: {fileID: 8533157899080244201, guid: 556a428bac6d09f4b85cacf6f336d9e4, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: f3747f87dee0f430dabd27e032376cb2, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

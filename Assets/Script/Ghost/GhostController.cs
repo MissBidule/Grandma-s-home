@@ -79,17 +79,13 @@ public class GhostController : PlayerControllerCore, IInteractable
     {
         base.OnSpawned();
 
-        m_deathIndicator = GetComponent<GhostDeathIndicator>();
-        m_rigidbody = GetComponent<Rigidbody>();
-
-        if (!isServer) return;
-
-        m_ghostMorph = GetComponent<GhostMorph>();
-
     }
 
     public void Start()
     {
+
+        m_deathIndicator = GetComponent<GhostDeathIndicator>();
+        m_rigidbody = GetComponent<Rigidbody>();
         m_propertyBlock = new MaterialPropertyBlock();
 
         if (m_highlightRenderers.Count > 0)
@@ -106,6 +102,10 @@ public class GhostController : PlayerControllerCore, IInteractable
             }
         }
         SetHighlight(false);
+
+        if (!isServer) return;
+
+        m_ghostMorph = GetComponent<GhostMorph>();
     }
 
     void Update()
@@ -337,6 +337,7 @@ public class GhostController : PlayerControllerCore, IInteractable
 
     public void OnStopInteract(Interact _who)
     {
+        print("Stop Interact with dead ghost " + isServer + m_beingRevived);
         if (!isServer) return;
         if (m_beingRevived)
         {
