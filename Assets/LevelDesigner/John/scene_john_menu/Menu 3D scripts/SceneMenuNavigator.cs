@@ -8,42 +8,42 @@ using TMPEffects.Components;
 public class SceneMenuNavigator : MonoBehaviour
 {
     [System.Serializable]
-    public struct MenuCamera
+    public struct MenuCamera //structure pour config menu dans l'inspector
     {
-        public string nomDuMenu;
-        public CinemachineVirtualCameraBase camera;
-        public Collider[] boutonsAssoicies;
+        public string nomDuMenu; //pour orga
+        public CinemachineVirtualCameraBase camera; //ref cam pour ce menu
+        public Collider[] boutonsAssoicies; //ref colliders des boutons à activer pour ce menu
 
-        [Header("Animation des Textes (TMPEffects)")]
-        public TMPWriter[] textesTMPWriters;
+        [Header("Animation des Textes (TMPWriters)")]
+        public TMPWriter[] textesTMPWriters; //ref des TMPWriter pour les textes à animer dans ce menu
 
     }
 
-    [Header("Caméra d'Introduction (Obligatoire)")]
-    public CinemachineVirtualCameraBase sequencerCam;
+    [Header("Caméra d'Introduction Start")]
+    public CinemachineVirtualCameraBase sequencerCam; //ref cam Sequencer Camera Start
 
     [Header("Configuration des Menus")]
-    public MenuCamera[] configurationMenus;
+    public MenuCamera[] configurationMenus; //pour orga et config dans l'inspector
 
 
     [Header("Réglages")]
-    public float delaiCamera = 1.0f;
+    public float delaiCamera = 1.0f; //délai pour activer les boutons après le switch de cam
 
-    [HideInInspector]
-    public bool verrouillageAbsolu = false;
 
-    private Coroutine transitionEnCours;
-    private CinemachineVirtualCameraBase derniereCameraActive;
+    private Coroutine transitionEnCours; //pour stock la coroutine en cours et éviter que le joueur switch rapidement de cam
+    private CinemachineVirtualCameraBase derniereCameraActive; //stock la dernière cam active pour gérer les priorités
 
+    //init des prio des cam et desactiver les textes
     private void Awake()
     {
         InitialiserPriorites();
-        NettoyerTousLesTextes(); // 🎯 Force tout à disparaître au démarrage
+        NettoyerTousLesTextes(); 
 
         if (sequencerCam != null)
             SwitchToCamera(sequencerCam);
     }
 
+    //met les prio des cam à 10 pour que la cam du sequencer start soit prio au début 
     private void InitialiserPriorites()
     {
         if (sequencerCam != null) sequencerCam.Priority = 10;
@@ -53,7 +53,7 @@ public class SceneMenuNavigator : MonoBehaviour
         }
     }
 
-
+    //desactive les TMPWriter de tous les menus pour éviter de les voir avant le switch de cam
     private void NettoyerTousLesTextes()
     {
         foreach (var menu in configurationMenus)
@@ -64,51 +64,48 @@ public class SceneMenuNavigator : MonoBehaviour
                 {
                     if (writer != null)
                     {
-                        writer.StopWriter();  // 🛑 Arrête l'animation en cours
-                        writer.ResetWriter(); // ⏪ Rembobine
-                        writer.gameObject.SetActive(false); // 🙈 Cache l'objet
+                        writer.StopWriter();  
+                        writer.ResetWriter(); 
+                        writer.gameObject.SetActive(false); 
                     }
                 }
             }
         }
     }
-
+    //switch de cam avec gestion des prio et activation des boutons associés
     public void SwitchToCamera(CinemachineVirtualCameraBase targetCamera)
     {
         if (targetCamera == null) return;
         if (transitionEnCours != null) StopCoroutine(transitionEnCours);
 
-        if (derniereCameraActive != null) derniereCameraActive.Priority = 10;
-        targetCamera.Priority = 20;
+        if (derniereCameraActive != null) derniereCameraActive.Priority = 10; //remet la prio de la dernière cam plus basse pour etre inactive
+        targetCamera.Priority = 20; //met la cam cible à une prio plus haute pour qu'elle devienne active
         derniereCameraActive = targetCamera;
 
         transitionEnCours = StartCoroutine(GererBoutonsAvecDelai(targetCamera));
     }
-
+    //coroutine pour gérer l'activation des boutons associés et tmpwriter à la cam avec delai
     private IEnumerator GererBoutonsAvecDelai(CinemachineVirtualCameraBase targetCamera)
     {
         ActiverTousLesGroupesBoutons(false);
-        NettoyerTousLesTextes(); // 🎯 On nettoie à nouveau au début de chaque switch
+        NettoyerTousLesTextes(); 
 
-        // 🛑 PETITE PAUSE DE SÉCURITÉ (0.1s)
-        // Indispensable pour que Cinemachine ait le temps de lancer le "Blending"
         yield return new WaitForSeconds(0.1f);
 
+        //attend la fin du blend de cam avant pour éviter les clicks pendant le switch
         if (Camera.main != null)
         {
             CinemachineBrain cerveau = Camera.main.GetComponent<CinemachineBrain>();
             if (cerveau != null)
             {
-                while (cerveau.IsBlending || verrouillageAbsolu)
+                while (cerveau.IsBlending)
                     yield return null;
             }
         }
 
         var configMenu = configurationMenus.FirstOrDefault(m => m.camera == targetCamera);
 
-
-
-        // ÉTAPE 4 : Apparition
+        //active les textes tmpwriter du menu associé à la cam
         if (configMenu.textesTMPWriters != null)
         {
             foreach (var writer in configMenu.textesTMPWriters)
@@ -116,37 +113,36 @@ public class SceneMenuNavigator : MonoBehaviour
                 if (writer != null)
                 {
                     writer.gameObject.SetActive(true);
-                    writer.ResetWriter(); // Sécurité
-                    writer.StartWriter(); // 🎬 Play !
+                    writer.ResetWriter(); 
+                    writer.StartWriter(); 
                 }
             }
         }
-
+        //active les boutons associés à la cam
         if (configMenu.boutonsAssoicies != null && configMenu.boutonsAssoicies.Length > 0)
         {
             ActiverGroupeBoutons(configMenu.boutonsAssoicies, true);
         }
     }
-
+    //désactive les boutons pour éviter les clicks pendant le switch de cam
     private void ActiverTousLesGroupesBoutons(bool etat)
     {
         foreach (var menu in configurationMenus) ActiverGroupeBoutons(menu.boutonsAssoicies, etat);
     }
-
+    //active ou désactive grp boutons 
     private void ActiverGroupeBoutons(Collider[] groupe, bool etat)
     {
         if (groupe == null) return;
         foreach (Collider col in groupe) if (col != null) col.enabled = etat;
     }
-
+    //quit le jeu et stop le play mode
     public void QuitterLeJeu()
     {
         Debug.Log("Quitter le jeu...");
 
-        // Ça, ça fermera le vrai jeu une fois compilé
+       
         Application.Quit();
 
-        // 🎯 NOUVEAU : Ça, ça arrête le mode "Play" dans l'éditeur Unity
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #endif
