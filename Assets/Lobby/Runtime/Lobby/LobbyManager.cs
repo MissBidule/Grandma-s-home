@@ -554,7 +554,7 @@ namespace PurrLobby
         public IEnumerator RemovePlayerAndDestroy() {
             EnsureProviderSet();
             yield return _currentProvider.LeaveLobbyAsync();
-            OnRoomLeft?.Invoke();
+            FindAnyObjectByType<RoleKeeper>().DeleteList();
             Destroy(gameObject);
         }
 

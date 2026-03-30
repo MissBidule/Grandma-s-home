@@ -89,9 +89,20 @@ namespace Script.States
         public void BackToMenu()
         {
             StartCoroutine(FindAnyObjectByType<LobbyManager>().RemovePlayerAndDestroy());
+            
             PurrLogger.Log("Returning to menu.", this);
             FindAnyObjectByType<LobbyDataHolder>().SetCurrentLobby(default);
-            BackToLobby();
+
+            if (string.IsNullOrEmpty(m_lobbyScene))
+            {
+                PurrLogger.LogError("Next scene name is not set!", this);
+                return;
+            }
+
+            PurrLogger.Log($"Switching to scene: {m_lobbyScene}", this);
+            
+            // Load game scene - ConnectionStarter in new scene will handle network initialization
+            SceneManager.LoadSceneAsync(m_lobbyScene);
         }
 
         public void ServerLost()

@@ -168,7 +168,6 @@ MonoBehaviour:
   _visitiblityRules: {fileID: 0}
   m_uiHolder_prefab: {fileID: 377348635625698099, guid: b651665fc18bb9743b016c9975896383, type: 3}
   m_uiHolder: {fileID: 0}
-  m_animator: {fileID: 3610933806309611657}
   m_racket: {fileID: 6242996628224680182}
   m_gun: {fileID: 2718918668122047780}
 --- !u!114 &6565872187536608583
@@ -208,7 +207,7 @@ MonoBehaviour:
   m_playerCamera: {fileID: 3116613213369430143}
   m_localRenderCamera: {fileID: 2479407354322227593}
   m_playerAnimator: {fileID: 0}
-  m_PingCooldown: Infinity
+  m_PingCooldown: 5
   m_elapsedTimeSincePing: 0
   m_isServerAccessible: 1
   m_isClientAccessible: 1
@@ -504,29 +503,9 @@ MonoBehaviour:
     m_ActionId: 55397657-de04-43c4-aa9d-3b0ef9651449
     m_ActionName: 'Ghost/Validate[/Keyboard/space]'
   - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 6565872187536608583}
-        m_TargetAssemblyTypeName: ChildInputController, Assembly-CSharp
-        m_MethodName: OnHint
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: ea2e3932-0535-40f3-9dcc-9236d288a500
-    m_ActionName: 'Child/Hint[/Keyboard/h]'
-  - m_PersistentCalls:
       m_Calls: []
     m_ActionId: 46160aee-2a43-444d-a6f1-377c688007c1
     m_ActionName: 'Ghost/Sprint[/Keyboard/leftShift]'
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 63ac072b-1e83-4270-932d-4bbaf1fdb089
-    m_ActionName: 'Ghost/Hint[/Keyboard/h]'
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 6565872187536608583}
@@ -554,7 +533,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument:
+          m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
     m_ActionId: 99071452-9b02-4cc4-9b4c-06f7b819a5dd
@@ -575,6 +554,34 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 3d09c0f7-6836-414d-9309-10e51013ab1f
     m_ActionName: 'Ghost/Escape[/Keyboard/escape]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: c3a731d8-4118-4b9c-95c0-f220f2fbb833
+    m_ActionName: 'Child/PushToTalk[/Keyboard/t]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6565872187536608583}
+        m_TargetAssemblyTypeName: ChildInputController, Assembly-CSharp
+        m_MethodName: OnLeaderboard
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 53bbe6f8-79e3-4ed5-9570-bffaf2c33e04
+    m_ActionName: 'Child/Leaderboard[/Keyboard/l]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 61bab1c3-7cd0-463b-bacb-6885ab4e4463
+    m_ActionName: 'Ghost/PushToTalk[/Keyboard/t]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: d88c83f4-8b4b-485a-a2f9-0bbb920b086c
+    m_ActionName: Ghost/Leaderboard
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Child
@@ -822,7 +829,7 @@ MonoBehaviour:
   _directChildren: []
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
-  errorThreshold: 0.75
+  m_errorThreshold: 0
 --- !u!114 &1021629915726153006
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -946,6 +953,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1
   m_pivotOffset: {x: 0, y: 1.6, z: 0}
+  m_yaw: 0
   m_xOffset: 0.95
 --- !u!1 &2479407354322227593
 GameObject:
