@@ -88,9 +88,13 @@ public class GhostInputController : MonoBehaviour
     public void OnOpenWheel(InputAction.CallbackContext _context)
     {
         if (!isOwner) return;
-        if (_context.performed)
+        if (_context.started)
         {
             m_ghostClientController.OnOpenWheel();
+        }
+        else if (_context.canceled)
+        {
+            m_ghostClientController.OnCloseWheel();
         }
     }
 
