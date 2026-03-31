@@ -33,15 +33,15 @@ namespace Script.HouseBuilding
         {
             // Object Validation
             if (m_sabotageObject == null)
-                PurrLogger.LogError($"{m_roomType} Sabotage Object is null", this);
+                PurrLogger.LogWarning($"{m_roomType} Sabotage Object is null", this);
             if (m_trapdoorEntry == null)
-                PurrLogger.LogError($"{m_roomType} Trapdoor Entry is null", this);
+                PurrLogger.LogWarning($"{m_roomType} Trapdoor Entry is null", this);
             if (m_trapdoorExit == null)
-                PurrLogger.LogError($"{m_roomType} Trapdoor Exit is null", this);
+                PurrLogger.LogWarning($"{m_roomType} Trapdoor Exit is null", this);
             if (m_smallPropsAnchors == null)
-                PurrLogger.LogError($"{m_roomType} Small Props Anchors is null", this);
+                PurrLogger.LogWarning($"{m_roomType} Small Props Anchors is null", this);
             if (m_mediumPropsAnchors == null)
-                PurrLogger.LogError($"{m_roomType} Medium Props Anchors is null", this);
+                PurrLogger.LogWarning($"{m_roomType} Medium Props Anchors is null", this);
         }
         
         public SabotageObject GetSabotageObject()
