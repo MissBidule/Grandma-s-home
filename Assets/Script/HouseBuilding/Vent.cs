@@ -53,22 +53,30 @@ namespace Script.HouseBuilding
 
         public void OnFocus(Interact _player)
         {
-            if (!_player.m_isGhost)
-                return;
             m_isFocused = true;
-            InteractPromptUI.m_Instance.Show(
-                InputBindingHelper.BuildPrompt(
-                    "Ghost",
-                    "Interact",
-                    m_promptLabelVENT)
+            if (_player.m_isGhost)
+            {
+                InteractPromptUI.m_Instance.Show(
+                    InputBindingHelper.BuildPrompt(
+                        "Ghost",
+                        "Interact",
+                        m_promptLabelVENT)
                 );
+            }
+            else
+            {
+                InteractPromptUI.m_Instance.Show(
+                    InputBindingHelper.BuildPrompt(
+                        "Child",
+                        "Interact",
+                        m_promptLabelVENT)
+                );
+            }
             SetHighlight(true);
         }
         
         public void OnUnfocus(Interact _player)
         {
-            if (!_player.m_isGhost)
-                return;
             m_isFocused = false;
             InteractPromptUI.m_Instance.Hide();
             SetHighlight(false);
@@ -76,15 +84,11 @@ namespace Script.HouseBuilding
         
         public void OnInteract(Interact _player)
         {
-            if (!_player.m_isGhost)
-                return;
             if (m_exit == null)
                 return;
-            
-            GhostController ghost = _player.GetComponentInParent<GhostController>();
-            if (ghost == null)
-                return;
-            TP_Player(ghost.gameObject);
+
+            PlayerControllerCore playerController = _player.GetComponentInParent<PlayerControllerCore>();
+            TP_Player(playerController.gameObject);
         }
 
         [ServerRpc(requireOwnership: false)]
