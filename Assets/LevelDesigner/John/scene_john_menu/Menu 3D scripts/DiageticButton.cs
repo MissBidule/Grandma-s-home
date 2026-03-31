@@ -3,42 +3,38 @@ using UnityEngine.Events;
 
 public class DiegeticButton : MonoBehaviour
 {
-    public UnityEvent OnClick;
-    private Outline[] outlineEffects;
+    public UnityEvent OnClick; //event Unity pour assigner des actions dans l'inspector
+    private Outline[] outlineEffects; //stock les composants Outline pour les activer/désactiver au hover
 
     private void Start()
     {
-        // On trouve tous les contours sur l'objet et ses enfants
+       
         outlineEffects = GetComponentsInChildren<Outline>();
-
-        // On les éteint au démarrage
+        //désactive les outlines au début pour ne pas les voir avant le hover
         foreach (Outline outline in outlineEffects)
         {
             outline.enabled = false;
         }
     }
-
+    //active les outlines 
     private void OnMouseEnter()
     {
-        // On allume tout
         foreach (Outline outline in outlineEffects)
         {
             outline.enabled = true;
         }
     }
-
+    //désactive les outlines
     private void OnMouseExit()
     {
-        // On éteint tout
         foreach (Outline outline in outlineEffects)
         {
             outline.enabled = false;
         }
     }
-
+    //invoke l'event OnClick quand le bouton est cliqué
     private void OnMouseDown()
     {
-        // On déclenche le clic (changement de caméra, etc.)
         if (OnClick != null)
         {
             OnClick.Invoke();

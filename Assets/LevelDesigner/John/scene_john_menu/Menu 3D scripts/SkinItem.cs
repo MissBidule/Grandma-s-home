@@ -2,19 +2,20 @@
 
 public class SkinItem : MonoBehaviour
 {
-    public enum Camp { Kids, Demons }
+    public enum Camp { Child, Ghost } //enum pour les camps sur les skins
 
     [Header("Configuration")]
-    public Camp monCamp;
+    public Camp monCamp; //depend du skin à mettre sur chaque skin
 
     [Header("Le Matériau Fantôme")]
-    public Material materialFantome;
+    public Material materialFantome; //ref mat transparent Mat_Blackout
 
-    private Renderer[] tousLesRenderers;
-    private Material[] materiauxOriginaux;
+    private Renderer[] tousLesRenderers; //recup les renderers
+    private Material[] materiauxOriginaux; //stock les mat originaux pour les remettre quand on switch de camp
 
     private void Awake()
     {
+        //recup les renderers et stock les mat originaux
         tousLesRenderers = GetComponentsInChildren<Renderer>(true);
         materiauxOriginaux = new Material[tousLesRenderers.Length];
 
@@ -26,34 +27,24 @@ public class SkinItem : MonoBehaviour
             }
         }
     }
-
+    //met à jour la skin en fonction du camp sélectionné
     public void MettreAJourSelection(Camp campSelectionne)
     {
         bool estMonCamp = (monCamp == campSelectionne);
-
-        // ==========================================
-        // 🎯 LA SOLUTION DÉFINITIVE : LE LAYER
-        // 0 = Default (La souris peut cliquer dessus)
-        // 2 = Ignore Raycast (La souris passe au travers !)
-        // ==========================================
+        //change le layer entre 0 default et 2 ignore raycast qui permet de plus pouvoir click sur les colliders
         int layerCible = estMonCamp ? 0 : 2;
 
-        // On applique cette règle anti-clic à l'objet et à toutes ses parties
+        // Retirer les colliders
         Collider[] tousLesColliders = GetComponentsInChildren<Collider>(true);
         foreach (Collider col in tousLesColliders)
         {
             if (col != null)
             {
                 col.gameObject.layer = layerCible;
-
-                // On essaie quand même de l'éteindre au cas où
                 col.enabled = estMonCamp;
             }
         }
-
-        // ==========================================
-        // LE CHANGEMENT DE VÊTEMENTS
-        // ==========================================
+        //changement de matériau pour rendre transparent
         for (int i = 0; i < tousLesRenderers.Length; i++)
         {
             if (tousLesRenderers[i] != null)
