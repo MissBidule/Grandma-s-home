@@ -9,18 +9,6 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 49fb313ec0bfe1145b7ea13c65ddea25, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 1.5
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 49fb313ec0bfe1145b7ea13c65ddea25, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1.5
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 49fb313ec0bfe1145b7ea13c65ddea25, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 1.5
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 49fb313ec0bfe1145b7ea13c65ddea25, type: 3}
       propertyPath: m_LocalPosition.x
       value: 4.9
       objectReference: {fileID: 0}
@@ -60,10 +48,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 49fb313ec0bfe1145b7ea13c65ddea25, type: 3}
-      propertyPath: m_ConstrainProportionsScale
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 49fb313ec0bfe1145b7ea13c65ddea25, type: 3}
       propertyPath: m_Name
       value: props_grande_horloge
@@ -74,17 +58,17 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 6014503084441653313, guid: 49fb313ec0bfe1145b7ea13c65ddea25, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2118434031243176603}
+      addedObject: {fileID: 883566240918906524}
     - targetCorrespondingSourceObject: {fileID: 6014503084441653313, guid: 49fb313ec0bfe1145b7ea13c65ddea25, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 3494324407902546638}
+      addedObject: {fileID: 8725503358426686622}
   m_SourcePrefab: {fileID: 100100000, guid: 49fb313ec0bfe1145b7ea13c65ddea25, type: 3}
 --- !u!1 &6797300281490035979 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6014503084441653313, guid: 49fb313ec0bfe1145b7ea13c65ddea25, type: 3}
   m_PrefabInstance: {fileID: 946620308834649418}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2118434031243176603
+--- !u!114 &883566240918906524
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -118,13 +102,13 @@ MonoBehaviour:
   m_pulseSpeed: 3
   m_minIntensity: 0.2
   m_maxIntensity: 0.6
-  m_promptMessageSABOTAGE: 'E : Sabotage'
-  m_promptMessageREPAIR: 'E : Repair'
-  m_promptMessageSPACE: 'SPACE : Valid'
+  m_promptLabelSABOTAGE: Sabotage
+  m_promptLabelREPAIR: Repair
+  m_promptLabelVALID: Valid
   m_saboteur: {fileID: 0}
   m_isSabotaged: 0
   m_saboteurs: []
---- !u!64 &3494324407902546638
+--- !u!64 &8725503358426686622
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
