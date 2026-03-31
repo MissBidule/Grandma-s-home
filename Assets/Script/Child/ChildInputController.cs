@@ -98,23 +98,6 @@ public class ChildInputController : MonoBehaviour
     }
     
     /*
-     * @brief OnHint is called by the Input System when hint input is detected used to display the controls hint
-     * @param _context: The context of the input action
-     * @return void
-     */
-    public void OnHint(InputAction.CallbackContext _context)
-    {
-        if (!isOwner) return;
-        if (_context.performed)
-        {
-            if (!InstanceHandler.TryGetInstance(out UIsManager uisManager))
-                return;
-            
-            uisManager.ToggleView<InstructionsView>();
-        }
-    }
-
-    /*
      * @brief OnLeaderboard is called by the Input System when the leaderboard input is held used to display the controls hint
      * @param _context: The context of the input action
      * @return void
@@ -188,6 +171,7 @@ public class ChildInputController : MonoBehaviour
         if (_context.performed)
         {
             m_childClientController.OnEscape();
+            PauseMenuView.Instance?.OnEscapePressed();
         }
     }
 }
