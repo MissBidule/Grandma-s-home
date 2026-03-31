@@ -1071,20 +1071,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7de7a3b999fcfa4583aee014a16c38f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  _isSetup: 0
-  _prefabId: -2147483648
-  _componentIndex: -2147483648
-  _shouldBePooled: 0
-  _parent: {fileID: 0}
-  _invertedPathToNearestParent: 
-  _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   m_scanRange: 10
   m_scanLayerMask:
     serializedVersion: 2
     m_Bits: 1
   m_mesh: {fileID: 1705592582}
+  m_shader: {fileID: 0}
+  m_previewCollider: {fileID: 0}
   m_wheel: {fileID: 0}
   m_validColor: {r: 1, g: 1, b: 1, a: 0.3}
   m_invalidColor: {r: 1, g: 0, b: 0, a: 0.3}
@@ -1092,8 +1085,8 @@ MonoBehaviour:
   m_pulseSpeed: 3
   m_minIntensity: 0.2
   m_maxIntensity: 0.6
-  m_promptMessageSCAN: 'T : SCAN'
-  m_promptMessageValid: 'F : Valid'
+  m_promptLabelSCAN: SCAN
+  m_promptLabelValid: Valid
   m_rotateSpeed: 120
   m_GhostPreviewOn: 0
 --- !u!65 &81657469
@@ -1946,6 +1939,8 @@ MonoBehaviour:
   _visitiblityRules: {fileID: 0}
   m_roundDuration: 2
   m_sunIncrementNumber: 12
+  m_startDelay: 10
+  m_startingDoor: {fileID: 727320229}
 --- !u!1001 &230254508
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5577,6 +5572,119 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 86b3dc43a4d35bde8ada266609f57de9, type: 3}
   m_PrefabInstance: {fileID: 722102801}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &727320227
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 764166275}
+    m_Modifications:
+    - target: {fileID: 511082028822617755, guid: 3a46ebc1879212d46b8f5ff5f5f7f370, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 29.398449
+      objectReference: {fileID: 0}
+    - target: {fileID: 511082028822617755, guid: 3a46ebc1879212d46b8f5ff5f5f7f370, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 511082028822617755, guid: 3a46ebc1879212d46b8f5ff5f5f7f370, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 17.7564
+      objectReference: {fileID: 0}
+    - target: {fileID: 511082028822617755, guid: 3a46ebc1879212d46b8f5ff5f5f7f370, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 511082028822617755, guid: 3a46ebc1879212d46b8f5ff5f5f7f370, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 511082028822617755, guid: 3a46ebc1879212d46b8f5ff5f5f7f370, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 511082028822617755, guid: 3a46ebc1879212d46b8f5ff5f5f7f370, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 511082028822617755, guid: 3a46ebc1879212d46b8f5ff5f5f7f370, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 511082028822617755, guid: 3a46ebc1879212d46b8f5ff5f5f7f370, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 511082028822617755, guid: 3a46ebc1879212d46b8f5ff5f5f7f370, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2449178978844580292, guid: 3a46ebc1879212d46b8f5ff5f5f7f370, type: 3}
+      propertyPath: m_Name
+      value: Opening_Door
+      objectReference: {fileID: 0}
+    - target: {fileID: 5527859307124691915, guid: 3a46ebc1879212d46b8f5ff5f5f7f370, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5527859307124691915, guid: 3a46ebc1879212d46b8f5ff5f5f7f370, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5527859307124691915, guid: 3a46ebc1879212d46b8f5ff5f5f7f370, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5527859307124691915, guid: 3a46ebc1879212d46b8f5ff5f5f7f370, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5527859307124691915, guid: 3a46ebc1879212d46b8f5ff5f5f7f370, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8922386593681331020, guid: 3a46ebc1879212d46b8f5ff5f5f7f370, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8922386593681331020, guid: 3a46ebc1879212d46b8f5ff5f5f7f370, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8922386593681331020, guid: 3a46ebc1879212d46b8f5ff5f5f7f370, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8922386593681331020, guid: 3a46ebc1879212d46b8f5ff5f5f7f370, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8922386593681331020, guid: 3a46ebc1879212d46b8f5ff5f5f7f370, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 3a46ebc1879212d46b8f5ff5f5f7f370, type: 3}
+--- !u!4 &727320228 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 511082028822617755, guid: 3a46ebc1879212d46b8f5ff5f5f7f370, type: 3}
+  m_PrefabInstance: {fileID: 727320227}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &727320229 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4200200510294771153, guid: 3a46ebc1879212d46b8f5ff5f5f7f370, type: 3}
+  m_PrefabInstance: {fileID: 727320227}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d4604ae611dbaa45b8ca2e6b068fcd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StartingDoor
 --- !u!1001 &734145790
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5748,20 +5856,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7de7a3b999fcfa4583aee014a16c38f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  _isSetup: 0
-  _prefabId: -2147483648
-  _componentIndex: -2147483648
-  _shouldBePooled: 0
-  _parent: {fileID: 0}
-  _invertedPathToNearestParent: 
-  _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   m_scanRange: 10
   m_scanLayerMask:
     serializedVersion: 2
     m_Bits: 1
   m_mesh: {fileID: 1705592582}
+  m_shader: {fileID: 0}
+  m_previewCollider: {fileID: 0}
   m_wheel: {fileID: 0}
   m_validColor: {r: 1, g: 1, b: 1, a: 0.3}
   m_invalidColor: {r: 1, g: 0, b: 0, a: 0.3}
@@ -5769,8 +5870,8 @@ MonoBehaviour:
   m_pulseSpeed: 3
   m_minIntensity: 0.2
   m_maxIntensity: 0.6
-  m_promptMessageSCAN: 'T : SCAN'
-  m_promptMessageValid: 'F : Valid'
+  m_promptLabelSCAN: SCAN
+  m_promptLabelValid: Valid
   m_rotateSpeed: 120
   m_GhostPreviewOn: 0
 --- !u!65 &743346187
@@ -5944,6 +6045,7 @@ Transform:
   m_Children:
   - {fileID: 1212419399}
   - {fileID: 275929806}
+  - {fileID: 727320228}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &784156037
@@ -9551,7 +9653,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1364236922
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11598,20 +11700,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7de7a3b999fcfa4583aee014a16c38f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  _isSetup: 0
-  _prefabId: -2147483648
-  _componentIndex: -2147483648
-  _shouldBePooled: 0
-  _parent: {fileID: 0}
-  _invertedPathToNearestParent: 
-  _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   m_scanRange: 10
   m_scanLayerMask:
     serializedVersion: 2
     m_Bits: 1
   m_mesh: {fileID: 1705592582}
+  m_shader: {fileID: 0}
+  m_previewCollider: {fileID: 0}
   m_wheel: {fileID: 0}
   m_validColor: {r: 1, g: 1, b: 1, a: 0.3}
   m_invalidColor: {r: 1, g: 0, b: 0, a: 0.3}
@@ -11619,8 +11714,8 @@ MonoBehaviour:
   m_pulseSpeed: 3
   m_minIntensity: 0.2
   m_maxIntensity: 0.6
-  m_promptMessageSCAN: 'T : SCAN'
-  m_promptMessageValid: 'F : Valid'
+  m_promptLabelSCAN: SCAN
+  m_promptLabelValid: Valid
   m_rotateSpeed: 120
   m_GhostPreviewOn: 0
 --- !u!65 &1606638620
@@ -12083,7 +12178,6 @@ MonoBehaviour:
     _value: 0
     _ownerAuth: 0
     _sendIntervalInSeconds: 0
-  m_scoreBroken: 0
   m_maxScoreSabotage: 5
   m_maxScoreBroken: 5
 --- !u!1001 &1661275947
@@ -14430,6 +14524,7 @@ MonoBehaviour:
   _visibilityRules: {fileID: 11400000, guid: 8f014a5bd8dc68646a2a3c0b18c5bbd8, type: 2}
   _authenticator: {fileID: 1886849011}
   _tickRate: 20
+  _mtuExceededBehaviour: 1
   _patchLingeringProcessBug: 0
 --- !u!114 &1886849011
 MonoBehaviour:
@@ -14491,6 +14586,13 @@ MonoBehaviour:
   _host: purrtransport-nj-us.purrservers.com
   _timeoutInSeconds: 5
   _pollEventsInUpdate: 0
+  _networkSimulation:
+    includeInBuild: 0
+    simulateLatency: 0
+    minLatency: 30
+    maxLatency: 100
+    simulatePacketLoss: 0
+    packetLossChance: 10
 --- !u!4 &1886849015
 Transform:
   m_ObjectHideFlags: 0
@@ -17939,20 +18041,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7de7a3b999fcfa4583aee014a16c38f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  _isSetup: 0
-  _prefabId: -2147483648
-  _componentIndex: -2147483648
-  _shouldBePooled: 0
-  _parent: {fileID: 0}
-  _invertedPathToNearestParent: 
-  _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   m_scanRange: 10
   m_scanLayerMask:
     serializedVersion: 2
     m_Bits: 1
   m_mesh: {fileID: 1705592582}
+  m_shader: {fileID: 0}
+  m_previewCollider: {fileID: 0}
   m_wheel: {fileID: 0}
   m_validColor: {r: 1, g: 1, b: 1, a: 0.3}
   m_invalidColor: {r: 1, g: 0, b: 0, a: 0.3}
@@ -17960,8 +18055,8 @@ MonoBehaviour:
   m_pulseSpeed: 3
   m_minIntensity: 0.2
   m_maxIntensity: 0.6
-  m_promptMessageSCAN: 'T : SCAN'
-  m_promptMessageValid: 'F : Valid'
+  m_promptLabelSCAN: SCAN
+  m_promptLabelValid: Valid
   m_rotateSpeed: 120
   m_GhostPreviewOn: 0
 --- !u!224 &2004598450851214583
@@ -18497,6 +18592,7 @@ MonoBehaviour:
   _syncRotation: 1
   _syncScale: 0
   _syncParent: 1
+  _forceSleepRb: 1
   _interpolateSettings: 255
   _minBufferSize: 1
   _maxBufferSize: 2
@@ -19483,20 +19579,13 @@ MonoBehaviour:
   m_maxReviveTime: 30
   m_reviveDuration: 0
   m_promptMessage: 'Hold E : Revive'
-  m_walkSpeed: 4
-  m_acceleration: 25
-  m_slowAmplitude: 0.5
-  m_dashAmplitude: 1.5
+  m_highlightRenderers: []
+  m_highlightColor: {r: 0, g: 1, b: 0, a: 1}
+  m_pulseSpeed: 3
+  m_minIntensity: 0.2
+  m_maxIntensity: 1
   m_dashDuration: 2.5
-  m_sneakAmplitude: 0.5
-  m_rotationSpeed: 12
-  m_climbSpeed: 3.5
-  m_climbCheckDistance: 0.9
-  m_wallNormalMaxY: 0.4
-  m_raycastHeightOffset: 0.1
-  m_climbableLayerMask:
-    serializedVersion: 2
-    m_Bits: 9
+  m_animator: {fileID: 0}
 --- !u!114 &8454868985564545537
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19550,20 +19639,14 @@ MonoBehaviour:
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
   _ownerAuth: 0
-  _acceptableError: 0.05
-  _hardCorrectionThreshold: 2
-  _maxCorrectionTime: -1
-  _springConstant: 80
-  _dampingConstant: 5
-  _rotationSpringMultiplier: 0.3
-  _minRotationCorrectionAngle: 1
-  _uncertaintySpringDampening: 0.5
-  _accelerationDecay: 0.85
-  _hardCorrectionAccelerationScale: 0.1
-  _maxHardCorrectionMultiplier: 5
-  _lowSpeedThreshold: 1.5
-  _lowSpeedSpringMultiplier: 0.1
-  _extrapolateBasedOnPing: 0
+  _interpolationDelay: 0.05
+  _predictionFactor: 0
+  _positionStrength: 5
+  _correctionRange: 2
+  _rotationStrength: 3
+  _hardSnapDistance: 3
+  _hardSnapAngle: 210
+  _acceptableRotationError: 1
   _positionChangeThreshold: 0.001
   _rotationChangeThreshold: 0.001
   _velocityStopThreshold: 0.001
@@ -19649,7 +19732,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GhostInputController
   m_qteCircle: {fileID: 0}
-  m_promptMessageValid: 'F : Valid'
+  m_promptLabelValid: Valid
 --- !u!222 &8888102751909265730
 CanvasRenderer:
   m_ObjectHideFlags: 0
