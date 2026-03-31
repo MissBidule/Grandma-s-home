@@ -260,6 +260,6 @@ public class PredictiveMovement : NetworkBehaviour
         }
 
         Physics.SyncTransforms(); // Immediately apply the physics of the newly modified transforms
-        m_alreadySimulated = false; // Reset flag so next tick applies new input, not stale input
+        m_alreadySimulated = true;
     }
 }
