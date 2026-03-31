@@ -230,7 +230,13 @@ public class GhostClientController : NetworkBehaviour
         if (m_ghostController.m_isStopped) return;
         if (!m_qteCircle) m_qteCircle = FindAnyObjectByType<QteCircle>();
         if (m_qteCircle != null && m_qteCircle.m_isRunning) return;
-        m_wheel.Toggle();
+        m_wheel.Open();
+    }
+
+    public void OnCloseWheel()
+    {
+        if (!isOwner) return;
+        m_wheel.Close();
     }
     public void OnMorph()
     {
