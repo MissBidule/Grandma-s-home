@@ -551,6 +551,13 @@ namespace PurrLobby
             return true;
         }
 
+        public IEnumerator RemovePlayerAndDestroy() {
+            EnsureProviderSet();
+            yield return _currentProvider.LeaveLobbyAsync();
+            FindAnyObjectByType<RoleKeeper>().DeleteList();
+            Destroy(gameObject);
+        }
+
         private IEnumerator RemovePlayerAndQuit()
         {
             EnsureProviderSet();
