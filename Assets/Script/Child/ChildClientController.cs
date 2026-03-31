@@ -409,4 +409,9 @@ public class ChildClientController : NetworkBehaviour
         if (_data.switchPressed) m_childController.SwitchAttackType();
         if (_data.attackPressed) m_childController.Attack();
     }
+
+    public void RepairAnimation(bool _value)
+    {
+        m_childController.callAnimationSetBool("IsRepairing", _value);
+    }
 }
