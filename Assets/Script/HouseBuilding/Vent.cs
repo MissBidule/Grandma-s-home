@@ -84,7 +84,13 @@ namespace Script.HouseBuilding
             GhostController ghost = _player.GetComponentInParent<GhostController>();
             if (ghost == null)
                 return;
-            ghost.gameObject.transform.position = m_exit.GetExitTransform.position;
+            TP_Player(ghost.gameObject);
+        }
+
+        [ServerRpc(requireOwnership: false)]
+        private void TP_Player(GameObject _player)
+        {
+            _player.transform.position = m_exit.GetExitTransform.position;
         }
         
         public void OnStopInteract(Interact _player) { }
