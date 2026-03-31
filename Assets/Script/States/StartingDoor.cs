@@ -16,9 +16,13 @@ public class StartingDoor : NetworkBehaviour
     [SerializeField] [Tooltip("LES ANGLES")] private float m_openAngle = 105f;
     [SerializeField] [Tooltip("c'est long la non ?")] private float m_openDuration = 3f;
 
+    [Header("Invisible Wall")]
+    [SerializeField] private GameObject m_invisibleWall;
+
     [ObserversRpc(runLocally: true, requireServer: true)]
     public void OpenDoors()
     {
+        m_invisibleWall.SetActive(false);
         StartCoroutine(AnimateDoor(m_pivot1, m_openAngle));
         StartCoroutine(AnimateDoor(m_pivot2, -m_openAngle));
     }

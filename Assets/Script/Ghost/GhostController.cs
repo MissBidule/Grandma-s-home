@@ -488,4 +488,10 @@ public class GhostController : PlayerControllerCore, IInteractable
     {
         m_animator.CrossFadeInFixedTime(_animationName, _transitionDuration, 0);
     }
+
+    [ServerRpc]
+    public void callAnimationSetBool(string _parameterName, bool _value)
+    {
+        m_animator.SetBool(_parameterName, _value);
+    }
 }

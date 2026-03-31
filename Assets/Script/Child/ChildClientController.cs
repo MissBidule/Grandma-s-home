@@ -397,9 +397,7 @@ public class ChildClientController : NetworkBehaviour
     }
 
     private Vector3 GetCameraForward() {
-        Transform cameraTransform = m_playerCamera.transform;
-        Vector3 forward = cameraTransform.forward;
-        return forward.normalized;
+        return m_playerCamera.transform.forward;
     }
 
     [ServerRpc]
@@ -410,5 +408,10 @@ public class ChildClientController : NetworkBehaviour
         m_childController.m_cameraForward = _data.cameraForward;
         if (_data.switchPressed) m_childController.SwitchAttackType();
         if (_data.attackPressed) m_childController.Attack();
+    }
+
+    public void RepairAnimation(bool _value)
+    {
+        m_childController.callAnimationSetBool("IsRepairing", _value);
     }
 }

@@ -76,7 +76,7 @@ public class GhostInputController : MonoBehaviour
         if (_context.performed)
         {
             m_ghostClientController.OnScan();
-            InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "TransformConfirm", m_promptLabelValid));
+            InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelValid));
         }
     }
 
@@ -88,23 +88,13 @@ public class GhostInputController : MonoBehaviour
     public void OnOpenWheel(InputAction.CallbackContext _context)
     {
         if (!isOwner) return;
-        if (_context.performed)
+        if (_context.started)
         {
             m_ghostClientController.OnOpenWheel();
         }
-    }
-
-    /*
-     * @brief OnScan is called by the Input System when scan input is detected 
-     * @param _context: The context of the input action
-     * @return void
-     */
-    public void OnTransformConfirm(InputAction.CallbackContext _context)
-    {
-        if (!isOwner) return;
-        if (_context.performed)
+        else if (_context.canceled)
         {
-            m_ghostClientController.OnMorph();
+            m_ghostClientController.OnCloseWheel();
         }
     }
 
@@ -131,6 +121,11 @@ public class GhostInputController : MonoBehaviour
         if (_context.performed)
         {
             if (m_ghostClientController.m_wheel != null && m_ghostClientController.m_wheel.IsWheelOpen()) return;
+            if (m_ghostMorphPreview.m_currentPrefab != null)
+            {
+                m_ghostClientController.OnMorph();
+                return;
+            }
             m_ghostInteract.OnInteract(m_ghostInteract.m_onFocus);
         }
         else if (_context.canceled)

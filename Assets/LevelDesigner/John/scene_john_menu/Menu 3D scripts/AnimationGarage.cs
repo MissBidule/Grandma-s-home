@@ -24,14 +24,22 @@ public class AnimationGarage : MonoBehaviour
         positionInitiale = transform.position;
     }
 
-    // Détecte le clic de souris directement sur l'objet 3D
-    private void OnMouseDown()
+    // =====================================
+    // 🎯 NOUVELLE FONCTION PUBLIQUE
+    // N'importe quel autre bouton ou script peut appeler ça !
+    // =====================================
+    public void LancerAnimationGarage()
     {
-        // Si la porte bouge déjà, on ignore le clic
         if (!enMouvement)
         {
             StartCoroutine(SequenceOuvertureFermeture());
         }
+    }
+
+    // Détecte le clic de souris directement sur l'objet 3D (Optionnel, tu peux l'enlever si tu ne veux plus cliquer sur la porte)
+    private void OnMouseDown()
+    {
+        LancerAnimationGarage();
     }
 
     private IEnumerator SequenceOuvertureFermeture()
