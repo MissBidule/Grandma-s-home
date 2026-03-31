@@ -49,7 +49,9 @@ public class PredictiveMovement : NetworkBehaviour
     private bool m_alreadySimulated = false;
 
     private PredictiveInputData m_currentInput = new();
-    [SerializeField] private float m_errorThreshold;
+    [SerializeField] private float m_positionErrorThreshold = 0.5f;
+    [SerializeField] private float m_rotationErrorThreshold = 10f;
+    [SerializeField] private float m_velocityErrorThreshold = 1.5f;
 
     private void Start()
     {
@@ -144,6 +146,7 @@ public class PredictiveMovement : NetworkBehaviour
             if (!isHost) 
             {
                 m_inputHistory.Add(m_currentInput);
+                // Capture state AFTER simulation but BEFORE Physics.FixedUpdate applies gravity
                 m_stateHistory.Add(new HistoricalState {
                     tick = m_tick,
                     position = transform.position,
@@ -232,32 +235,80 @@ public class PredictiveMovement : NetworkBehaviour
         bool shouldRollback = true;
         int stateIndex = m_stateHistory.FindIndex(s => s.tick == _serverTick);
         
+        // DEBUG: Log the search
+        print($"[Reconciliation] Looking for tick {_serverTick}, found index: {stateIndex}, history size: {m_stateHistory.Count}");
+        if (m_stateHistory.Count > 0)
+        {
+            print($"[Reconciliation] History ticks: {m_stateHistory[0].tick} to {m_stateHistory[m_stateHistory.Count - 1].tick}");
+        }
+        
         if (stateIndex != -1)
         {
             HistoricalState pastState = m_stateHistory[stateIndex];
-            float distanceError = Vector3.Distance(pastState.position, _serverPos);
+            float positionError = Vector3.Distance(pastState.position, _serverPos);
+            float rotationError = Quaternion.Angle(pastState.rotation, _serverRot);
             
-            if (distanceError < m_errorThreshold)
+            // Compare only horizontal velocity to ignore gravity differences
+            Vector3 predictedHorizontalVel = new Vector3(pastState.velocity.x, 0f, pastState.velocity.z);
+            Vector3 serverHorizontalVel = new Vector3(_serverVel.x, 0f, _serverVel.z);
+            float velocityError = Vector3.Distance(predictedHorizontalVel, serverHorizontalVel);
+            
+            // Round extremely small errors to 0 for clarity
+            positionError = positionError < 0.001f ? 0f : positionError;
+            rotationError = rotationError < 0.001f ? 0f : rotationError;
+            velocityError = velocityError < 0.001f ? 0f : velocityError;
+            
+            print($"Position Error: {positionError}, Rotation Error: {rotationError}, Horizontal Velocity Error: {velocityError}");
+
+            // Check if all aspects at the server tick are within their respective thresholds
+            if (positionError < m_positionErrorThreshold && 
+                rotationError < m_rotationErrorThreshold && 
+                velocityError < m_velocityErrorThreshold)
             {
-                shouldRollback = false; // The past prediction was accurate! No rollback!
+                shouldRollback = false; // The past prediction was acceptable
+                
+                // Apply soft correction to prevent drift accumulation
+                // Smoothly move client state towards server state
+                rb.position = Vector3.Lerp(rb.position, _serverPos, 0.1f);
+                rb.rotation = Quaternion.Lerp(rb.rotation, _serverRot, 0.1f);
+                // Only correct horizontal velocity to avoid gravity interference
+                Vector3 currentVel = rb.linearVelocity;
+                Vector3 correctedVel = Vector3.Lerp(new Vector3(currentVel.x, currentVel.y, currentVel.z), 
+                                                     new Vector3(serverHorizontalVel.x, currentVel.y, serverHorizontalVel.z), 
+                                                     0.1f);
+                rb.linearVelocity = correctedVel;
             }
         }
+        else
+        {
+            // State not found! This is the real problem
+            print($"[Reconciliation] WARNING: Could not find state for tick {_serverTick}!");
+            print($"[Reconciliation] Client is at tick {m_tick}, server is at tick {_serverTick}");
+            shouldRollback = true;
+        }
 
-        // Free the memory of the approved history
-        m_inputHistory.RemoveAll(input => input.tick <= _serverTick);
-        m_stateHistory.RemoveAll(s => s.tick <= _serverTick);
+        if (!shouldRollback)
+        {
+            // Free the memory of the approved history ONLY if no rollback is needed
+            m_inputHistory.RemoveAll(input => input.tick <= _serverTick);
+            m_stateHistory.RemoveAll(s => s.tick <= _serverTick);
+            return;
+        }
 
-        if (!shouldRollback) return; 
-
-        // Otherwise, reality differs, perform a true strict rollback
+        // Otherwise, reality differs significantly, perform a strict rollback
         rb.rotation = _serverRot;
         rb.position = _serverPos; 
         rb.linearVelocity = _serverVel; // Essential for the jump curve!
 
+        // Re-simulate with the remaining inputs
         foreach (var input in m_inputHistory)
         {
             m_simulateMovement.SimulateMovement(input);
         }
+
+        // NOW free the memory after re-simulation is complete
+        m_inputHistory.RemoveAll(input => input.tick <= _serverTick);
+        m_stateHistory.RemoveAll(s => s.tick <= _serverTick);
 
         Physics.SyncTransforms(); // Immediately apply the physics of the newly modified transforms
         m_alreadySimulated = true;
