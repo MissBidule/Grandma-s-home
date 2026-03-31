@@ -33,7 +33,7 @@ public class GhostCameraController : MonoBehaviour
         m_ghostController = GetComponentInParent<GhostController>();
         m_target = transform.parent;
 
-        m_sensitivity = PlayerPrefs.GetFloat("Settings_MouseSensitivity", m_sensitivity);
+        m_sensitivity = PlayerPrefs.GetFloat("Settings_MouseSensitivity", PurrLobby.AccessibilitySettingsPanel.DefaultSensitivity);
         UnityEngine.Cursor.lockState = CursorLockMode.Locked;
     }
 

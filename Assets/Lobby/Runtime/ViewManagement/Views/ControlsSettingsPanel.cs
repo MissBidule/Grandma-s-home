@@ -40,7 +40,6 @@ namespace PurrLobby
             { "Child/Leaderboard", "Leaderboard" },
             // Ghost
             { "Ghost/Interact", "Interact" },
-            { "Ghost/TransformConfirm", "Transform" },
             { "Ghost/Scan", "Scan" },
             { "Ghost/Dash", "Dash" },
             { "Ghost/Sneak", "Sneak" },
@@ -55,14 +54,14 @@ namespace PurrLobby
         // Composite part labels: "MapName/ActionName/partName" → display name
         private static readonly Dictionary<string, string> m_CompositePartLabels = new Dictionary<string, string>
         {
-            { "Child/Move/up",    "Avancer" },
-            { "Child/Move/down",  "Reculer" },
-            { "Child/Move/left",  "Gauche" },
-            { "Child/Move/right", "Droite" },
-            { "Ghost/Move/up",    "Avancer" },
-            { "Ghost/Move/down",  "Reculer" },
-            { "Ghost/Move/left",  "Gauche" },
-            { "Ghost/Move/right", "Droite" },
+            { "Child/Move/up",    "Forward" },
+            { "Child/Move/down",  "Backward" },
+            { "Child/Move/left",  "Left" },
+            { "Child/Move/right", "Right" },
+            { "Ghost/Move/up",    "Forward" },
+            { "Ghost/Move/down",  "Backward" },
+            { "Ghost/Move/left",  "Left" },
+            { "Ghost/Move/right", "Right" },
         };
 
         private InputActionRebindingExtensions.RebindingOperation m_rebindOp;
@@ -70,8 +69,8 @@ namespace PurrLobby
 
         /*
          * @brief Injects prefab references from a parent panel, overriding Inspector values.
-         * @param _keybinding    Prefab used to spawn keybinding rows.
-         * @param _sectionTitle  Prefab used to spawn section header rows.
+         * @param _keybinding Prefab used to spawn keybinding rows.
+         * @param _sectionTitle Prefab used to spawn section header rows.
          */
         public void Initialize(OptionRowKeybinding _keybinding, OptionSectionTitle _sectionTitle)
         {
@@ -174,7 +173,7 @@ namespace PurrLobby
 
         /*
          * @brief Spawns a keybinding row for each whitelisted action in the given action map.
-         * @param _mapName  Name of the InputActionMap to iterate ("Player" or "Ghost").
+         * @param _mapName Name of the InputActionMap to iterate ("Player" or "Ghost").
          */
         private void BuildSection(string _mapName)
         {
@@ -187,7 +186,7 @@ namespace PurrLobby
             var spawnedComposites = new HashSet<string>();
             foreach (var action in map.actions)
             {
-                // Actions simples (non-composites)
+                // Simple actions (non-composite)
                 string key = $"{_mapName}/{action.name}";
                 if (m_ActionLabels.TryGetValue(key, out string displayName))
                 {
@@ -199,7 +198,7 @@ namespace PurrLobby
                     continue;
                 }
 
-                // Actions composites (ex: Move = WASD)
+                // Composite actions (e.g., Move = WASD)
                 for (int i = 0; i < action.bindings.Count; i++)
                 {
                     var b = action.bindings[i];
@@ -218,7 +217,7 @@ namespace PurrLobby
                     }
                     if (!spawnedComposites.Add(compositeKey))
                     {
-                        continue; // doublon (ex: WASD + flèches)
+                        continue;  // duplicate (e.g., WASD + arrow keys)
                     }
                     SpawnKeybindingRow(action, i, partLabel);
                 }
@@ -278,10 +277,10 @@ namespace PurrLobby
         /*
          * @brief Begins an interactive rebind for the given action binding.
          * Tints the button image and shows "..." until the player presses a key or cancels with Escape.
-         * @param _action        Action whose binding is being changed.
-         * @param _bindingIndex  Index of the specific binding to rebind.
-         * @param _btnImage      Button background image to tint while waiting.
-         * @param _btnText       Button label to update with "..." and then the new key name.
+         * @param _action Action whose binding is being changed.
+         * @param _bindingIndex Index of the specific binding to rebind.
+         * @param _btnImage Button background image to tint while waiting.
+         * @param _btnText Button label to update with "..." and then the new key name.
          */
         private void StartRebind(InputAction _action, int _bindingIndex, Image _btnImage, TextMeshProUGUI _btnText)
         {
@@ -307,14 +306,12 @@ namespace PurrLobby
 
         /*
          * @brief Completes or cancels an interactive rebind, re-enables the action and saves to PlayerPrefs.
+         * Also clears any conflicting binding within the same action map.
          */
         private void FinishRebind(InputAction _action, int _bindingIndex, Image _btnImage, TextMeshProUGUI _btnText)
         {
             _action.Enable();
-            if (_btnText)
-            {
-                _btnText.text = _action.GetBindingDisplayString(_bindingIndex, InputBinding.DisplayStringOptions.DontIncludeInteractions);
-            }
+            ResolveConflicts(_action, _bindingIndex);
             if (_btnImage)
             {
                 _btnImage.color = m_buttonNormalColor;
@@ -323,6 +320,41 @@ namespace PurrLobby
             PropagateToPlayerInputs();
             m_rebindOp?.Dispose();
             m_rebindOp = null;
+            RebuildUI();
+        }
+
+        /*
+         * @brief Clears any binding in the same action map that uses the same path as the newly-bound action.
+         * Ghost and Child maps are independent: a key bound in Ghost can still be used in Child.
+         * Also checks other parts of the same composite action (e.g. Move/up vs Move/right).
+         * @param _reboundAction The action that was just rebound.
+         * @param _bindingIndex  The binding index that was modified.
+         */
+        private void ResolveConflicts(InputAction _reboundAction, int _bindingIndex)
+        {
+            string newPath = _reboundAction.bindings[_bindingIndex].effectivePath;
+            if (string.IsNullOrEmpty(newPath))
+            {
+                return;
+            }
+            foreach (var action in _reboundAction.actionMap.actions)
+            {
+                for (int i = 0; i < action.bindings.Count; i++)
+                {
+                    if (action == _reboundAction && i == _bindingIndex)
+                    {
+                        continue;
+                    }
+                    if (action.bindings[i].isComposite)
+                    {
+                        continue;
+                    }
+                    if (action.bindings[i].effectivePath == newPath)
+                    {
+                        action.ApplyBindingOverride(i, "");
+                    }
+                }
+            }
         }
 
         private void PropagateToPlayerInputs()
