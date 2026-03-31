@@ -280,7 +280,7 @@ public class GhostClientController : NetworkBehaviour
                 m_ghostController.callAnimationCrossFade("ghost_idle", 0.2f);
                 m_isMoving = false;
             }
-        }else
+        } else
         {
             if (!m_isMoving)
             {
