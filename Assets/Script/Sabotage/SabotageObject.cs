@@ -136,8 +136,8 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         }
         ChildController childController = _player.GetComponentInParent<ChildController>();
         //if (childController != null && childController.m_isScared) return;
-        ChildClientController childClientController = _player.GetComponentInParent<ChildClientController>();
-        if (childClientController != null)
+        ChildClientController childClientController;
+        if (childClientController = _player.GetComponentInParent<ChildClientController>())
         {
             childClientController.RepairAnimation(true);
         }
