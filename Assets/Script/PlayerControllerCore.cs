@@ -121,13 +121,23 @@ public class PlayerControllerCore : NetworkBehaviour
         if (!InstanceHandler.TryGetInstance(out UIsManager uisManager))
             return;
         uisManager.ToggleUIVision();
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     private void ApplyOwnership()
     {
 
         var playerInput = GetComponent<PlayerInput>();
-        if (playerInput != null) playerInput.enabled = isOwner;
+        if (playerInput != null)
+        {
+            playerInput.enabled = isOwner;
+            if (isOwner)
+            {
+                string saved = PlayerPrefs.GetString("Settings_Keybindings", "");
+                if (!string.IsNullOrEmpty(saved))
+                    playerInput.actions.LoadBindingOverridesFromJson(saved);
+            }
+        }
 
         if (!m_playerCamera) m_playerCamera = GetComponentInChildren<CinemachineCamera>();
         if (m_playerCamera != null)
@@ -153,9 +163,29 @@ public class PlayerControllerCore : NetworkBehaviour
         m_username = _username;
     }
     
+    private void OnEnable()
+    {
+        PauseMenuView.OnPauseChanged += OnPauseChanged;
+    }
+
     private void OnDisable()
     {
+        PauseMenuView.OnPauseChanged -= OnPauseChanged;
         Cursor.lockState = CursorLockMode.None;
+    }
+
+    private void OnPauseChanged(bool paused)
+    {
+        if (!isOwner) return;
+        var playerInput = GetComponent<PlayerInput>();
+        if (playerInput == null) return;
+        playerInput.enabled = !paused;
+        if (!paused)
+        {
+            string saved = PlayerPrefs.GetString("Settings_Keybindings", "");
+            if (!string.IsNullOrEmpty(saved))
+                playerInput.actions.LoadBindingOverridesFromJson(saved);
+        }
     }
 
     private void Start()

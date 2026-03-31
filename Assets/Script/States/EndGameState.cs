@@ -15,7 +15,7 @@ namespace Script.States
         [PurrScene, SerializeField] private string m_lobbyScene;
         
         private PlayerSpawningState m_spawnState;
-        private static bool _hasAlreadySwitched = false;
+        private bool _hasAlreadySwitched = false;
         
         private void Awake()
         {
@@ -74,6 +74,7 @@ namespace Script.States
             PurrLogger.Log($"Switching to scene: {m_lobbyScene}", this);
             
             // Load game scene - ConnectionStarter in new scene will handle network initialization
+            Destroy(FindAnyObjectByType<LobbyManager>().gameObject);
             SceneManager.LoadSceneAsync(m_lobbyScene);
         }
 
@@ -81,7 +82,7 @@ namespace Script.States
         {
             PurrLogger.LogWarning("Server is not accessible. Returning to lobby.", this);
             FindAnyObjectByType<LobbyDataHolder>().SetCurrentLobby(default);
-            SceneManager.LoadSceneAsync(m_lobbyScene);
+            BackToLobby();
         }
 
         [ObserversRpc]
@@ -101,11 +102,6 @@ namespace Script.States
             uisManager.ShowView<EndGameView>();
             uisManager.ToggleUIVision();
 
-            foreach (var cc in FindObjectsByType<ChildClientController>(FindObjectsSortMode.None))
-                if (cc.m_uiHolder != null) cc.m_uiHolder.SetActive(false);
-
-            foreach (var gc in FindObjectsByType<GhostClientController>(FindObjectsSortMode.None))
-                if (gc.m_uiHolder != null) gc.m_uiHolder.SetActive(false);
         }
     }
 }
