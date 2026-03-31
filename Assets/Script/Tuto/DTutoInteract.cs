@@ -7,12 +7,12 @@ using UnityEngine;
  * @brief  Contains class declaration for Interact
  * @details The Interact class handles interactions with sabotageable objects for all players and downed ghosts for the Ghost player.
  */
-public class TutoInteract : MonoBehaviour
+public class DTutoInteract : MonoBehaviour
 {
     [Header("Detection")]
     [SerializeField] public bool m_isGhost = true;
-    public TutoIInteractable m_onFocus; // Can be either GhostStatus or SabotageObject
-    private List<TutoIInteractable> m_interactable = new List<TutoIInteractable>();
+    public DTutoIInteractable m_onFocus; // Can be either GhostStatus or SabotageObject
+    private List<DTutoIInteractable> m_interactable = new List<DTutoIInteractable>();
 
 
     private void Update()
@@ -28,7 +28,7 @@ public class TutoInteract : MonoBehaviour
             return;
         }
                 
-        TutoIInteractable closest = CheckClosest();
+        DTutoIInteractable closest = CheckClosest();
 
         if (closest != m_onFocus)
         {
@@ -47,14 +47,14 @@ public class TutoInteract : MonoBehaviour
     /*
     @brief      Check closest interactable object
     */
-    private TutoIInteractable CheckClosest()
+    private DTutoIInteractable CheckClosest()
     {
-        TutoIInteractable best = null;
+        DTutoIInteractable best = null;
         float bestSqrDistance = float.MaxValue;
 
-        foreach (TutoIInteractable interactable in m_interactable)
+        foreach (DTutoIInteractable interactable in m_interactable)
         {
-            var ghost = interactable as TutoGhostController;
+            var ghost = interactable as DTutoGhostController;
             if (ghost != null)
             {
                 if (!m_isGhost || !ghost.m_isStopped) continue; // Only interact with downed ghosts
@@ -76,10 +76,10 @@ public class TutoInteract : MonoBehaviour
      * @details If target is a downed ghost, starts a hold-to-revive. Otherwise delegates to OnInteract.
      * @return void
      */
-    public void OnInteract(TutoIInteractable _currentFocus)
+    public void OnInteract(DTutoIInteractable _currentFocus)
     {
         if (_currentFocus == null) return;
-        if (_currentFocus is TutoGhostController ghost)
+        if (_currentFocus is DTutoGhostController ghost)
         {
             OnRevive(_currentFocus);
             return;
@@ -87,7 +87,7 @@ public class TutoInteract : MonoBehaviour
         _currentFocus.OnInteract(this);
     }
 
-    public void OnRevive(TutoIInteractable _currentFocus)
+    public void OnRevive(DTutoIInteractable _currentFocus)
     {
         _currentFocus.OnInteract(this);
     }
@@ -108,7 +108,7 @@ public class TutoInteract : MonoBehaviour
     /**
     @brief      Called when the interact button is released
     */
-    public void StopInteract(TutoIInteractable _currentFocus)
+    public void StopInteract(DTutoIInteractable _currentFocus)
     {
         if (_currentFocus == null) return;
         _currentFocus?.OnStopInteract(this);
@@ -134,7 +134,7 @@ public class TutoInteract : MonoBehaviour
      */
     void OnTriggerEnter(Collider _other)
     {
-        if (_other.GetComponentInParent<TutoIInteractable>() is TutoIInteractable interactable)
+        if (_other.GetComponentInParent<DTutoIInteractable>() is DTutoIInteractable interactable)
         {
             m_interactable.Add(interactable);
         }
@@ -146,7 +146,7 @@ public class TutoInteract : MonoBehaviour
      */
     void OnTriggerExit(Collider _other)
     {
-        if (_other.GetComponentInParent<TutoIInteractable>() is TutoIInteractable interactable)
+        if (_other.GetComponentInParent<DTutoIInteractable>() is DTutoIInteractable interactable)
         {
             m_interactable.Remove(interactable);
         }

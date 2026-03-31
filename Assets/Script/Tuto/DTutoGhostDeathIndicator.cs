@@ -12,14 +12,14 @@ public class TutoGhostDeathIndicator : MonoBehaviour
     [Header("References")]
     [SerializeField] private Canvas m_indicatorCanvas;
 
-    private TutoGhostController m_ghostController;
+    private DTutoGhostController m_ghostController;
     private bool m_isLocalPlayerGhost;
     private bool m_initialized;
     private Transform m_cameraTransform;
 
     private void Start()
     {
-        m_ghostController = GetComponent<TutoGhostController>();
+        m_ghostController = GetComponent<DTutoGhostController>();
 
         // Set all UI graphics to render through walls (ZTest Always)
         foreach (var graphic in m_indicatorCanvas.GetComponentsInChildren<Graphic>(true))
@@ -42,8 +42,8 @@ public class TutoGhostDeathIndicator : MonoBehaviour
         if (!m_initialized)
         {
             // Find the ghost owned by the local player
-            TutoGhostController localGhost = null;
-            foreach (var ghost in FindObjectsByType<TutoGhostController>(FindObjectsSortMode.None))
+            DTutoGhostController localGhost = null;
+            foreach (var ghost in FindObjectsByType<DTutoGhostController>(FindObjectsSortMode.None))
             {
                
                     localGhost = ghost;

@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Serialization;
 
-public class TutoGhostController :  MonoBehaviour, TutoIInteractable
+public class DTutoGhostController :  MonoBehaviour, DTutoIInteractable
 {
     [Header("Ghost references")]
     public bool m_isStopped = true;
@@ -19,7 +19,7 @@ public class TutoGhostController :  MonoBehaviour, TutoIInteractable
     public float m_baseReviveTime = 5f;
     public float m_maxReviveTime = 30f;
     private int m_deathCount = 0;
-    private TutoGhostController m_reviver = null;
+    private DTutoGhostController m_reviver = null;
     private float m_reviveTimer = 0f;
     public float m_reviveDuration = 0f;
     private bool m_isFocused = false;
@@ -66,18 +66,18 @@ public class TutoGhostController :  MonoBehaviour, TutoIInteractable
         CancelRevive();
     }
 
-    public void OnInteract(TutoInteract _who)
+    public void OnInteract(DTutoInteract _who)
     {
         if (m_isReviving) return;
         if (m_isStopped)
         {
-            m_reviver = _who.GetComponentInParent<TutoGhostController>();
+            m_reviver = _who.GetComponentInParent<DTutoGhostController>();
             Debug.Log("c qui ce _who"+ _who);
             Debug.Log("c qui ce con de m_reviver"+ m_reviver);
             StartRevive(m_reviver);
         }
     }
-    private void StartRevive(TutoGhostController _reviver)
+    private void StartRevive(DTutoGhostController _reviver)
     {
         m_reviver = _reviver;
         Debug.Log("c qui ce _reviver"+_reviver);
@@ -116,21 +116,21 @@ public class TutoGhostController :  MonoBehaviour, TutoIInteractable
         
     }
 
-    public void OnFocus(TutoInteract who)
+    public void OnFocus(DTutoInteract who)
     {
         Debug.Log("Found dead ghost");
         m_isFocused = true;
         InteractPromptUI.m_Instance.Show(m_promptMessage);
     }
 
-    public void OnUnfocus(TutoInteract who)
+    public void OnUnfocus(DTutoInteract who)
     {
         Debug.Log("Lost focus on dead ghost");
         m_isFocused = false;
         InteractPromptUI.m_Instance.Hide();
     }
 
-    public void OnStopInteract(TutoInteract who)
+    public void OnStopInteract(DTutoInteract who)
     {
         if (m_beingRevived)
         {

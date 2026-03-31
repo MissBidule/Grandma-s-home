@@ -1,7 +1,7 @@
 using UnityEngine;
 using TMPro;
 
-public class TutoCanvas : MonoBehaviour
+public class DTutoCanvas : MonoBehaviour
 {
     public static InteractPromptUI m_Instance;
     [SerializeField] private GameObject m_canvasPrefab;
