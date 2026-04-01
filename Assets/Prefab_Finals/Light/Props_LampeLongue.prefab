@@ -142,6 +142,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LightData
   lightIntensity: 0
   pointLight: {fileID: 0}
+  fireParticleSystem: {fileID: 0}
+  fireRateOverTimeMaxEmission: 0
+  smokeParticleSystem: {fileID: 0}
+  smokeRateOverTimeMaxEmission: 0
 --- !u!1001 &4903961833071306077
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -212,7 +216,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 6a8569162402cb0dcb0a5a9ceef28a85, type: 3}
       propertyPath: m_Layer
-      value: 12
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -224,6 +228,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 6a8569162402cb0dcb0a5a9ceef28a85, type: 3}
       insertIndex: -1
       addedObject: {fileID: -4826302498384546160}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 6a8569162402cb0dcb0a5a9ceef28a85, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 9080323486582164996}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 6a8569162402cb0dcb0a5a9ceef28a85, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2552163537786211952}
   m_SourcePrefab: {fileID: 100100000, guid: 6a8569162402cb0dcb0a5a9ceef28a85, type: 3}
 --- !u!4 &4865266606113325750 stripped
 Transform:
@@ -257,3 +267,52 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 2799104230442698575, guid: 6a8569162402cb0dcb0a5a9ceef28a85, type: 3}
+--- !u!114 &9080323486582164996
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5246472151334443020}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8397364f11af50243bf70bb96ef6da4b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScannableObject
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  m_icon: {fileID: 21300000, guid: 9bd3f31ae703a2241beba7d0f05acbc0, type: 3}
+--- !u!114 &2552163537786211952
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5246472151334443020}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5acd96b0ff59994d8438732e92270fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BrokeDecor
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  m_brokenMesh: {fileID: 0}
+  m_additionalMeshes: []
+  m_brokenPrefab: {fileID: 2847752667349090501, guid: f98c365cc24ef43318d23787795e1afa, type: 3}
+  m_scoreValue: 50
+  m_isBroken: 0
+  m_alreadyBroken: 0
