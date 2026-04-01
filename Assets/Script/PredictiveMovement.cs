@@ -236,11 +236,27 @@ public class PredictiveMovement : NetworkBehaviour
         if (stateIndex != -1)
         {
             HistoricalState pastState = m_stateHistory[stateIndex];
+
+            // Compare only horizontal velocity to ignore gravity differences
+            Vector3 predictedHorizontalVel = new Vector3(pastState.velocity.x, 0f, pastState.velocity.z);
+            Vector3 serverHorizontalVel = new Vector3(_serverVel.x, 0f, _serverVel.z);
+
             float distanceError = Vector3.Distance(pastState.position, _serverPos);
 
             if (distanceError < m_errorThreshold)
             {
-                shouldRollback = false; // The past prediction was accurate! No rollback!
+                shouldRollback = false; // The past prediction was acceptable
+
+                // Apply soft correction to prevent drift accumulation
+                // Smoothly move client state towards server state
+                rb.position = Vector3.Lerp(rb.position, _serverPos, 0.1f);
+                rb.rotation = Quaternion.Lerp(rb.rotation, _serverRot, 0.1f);
+                // Only correct horizontal velocity to avoid gravity interference
+                Vector3 currentVel = rb.linearVelocity;
+                Vector3 correctedVel = Vector3.Lerp(new Vector3(currentVel.x, currentVel.y, currentVel.z),
+                                                     new Vector3(serverHorizontalVel.x, currentVel.y, serverHorizontalVel.z),
+                                                     0.1f);
+                rb.linearVelocity = correctedVel;
             }
         }
 
