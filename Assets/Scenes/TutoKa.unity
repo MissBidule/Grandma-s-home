@@ -4642,6 +4642,59 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7fec04796b55b9848a7562e8b0ce2110, type: 3}
   m_PrefabInstance: {fileID: 1413388986}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1421160579
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1421160580}
+  - component: {fileID: 1421160581}
+  m_Layer: 9
+  m_Name: Collider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1421160580
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1421160579}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1866682431}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &1421160581
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1421160579}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &1460675799
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6899,7 +6952,6 @@ GameObject:
   - component: {fileID: 1866682434}
   - component: {fileID: 1866682433}
   - component: {fileID: 1866682435}
-  - component: {fileID: 1866682436}
   m_Layer: 9
   m_Name: TutoGhostReanim
   m_TagString: Untagged
@@ -6916,13 +6968,14 @@ Transform:
   m_GameObject: {fileID: 1866682430}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.061130524, y: 1.76999, z: -21.01812}
+  m_LocalPosition: {x: -3.2, y: 1.76999, z: -21.01812}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 371751977}
   - {fileID: 743346185}
   - {fileID: 2067310912}
+  - {fileID: 1421160580}
   m_Father: {fileID: 1710768420}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &1866682433
@@ -6948,7 +7001,7 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 0
-  m_IsKinematic: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 80
   m_CollisionDetection: 1
@@ -6964,7 +7017,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 218c79f91f081ba46ae5adf35adc0ff4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TutoGhostController
-  m_isStopped: 0
+  m_isStopped: 1
   m_beingRevived: 0
   m_isReviving: 0
   m_timerStop: 5
@@ -6985,27 +7038,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TutoGhostDeathIndicator
   m_indicatorCanvas: {fileID: 2067310915}
---- !u!65 &1866682436
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1866682430}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1879701117
 GameObject:
   m_ObjectHideFlags: 0
