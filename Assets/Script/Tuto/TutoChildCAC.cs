@@ -20,10 +20,15 @@ public class TutoChildCAC : MonoBehaviour
         {
 
             TutoCAC target = hit.collider.GetComponentInParent<TutoCAC>();
+            TutoFindGhost find = hit.collider.GetComponentInParent<TutoFindGhost>();
 
             if (target != null)
             {
                 target.ShowObject();
+            }
+            if(find!=null)
+            {
+                find.FindGhost();
             }
         }
     }
