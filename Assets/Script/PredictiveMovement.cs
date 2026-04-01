@@ -52,6 +52,7 @@ public class PredictiveMovement : NetworkBehaviour
     [SerializeField] private float m_positionErrorThreshold = 0.5f;
     [SerializeField] private float m_rotationErrorThreshold = 10f;
     [SerializeField] private float m_velocityErrorThreshold = 1.5f;
+    private bool m_debugging = false;
 
     private void Start()
     {
@@ -236,10 +237,10 @@ public class PredictiveMovement : NetworkBehaviour
         int stateIndex = m_stateHistory.FindIndex(s => s.tick == _serverTick);
         
         // DEBUG: Log the search
-        print($"[Reconciliation] Looking for tick {_serverTick}, found index: {stateIndex}, history size: {m_stateHistory.Count}");
+        if (m_debugging) print($"[Reconciliation] Looking for tick {_serverTick}, found index: {stateIndex}, history size: {m_stateHistory.Count}");
         if (m_stateHistory.Count > 0)
         {
-            print($"[Reconciliation] History ticks: {m_stateHistory[0].tick} to {m_stateHistory[m_stateHistory.Count - 1].tick}");
+            if (m_debugging) print($"[Reconciliation] History ticks: {m_stateHistory[0].tick} to {m_stateHistory[m_stateHistory.Count - 1].tick}");
         }
         
         if (stateIndex != -1)
@@ -258,7 +259,7 @@ public class PredictiveMovement : NetworkBehaviour
             rotationError = rotationError < 0.001f ? 0f : rotationError;
             velocityError = velocityError < 0.001f ? 0f : velocityError;
             
-            print($"Position Error: {positionError}, Rotation Error: {rotationError}, Horizontal Velocity Error: {velocityError}");
+            if (m_debugging) print($"Position Error: {positionError}, Rotation Error: {rotationError}, Horizontal Velocity Error: {velocityError}");
 
             // Check if all aspects at the server tick are within their respective thresholds
             if (positionError < m_positionErrorThreshold && 
@@ -282,8 +283,8 @@ public class PredictiveMovement : NetworkBehaviour
         else
         {
             // State not found! This is the real problem
-            print($"[Reconciliation] WARNING: Could not find state for tick {_serverTick}!");
-            print($"[Reconciliation] Client is at tick {m_tick}, server is at tick {_serverTick}");
+            if (m_debugging) print($"[Reconciliation] WARNING: Could not find state for tick {_serverTick}!");
+            if (m_debugging) print($"[Reconciliation] Client is at tick {m_tick}, server is at tick {_serverTick}");
             shouldRollback = true;
         }
 
