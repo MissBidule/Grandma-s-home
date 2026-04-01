@@ -182,7 +182,6 @@ public class ChildClientController : NetworkBehaviour
         if(!m_childController.m_shootAnimRunning)
         {
             m_switchWeaponPressed = true;
-            m_childController.callAnimationTrigger("OnSwitch");
         }
     }
 

@@ -22,7 +22,7 @@ public class ChildController : PlayerControllerCore
     public bool m_isRanged;
     public float m_lastShot;
     public float m_switchingTime;
-    [SerializeField] public float m_cdSwitch = 0.2f;
+    [SerializeField] public float m_cdSwitch = 1.0f;
     
     [Header("CAC parameters")]
     [SerializeField]private float m_attackRange = 1f;
@@ -254,6 +254,8 @@ public class ChildController : PlayerControllerCore
     public void SwitchAttackType()
     {
         if (!isServer) return;
+        if(m_switchingTime < m_cdSwitch) return;
+        callAnimationTrigger("OnSwitch");
         changeAttackAnimStatusServer();
         m_isRanged = !m_isRanged;
         m_switchingTime = 0;
