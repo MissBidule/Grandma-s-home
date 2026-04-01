@@ -41,7 +41,6 @@ public class LatencyDisplay : NetworkBehaviour
 
     void SendPing()
     {
-        print("pinging");
         m_startTime = Time.time;
         m_localPlayer.PingServer(m_startTime);
     }
@@ -50,7 +49,6 @@ public class LatencyDisplay : NetworkBehaviour
 
     public void ReceivePong(float _sentTime)
     {
-        print("received");
         float latency = (Time.time - _sentTime) * 1000f / 2f;
         m_latencyText.text = $"Ping: {latency:F1}ms";
     }
