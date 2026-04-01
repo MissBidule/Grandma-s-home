@@ -4,15 +4,15 @@ using System.Collections;
 
 public class TransitionVersUI : MonoBehaviour
 {
-    [Header("Les éléments à relier")]
-    public SceneMenuNavigator navigator; // Pour bouger la caméra
-    public CinemachineVirtualCameraBase camToZoom; // La caméra gros plan
-    public GameObject canvasToLaunch; // Ton menu 2D
+    [Header("Transition")]
+    public SceneMenuNavigator navigator; //ref du Menu Manager
+    public CinemachineVirtualCameraBase camToZoom; //ref cam pour transition
+    public GameObject canvasToLaunch; //ref pour l'UI à afficher
 
     [Header("Réglages")]
-    public float delaiAffichage = 1.5f; // Le temps que met la caméra pour zoomer
+    public float delaiAffichage = 1.5f; //délai avant d'afficher l'UI après le switch de cam
 
-    // --- FONCTION POUR L'ALLER (Quand on clique sur l'objet 3D) ---
+    //zoom cam puis affichage UI
     public void LancerLaTransition()
     {
         if (navigator != null && camToZoom != null)
@@ -21,7 +21,7 @@ public class TransitionVersUI : MonoBehaviour
         }
         StartCoroutine(AfficherMenuApresDelai());
     }
-
+    //coroutine pour afficher l'UI après un délai pour fluidifier la transition
     private IEnumerator AfficherMenuApresDelai()
     {
         yield return new WaitForSeconds(delaiAffichage);
@@ -32,16 +32,13 @@ public class TransitionVersUI : MonoBehaviour
         }
     }
 
-    // --- NOUVELLE FONCTION POUR LE RETOUR (Quand on clique sur le bouton Exit 2D) ---
-    public void FermerMenuEtRetourner(CinemachineVirtualCameraBase cam)
+    //Pour les buttons des UI pour switch a une cam
+    public void FermerMenuEtSwitch(CinemachineVirtualCameraBase cam)
     {
-        // 1. On éteint l'interface 2D instantanément
         if (canvasToLaunch != null)
         {
             canvasToLaunch.SetActive(false);
         }
-
-        // 2. On utilise ton SceneMenuNavigator pour dire "Retourne à la caméra principale"
         if (navigator != null)
         {
             navigator.SwitchToCamera(cam);
