@@ -49,7 +49,9 @@ public class PredictiveMovement : NetworkBehaviour
     private bool m_alreadySimulated = false;
 
     private PredictiveInputData m_currentInput = new();
-    private float m_errorThreshold = 0.75f; // Fuck you
+    private float m_positionErrorThreshold = 0.75f;
+    private float m_velocityErrorThreshold = 1.5f;
+    private bool m_debugging = false;
 
     private void Start()
     {
@@ -236,14 +238,26 @@ public class PredictiveMovement : NetworkBehaviour
         if (stateIndex != -1)
         {
             HistoricalState pastState = m_stateHistory[stateIndex];
+            float positionError = Vector3.Distance(pastState.position, _serverPos);
+
+
 
             // Compare only horizontal velocity to ignore gravity differences
             Vector3 predictedHorizontalVel = new Vector3(pastState.velocity.x, 0f, pastState.velocity.z);
             Vector3 serverHorizontalVel = new Vector3(_serverVel.x, 0f, _serverVel.z);
+            float velocityError = Vector3.Distance(predictedHorizontalVel, serverHorizontalVel);
 
-            float distanceError = Vector3.Distance(pastState.position, _serverPos);
+            // Round extremely small errors to 0 for clarity
+            positionError = positionError < 0.001f ? 0f : positionError;
+            velocityError = velocityError < 0.001f ? 0f : velocityError;
 
-            if (distanceError < m_errorThreshold)
+
+            //float distanceError = Vector3.Distance(pastState.position, _serverPos);
+            if (m_debugging) print($"Position Error: {positionError}, Horizontal Velocity Error: {velocityError}");
+
+
+            if (positionError < m_positionErrorThreshold &&
+                velocityError < m_velocityErrorThreshold)
             {
                 shouldRollback = false; // The past prediction was acceptable
 
