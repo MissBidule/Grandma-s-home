@@ -97,6 +97,7 @@ public class ChildController : PlayerControllerCore
         if (!isServer) return;
         //if (m_isScared) return; // Return if the player is scared
         if (m_switchingTime < m_cdSwitch) return;
+        callAnimationSetBool("Cac",!m_isRanged);
         changeFaceMat(new Vector2(0,0.33f));
         if (m_isRanged)
         {
