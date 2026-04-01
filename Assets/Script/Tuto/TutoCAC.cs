@@ -2,14 +2,13 @@ using UnityEngine;
 
 public class TutoCAC : MonoBehaviour
 {
-    public GameObject deathIcon;
+    public GameObject m_deathIcon;
 
     public void ShowObject()
     {
-        if (deathIcon != null)
+        if (m_deathIcon != null)
         {
-            deathIcon.SetActive(true);
-            Debug.Log("chelou");
+            m_deathIcon.SetActive(true);
         }
     }
 }

@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class TutoChildCAC : MonoBehaviour
 {
-    public float attackRange = 3f;
+    public float m_attackRange = 3f;
 
     void Update()
     {
@@ -16,9 +16,8 @@ public class TutoChildCAC : MonoBehaviour
     {
         RaycastHit hit;
 
-        if (Physics.Raycast(transform.position + Vector3.up, transform.forward, out hit, attackRange))
+        if (Physics.Raycast(transform.position + Vector3.up, transform.forward, out hit, m_attackRange))
         {
-            Debug.Log("Touché : " + hit.collider.name);
 
             TutoCAC target = hit.collider.GetComponentInParent<TutoCAC>();
 
