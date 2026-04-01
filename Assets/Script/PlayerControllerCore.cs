@@ -153,11 +153,8 @@ public class PlayerControllerCore : NetworkBehaviour
             DisableWaitUIObserverRPC();
             RoleKeeper roleKeeper = FindAnyObjectByType<RoleKeeper>();
             ApplyUserData(roleKeeper.GetLocalMemberID(), roleKeeper.GetLocalUsername());
-            print("alo");
             m_latencyDisplay = FindAnyObjectByType<LatencyDisplay>();
-            print("aluile");
             m_latencyDisplay.m_localPlayer = this;
-            print("aubeurre");
         }
     }
 
