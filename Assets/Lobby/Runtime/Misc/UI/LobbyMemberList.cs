@@ -45,6 +45,10 @@ namespace PurrLobby
 
         private void HandleExistingMembers(Lobby room)
         {
+            if (room.Members.Count(x => x.IsReady) == room.Members.Count)  
+            {
+                roleButton.interactable = false;
+            }
             MemberEntry hostEntry = null;
             foreach (Transform child in content)
             {
@@ -96,6 +100,7 @@ namespace PurrLobby
                 entry._ownId = await entry._lobbyManager.GetPlayer();
                 entry.Init(member);
                 m_roleKeeper.AddRole(member.Id, member.DisplayName, member.IsGhost, member.Skin, entry._ownId == member.Id);
+                entry.SetRole(member.IsGhost, member.Skin);
                 if (entry.SetHost()) HandleHostOptions(entry, room);
             }
         }

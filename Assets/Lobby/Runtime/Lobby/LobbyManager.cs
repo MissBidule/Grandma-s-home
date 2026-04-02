@@ -144,7 +144,6 @@ namespace PurrLobby
 
         private async Task ReconnectToLobbyAsync()
         {
-            _viewManager.LoadingBackToLobbyCamera();
             m_loadingCanvas.gameObject.SetActive(true);
             EnsureProviderSet();
             await _currentProvider.OnLobbyUpdateData(_currentLobby.LobbyId);
@@ -392,6 +391,7 @@ namespace PurrLobby
         /// <param name="roomId">ID of the lobby to join</param>
         public void JoinLobby(string roomId)
         {
+            m_loadingCanvas.gameObject.SetActive(true);
             if (string.IsNullOrEmpty(roomId))
             {
                 OnRoomJoinFailed?.Invoke("Null or empty room ID.");

@@ -36,19 +36,15 @@ namespace PurrLobby
             //role
             _isGhost = _user.IsGhost;
             _skin = _user.Skin;
-            avatar.texture = _roleKeeper.GetSkinImage(_memberId);
+            //avatar.texture = _roleKeeper.GetSkinImage(_memberId);
 
             //RoleButton
             _memberId = _user.Id;
-            if (_ownId != _memberId) roleButton.interactable = false;
-            else
-            {
-                LockReady(false);
-                roleButton.interactable = true;
-                readyButton.onClick.AddListener(delegate {
-                    roleButton.interactable = !roleButton.interactable;
-                });
-            }
+            LockReady(false);
+            roleButton.interactable = true;
+            readyButton.onClick.AddListener(delegate {
+                roleButton.interactable = !roleButton.interactable;
+            });
         }
 
         public bool SetHost()
