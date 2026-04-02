@@ -19,12 +19,14 @@ public class SceneMenuNavigator : MonoBehaviour
         public TMPWriter[] textesTMPWriters; //ref des TMPWriter pour les textes à animer dans ce menu
 
     }
+    private static bool AlreadyStarted = false; 
 
     [Header("Caméra d'Introduction Start")]
     public CinemachineVirtualCameraBase sequencerCam; //ref cam Sequencer Camera Start
 
     [Header("Caméra de retour au lobby")]
-    public CinemachineVirtualCameraBase LobbyCam; //ref cam Retour Lobby Camera
+    public CinemachineVirtualCameraBase PlayCam; //ref cam Retour play Camera
+    public TransitionVersUI LobbyCam; //ref cam Retour Lobby Camera
     public GameObject LobbyCanvas; //ref canvas du lobby pour l'activer au bon moment
 
     [Header("Configuration des Menus")]
@@ -44,8 +46,14 @@ public class SceneMenuNavigator : MonoBehaviour
         InitialiserPriorites();
         NettoyerTousLesTextes(); 
 
-        if (sequencerCam != null)
+        if (sequencerCam != null && !AlreadyStarted) {
             SwitchToCamera(sequencerCam);
+            AlreadyStarted = true;
+        }
+        else
+        {
+            SwitchToCamera(PlayCam);
+        }
     }
 
     //met les prio des cam à 10 pour que la cam du sequencer start soit prio au début 
@@ -78,13 +86,9 @@ public class SceneMenuNavigator : MonoBehaviour
         }
     }
 
-    public void LoadingBackToLobbyCamera()
-    {
-        SwitchToCamera(LobbyCam);
-    }
-
     public void BackToLobby()
     {
+        LobbyCam.LancerLaTransition();
         LobbyCanvas.SetActive(true);
     }
 

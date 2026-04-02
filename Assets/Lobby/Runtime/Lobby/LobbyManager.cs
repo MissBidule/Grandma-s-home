@@ -144,7 +144,6 @@ namespace PurrLobby
 
         private async Task ReconnectToLobbyAsync()
         {
-            _viewManager.LoadingBackToLobbyCamera();
             m_loadingCanvas.gameObject.SetActive(true);
             EnsureProviderSet();
             await _currentProvider.OnLobbyUpdateData(_currentLobby.LobbyId);
