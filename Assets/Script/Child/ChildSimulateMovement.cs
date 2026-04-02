@@ -64,6 +64,7 @@ public class ChildSimulateMovement : NetworkBehaviour, ISimulateMovement
     float GetSpeedModifier(bool _sneak)
     {
         var speedModifier = 1f;
+        m_isScared = m_childController.m_isScared;
         if (_sneak) speedModifier *= m_sneakAmplitude;
         if (m_isScared) speedModifier *= m_scaredAmplitude;
 
