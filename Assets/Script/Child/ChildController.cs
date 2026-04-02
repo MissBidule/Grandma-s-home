@@ -22,7 +22,7 @@ public class ChildController : PlayerControllerCore
     public bool m_isRanged;
     public float m_lastShot;
     public float m_switchingTime;
-    [SerializeField] public float m_cdSwitch = 0.2f;
+    [SerializeField] public float m_cdSwitch = 1.0f;
     
     [Header("CAC parameters")]
     [SerializeField]private float m_attackRange = 1f;
@@ -36,6 +36,7 @@ public class ChildController : PlayerControllerCore
     
     [Header("Speed Modifiers")]
     [SerializeField] [Tooltip("Duration of scared by ghost in seconds")] private float m_scaredDuration = 5.0f;
+    public bool m_isScared = false;
 
     [Header("Animation")]
     [SerializeField] private NetworkAnimator m_animator;
@@ -97,6 +98,7 @@ public class ChildController : PlayerControllerCore
         if (!isServer) return;
         //if (m_isScared) return; // Return if the player is scared
         if (m_switchingTime < m_cdSwitch) return;
+        callAnimationSetBool("Cac",!m_isRanged);
         changeFaceMat(new Vector2(0,0.33f));
         if (m_isRanged)
         {
@@ -144,13 +146,13 @@ public class ChildController : PlayerControllerCore
         //PurrLogger.Log($"Ghost Can Scare", this);
         //PurrLogger.Log("Ghost", this);
         ghost.StartSpookyScary();
-        //GhostTouch();
+        GhostTouch();
     }
     
     /**
     @brief      Apply scared effect from ghost
     */
-    /*private void GhostTouch()
+    private void GhostTouch()
     {
         if (!isServer) return;
         m_isScared = true;
@@ -168,7 +170,7 @@ public class ChildController : PlayerControllerCore
             m_animator.SetTrigger("OnScared");
         }
         m_isScared = _isScared;
-    }*/
+    }
 
     /*
      * @brief Timer for scared debuff
@@ -176,8 +178,8 @@ public class ChildController : PlayerControllerCore
     private IEnumerator ScaredTimer(float _scaredDuration)
     {
         yield return new WaitForSeconds(_scaredDuration);
-        //m_isScared = false;
-        //UpdateScaredToAll(m_isScared);
+        m_isScared = false;
+        UpdateScaredToAll(m_isScared);
     }
 
     public float GetScaredDuration()
@@ -253,6 +255,8 @@ public class ChildController : PlayerControllerCore
     public void SwitchAttackType()
     {
         if (!isServer) return;
+        if(m_switchingTime < m_cdSwitch) return;
+        callAnimationTrigger("OnSwitch");
         changeAttackAnimStatusServer();
         m_isRanged = !m_isRanged;
         m_switchingTime = 0;
