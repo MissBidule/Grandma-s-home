@@ -32,7 +32,7 @@ public class TransitionDoublePorteMenu : MonoBehaviour
     private float chronometreDemarrage = 0f;
 
     private bool sequenceEnCours = false;//evite de lancer plusieurs fois la séquence si le joueur clique spam pendant l'intro
-    private bool introDejaJouee = false; //intro ne se joue qu'une fois même si le joueur clique plusieurs fois
+    private static bool introDejaJouee = false; //intro ne se joue qu'une fois même si le joueur clique plusieurs fois
 
     private void Update()
     {
