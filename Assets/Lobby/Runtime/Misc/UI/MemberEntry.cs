@@ -40,7 +40,7 @@ namespace PurrLobby
 
             //RoleButton
             _memberId = _user.Id;
-            LockReady(false);
+            if (_ownId == _memberId) LockReady(false);
             roleButton.interactable = true;
             readyButton.onClick.AddListener(delegate {
                 roleButton.interactable = !roleButton.interactable;
