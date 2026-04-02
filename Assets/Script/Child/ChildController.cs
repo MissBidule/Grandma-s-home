@@ -36,6 +36,7 @@ public class ChildController : PlayerControllerCore
     
     [Header("Speed Modifiers")]
     [SerializeField] [Tooltip("Duration of scared by ghost in seconds")] private float m_scaredDuration = 5.0f;
+    public bool m_isScared = false;
 
     [Header("Animation")]
     [SerializeField] private NetworkAnimator m_animator;
@@ -145,13 +146,13 @@ public class ChildController : PlayerControllerCore
         //PurrLogger.Log($"Ghost Can Scare", this);
         //PurrLogger.Log("Ghost", this);
         ghost.StartSpookyScary();
-        //GhostTouch();
+        GhostTouch();
     }
     
     /**
     @brief      Apply scared effect from ghost
     */
-    /*private void GhostTouch()
+    private void GhostTouch()
     {
         if (!isServer) return;
         m_isScared = true;
@@ -169,7 +170,7 @@ public class ChildController : PlayerControllerCore
             m_animator.SetTrigger("OnScared");
         }
         m_isScared = _isScared;
-    }*/
+    }
 
     /*
      * @brief Timer for scared debuff
@@ -177,8 +178,8 @@ public class ChildController : PlayerControllerCore
     private IEnumerator ScaredTimer(float _scaredDuration)
     {
         yield return new WaitForSeconds(_scaredDuration);
-        //m_isScared = false;
-        //UpdateScaredToAll(m_isScared);
+        m_isScared = false;
+        UpdateScaredToAll(m_isScared);
     }
 
     public float GetScaredDuration()
