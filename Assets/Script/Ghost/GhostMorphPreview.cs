@@ -334,7 +334,7 @@ public class GhostMorphPreview : MonoBehaviour
      */
     private bool IsPartOfPlayer(GameObject _obj)
     {
-        return _obj.transform.IsChildOf(transform.root);
+        return _obj.GetComponentInParent<PlayerControllerCore>() != null;
     }
 
     /*
