@@ -1,3 +1,4 @@
+using System.Linq;
 using System;
 using PurrNet;
 using TMPro;
@@ -9,6 +10,7 @@ namespace PurrLobby
     public class UpdateLobby : MonoBehaviour
     {
         [SerializeField] private TMP_InputField m_lobbyMaxPlayers;
+        [SerializeField] private TextMeshProUGUI m_lobbyName;
         [SerializeField] private TextMeshProUGUI m_serverType;
         [SerializeField] private LobbyManager m_lobbyManager;
         [SerializeField] private const int c_maxPlayersInLobby = 12;
@@ -21,14 +23,16 @@ namespace PurrLobby
 
         public void SaveChanges()
         {
-            m_lobbyManager.UpdateLobbyType(m_serverType.text == "Private");
+            m_lobbyManager.UpdateLobbyType(m_serverType.transform.GetChild(0).GetComponentInChildren<TextMeshProUGUI>().text == "Private");
             if (!m_lobbyMaxPlayers.text.IsNullOrEmpty()) {
                 if (Convert.ToInt32(m_lobbyMaxPlayers.text) > c_maxPlayersInLobby) m_lobbyMaxPlayers.text = c_maxPlayersInLobby.ToString();
                 if (Convert.ToInt32(m_lobbyMaxPlayers.text) < 2) m_lobbyMaxPlayers.text = "2";
                 m_lobbyManager.UpdateLobbyMaxPlayer(Convert.ToInt32(m_lobbyMaxPlayers.text));
                 m_lobbyMaxPlayers.placeholder.GetComponent<TextMeshProUGUI>().text = "Max players (" + m_lobbyMaxPlayers.text + ")";
             }
-            gameObject.SetActive(false);
+            if (!m_lobbyName.transform.GetChild(0).GetComponentInChildren<TextMeshProUGUI>().text.IsNullOrEmpty()) {
+                m_lobbyManager.UpdateLobbyName(m_lobbyName.text);
+            }
         }
     }
 }

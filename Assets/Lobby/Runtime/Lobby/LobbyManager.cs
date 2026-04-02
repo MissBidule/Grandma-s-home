@@ -61,6 +61,7 @@ namespace PurrLobby
         private Lobby _lastKnownState;
         public Lobby CurrentLobby => _currentLobby;
         private LobbyDataHolder _lobbyDataHolder;
+        private SceneMenuNavigator _viewManager;
 
         private bool IsStarting = false;
         public float _refreshRate = 5f;
@@ -68,13 +69,18 @@ namespace PurrLobby
 
         [SerializeField] private Button m_readyButton;
         [SerializeField] private Button m_leaveButton;
-        [SerializeField] private TextMeshProUGUI m_serverType;
-        [SerializeField] private TextMeshProUGUI m_playerCount;
+        [SerializeField] private Button m_serverType;
+        [SerializeField] private TMP_InputField m_playerCount;
+        [SerializeField] private TMP_InputField m_serverName;
+        [SerializeField] private GameObject m_roleKeeperPrefab;
+        public Canvas m_loadingCanvas;
+        private bool m_loading = false;
 
         private void Awake()
         {
             DontDestroyOnLoad(gameObject);
             _lastKnownState = new Lobby { IsValid = false };
+            _viewManager = FindAnyObjectByType<SceneMenuNavigator>();
 
             SetupRoleKeeper();
             SetupDataHolder();
@@ -93,6 +99,13 @@ namespace PurrLobby
         {
             EnsureProviderSet();
             return _currentProvider.IsPlayerHost(_playerId);
+        }
+
+        public void showHostObjects(bool isHost)
+        {
+            m_serverName.interactable = isHost;
+            m_playerCount.interactable = isHost;
+            m_serverType.interactable = isHost;
         }
 
         void Start()
@@ -125,23 +138,29 @@ namespace PurrLobby
             var roleKeeper = FindFirstObjectByType<RoleKeeper>();
             if (!roleKeeper)
             {
-                var newObject = new GameObject("RoleList");
-                newObject.AddComponent<RoleKeeper>();
+                var newObject = Instantiate(m_roleKeeperPrefab);
             }
         }
 
         private async Task ReconnectToLobbyAsync()
         {
-            var viewManager = FindAnyObjectByType<ViewManager>();
-            viewManager.OnJoiningRoom(); 
+            _viewManager.LoadingBackToLobbyCamera();
+            m_loadingCanvas.gameObject.SetActive(true);
             EnsureProviderSet();
             await _currentProvider.OnLobbyUpdateData(_currentLobby.LobbyId);
-            m_serverType.text = _currentLobby.IsPrivate ? "Private" : "Public";     
-            m_playerCount.text = "Max players (" + _currentLobby.MaxPlayers + ")";            
-            viewManager.OnRoomJoined(); 
+            UpdateLobbyOnScreen();            
+            m_loadingCanvas.gameObject.SetActive(false);
+            _viewManager.BackToLobby(); 
             //refresh lobby info
             _elapsedTime = _refreshRate;
             _restartGame = false;
+        }
+
+        public void UpdateLobbyOnScreen()
+        {
+            m_serverName.transform.GetChild(0).GetComponentInChildren<TextMeshProUGUI>().text = _currentLobby.Name.ToUpper();
+            m_serverType.GetComponentInChildren<TextMeshProUGUI>().text = _currentLobby.IsPrivate ? "Private" : "Public";     
+            m_playerCount.transform.GetChild(0).GetComponentInChildren<TextMeshProUGUI>().text = "Max players (" + _currentLobby.MaxPlayers + ")";
         }
 
         private void Update()
@@ -248,8 +267,9 @@ namespace PurrLobby
             
             _currentProvider.OnLobbyUpdated += room =>
             {
-                if (room.IsValid)
+                if (room.IsValid && m_loading)
                 {
+                    m_loading = false;
                     InvokeDelayed(() => OnRoomJoined?.Invoke(room));
                 }
             };
@@ -267,8 +287,9 @@ namespace PurrLobby
             // ReSharper disable once EventUnsubscriptionViaAnonymousDelegate
             _currentProvider.OnLobbyUpdated -= room =>
             {
-                if (room.IsValid)
+                if (room.IsValid && m_loading)
                 {
+                    m_loading = false;
                     InvokeDelayed(() => OnRoomJoined?.Invoke(room));
                 }
             };
@@ -319,20 +340,21 @@ namespace PurrLobby
         /// <summary>
         /// Creates a room using the inspector CreateRoomArgs values.
         /// </summary>
-        public void CreateRoom(string _lobbyName)
+        public void CreateRoom()
         {
-            CreateRoom(_lobbyName, createRoomArgs.maxPlayers, createRoomArgs.roomProperties.ToDictionary());
+            m_loading = true;
+            CreateRoom(createRoomArgs.maxPlayers, createRoomArgs.roomProperties.ToDictionary());
         }
         
         /// <summary>
         /// Creates a room using custom settings set through code
         /// </summary>
-        public void CreateRoom(string _lobbyName, int maxPlayers, Dictionary<string, string> roomProperties = null)
+        public void CreateRoom(int maxPlayers, Dictionary<string, string> roomProperties = null)
         {
             RunTask(async () =>
             {
                 EnsureProviderSet();
-                var room = await _currentProvider.CreateLobbyAsync(_lobbyName, maxPlayers, roomProperties);
+                var room = await _currentProvider.CreateLobbyAsync(maxPlayers, roomProperties);
                 _currentLobby = room;
                 OnRoomUpdated?.Invoke(room);
             });
@@ -376,6 +398,7 @@ namespace PurrLobby
                 return;
             }
             
+            m_loading = true;
             RunTask(async () =>
             {
                 EnsureProviderSet();
@@ -387,6 +410,7 @@ namespace PurrLobby
                 }
                 else
                 {
+                    m_loading = false;
                     OnRoomJoinFailed?.Invoke($"Failed to join room {roomId}");
                 }
             });
@@ -404,6 +428,7 @@ namespace PurrLobby
             
             RunTask(async () =>
             {
+                Debug.Log("Searching for rooms...");
                 EnsureProviderSet();
                 var rooms = await _currentProvider.SearchLobbiesAsync(maxRoomsToFind, filters);
                 OnRoomSearchResults?.Invoke(rooms);
@@ -438,6 +463,20 @@ namespace PurrLobby
                 await _currentProvider.SetIsGhostAsync(userId, isGhost);
             });
         }
+
+        /// <summary>
+        /// Set the given User to Ghost
+        /// </summary>
+        /// <param name="userId">User ID of player</param>
+        /// <param name="isGhost">Role state to set</param>
+        public void SetSkin(string userId, int skin)
+        {
+            RunTask(async () =>
+            {
+                EnsureProviderSet();
+                await _currentProvider.SetSkinAsync(userId, skin);
+            });
+        }
         
         /// <summary>
         /// Sets meta data on the current lobby we're in
@@ -451,6 +490,16 @@ namespace PurrLobby
                 EnsureProviderSet();
                 await _currentProvider.SetLobbyDataAsync(key, value);
             });
+        }
+
+        /// <summary>
+        /// Update Lobby Name
+        /// </summary>
+        public void UpdateLobbyName(string _lobbyName)
+        {
+            EnsureProviderSet();
+            _currentProvider.UpdateLobbyName(_lobbyName);
+            _lobbyDataHolder.SetName(_lobbyName);
         }
         
         /// <summary>
@@ -515,7 +564,7 @@ namespace PurrLobby
         /// <summary>
         /// Toggles the local users role state automatically
         /// </summary>
-        public void ToggleLocalRole()
+        public void ToggleLocalRole(bool isGhost)
         {
             if (!_currentLobby.IsValid)
             {
@@ -531,7 +580,29 @@ namespace PurrLobby
             }
             
             var localLobbyUser = _currentLobby.Members.Find(x => x.Id == localUserId);
-            SetIsGhost(localUserId, !localLobbyUser.IsGhost);
+            SetIsGhost(localUserId, isGhost);
+        }
+
+        /// <summary>
+        /// Changes the skin of the local user
+        /// </summary>
+        public void ChangeSkin(int skin)
+        {
+            if (!_currentLobby.IsValid)
+            {
+                PurrLogger.LogError($"Can't change skin, current lobby is invalid.");
+                return;
+            }
+            
+            var localUserId = _currentProvider.GetLocalUserIdAsync().Result;
+            if (string.IsNullOrEmpty(localUserId))
+            {
+                PurrLogger.LogError($"Can't change skin, local user ID is null or empty.");
+                return;
+            }
+            
+            var localLobbyUser = _currentLobby.Members.Find(x => x.Id == localUserId);
+            SetSkin(localUserId, skin);
         }
 
         private void OnDestroy()

@@ -12,6 +12,7 @@ namespace PurrLobby
 
         public void Populate(List<Lobby> rooms)
         {
+            Debug.Log("PLS POPULATE");
             foreach (Transform child in content)
                 Destroy(child.gameObject);
             
