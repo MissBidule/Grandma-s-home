@@ -392,6 +392,7 @@ namespace PurrLobby
         /// <param name="roomId">ID of the lobby to join</param>
         public void JoinLobby(string roomId)
         {
+            m_loadingCanvas.gameObject.SetActive(true);
             if (string.IsNullOrEmpty(roomId))
             {
                 OnRoomJoinFailed?.Invoke("Null or empty room ID.");

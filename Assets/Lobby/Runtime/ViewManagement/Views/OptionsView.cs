@@ -53,6 +53,12 @@ namespace PurrLobby
             if (resetButton) resetButton.onClick.RemoveAllListeners();
         }
 
+        public void LockMenu()
+        {
+            OnHide();
+            Destroy(gameObject);
+        }
+
         public void ResetAll()
         {
             if (videoPanel)         videoPanel.ResetToDefaults();

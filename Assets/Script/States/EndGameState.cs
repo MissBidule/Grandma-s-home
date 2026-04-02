@@ -38,6 +38,8 @@ namespace Script.States
             IsGameOver = true;
             base.Enter(_asServer);
 
+            HidePause();
+
             foreach (StateNode state in machine.states)
             {
                 if (state is PlayerSpawningState playerSpawningState)
@@ -55,6 +57,13 @@ namespace Script.States
             if (!InstanceHandler.TryGetInstance(out EndGameView endGameView))
                 return;
             endGameView.EnableHostTools();
+        }
+
+        [ObserversRpc]
+        public void HidePause()
+        {
+            FindAnyObjectByType<OptionsView>().LockMenu();
+            Cursor.lockState = CursorLockMode.None;
         }
         
         [ObserversRpc]
