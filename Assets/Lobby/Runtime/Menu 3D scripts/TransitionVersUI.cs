@@ -7,10 +7,10 @@ public class TransitionVersUI : MonoBehaviour
     [Header("Transition")]
     public SceneMenuNavigator navigator; //ref du Menu Manager
     public CinemachineVirtualCameraBase camToZoom; //ref cam pour transition
-    public GameObject canvasToLaunch; //ref pour l'UI à afficher
+    public GameObject canvasToLaunch; //ref pour l'UI a afficher
 
-    [Header("Réglages")]
-    public float delaiAffichage = 1.5f; //délai avant d'afficher l'UI après le switch de cam
+    [Header("Reglages")]
+    public float delaiAffichage = 1.5f; //delai avant d'afficher l'UI apres le switch de cam
 
     //zoom cam puis affichage UI
     public void LancerLaTransition()
@@ -21,7 +21,7 @@ public class TransitionVersUI : MonoBehaviour
         }
         StartCoroutine(AfficherMenuApresDelai());
     }
-    //coroutine pour afficher l'UI après un délai pour fluidifier la transition
+    //coroutine pour afficher l'UI apres un delai pour fluidifier la transition
     private IEnumerator AfficherMenuApresDelai()
     {
         yield return new WaitForSeconds(delaiAffichage);

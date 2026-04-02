@@ -12,27 +12,31 @@ namespace PurrLobby
         [SerializeField] private RawImage avatar;
         [SerializeField] private RawImage hostIcon;
         [SerializeField] private Color readyColor;
-        [SerializeField] private Button roleButton;
-        [SerializeField] public Button readyButton;
+        public Button roleButton;
+        public Button readyButton;
 
         public bool _isGhost;
+        public int _skin;
         private Color _defaultColor;
         private string _memberId;
         public string _ownId;
         public string MemberId => _memberId;
         public LobbyManager _lobbyManager;
+        private RoleKeeper _roleKeeper;
 
         public void Init(LobbyUser _user)
         {
+            _roleKeeper = FindAnyObjectByType<RoleKeeper>();
+
             //cosmetic
             userName.text = _user.DisplayName;
             _defaultColor = userName.color;
-            if (_user.Avatar != null) avatar.texture = _user.Avatar;
             SetReady(_user.IsReady);
 
             //role
             _isGhost = _user.IsGhost;
-            roleButton.GetComponentInChildren<TextMeshProUGUI>().text = _isGhost ? "G" : "C";
+            _skin = _user.Skin;
+            avatar.texture = _roleKeeper.GetSkinImage(_memberId);
 
             //RoleButton
             _memberId = _user.Id;
@@ -41,9 +45,6 @@ namespace PurrLobby
             {
                 LockReady(false);
                 roleButton.interactable = true;
-                roleButton.onClick.AddListener(delegate {
-                    _lobbyManager.ToggleLocalRole();
-                });
                 readyButton.onClick.AddListener(delegate {
                     roleButton.interactable = !roleButton.interactable;
                 });
@@ -74,11 +75,12 @@ namespace PurrLobby
             readyButton.interactable = !isLocked;
         }
 
-        public void SetRole(bool isGhost)
+        public void SetRole(bool isGhost, int skin)
         {
             _isGhost = isGhost;
-            roleButton.GetComponentInChildren<TextMeshProUGUI>().text = _isGhost ? "G" : "C";
-            FindAnyObjectByType<RoleKeeper>().SwitchRole(MemberId, isGhost);
+            _skin = skin;
+            FindAnyObjectByType<RoleKeeper>().SwitchRole(_memberId, isGhost, skin);
+            avatar.texture = _roleKeeper.GetSkinImage(_memberId);
         }
     }
 }

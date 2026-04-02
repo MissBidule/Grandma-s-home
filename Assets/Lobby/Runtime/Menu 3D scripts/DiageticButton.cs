@@ -4,13 +4,13 @@ using UnityEngine.Events;
 public class DiegeticButton : MonoBehaviour
 {
     public UnityEvent OnClick; //event Unity pour assigner des actions dans l'inspector
-    private Outline[] outlineEffects; //stock les composants Outline pour les activer/désactiver au hover
+    private Outline[] outlineEffects; //stock les composants Outline pour les activer/desactiver au hover
 
     private void Start()
     {
        
         outlineEffects = GetComponentsInChildren<Outline>();
-        //désactive les outlines au début pour ne pas les voir avant le hover
+        //desactive les outlines au debut pour ne pas les voir avant le hover
         foreach (Outline outline in outlineEffects)
         {
             outline.enabled = false;
@@ -24,7 +24,7 @@ public class DiegeticButton : MonoBehaviour
             outline.enabled = true;
         }
     }
-    //désactive les outlines
+    //desactive les outlines
     private void OnMouseExit()
     {
         foreach (Outline outline in outlineEffects)
@@ -32,7 +32,7 @@ public class DiegeticButton : MonoBehaviour
             outline.enabled = false;
         }
     }
-    //invoke l'event OnClick quand le bouton est cliqué
+    //invoke l'event OnClick quand le bouton est clique
     private void OnMouseDown()
     {
         if (OnClick != null)

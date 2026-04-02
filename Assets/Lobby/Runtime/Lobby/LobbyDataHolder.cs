@@ -15,6 +15,11 @@ namespace PurrLobby
             CurrentLobby = _newLobby;
             serializedLobby = _newLobby;
         }
+        
+        public void SetName(string _name)
+        {
+            serializedLobby.Name = _name;
+        }
 
         public void SetMaxPlayer(int _max_players)
         {

@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPEffects.Components;
+using UnityEngine.UI;
 
 public class SceneMenuNavigator : MonoBehaviour
 {
@@ -21,6 +22,10 @@ public class SceneMenuNavigator : MonoBehaviour
 
     [Header("Caméra d'Introduction Start")]
     public CinemachineVirtualCameraBase sequencerCam; //ref cam Sequencer Camera Start
+
+    [Header("Caméra de retour au lobby")]
+    public CinemachineVirtualCameraBase LobbyCam; //ref cam Retour Lobby Camera
+    public GameObject LobbyCanvas; //ref canvas du lobby pour l'activer au bon moment
 
     [Header("Configuration des Menus")]
     public MenuCamera[] configurationMenus; //pour orga et config dans l'inspector
@@ -62,7 +67,7 @@ public class SceneMenuNavigator : MonoBehaviour
             {
                 foreach (var writer in menu.textesTMPWriters)
                 {
-                    if (writer != null)
+                    if (writer != null && writer.enabled && writer.gameObject.activeSelf)
                     {
                         writer.StopWriter();  
                         writer.ResetWriter(); 
@@ -72,6 +77,17 @@ public class SceneMenuNavigator : MonoBehaviour
             }
         }
     }
+
+    public void LoadingBackToLobbyCamera()
+    {
+        SwitchToCamera(LobbyCam);
+    }
+
+    public void BackToLobby()
+    {
+        LobbyCanvas.SetActive(true);
+    }
+
     //switch de cam avec gestion des prio et activation des boutons associés
     public void SwitchToCamera(CinemachineVirtualCameraBase targetCamera)
     {
