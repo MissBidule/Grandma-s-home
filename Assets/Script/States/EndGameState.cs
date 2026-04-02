@@ -19,6 +19,8 @@ namespace Script.States
         private PlayerSpawningState m_spawnState;
         private bool _hasAlreadySwitched = false;
 
+        [SerializeField] private GameObject pauseMenu;
+
         private void Awake()
         {
             InstanceHandler.RegisterInstance(this);
@@ -62,7 +64,7 @@ namespace Script.States
         [ObserversRpc]
         public void HidePause()
         {
-            FindAnyObjectByType<OptionsView>().LockMenu();
+            Destroy(pauseMenu);
             Cursor.lockState = CursorLockMode.None;
         }
         
