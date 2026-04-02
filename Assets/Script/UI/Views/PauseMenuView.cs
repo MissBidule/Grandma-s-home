@@ -175,6 +175,7 @@ public class PauseMenuView : MonoBehaviour
         panel.Initialize(m_dropdownRowPrefab, m_toggleRowPrefab, m_sliderRowPrefab,
                          m_buttonRowPrefab, m_keybindingRowPrefab, m_sectionTitlePrefab);
         panel.OnBack = CloseOptions;
+        panel.menu = gameObject;
         go.SetActive(false);
         return panel;
     }

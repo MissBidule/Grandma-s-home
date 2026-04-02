@@ -40,15 +40,11 @@ namespace PurrLobby
 
             //RoleButton
             _memberId = _user.Id;
-            if (_ownId != _memberId) roleButton.interactable = false;
-            else
-            {
-                LockReady(false);
-                roleButton.interactable = true;
-                readyButton.onClick.AddListener(delegate {
-                    roleButton.interactable = !roleButton.interactable;
-                });
-            }
+            LockReady(false);
+            roleButton.interactable = true;
+            readyButton.onClick.AddListener(delegate {
+                roleButton.interactable = !roleButton.interactable;
+            });
         }
 
         public bool SetHost()

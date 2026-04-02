@@ -6,6 +6,9 @@ namespace PurrLobby
 {
     public class OptionsView : View
     {
+        [Header("Menu")]
+        [SerializeField] public GameObject menu;
+
         [Header("Panels")]
         [SerializeField] private VideoSettingsPanel         videoPanel;
         [SerializeField] private AudioSettingsPanel         audioPanel;
@@ -55,8 +58,7 @@ namespace PurrLobby
 
         public void LockMenu()
         {
-            OnHide();
-            Destroy(gameObject);
+            Destroy(menu);
         }
 
         public void ResetAll()
