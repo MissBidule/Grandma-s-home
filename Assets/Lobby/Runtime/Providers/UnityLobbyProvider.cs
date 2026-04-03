@@ -127,6 +127,7 @@ namespace PurrLobby.Providers {
                 LobbyEventCallbacks.LobbyChanged += LobbyEventCallbacks_LobbyChanged;
 
                 await LobbyService.Instance.SubscribeToLobbyEventsAsync(CurrentLobby.Id, LobbyEventCallbacks);
+
             } catch(Exception ex) {
                 PurrLogger.LogError($"Failed to subscribe to callback events: {ex}");
             }
@@ -618,31 +619,30 @@ namespace PurrLobby.Providers {
         /// </summary>
         public async Task OnLobbyUpdateData(string _lobbyId) {
             if(!IsUnityServiceAvailable) { return; }
-
-            CurrentLobby = await LobbyService.Instance.GetLobbyAsync(_lobbyId);
             RoleKeeper roleList = FindAnyObjectByType<RoleKeeper>();
             List<string> disconnectedPlayers = roleList.GetDisconnectedPlayers();
             foreach(string disconnectedPlayer in disconnectedPlayers)
             {
-                await LobbyService.Instance.RemovePlayerAsync(CurrentLobby.Id, disconnectedPlayer);
+                await LobbyService.Instance.RemovePlayerAsync(_lobbyId, disconnectedPlayer);
+            }
+
+            CurrentLobby = await LobbyService.Instance.GetLobbyAsync(_lobbyId);
+
+            await SubscribeLobbyEventsAsync();
+            _ = InitializeLocalPlayerData();
+            
+            if (IsLocalPlayerHost)
+            {
+                _ = SetLobbyDataAsync("JoinCode", "");
             }
 
             foreach (Player player in CurrentLobby.Players)
             {
-                await SetIsReadyAsync(player.Id, false);
-                await SetIsInGameAsync(player.Id, false);
+                _ = SetIsReadyAsync(player.Id, false);
+                _ = SetIsInGameAsync(player.Id, false);
             }
             
             roleList.DeleteList();
-            CurrentLobby = await LobbyService.Instance.GetLobbyAsync(_lobbyId);
-
-            await SubscribeLobbyEventsAsync();
-            await InitializeLocalPlayerData();
-
-            if (IsLocalPlayerHost)
-            {
-                await SetLobbyDataAsync("JoinCode", "");
-            }
 
             OnLobbyUpdate();
         }
