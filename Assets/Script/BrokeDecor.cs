@@ -24,6 +24,8 @@ public class BrokeDecor : NetworkBehaviour
         if (m_brokenPrefab != null) {
             m_brokenMesh = UnityProxy.Instantiate(m_brokenPrefab, transform);
             m_brokenMesh.transform.localPosition = Vector3.zero;
+            m_brokenMesh.GetComponent<MeshRenderer>().enabled = false;
+            m_brokenMesh.GetComponent<MeshCollider>().enabled = false;
         }
     }
 
