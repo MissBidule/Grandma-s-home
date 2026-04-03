@@ -93,8 +93,8 @@ public class PlayerControllerCore : NetworkBehaviour
     [ObserversRpc]
     private void DisconnectPlayer()
     {
-        FindAnyObjectByType<RoleKeeper>().SetMemberDisconnected(m_memberID);
-        FindAnyObjectByType<LeaderboardUI>().UpdateDisconnected();
+        FindAnyObjectByType<RoleKeeper>()?.SetMemberDisconnected(m_memberID);
+        FindAnyObjectByType<LeaderboardUI>()?.UpdateDisconnected();
     }
 
     /*
@@ -165,7 +165,7 @@ public class PlayerControllerCore : NetworkBehaviour
     [ServerRpc]
     public void PingServer(float sentTime, RPCInfo info = default)
     {
-        // info.sender = le client qui a envoyé
+        // info.sender = le client qui a envoye
         PongClient(info.sender, sentTime);
     }
 

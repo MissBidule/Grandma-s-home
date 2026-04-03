@@ -19,6 +19,8 @@ namespace Script.States
         private PlayerSpawningState m_spawnState;
         private bool _hasAlreadySwitched = false;
 
+        [SerializeField] private GameObject pauseMenu;
+
         private void Awake()
         {
             InstanceHandler.RegisterInstance(this);
@@ -38,6 +40,8 @@ namespace Script.States
             IsGameOver = true;
             base.Enter(_asServer);
 
+            HidePause();
+
             foreach (StateNode state in machine.states)
             {
                 if (state is PlayerSpawningState playerSpawningState)
@@ -55,6 +59,13 @@ namespace Script.States
             if (!InstanceHandler.TryGetInstance(out EndGameView endGameView))
                 return;
             endGameView.EnableHostTools();
+        }
+
+        [ObserversRpc]
+        public void HidePause()
+        {
+            Destroy(pauseMenu);
+            Cursor.lockState = CursorLockMode.None;
         }
         
         [ObserversRpc]

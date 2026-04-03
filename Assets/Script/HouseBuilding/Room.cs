@@ -31,7 +31,7 @@ namespace Script.HouseBuilding
 
         private void Awake()
         {
-            // Object Validation
+            /* Object Validation
             if (m_sabotageObject == null)
                 PurrLogger.LogWarning($"{m_roomType} Sabotage Object is null", this);
             if (m_trapdoorEntry == null)
@@ -42,6 +42,7 @@ namespace Script.HouseBuilding
                 PurrLogger.LogWarning($"{m_roomType} Small Props Anchors is null", this);
             if (m_mediumPropsAnchors == null)
                 PurrLogger.LogWarning($"{m_roomType} Medium Props Anchors is null", this);
+            */
         }
         
         public SabotageObject GetSabotageObject()
