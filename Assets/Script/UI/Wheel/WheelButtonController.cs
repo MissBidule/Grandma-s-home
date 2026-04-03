@@ -1,4 +1,3 @@
-using PurrNet;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,6 +10,7 @@ public class WheelButtonController : MonoBehaviour
     [SerializeField] private TransformOption m_transformOption;
     private Image m_iconImage;
     private Button m_button;
+    private Vector3 m_originalScale;
 
     private WheelController m_wheelController;
 
@@ -24,11 +24,10 @@ public class WheelButtonController : MonoBehaviour
         Transform iconTransform = transform.Find("icone");
         m_iconImage = iconTransform.GetComponent<Image>();
         m_button = GetComponent<Button>();
-        
-        
+        m_originalScale = transform.localScale;
+
         m_wheelController = GetComponentInParent<WheelController>();
-        
-        
+
         UpdateIcon();
     }
 
@@ -51,15 +50,11 @@ public class WheelButtonController : MonoBehaviour
             }
         }
 
-        if (m_button != null)
-        {
-            m_button.interactable = !IsEmpty();
-        }
     }
 
     /*
      * @brief Selects this transformation option
-     * Selects the prefab in the TransformWheelcontroller.
+     * Selects the prefab in the WheelController.
      * @return void
      */
     public void Select()
@@ -69,7 +64,7 @@ public class WheelButtonController : MonoBehaviour
             return;
         }
 
-        if (m_wheelController.m_isWaitingForSlotSelection)  
+        if (m_wheelController.m_isWaitingForSlotSelection)
         {
             OnSlotSelectedForReplacement();
             return;
@@ -113,8 +108,29 @@ public class WheelButtonController : MonoBehaviour
     }
 
     /*
+     * @brief Sets the visual highlight state of this button using its Color Tint colors.
+     * Empty slots are never highlighted.
+     * @param active: True to apply highlighted color, false to restore normal color.
+     * @return void
+     */
+    public void SetHighlight(bool active)
+    {
+        ColorBlock colors = m_button.colors;
+        Color target;
+        if (active)
+            target = colors.highlightedColor;
+        else if (IsEmpty())
+            target = colors.disabledColor;
+        else
+            target = colors.normalColor;
+        m_button.targetGraphic.CrossFadeColor(target, colors.fadeDuration, true, true);
+
+        transform.localScale = active ? m_originalScale * 1.05f : m_originalScale;
+    }
+
+    /*
      * @brief Called when this button is selected for replacement
-     * Notifies the TransformWheelcontroller that this slot was chosen for replacement.
+     * Notifies the WheelController that this slot was chosen for replacement.
      * @return void
      */
     public void OnSlotSelectedForReplacement()
