@@ -2,6 +2,7 @@ using UnityEngine;
 using PurrNet;
 using System.Collections;
 using UnityEngine.Serialization;
+using Script.UI.Views;
 
 namespace UI
 {
@@ -14,6 +15,7 @@ namespace UI
         [Header("Camera and Listener")]
         [SerializeField] private Camera m_UICamera;
         [SerializeField] private AudioListener m_UIAudioListener;
+        [SerializeField] private GameObject m_eventListener;
         private bool m_UIAlreadyToggled = false;
 
         [Header("Fade Parameters")]
@@ -51,9 +53,11 @@ namespace UI
         {
             if (m_UIAlreadyToggled) return;
             m_UIAlreadyToggled = true;
+            HideView<WaitForPlayerView>();
             Debug.Log("Toggling UI Vision");
             m_UICamera.enabled = !m_UICamera.enabled;
             m_UIAudioListener.enabled = !m_UIAudioListener.enabled;
+            m_eventListener.SetActive(!m_eventListener.activeSelf);
         }
 
         /*
@@ -134,6 +138,7 @@ namespace UI
          */
         private void ShowViewInternal(GameView _view)
         {
+            _view.gameObject.SetActive(true);
             _view.m_canvasGroup.alpha = 1f;
             _view.OnShow();
         }
@@ -143,6 +148,7 @@ namespace UI
          */
         private void HideViewInternal(GameView _view)
         {
+            _view.gameObject.SetActive(false);
             _view.m_canvasGroup.alpha = 0f;
             _view.OnHide();
         }
@@ -152,6 +158,7 @@ namespace UI
          */
         private IEnumerator FadeIn(GameView _view)
         {
+            _view.gameObject.SetActive(true);
             float elapsed = 0f;
             float startAlpha = _view.m_canvasGroup.alpha;
         
@@ -183,6 +190,7 @@ namespace UI
         
             _view.m_canvasGroup.alpha = 0f;
             _view.OnHide();
+            _view.gameObject.SetActive(false);
         }
         
     }
