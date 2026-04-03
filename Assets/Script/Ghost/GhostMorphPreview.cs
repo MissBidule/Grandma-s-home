@@ -40,6 +40,7 @@ public class GhostMorphPreview : MonoBehaviour
 
     private Transform m_cameraTransform;
     private PlayerControllerCore m_core;
+    private Interact m_interact;
     private bool m_rotateLeft = false;
     private bool m_rotateRight = false;
 
@@ -64,6 +65,7 @@ public class GhostMorphPreview : MonoBehaviour
         m_core = transform.parent.GetComponent<PlayerControllerCore>();
         if (m_core != null && m_core.m_playerCamera != null)
             m_cameraTransform = m_core.m_playerCamera.transform;
+        m_interact = transform.parent.GetComponentInChildren<Interact>();
     }
 
 
@@ -277,9 +279,9 @@ public class GhostMorphPreview : MonoBehaviour
         if (m_cameraTransform == null || GetComponentInParent<GhostMorph>().m_isMorphed)
         {
             ClearHighlight();
-            
             return;
         }
+        if (m_interact != null && m_interact.m_onFocus != null) return;
 
         Vector3 rayOrigin = m_cameraTransform.transform.position;
         Vector3 rayDirection = m_cameraTransform.transform.forward;
