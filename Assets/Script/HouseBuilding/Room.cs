@@ -108,11 +108,21 @@ namespace Script.HouseBuilding
             // Initialize the given proportion of the room props
             for (int index = 0; index < m_smallPropsAnchors.Count * _smallPropsPercentage; index++)
             {
+                if (m_smallPropsAnchors[index] == null)
+                {
+                    PurrLogger.LogError($"Small PropAnchor initialization failed (Anchor {index} malformed)", this);
+                    continue;
+                }
                 m_smallPropsAnchors[index].Initialize();
             }
 
             for (int index = 0; index < m_mediumPropsAnchors.Count * _mediumPropsPercentage; index++)
             {
+                if (m_mediumPropsAnchors[index] == null)
+                {
+                    PurrLogger.LogError($"Medium PropAnchor initialization failed (Anchor {index} malformed)", this);
+                    continue;
+                }
                 m_mediumPropsAnchors[index].Initialize();
             }
         }
