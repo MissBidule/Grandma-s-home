@@ -66,11 +66,6 @@ public class DayNightSystem : MonoBehaviour
         //temps de jeu actuel
         currentTime = 0f;
 
-        //random de l'angle y
-        if (isRandomSunY){
-            sunInitialY = Random.Range(0f, 360f);
-        }
-
         //rotation du soleil au début
         sun.transform.rotation = Quaternion.Euler(sunInitialX, sunInitialY, 0f);
         // UnityEngine.Debug.LogFormat("Sun initial rotation set to: {0}", sun.transform.rotation.eulerAngles);
@@ -105,6 +100,13 @@ public class DayNightSystem : MonoBehaviour
         if (skyCoroutine != null)
         {
             StopCoroutine(skyCoroutine);
+        }
+        
+        //random de l'angle y
+        if (isRandomSunY)
+        {
+            Random.InitState((int)_serverGameTime);
+            sunInitialY = Random.Range(0f, 360f);
         }
 
         skyCoroutine = StartCoroutine(UpdateSkyCoroutine());

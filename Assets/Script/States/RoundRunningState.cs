@@ -173,8 +173,7 @@ namespace Script.States
             sabotageManager?.Initialize();
 
             // Call Ethan day/night cycle
-            if (InstanceHandler.TryGetInstance(out LightTimer lightTimer))
-                lightTimer.StartLightSystem(_roundDuration);
+            StartDayNight(_roundDuration);
             
             PurrLogger.Log($"m_roundDuration {_roundDuration}");
             yield return new WaitForSeconds(_roundDuration);
@@ -183,8 +182,14 @@ namespace Script.States
             MoveToEnd(true);
         }
 
+        [ObserversRpc]
+        public void StartDayNight(float _roundDuration)
+        {
+            if (InstanceHandler.TryGetInstance(out LightTimer lightTimer))
+                lightTimer.StartLightSystem(_roundDuration);
+        }
+        
         // Action Reactions
-
         private void OnGhostDeathChange(bool _deathOrRevive, PlayerID _playerID)
         {
             PurrLogger.Log($"Ghost death: {_deathOrRevive}, PlayerID: {_playerID}");
