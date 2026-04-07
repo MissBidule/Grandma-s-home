@@ -73,13 +73,6 @@ namespace PurrLobby
                 CloseOptionsGamepad();
                 return;
             }
-
-            var current = GetCurrentActiveView();
-            if (current == null) return;
-
-            if (current is BrowseView)  { ShowView<PlayView>();     return; }
-            if (current is CreditsView) { ShowView<MainMenuView>(); return; }
-            if (current is PlayView)    { ShowView<MainMenuView>(); return; }
         }
 
         private void OpenOptionsGamepad()
@@ -104,7 +97,10 @@ namespace PurrLobby
             }
             else
             {
-                ShowView<MainMenuView>();
+                // Fallback: show default view
+                foreach (var v in allViews)
+                    HideViewInternal(v);
+                ShowViewInternal(defaultView);
             }
         }
 
@@ -150,7 +146,7 @@ namespace PurrLobby
             view.OnShow();
             view.OnViewShow?.Invoke();
 
-            if (UnityEngine.InputSystem.Gamepad.current != null)
+            if (Gamepad.current != null)
                 SelectFirstIn(view.gameObject);
         }
 
@@ -191,51 +187,6 @@ namespace PurrLobby
                 if (obj)
                     obj.SetActive(isHost);
             }
-        }
-
-        public void OnRoomJoined()
-        {
-            ShowView<LobbyView>();
-        }
-
-        public void OnRoomLeft()
-        {
-            ShowView<PlayView>();
-        }
-
-        public void OnBrowseClicked()
-        {
-            ShowView<BrowseView>();
-        }
-
-        public void OnRoomCreateClicked()
-        {
-            ShowView<CreatingRoomView>(false);
-        }
-
-        public void OnJoiningRoom()
-        {
-            ShowView<LoadingRoomView>(false);
-        }
-
-        public void OnBackToMenu()
-        {
-            ShowView<MainMenuView>();
-        }
-
-        public void OnPlayClicked()
-        {
-            ShowView<PlayView>();
-        }
-
-        public void OnOptionsClicked()
-        {
-            ShowView<OptionsView>();
-        }
-
-        public void OnCreditsClicked()
-        {
-            ShowView<CreditsView>();
         }
 
         #endregion
