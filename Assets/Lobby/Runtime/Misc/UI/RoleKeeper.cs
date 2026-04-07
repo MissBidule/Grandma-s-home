@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace PurrLobby
 {
@@ -16,16 +17,19 @@ namespace PurrLobby
             public string m_username;
             public string m_roleId;
             public bool m_isGhost;
+            public int m_skin;
             public bool m_isLocal;
             public int m_connectionID;
             public bool m_isDisconnected;
         };
 
         [SerializeField] private List<Role> m_roles = new List<Role>();
+        [SerializeField] private List<Texture2D> m_skinChild = new List<Texture2D>();
+        [SerializeField] private List<Texture2D> m_skinGhost = new List<Texture2D>();
 
-        public void AddRole(string _roleId, string _username, bool _isGhost, bool _isLocal)
+        public void AddRole(string _roleId, string _username, bool _isGhost, int _skin, bool _isLocal)
         {
-            m_roles.Add(new Role() { m_roleId = _roleId, m_username = _username, m_isGhost = _isGhost, m_isLocal = _isLocal });
+            m_roles.Add(new Role() { m_roleId = _roleId, m_username = _username, m_isGhost = _isGhost, m_skin = _skin, m_isLocal = _isLocal });
         }
         
         public void RemoveRole(string _roleId)
@@ -39,7 +43,7 @@ namespace PurrLobby
             }
         }
 
-        public void SwitchRole(string _roleId, bool _isGhost)
+        public void SwitchRole(string _roleId, bool _isGhost, int _skin)
         {
             for (int i = 0; i < m_roles.Count; i++)
             {
@@ -52,6 +56,7 @@ namespace PurrLobby
                         m_roleId = _roleId,
                         m_username = keepUsername,
                         m_isGhost = _isGhost,
+                        m_skin = _skin,
                         m_isLocal = keepLocal
                     };
                     break;
@@ -69,6 +74,37 @@ namespace PurrLobby
                 }
             }
             return false;
+        }
+
+        public int GetSkinID(int _connectionID)
+        {
+            for (int i = 0; i < m_roles.Count; i++)
+            {
+                if (m_roles[i].m_connectionID == _connectionID)
+                {
+                    return m_roles[i].m_skin;
+                }
+            }
+            return 0;
+        }
+
+        public Texture2D GetSkinImage(string _roleId)
+        {
+            for (int i = 0; i < m_roles.Count; i++)
+            {
+                if (m_roles[i].m_roleId == _roleId)
+                {
+                    if (m_roles[i].m_isGhost)
+                    {
+                        return m_skinGhost[m_roles[i].m_skin];
+                    }
+                    else
+                    {
+                        return m_skinChild[m_roles[i].m_skin];
+                    }
+                }
+            }
+            return null;
         }
 
         public string GetUsername(int _connectionID)
@@ -149,6 +185,7 @@ namespace PurrLobby
                 string keepRoleID = m_roles[i].m_roleId;
                 string keepUsername = m_roles[i].m_username;
                 bool keepRole = m_roles[i].m_isGhost;
+                int keepSkin = m_roles[i].m_skin;
                 bool keepLocal = m_roles[i].m_isLocal;
                 if (m_roles[i].m_roleId == _roleID)
                 {
@@ -157,6 +194,7 @@ namespace PurrLobby
                         m_roleId = keepRoleID,
                         m_username = keepUsername,
                         m_isGhost = keepRole,
+                        m_skin = keepSkin,
                         m_isLocal = keepLocal,
                         m_connectionID = _connectionID
                     };
@@ -172,6 +210,7 @@ namespace PurrLobby
                 string keepRoleID = m_roles[i].m_roleId;
                 string keepUsername = m_roles[i].m_username;
                 bool keepRole = m_roles[i].m_isGhost;
+                int keepSkin = m_roles[i].m_skin;
                 bool keepLocal = m_roles[i].m_isLocal;
                 int keepConnection = m_roles[i].m_connectionID;
                 if (m_roles[i].m_roleId == _roleID)
@@ -181,6 +220,7 @@ namespace PurrLobby
                         m_roleId = keepRoleID,
                         m_username = keepUsername,
                         m_isGhost = keepRole,
+                        m_skin = keepSkin,
                         m_isLocal = keepLocal,
                         m_connectionID = keepConnection,
                         m_isDisconnected = true
