@@ -40,6 +40,8 @@ public class DayNightSystem : MonoBehaviour
     public Color sunDayColor;// FFE499
     public Color sunNightColor;// 123E41
 
+    [SerializeField] private bool m_autoStart = false;
+
     //Démarrer avec un angle assez élevé 150, pour la monter à 180 sur 40% du temps de jeu total, faire un changement entre les 2 HDRI blend avec les paramètre de luminosité et allumages progressifs de toutes sources de lumière sur 20% du temps de jeu total, sur les 40% restant de jeu le soleil aura un éclairage d'une couleur plus froide et une intensité plus faible en remontant vers 150 comme une monté de lune.
 
     void Start()
@@ -91,13 +93,14 @@ public class DayNightSystem : MonoBehaviour
 
         lightOnSystem = GetComponentInParent<LightOnSystem>();//récupère le script d'allumage des lumières dans le parent
 
-        UpdateSky(gameTime);
+        if (m_autoStart)
+            UpdateSky(gameTime);
     }
 
     //toutes les actualisations a prendre en compte en fonction de l'état du jeu
-    void UpdateSky(float serverGameTime)
+    public void UpdateSky(float _serverGameTime)
     {
-        gameTime = serverGameTime;
+        gameTime = _serverGameTime;
 
         if (skyCoroutine != null)
         {
