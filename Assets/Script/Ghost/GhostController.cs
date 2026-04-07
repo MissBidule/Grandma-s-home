@@ -249,7 +249,7 @@ public class GhostController : PlayerControllerCore, IInteractable
         m_beingRevived = true;
         m_reviver.RevivingBuddy(m_reviveDuration);
         m_reviver.FreezeReviverRpc();
-        if (InteractPromptUI.m_Instance != null) InteractPromptUI.m_Instance.Hide();
+        if (_reviver.isOwner && InteractPromptUI.m_Instance != null) InteractPromptUI.m_Instance.Hide();
     }
 
     public void RevivingBuddy(float _duration)
