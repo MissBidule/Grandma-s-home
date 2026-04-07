@@ -14,12 +14,16 @@ public class WheelController : MonoBehaviour
     [NonSerialized] private GhostMorph m_ghostMorph;
     [NonSerialized] private GhostMorphPreview m_ghostMorphPreview;
     [SerializeField] private List<WheelButtonController> m_wheelButtons;
+    [SerializeField] private float m_angleOffset = 114f;
+    [SerializeField] private float m_minSelectDistance = 5f;
 
     [NonSerialized] public GameObject m_selectedPrefab;
     [NonSerialized] public bool m_isWaitingForSlotSelection = false;
 
     private GameObject m_pendingPrefabToAdd;
     private Sprite m_pendingIconToAdd;
+    private bool m_isOpen = false;
+    private int m_highlightedIndex = -1;
 
     /*
      * @brief Awake is called when the script instance is being loaded
@@ -34,7 +38,42 @@ public class WheelController : MonoBehaviour
         }
     }
 
-    // Forced to link this way cause of cross reference bug and multiplayer spawning timing issues.
+    /*
+     * @brief Update is called once per frame
+     * Updates the highlighted wheel slice based on mouse direction from screen center
+     * @return void
+     */
+    void Update()
+    {
+        if (!m_isOpen || m_isWaitingForSlotSelection) return;
+
+        Vector2 dir = Mouse.current.position.ReadValue() - new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
+        if (dir.sqrMagnitude < m_minSelectDistance * m_minSelectDistance) return;
+
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        float sliceAngle = 360f / m_wheelButtons.Count;
+        int newIndex = Mathf.RoundToInt((angle - m_angleOffset + 360f * 10f) % 360f / sliceAngle) % m_wheelButtons.Count;
+
+        if (newIndex != m_highlightedIndex)
+        {
+            ApplyHighlight(newIndex);
+        }
+    }
+
+    /*
+     * @brief Applies highlight to the button at the given index
+     * @param index: The index to highlight
+     * @return void
+     */
+    private void ApplyHighlight(int index)
+    {
+        for (int i = 0; i < m_wheelButtons.Count; i++)
+        {
+            m_wheelButtons[i].SetHighlight(i == index && !m_wheelButtons[i].IsEmpty());
+        }
+        m_highlightedIndex = index;
+    }
+
     public void LinkWithGhost(GhostClientController ghost)
     {
         m_ghostMorph = ghost.GetComponent<GhostMorph>();
@@ -43,7 +82,6 @@ public class WheelController : MonoBehaviour
         m_ghostMorphPreview.m_wheel = this;
     }
 
-
     /*
      * @brief Toggle is called by the GhostInputController
      * Toggle the transformation wheel.
@@ -51,31 +89,60 @@ public class WheelController : MonoBehaviour
      */
     public void Toggle()
     {
-        if (m_isWaitingForSlotSelection)
+        if (m_anim.GetBool("OpenWheel"))
         {
-            return;
-        }
-
-        bool toggle = !m_anim.GetBool("OpenWheel");
-
-        if (toggle && m_ghostMorph != null && m_ghostMorph.m_isMorphed)
-        {
-            return;
-        }
-        Cursor.lockState = toggle ? CursorLockMode.Confined : CursorLockMode.Locked;
-
-        if (toggle)
-        {
-            InteractPromptUI.m_Instance.Hide();
+            Close();
         }
         else
         {
-            Interact ghostInteract = m_ghostMorph.GetComponentInChildren<Interact>();
-            if (ghostInteract != null)
-                ghostInteract.m_onFocus = null;
+            Open();
+        }
+    }
+
+    /*
+     * @brief Opens the transformation wheel
+     * Hides cursor and enables directional slice selection
+     * @return void
+     */
+    public void Open()
+    {
+        if (m_isWaitingForSlotSelection) return;
+        if (m_ghostMorph != null && m_ghostMorph.m_isMorphed) return;
+
+        m_isOpen = true;
+        ApplyHighlight(-1);
+        Cursor.lockState = CursorLockMode.Confined;
+        InteractPromptUI.m_Instance.Hide();
+        m_anim.SetBool("OpenWheel", true);
+    }
+
+    /*
+     * @brief Closes the transformation wheel
+     * Confirms the currently highlighted slice selection
+     * @return void
+     */
+    public void Close()
+    {
+        if (m_isWaitingForSlotSelection) return;
+
+        m_isOpen = false;
+
+        int confirmedIndex = m_highlightedIndex;
+        ApplyHighlight(-1);
+
+        if (confirmedIndex >= 0 && confirmedIndex < m_wheelButtons.Count)
+        {
+            m_wheelButtons[confirmedIndex].Select();
         }
 
-        m_anim.SetBool("OpenWheel", toggle);
+        Interact ghostInteract = m_ghostMorph.GetComponentInChildren<Interact>();
+        if (ghostInteract != null)
+        {
+            ghostInteract.m_onFocus = null;
+        }
+
+        Cursor.lockState = CursorLockMode.Locked;
+        m_anim.SetBool("OpenWheel", false);
     }
 
     /*
@@ -100,7 +167,6 @@ public class WheelController : MonoBehaviour
      */
     public void TryAddPrefabToWheel(GameObject _prefab, Sprite _icon)
     {
-        //
         if (IsIconAlreadyInWheel(_icon))
         {
             Debug.Log($"Object already in the wheel: {_prefab.name}");
@@ -120,8 +186,11 @@ public class WheelController : MonoBehaviour
             m_pendingPrefabToAdd = _prefab;
             m_pendingIconToAdd = _icon;
             m_isWaitingForSlotSelection = true;
+            m_isOpen = false;
+            ApplyHighlight(-1);
 
             Cursor.lockState = CursorLockMode.Confined;
+
             m_anim.SetBool("OpenWheel", true);
 
             Debug.Log("Wheel full");

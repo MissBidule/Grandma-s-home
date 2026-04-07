@@ -36,7 +36,7 @@ namespace Script.UI.Views
         {
             if (!InstanceHandler.TryGetInstance(out EndGameState endGameState))
                 return;
-            endGameState.BackToLobby();
+            endGameState.StopGame();
         }
     }
 }

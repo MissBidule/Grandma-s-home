@@ -12,6 +12,7 @@ namespace PurrLobby
         [SerializeField] private MemberEntry memberEntryPrefab;
         [SerializeField] private Transform content;
         [SerializeField] private Button readyButton;
+        [SerializeField] private Button roleButton;
         private bool m_isSomeoneInGame = false;
         private RoleKeeper m_roleKeeper;
         private bool m_lastInGameState = false;
@@ -25,6 +26,9 @@ namespace PurrLobby
         {
             if(!room.IsValid)
                 return;
+
+            if (m_roleKeeper == null)
+                m_roleKeeper = FindAnyObjectByType<RoleKeeper>();
 
             HandleExistingMembers(room);
             HandleNewMembers(room);
@@ -41,6 +45,11 @@ namespace PurrLobby
 
         private void HandleExistingMembers(Lobby room)
         {
+            if (room.Members.Count(x => x.IsReady) == room.Members.Count)  
+            {
+                roleButton.interactable = false;
+            }
+            MemberEntry hostEntry = null;
             foreach (Transform child in content)
             {
                 if (!child.TryGetComponent(out MemberEntry member))
@@ -50,18 +59,20 @@ namespace PurrLobby
                 if (!string.IsNullOrEmpty(matchingMember.Id))
                 {
                     member.SetReady(matchingMember.IsReady);
-                    member.SetRole(matchingMember.IsGhost);
-                    HandleHostOptions(member, room);
+                    member.SetRole(matchingMember.IsGhost, matchingMember.Skin);
+                    if (member.SetHost()) hostEntry = member;    
                 }
             }
+            HandleHostOptions(hostEntry, room);
         }
 
         private void HandleHostOptions(MemberEntry _member, Lobby _room)
         {
-            if (_member.SetHost())
+            if (_member != null)
             {
-                FindAnyObjectByType<ViewManager>().showHostObjects(true);
+                _member._lobbyManager.showHostObjects(true);
                 int readyMembers = _room.Members.Count(x => x.IsReady);
+                Debug.Log(readyMembers);
                 if (readyMembers < _room.Members.Count - 1)
                 {
                     _member.LockReady(true);
@@ -84,11 +95,13 @@ namespace PurrLobby
 
                 var entry = Instantiate(memberEntryPrefab, content);
                 entry.readyButton = readyButton;
+                entry.roleButton = roleButton;
                 entry._lobbyManager = FindAnyObjectByType<LobbyManager>();
                 entry._ownId = await entry._lobbyManager.GetPlayer();
                 entry.Init(member);
-                m_roleKeeper.AddRole(member.Id, member.DisplayName, member.IsGhost, entry._ownId == member.Id);
-                HandleHostOptions(entry, room);
+                m_roleKeeper.AddRole(member.Id, member.DisplayName, member.IsGhost, member.Skin, entry._ownId == member.Id);
+                entry.SetRole(member.IsGhost, member.Skin);
+                if (entry.SetHost()) HandleHostOptions(entry, room);
             }
         }
 
@@ -125,7 +138,9 @@ namespace PurrLobby
             var existingMembers = content.GetComponentsInChildren<MemberEntry>();
             foreach (var member in existingMembers)
             {
-                member.LockReady(m_isSomeoneInGame);
+                //tedious if but if it works
+                if (!member._lobbyManager.isPlayerHost(member._ownId))
+                    member.LockReady(m_isSomeoneInGame);
             }
         }
     }

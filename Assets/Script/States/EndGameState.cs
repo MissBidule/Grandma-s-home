@@ -14,12 +14,17 @@ namespace Script.States
     {
         [PurrScene, SerializeField] private string m_lobbyScene;
         
+        public bool IsGameOver { get; private set; }
+
         private PlayerSpawningState m_spawnState;
         private bool _hasAlreadySwitched = false;
-        
+
+        [SerializeField] private GameObject pauseMenu;
+
         private void Awake()
         {
             InstanceHandler.RegisterInstance(this);
+            IsGameOver = false;
             
             _hasAlreadySwitched = false; // Reset flag on start to allow scene switching in new lobby sessions
         }
@@ -32,7 +37,10 @@ namespace Script.States
 
         public override void Enter(bool _childWin, bool _asServer)
         {
+            IsGameOver = true;
             base.Enter(_asServer);
+
+            HidePause();
 
             foreach (StateNode state in machine.states)
             {
@@ -51,6 +59,13 @@ namespace Script.States
             if (!InstanceHandler.TryGetInstance(out EndGameView endGameView))
                 return;
             endGameView.EnableHostTools();
+        }
+
+        [ObserversRpc]
+        public void HidePause()
+        {
+            Destroy(pauseMenu);
+            Cursor.lockState = CursorLockMode.None;
         }
         
         [ObserversRpc]
@@ -77,11 +92,35 @@ namespace Script.States
             SceneManager.LoadSceneAsync(m_lobbyScene);
         }
 
+        public void StopGame() {
+            Destroy(FindAnyObjectByType<LobbyManager>().gameObject);
+            BackToLobby();
+        }
+
+        public void BackToMenu()
+        {
+            StartCoroutine(FindAnyObjectByType<LobbyManager>().RemovePlayerAndDestroy());
+            
+            PurrLogger.Log("Returning to menu.", this);
+            FindAnyObjectByType<LobbyDataHolder>().SetCurrentLobby(default);
+
+            if (string.IsNullOrEmpty(m_lobbyScene))
+            {
+                PurrLogger.LogError("Next scene name is not set!", this);
+                return;
+            }
+
+            PurrLogger.Log($"Switching to scene: {m_lobbyScene}", this);
+            
+            // Load game scene - ConnectionStarter in new scene will handle network initialization
+            SceneManager.LoadSceneAsync(m_lobbyScene);
+        }
+
         public void ServerLost()
         {
-            PurrLogger.LogWarning("Server is not accessible. Returning to lobby.", this);
+            PurrLogger.LogWarning("Server is not accessible. Returning to menu.", this);
             FindAnyObjectByType<LobbyDataHolder>().SetCurrentLobby(default);
-            SceneManager.LoadSceneAsync(m_lobbyScene);
+            StopGame();
         }
 
         [ObserversRpc]

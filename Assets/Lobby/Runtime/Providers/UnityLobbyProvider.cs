@@ -127,6 +127,7 @@ namespace PurrLobby.Providers {
                 LobbyEventCallbacks.LobbyChanged += LobbyEventCallbacks_LobbyChanged;
 
                 await LobbyService.Instance.SubscribeToLobbyEventsAsync(CurrentLobby.Id, LobbyEventCallbacks);
+
             } catch(Exception ex) {
                 PurrLogger.LogError($"Failed to subscribe to callback events: {ex}");
             }
@@ -169,7 +170,7 @@ namespace PurrLobby.Providers {
             return updatedLobby;
         }
 
-        public async Task<Lobby> CreateLobbyAsync(string _lobbyName, int maxPlayers, Dictionary<string, string> lobbyProperties = null) {
+        public async Task<Lobby> CreateLobbyAsync(int maxPlayers, Dictionary<string, string> lobbyProperties = null) {
             playerName = FindAnyObjectByType<PersistentDataManager>().LoadUsername();
             try {
                 if(!IsUnityServiceAvailable) { return default; }
@@ -181,7 +182,7 @@ namespace PurrLobby.Providers {
                     lobbyData.Add(prop.Key, new DataObject(DataObject.VisibilityOptions.Public, prop.Value, 0));
                 }
 
-                lobbyName = _lobbyName == "" ? playerName + "'s Lobby" : _lobbyName;
+                lobbyName = playerName + "'s Lobby";
 
                 CurrentLobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, maxPlayers, new CreateLobbyOptions() {
                     IsPrivate = lobbyType == LobbyType.Private,
@@ -252,10 +253,12 @@ namespace PurrLobby.Providers {
         public async Task InitializeLocalPlayerData() {
             playerName = FindAnyObjectByType<PersistentDataManager>().LoadUsername();
             string isGhost = (UnityEngine.Random.Range(0, 2) == 0).ToString();
+            string skin = UnityEngine.Random.Range(0, 5).ToString();
             LocalPlayer.Data = new Dictionary<string, PlayerDataObject>() {
                 { "Name", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, playerName) },
                 { "IsReady", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, "False") },
                 { "IsGhost", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, isGhost) },
+                { "Skin", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, skin) },
                 { "IsInGame", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, "False") }
             };
 
@@ -271,8 +274,8 @@ namespace PurrLobby.Providers {
                         Id = player.Id,
                         DisplayName = player.Data["Name"]?.Value,
                         IsReady = player.Data["IsReady"]?.Value == "True",
-                        Avatar = null,
                         IsGhost = player.Data["IsGhost"]?.Value == "True",
+                        Skin = int.Parse(player.Data["Skin"]?.Value ?? "0"),
                         IsInGame = player.Data["IsInGame"]?.Value == "True",
                     });
                 } catch { } //player dataobject can throw
@@ -593,6 +596,18 @@ namespace PurrLobby.Providers {
         /// <summary>
         /// Update Lobby MaxPlayers
         /// </summary>
+        public async Task UpdateLobbyName(string _lobbyName)
+        {
+            lobbyName = _lobbyName;
+            await LobbyService.Instance.UpdateLobbyAsync(CurrentLobby.Id, new UpdateLobbyOptions() {
+                Name = _lobbyName,
+                Data = CurrentLobby.Data
+            });
+        }
+
+        /// <summary>
+        /// Update Lobby MaxPlayers
+        /// </summary>
         public async Task UpdateLobbyMaxPlayers(int _maxPlayers)
         {
             await LobbyService.Instance.UpdateLobbyAsync(CurrentLobby.Id, new UpdateLobbyOptions() {
@@ -618,31 +633,30 @@ namespace PurrLobby.Providers {
         /// </summary>
         public async Task OnLobbyUpdateData(string _lobbyId) {
             if(!IsUnityServiceAvailable) { return; }
-
-            CurrentLobby = await LobbyService.Instance.GetLobbyAsync(_lobbyId);
             RoleKeeper roleList = FindAnyObjectByType<RoleKeeper>();
             List<string> disconnectedPlayers = roleList.GetDisconnectedPlayers();
             foreach(string disconnectedPlayer in disconnectedPlayers)
             {
-                await LobbyService.Instance.RemovePlayerAsync(CurrentLobby.Id, disconnectedPlayer);
+                await LobbyService.Instance.RemovePlayerAsync(_lobbyId, disconnectedPlayer);
+            }
+
+            CurrentLobby = await LobbyService.Instance.GetLobbyAsync(_lobbyId);
+
+            await SubscribeLobbyEventsAsync();
+            _ = InitializeLocalPlayerData();
+            
+            if (IsLocalPlayerHost)
+            {
+                _ = SetLobbyDataAsync("JoinCode", "");
             }
 
             foreach (Player player in CurrentLobby.Players)
             {
-                await SetIsReadyAsync(player.Id, false);
-                await SetIsInGameAsync(player.Id, false);
+                _ = SetIsReadyAsync(player.Id, false);
+                _ = SetIsInGameAsync(player.Id, false);
             }
             
             roleList.DeleteList();
-            CurrentLobby = await LobbyService.Instance.GetLobbyAsync(_lobbyId);
-
-            await SubscribeLobbyEventsAsync();
-            await InitializeLocalPlayerData();
-
-            if (IsLocalPlayerHost)
-            {
-                await SetLobbyDataAsync("JoinCode", "");
-            }
 
             OnLobbyUpdate();
         }
@@ -690,6 +704,12 @@ namespace PurrLobby.Providers {
             if(!IsUnityServiceAvailable || CurrentLobby == null || LocalPlayer == null) { return; }
 
             await SetPlayerDataAsync("IsGhost", $"{isGhost}");
+        }
+
+        public async Task SetSkinAsync(string userId, int skin) {
+            if(!IsUnityServiceAvailable || CurrentLobby == null || LocalPlayer == null) { return; }
+
+            await SetPlayerDataAsync("Skin", $"{skin}");
         }
 
         public async Task SetIsInGameAsync(string userId, bool isInGame) {
