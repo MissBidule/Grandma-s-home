@@ -234,7 +234,7 @@ namespace Script.HouseBuilding
 
                 int layoutIndex = Random.Range(0, room.m_roomLayouts.Count);
 
-                GameObject go = (GameObject)PrefabUtility.InstantiatePrefab(
+                GameObject go = Instantiate(
                     room.m_roomLayouts[layoutIndex].gameObject,
                     room.m_roomAnchor
                 );

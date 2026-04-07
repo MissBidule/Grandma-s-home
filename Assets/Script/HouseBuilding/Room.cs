@@ -31,7 +31,7 @@ namespace Script.HouseBuilding
 
         private void Awake()
         {
-            // Object Validation
+            /* Object Validation
             if (m_sabotageObject == null)
                 PurrLogger.LogWarning($"{m_roomType} Sabotage Object is null", this);
             if (m_trapdoorEntry == null)
@@ -42,6 +42,7 @@ namespace Script.HouseBuilding
                 PurrLogger.LogWarning($"{m_roomType} Small Props Anchors is null", this);
             if (m_mediumPropsAnchors == null)
                 PurrLogger.LogWarning($"{m_roomType} Medium Props Anchors is null", this);
+            */
         }
         
         public SabotageObject GetSabotageObject()
@@ -107,11 +108,21 @@ namespace Script.HouseBuilding
             // Initialize the given proportion of the room props
             for (int index = 0; index < m_smallPropsAnchors.Count * _smallPropsPercentage; index++)
             {
+                if (m_smallPropsAnchors[index] == null)
+                {
+                    PurrLogger.LogError($"Small PropAnchor initialization failed (Anchor {index} malformed)", this);
+                    continue;
+                }
                 m_smallPropsAnchors[index].Initialize();
             }
 
             for (int index = 0; index < m_mediumPropsAnchors.Count * _mediumPropsPercentage; index++)
             {
+                if (m_mediumPropsAnchors[index] == null)
+                {
+                    PurrLogger.LogError($"Medium PropAnchor initialization failed (Anchor {index} malformed)", this);
+                    continue;
+                }
                 m_mediumPropsAnchors[index].Initialize();
             }
         }

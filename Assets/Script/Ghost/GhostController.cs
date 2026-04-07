@@ -47,7 +47,7 @@ public class GhostController : PlayerControllerCore, IInteractable
     private float m_reviveTimer = 0f;
     public float m_reviveDuration = 0f;
     private bool m_isFocused = false;
-    [SerializeField] private string m_promptMessage = "Hold E : Revive";
+    [SerializeField] private string m_promptLabelRevive = "Revive";
 
     [Header("Highlight")]
     [SerializeField] private List<Renderer> m_highlightRenderers = new List<Renderer>();
@@ -249,7 +249,7 @@ public class GhostController : PlayerControllerCore, IInteractable
         m_beingRevived = true;
         m_reviver.RevivingBuddy(m_reviveDuration);
         m_reviver.FreezeReviverRpc();
-        if (InteractPromptUI.m_Instance != null) InteractPromptUI.m_Instance.Hide();
+        if (_reviver.isOwner && InteractPromptUI.m_Instance != null) InteractPromptUI.m_Instance.Hide();
     }
 
     public void RevivingBuddy(float _duration)
@@ -356,7 +356,7 @@ public class GhostController : PlayerControllerCore, IInteractable
     {
         print("Found dead ghost");
         m_isFocused = true;
-        InteractPromptUI.m_Instance.Show(m_promptMessage);
+        InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelRevive));
         SetHighlight(true);
     }
 
