@@ -161,7 +161,7 @@ public class GhostMorphPreview : MonoBehaviour
             //This one prevents unwanted visuals
             UpdateMaterial();
 
-            InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelValid));
+            InteractPromptUI.m_Instance.ShowDynamic(() => InputBindingHelper.BuildPrompt("Ghost", "TransformConfirm", m_promptLabelValid));
             m_GhostPreviewOn =true;
         }
         m_colliders.Clear();
@@ -309,7 +309,7 @@ public class GhostMorphPreview : MonoBehaviour
                     if(!GetComponentInParent<GhostMorph>().m_isMorphed)
                     {
                        // There is a clone for few seconds...
-                    InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "Scan", m_promptLabelSCAN));
+                    InteractPromptUI.m_Instance.ShowDynamic(() => InputBindingHelper.BuildPrompt("Ghost", "Scan", m_promptLabelSCAN));
                     }
                     ClearHighlight();
                     HighlightObject(hitObject);
@@ -328,7 +328,7 @@ public class GhostMorphPreview : MonoBehaviour
             InteractPromptUI.m_Instance.Hide();
 
             if(m_GhostPreviewOn == true){
-            InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelValid));
+            InteractPromptUI.m_Instance.ShowDynamic(() => InputBindingHelper.BuildPrompt("Ghost", "TransformConfirm", m_promptLabelValid));
             
             } 
         }

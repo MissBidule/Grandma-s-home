@@ -2,6 +2,8 @@ using PurrLobby;
 using PurrNet;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 using Script.States;
 
@@ -35,6 +37,7 @@ public class PauseMenuView : MonoBehaviour
     private GameObject m_mainPanel;
     private OptionsView m_optionsPanel;
     private bool m_isPaused;
+    private Button m_resumeButton;
 
     private void Awake()
     {
@@ -43,6 +46,48 @@ public class PauseMenuView : MonoBehaviour
         m_optionsPanel = CreateOptionsPanel();
         BuildMainPanel();
         SetVisible(false);
+    }
+
+    private void Update()
+    {
+        var gp = UnityEngine.InputSystem.Gamepad.current;
+        if (gp != null)
+        {
+            // Start button toggles pause menu open/close
+            if (gp.startButton.wasPressedThisFrame)
+            {
+                OnEscapePressed();
+                return;
+            }
+            // B button closes current panel / resumes when already paused
+            if (m_isPaused && gp.buttonEast.wasPressedThisFrame)
+                OnEscapePressed();
+        }
+    }
+
+    private void OnEnable()  => InputDeviceTracker.OnDeviceChanged += OnDeviceChanged;
+    private void OnDisable() => InputDeviceTracker.OnDeviceChanged -= OnDeviceChanged;
+
+    private void OnDeviceChanged()
+    {
+        if (!m_isPaused) return;
+        if (InputDeviceTracker.IsGamepadActive)
+        {
+            // Re-select the correct button when switching to gamepad while paused
+            if (m_optionsPanel.gameObject.activeSelf)
+            {
+                var first = m_optionsPanel.GetComponentInChildren<Selectable>(false);
+                EventSystem.current?.SetSelectedGameObject(first?.gameObject);
+            }
+            else
+            {
+                EventSystem.current?.SetSelectedGameObject(m_resumeButton?.gameObject);
+            }
+        }
+        else
+        {
+            EventSystem.current?.SetSelectedGameObject(null);
+        }
     }
 
     private void OnDestroy()
@@ -71,6 +116,7 @@ public class PauseMenuView : MonoBehaviour
         m_mainPanel.SetActive(true);
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        EventSystem.current?.SetSelectedGameObject(null);
         OnPauseChanged?.Invoke(false);
     }
 
@@ -81,6 +127,11 @@ public class PauseMenuView : MonoBehaviour
     {
         m_mainPanel.SetActive(false);
         m_optionsPanel.gameObject.SetActive(true);
+        if (InputDeviceTracker.IsGamepadActive)
+        {
+            var first = m_optionsPanel.GetComponentInChildren<Selectable>(false);
+            EventSystem.current?.SetSelectedGameObject(first?.gameObject);
+        }
     }
 
     /*
@@ -90,6 +141,8 @@ public class PauseMenuView : MonoBehaviour
     {
         m_optionsPanel.gameObject.SetActive(false);
         m_mainPanel.SetActive(true);
+        if (InputDeviceTracker.IsGamepadActive)
+            EventSystem.current?.SetSelectedGameObject(m_resumeButton?.gameObject);
     }
 
     /*
@@ -118,8 +171,25 @@ public class PauseMenuView : MonoBehaviour
         m_mainPanel.SetActive(true);
         SetVisible(true);
         Cursor.lockState = CursorLockMode.Confined;
-        Cursor.visible = true;
+        Cursor.visible = !InputDeviceTracker.IsGamepadActive;
+        EnsureEventSystem();
+        if (InputDeviceTracker.IsGamepadActive)
+            EventSystem.current?.SetSelectedGameObject(m_resumeButton?.gameObject);
         OnPauseChanged?.Invoke(true);
+    }
+
+    private void EnsureEventSystem()
+    {
+        if (EventSystem.current == null)
+        {
+            var go = new GameObject("EventSystem");
+            go.AddComponent<EventSystem>();
+            go.AddComponent<InputSystemUIInputModule>();
+            return;
+        }
+        // Ensure existing EventSystem uses InputSystemUIInputModule (not legacy StandaloneInputModule)
+        if (EventSystem.current.GetComponent<InputSystemUIInputModule>() == null)
+            EventSystem.current.gameObject.AddComponent<InputSystemUIInputModule>();
     }
 
     private void SetVisible(bool _visible)
@@ -196,12 +266,27 @@ public class PauseMenuView : MonoBehaviour
         rect.pivot = new Vector2(0.5f, 0.5f);
         rect.sizeDelta = new Vector2(340f, 300f);
 
-        CreateButton(m_mainPanel.transform, "Resume",   new Vector2(0f,  80f), Resume);
-        CreateButton(m_mainPanel.transform, "Options",  new Vector2(0f,  10f), OpenOptions);
-        CreateButton(m_mainPanel.transform, "Back to menu", new Vector2(0f, -60f), BackToMenu,
+        m_resumeButton = CreateButton(m_mainPanel.transform, "Resume",   new Vector2(0f,  80f), Resume);
+        var optionsButton = CreateButton(m_mainPanel.transform, "Options",  new Vector2(0f,  10f), OpenOptions);
+        var backButton = CreateButton(m_mainPanel.transform, "Back to menu", new Vector2(0f, -60f), BackToMenu,
              new Color(0.75f, 0.38f, 0.02f));
-        CreateButton(m_mainPanel.transform, "Quit",     new Vector2(0f, -130f), QuitGame,
+        var quitButton = CreateButton(m_mainPanel.transform, "Quit",     new Vector2(0f, -130f), QuitGame,
                      new Color(0.60f, 0.04f, 0.04f));
+
+        // Explicit vertical navigation for gamepad D-pad / left stick
+        SetVerticalNav(m_resumeButton, null, optionsButton);
+        SetVerticalNav(optionsButton, m_resumeButton, backButton);
+        SetVerticalNav(backButton, optionsButton, quitButton);
+        SetVerticalNav(quitButton, backButton, null);
+    }
+
+    private void SetVerticalNav(Button btn, Button up, Button down)
+    {
+        var nav = btn.navigation;
+        nav.mode = Navigation.Mode.Explicit;
+        nav.selectOnUp = up;
+        nav.selectOnDown = down;
+        btn.navigation = nav;
     }
 
     /*
@@ -234,7 +319,7 @@ public class PauseMenuView : MonoBehaviour
      * @param onClick       Callback invoked when the button is clicked.
      * @param bgColor       Optional background colour override; defaults to the standard grey.
      */
-    private void CreateButton(Transform parent, string label, Vector2 anchoredPos,
+    private Button CreateButton(Transform parent, string label, Vector2 anchoredPos,
                               System.Action onClick, Color? bgColor = null)
     {
         var go  = new GameObject("Btn_" + label);
@@ -262,5 +347,7 @@ public class PauseMenuView : MonoBehaviour
         txtRect.anchorMax = Vector2.one;
         txtRect.offsetMin = Vector2.zero;
         txtRect.offsetMax = Vector2.zero;
+
+        return btn;
     }
 }

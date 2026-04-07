@@ -87,14 +87,14 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         if (!m_isSabotaged)
         {
             bool canSabotage = _player.m_isGhost && m_isSabotable;
-            if (canSabotage) InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelSABOTAGE));
+            if (canSabotage) InteractPromptUI.m_Instance.ShowDynamic(() => InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelSABOTAGE));
             else InteractPromptUI.m_Instance.Hide();
             SetHighlight(canSabotage);
         }
         if (m_isSabotaged)
         {
             if (_player.m_isGhost) InteractPromptUI.m_Instance.Hide();
-            else InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Child", "Interact", m_promptLabelREPAIR));
+            else InteractPromptUI.m_Instance.ShowDynamic(() => InputBindingHelper.BuildPrompt("Child", "Interact", m_promptLabelREPAIR));
             SetHighlight(!_player.m_isGhost);
         }
         m_saboteurs.Add(_player);
@@ -204,7 +204,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         SetHighlight(false);
 
         string validMap = _sabo.m_isGhost ? "Ghost" : "Child";
-        InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt(validMap, "Validate", m_promptLabelVALID));
+        InteractPromptUI.m_Instance.ShowDynamic(() => InputBindingHelper.BuildPrompt(validMap, "Validate", m_promptLabelVALID));
 
         m_saboteur = _sabo;
         QteCircle qte = FindAnyObjectByType<QteCircle>();
@@ -253,10 +253,10 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         }
         else
         {
-            string prompt = m_saboteur.m_isGhost
+            bool isGhost = m_saboteur.m_isGhost;
+            InteractPromptUI.m_Instance.ShowDynamic(() => isGhost
                 ? InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelSABOTAGE)
-                : InputBindingHelper.BuildPrompt("Child", "Interact", m_promptLabelREPAIR);
-            InteractPromptUI.m_Instance.Show(prompt);
+                : InputBindingHelper.BuildPrompt("Child", "Interact", m_promptLabelREPAIR));
         }
 
         m_saboteur = null;
