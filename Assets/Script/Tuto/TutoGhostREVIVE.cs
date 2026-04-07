@@ -1,18 +1,25 @@
 using UnityEngine;
 
+// C ce fichier
+
 public class TutoGhostREVIVE : MonoBehaviour
 {
-    public ReviveBarUI m_reviveBarUI;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    [SerializeField] private GameObject m_barRevive;
 
-    // Update is called once per frame
-    void Update()
-    {
-        m_reviveBarUI.SetProgress(1f); m_reviveBarUI.Show();
-    }
     void Awake()
     {
-        m_reviveBarUI.Show();
-        Debug.Log("why");
+        Hide();
+    }
+
+    public void Hide()
+    {
+        if (m_barRevive != null)
+            m_barRevive.SetActive(false);
+    }
+
+    public void Show()
+    {
+        if (m_barRevive != null)
+            m_barRevive.SetActive(true);
     }
 }
