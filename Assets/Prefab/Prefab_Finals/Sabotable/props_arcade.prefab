@@ -122,7 +122,8 @@ MonoBehaviour:
   _directChildren: []
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
-  m_vfxPrefab: {fileID: 7954791770781915802, guid: 24c25691adfa349b6aec8ba5abe70b41, type: 3}
+  m_vfxPrefab: {fileID: 5429107090083859355}
+  m_interactPrefab: {fileID: 712198313424324349}
   m_scoreValue: 1
   m_highlightRenderers: []
   m_highlightColor: {r: 0, g: 1, b: 1, a: 1}
@@ -135,9 +136,9 @@ MonoBehaviour:
   m_pulseSpeed: 3
   m_minIntensity: 0.2
   m_maxIntensity: 0.6
-  m_promptMessageSABOTAGE: 'E : Sabotage'
-  m_promptMessageREPAIR: 'E : Repair'
-  m_promptMessageSPACE: 'SPACE : Valid'
+  m_promptLabelSABOTAGE: Sabotage
+  m_promptLabelREPAIR: Repair
+  m_promptLabelVALID: Valid
   m_saboteur: {fileID: 0}
   m_isSabotaged: 0
   m_saboteurs: []
@@ -149,6 +150,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4964904704022526846}
     m_Modifications:
+    - target: {fileID: 799033884202615040, guid: 37dc3cafd6e1f9a4292cc71b598ec0e7, type: 3}
+      propertyPath: scalingMode
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2468237517285583461, guid: 37dc3cafd6e1f9a4292cc71b598ec0e7, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.14
@@ -202,6 +207,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 37dc3cafd6e1f9a4292cc71b598ec0e7, type: 3}
+--- !u!1 &712198313424324349 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4892024156618781293, guid: 37dc3cafd6e1f9a4292cc71b598ec0e7, type: 3}
+  m_PrefabInstance: {fileID: 5332766199219385488}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7512349885903347445 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2468237517285583461, guid: 37dc3cafd6e1f9a4292cc71b598ec0e7, type: 3}
@@ -279,5 +289,10 @@ PrefabInstance:
 --- !u!4 &2664634493560712538 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 9166869493165847328, guid: 02515c6419bb9734c84ac54fd92c6b5b, type: 3}
+  m_PrefabInstance: {fileID: 6615204872511004282}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &5429107090083859355 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1195140458111784417, guid: 02515c6419bb9734c84ac54fd92c6b5b, type: 3}
   m_PrefabInstance: {fileID: 6615204872511004282}
   m_PrefabAsset: {fileID: 0}

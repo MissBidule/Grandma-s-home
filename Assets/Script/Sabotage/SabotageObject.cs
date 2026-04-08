@@ -13,6 +13,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
 {
     [Header("Sabotaged VFX")]
     [SerializeField] private GameObject m_vfxPrefab;
+    [SerializeField] private GameObject m_interactPrefab;
     private GameObject m_vfx;
 
     [Header("Score")]
@@ -150,9 +151,24 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         rb.constraints = (RigidbodyConstraints)(RigidbodyConstraints.FreezeAll - RigidbodyConstraints.FreezePositionY);
         SetQteRunningServer(true);
         StartQte(_player);
+        StartVfxForAll();
     }
 
-    public void OnStopInteract(Interact _player) { }
+    [ServerRpc(requireOwnership:false)]
+    private void StartVfxForAll(RPCInfo info = default)
+    {
+        m_interactPrefab.SetActive(true);
+    }
+
+    public void OnStopInteract(Interact _player)
+    {
+    }
+
+    [ServerRpc(requireOwnership:false)]
+    private void StopVfxForAll(RPCInfo info = default)
+    {
+        m_interactPrefab.SetActive(false);
+    }
 
     private IEnumerator ShowTempPrompt(string _message, float _duration)
     {
@@ -181,6 +197,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
      */
     public void StartQte(Interact _sabo)
     {
+        m_interactPrefab.SetActive(true);
         Debug.Log(_sabo.transform.parent.name + " started sabotage");
         m_isQteRunning = true;
         SetHighlight(false);
@@ -201,6 +218,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
      */
     private void OnQteFinished(bool _success)
     {
+        StopVfxForAll();
         m_isQteRunning = false;
 
         m_saboteur.OnSabotageOver(_success);
