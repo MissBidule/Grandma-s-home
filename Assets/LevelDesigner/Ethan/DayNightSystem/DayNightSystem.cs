@@ -40,6 +40,8 @@ public class DayNightSystem : MonoBehaviour
     public Color sunDayColor;// FFE499
     public Color sunNightColor;// 123E41
 
+    [SerializeField] private bool m_autoStart = false;
+
     //Démarrer avec un angle assez élevé 150, pour la monter à 180 sur 40% du temps de jeu total, faire un changement entre les 2 HDRI blend avec les paramètre de luminosité et allumages progressifs de toutes sources de lumière sur 20% du temps de jeu total, sur les 40% restant de jeu le soleil aura un éclairage d'une couleur plus froide et une intensité plus faible en remontant vers 150 comme une monté de lune.
 
     void Start()
@@ -64,11 +66,6 @@ public class DayNightSystem : MonoBehaviour
         //temps de jeu actuel
         currentTime = 0f;
 
-        //random de l'angle y
-        if (isRandomSunY){
-            sunInitialY = Random.Range(0f, 360f);
-        }
-
         //rotation du soleil au début
         sun.transform.rotation = Quaternion.Euler(sunInitialX, sunInitialY, 0f);
         // UnityEngine.Debug.LogFormat("Sun initial rotation set to: {0}", sun.transform.rotation.eulerAngles);
@@ -91,17 +88,25 @@ public class DayNightSystem : MonoBehaviour
 
         lightOnSystem = GetComponentInParent<LightOnSystem>();//récupère le script d'allumage des lumières dans le parent
 
-        UpdateSky(gameTime);
+        if (m_autoStart)
+            UpdateSky(gameTime);
     }
 
     //toutes les actualisations a prendre en compte en fonction de l'état du jeu
-    void UpdateSky(float serverGameTime)
+    public void UpdateSky(float _serverGameTime)
     {
-        gameTime = serverGameTime;
+        gameTime = _serverGameTime;
 
         if (skyCoroutine != null)
         {
             StopCoroutine(skyCoroutine);
+        }
+        
+        //random de l'angle y
+        if (isRandomSunY)
+        {
+            Random.InitState((int)_serverGameTime);
+            sunInitialY = Random.Range(0f, 360f);
         }
 
         skyCoroutine = StartCoroutine(UpdateSkyCoroutine());

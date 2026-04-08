@@ -17,7 +17,6 @@ namespace Script.States
     {
         [Header("Round Settings")]
         [SerializeField] [Tooltip("Duration of the round in minutes")] private float m_roundDuration;
-        [SerializeField] [Tooltip("Number of time the sky will move in the round.")] private int m_sunIncrementNumber = 12;
         [SerializeField] [Tooltip("Start duration")] private float m_startDelay = 10f;
 
         [Header("Door")]
@@ -173,18 +172,24 @@ namespace Script.States
             SabotageManager sabotageManager = FindAnyObjectByType<SabotageManager>();
             sabotageManager?.Initialize();
 
-            for (int i = 0; i < m_sunIncrementNumber; i++)
-            {
-                yield return new WaitForSeconds(_roundDuration/m_sunIncrementNumber);
-                // TODO move the sun to reflect time change
-            }
+            // Call Ethan day/night cycle
+            StartDayNight(_roundDuration);
+            
+            PurrLogger.Log($"m_roundDuration {_roundDuration}");
+            yield return new WaitForSeconds(_roundDuration);
             // Time ended
             PurrLogger.Log("Round Timer Ended", this);
             MoveToEnd(true);
         }
 
+        [ObserversRpc]
+        public void StartDayNight(float _roundDuration)
+        {
+            if (InstanceHandler.TryGetInstance(out LightTimer lightTimer))
+                lightTimer.StartLightSystem(_roundDuration);
+        }
+        
         // Action Reactions
-
         private void OnGhostDeathChange(bool _deathOrRevive, PlayerID _playerID)
         {
             PurrLogger.Log($"Ghost death: {_deathOrRevive}, PlayerID: {_playerID}");
