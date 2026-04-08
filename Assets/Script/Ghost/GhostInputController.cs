@@ -24,7 +24,7 @@ public class GhostInputController : MonoBehaviour
 
     private bool isOwner => m_ghostClientController != null && m_ghostClientController.isOwner;
 
-    [SerializeField] private string m_promptLabelValid = "Valid";
+    [SerializeField] private string m_promptLabelValid = "Valid transformation";
 
     /*
      * @brief Awake is called when the script instance is being loaded
@@ -76,7 +76,9 @@ public class GhostInputController : MonoBehaviour
         if (_context.performed)
         {
             m_ghostClientController.OnScan();
-            InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelValid));
+            var wheel = m_ghostClientController.m_wheel;
+            if (wheel == null || !wheel.m_isWaitingForSlotSelection)
+                InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelValid));
         }
     }
 
