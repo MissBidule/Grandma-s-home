@@ -45,6 +45,21 @@ namespace PurrLobby.Editor
             {
                 EditorGUILayout.PropertyField(eventProperty5, true);
             }
+            var eventProperty6 = serializedObject.FindProperty("m_serverName");
+            if (eventProperty6 != null)
+            {
+                EditorGUILayout.PropertyField(eventProperty6, true);
+            }
+            var eventProperty7 = serializedObject.FindProperty("m_loadingCanvas");
+            if (eventProperty7 != null)
+            {
+                EditorGUILayout.PropertyField(eventProperty7, true);
+            }
+            var eventProperty8 = serializedObject.FindProperty("m_roleKeeperPrefab");
+            if (eventProperty8 != null)
+            {
+                EditorGUILayout.PropertyField(eventProperty8, true);
+            }
             serializedObject.ApplyModifiedProperties();
             EditorGUILayout.Space();
         }
@@ -227,15 +242,6 @@ namespace PurrLobby.Editor
                         EditorGUILayout.LabelField("ID:", member.Id);
                         EditorGUILayout.LabelField("Display Name:", member.DisplayName);
                         EditorGUILayout.LabelField("Is Ready:", member.IsReady.ToString());
-                        if (member.Avatar != null)
-                        {
-                            EditorGUILayout.LabelField("Avatar:");
-                            var rect = EditorGUILayout.GetControlRect(false, 64);
-                            float indentOffset = EditorGUI.indentLevel * 15f;
-                            rect.x += indentOffset;
-                            rect.width = 64;
-                            EditorGUI.DrawPreviewTexture(rect, member.Avatar);
-                        }
                         EditorGUI.indentLevel--;
                     }
                 }

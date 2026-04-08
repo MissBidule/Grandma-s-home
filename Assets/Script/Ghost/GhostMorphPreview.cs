@@ -11,7 +11,7 @@ using UnityEngine.Rendering;
  * @brief Contains class declaration for TransformPreviewGhost
  * @details The TransformPreviewGhost class handles the preview of transformations, checking for collisions and updating materials accordingly.
  */
-public class GhostMorphPreview : NetworkBehaviour
+public class GhostMorphPreview : MonoBehaviour
 {
     [SerializeField] private float m_scanRange = 10f;
     [SerializeField] private LayerMask m_scanLayerMask;
@@ -39,9 +39,13 @@ public class GhostMorphPreview : NetworkBehaviour
     private MaterialPropertyBlock m_propertyBlock;
 
     private Transform m_cameraTransform;
+    private PlayerControllerCore m_core;
+    private Interact m_interact;
+    private bool m_rotateLeft = false;
+    private bool m_rotateRight = false;
 
-    [SerializeField] private string m_promptMessageSCAN = "T : SCAN";
-    [SerializeField] private string m_promptMessageValid = "F : Valid";
+    [SerializeField] private string m_promptLabelSCAN = "SCAN";
+    [SerializeField] private string m_promptLabelValid = "Valid";
     [SerializeField] private float m_rotateSpeed = 120f;
 
     [SerializeField] private bool m_GhostPreviewOn;
@@ -52,38 +56,29 @@ public class GhostMorphPreview : NetworkBehaviour
      */
     void Start()
     {
-        if (!isOwner) return;
-        InitOwner();
-    }
-
-    protected override void OnOwnerChanged(PurrNet.PlayerID? oldOwner, PurrNet.PlayerID? newOwner, bool asServer)
-    {
-        if (isOwner && m_cameraTransform == null) InitOwner();
-    }
-
-    private void InitOwner()
-    {
         m_meshRenderer = GetComponent<MeshRenderer>();
         m_previewCollider = GetComponent<Collider>();
         m_meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
         m_propertyBlock = new MaterialPropertyBlock();
         // Use PlayerControllerCore.m_playerCamera (Inspector-assigned, always valid)
         // instead of GhostClientController.m_playerCamera (lazy-initialized, may be null)
-        var core = transform.parent.GetComponent<PlayerControllerCore>();
-        if (core != null && core.m_playerCamera != null)
-            m_cameraTransform = core.m_playerCamera.transform;
+        m_core = transform.parent.GetComponent<PlayerControllerCore>();
+        if (m_core != null && m_core.m_playerCamera != null)
+            m_cameraTransform = m_core.m_playerCamera.transform;
+        m_interact = transform.parent.GetComponentInChildren<Interact>();
     }
+
 
     private void Update()
     {
-        if (!isOwner) return;
+        if (m_core == null || !m_core.isOwner) return;
         CheckForScannableObject();
 
         if (m_currentPrefab != null)
         {
             float rotDir = 0f;
-            if (Keyboard.current.qKey.isPressed) rotDir -= 1f;
-            if (Keyboard.current.eKey.isPressed) rotDir += 1f;
+            if (m_rotateLeft) rotDir -= 1f;
+            if (m_rotateRight) rotDir += 1f;
             if (rotDir != 0f)
             {
                 transform.Rotate(0f, rotDir * m_rotateSpeed * Time.deltaTime, 0f, Space.World);
@@ -99,7 +94,6 @@ public class GhostMorphPreview : NetworkBehaviour
      */
     public void ScanForPrefab()
     {
-        
         Debug.Log("Scan");
 
         Vector3 rayOrigin = m_cameraTransform.transform.position;
@@ -161,7 +155,7 @@ public class GhostMorphPreview : NetworkBehaviour
             //This one prevents unwanted visuals
             UpdateMaterial();
 
-            InteractPromptUI.m_Instance.Show(m_promptMessageValid);
+            InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelValid));
             m_GhostPreviewOn =true;
         }
         m_colliders.Clear();
@@ -185,7 +179,7 @@ public class GhostMorphPreview : NetworkBehaviour
 
         float offsetY = playerBounds.min.y - previewBounds.min.y;
 
-        transform.localPosition = new Vector3(0f, offsetY+0.02f, 0f);
+        transform.localPosition = new Vector3(0f, offsetY+0.1f, 0f);
 
         UpdateMaterial();
     }
@@ -259,7 +253,6 @@ public class GhostMorphPreview : NetworkBehaviour
      */
     void UpdateMaterial()
     {
-        if (!isOwner) return;
         if (m_meshRenderer == null) return;
         Material[] mats = m_meshRenderer.materials;
         Color targetColor = m_canMorph ? m_validColor : m_invalidColor;
@@ -283,13 +276,12 @@ public class GhostMorphPreview : NetworkBehaviour
      */
     private void CheckForScannableObject()
     {
-        if (!isOwner) return;
         if (m_cameraTransform == null || GetComponentInParent<GhostMorph>().m_isMorphed)
         {
             ClearHighlight();
-            
             return;
         }
+        if (m_interact != null && m_interact.m_onFocus != null) return;
 
         Vector3 rayOrigin = m_cameraTransform.transform.position;
         Vector3 rayDirection = m_cameraTransform.transform.forward;
@@ -315,7 +307,7 @@ public class GhostMorphPreview : NetworkBehaviour
                     if(!GetComponentInParent<GhostMorph>().m_isMorphed)
                     {
                        // There is a clone for few seconds...
-                        InteractPromptUI.m_Instance.Show(m_promptMessageSCAN);
+                    InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "Scan", m_promptLabelSCAN));
                     }
                     ClearHighlight();
                     HighlightObject(hitObject);
@@ -324,6 +316,7 @@ public class GhostMorphPreview : NetworkBehaviour
             else
             {
                 ClearHighlight();
+                InteractPromptUI.m_Instance.Hide();
             }
         }
         else
@@ -333,7 +326,7 @@ public class GhostMorphPreview : NetworkBehaviour
             InteractPromptUI.m_Instance.Hide();
 
             if(m_GhostPreviewOn == true){
-            InteractPromptUI.m_Instance.Show(m_promptMessageValid);
+            InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelValid));
             
             } 
         }
@@ -346,7 +339,7 @@ public class GhostMorphPreview : NetworkBehaviour
      */
     private bool IsPartOfPlayer(GameObject _obj)
     {
-        return _obj.transform.IsChildOf(transform.root);
+        return _obj.GetComponentInParent<PlayerControllerCore>() != null;
     }
 
     /*
@@ -429,4 +422,7 @@ public class GhostMorphPreview : NetworkBehaviour
             m_currentHighlightedObject = null;
         }
     }
+
+    public void SetRotateLeft(bool active) => m_rotateLeft = active;
+    public void SetRotateRight(bool active) => m_rotateRight = active;
 }

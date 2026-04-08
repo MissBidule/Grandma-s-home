@@ -1,14 +1,17 @@
+using System.Linq;
 using System;
 using PurrNet;
 using TMPro;
 using UnityEngine;
 using WebSocketSharp;
+using UnityEngine.UI;
 
 namespace PurrLobby
 {
     public class UpdateLobby : MonoBehaviour
     {
         [SerializeField] private TMP_InputField m_lobbyMaxPlayers;
+        [SerializeField] private TMP_InputField m_lobbyName;
         [SerializeField] private TextMeshProUGUI m_serverType;
         [SerializeField] private LobbyManager m_lobbyManager;
         [SerializeField] private const int c_maxPlayersInLobby = 12;
@@ -28,7 +31,9 @@ namespace PurrLobby
                 m_lobbyManager.UpdateLobbyMaxPlayer(Convert.ToInt32(m_lobbyMaxPlayers.text));
                 m_lobbyMaxPlayers.placeholder.GetComponent<TextMeshProUGUI>().text = "Max players (" + m_lobbyMaxPlayers.text + ")";
             }
-            gameObject.SetActive(false);
+            if (!m_lobbyName.text.IsNullOrEmpty()) {
+                m_lobbyManager.UpdateLobbyName(m_lobbyName.text);
+            }
         }
     }
 }

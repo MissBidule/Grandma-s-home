@@ -23,6 +23,7 @@ public class PlayerControllerCore : NetworkBehaviour
     [SerializeField] private NetworkAnimator m_playerAnimator;
 
     [Header("ServerResponse")]
+    private LatencyDisplay m_latencyDisplay;
     public float m_PingCooldown = 5f;
     public float m_elapsedTimeSincePing = 0f;
     public bool m_isServerAccessible = true;
@@ -92,8 +93,8 @@ public class PlayerControllerCore : NetworkBehaviour
     [ObserversRpc]
     private void DisconnectPlayer()
     {
-        FindAnyObjectByType<RoleKeeper>().SetMemberDisconnected(m_memberID);
-        FindAnyObjectByType<LeaderboardUI>().UpdateDisconnected();
+        FindAnyObjectByType<RoleKeeper>()?.SetMemberDisconnected(m_memberID);
+        FindAnyObjectByType<LeaderboardUI>()?.UpdateDisconnected();
     }
 
     /*
@@ -126,9 +127,17 @@ public class PlayerControllerCore : NetworkBehaviour
 
     private void ApplyOwnership()
     {
-
         var playerInput = GetComponent<PlayerInput>();
-        if (playerInput != null) playerInput.enabled = isOwner;
+        if (playerInput != null)
+        {
+            playerInput.enabled = isOwner;
+            if (isOwner)
+            {
+                string saved = PlayerPrefs.GetString("Settings_Keybindings", "");
+                if (!string.IsNullOrEmpty(saved))
+                    playerInput.actions.LoadBindingOverridesFromJson(saved);
+            }
+        }
 
         if (!m_playerCamera) m_playerCamera = GetComponentInChildren<CinemachineCamera>();
         if (m_playerCamera != null)
@@ -144,7 +153,29 @@ public class PlayerControllerCore : NetworkBehaviour
             DisableWaitUIObserverRPC();
             RoleKeeper roleKeeper = FindAnyObjectByType<RoleKeeper>();
             ApplyUserData(roleKeeper.GetLocalMemberID(), roleKeeper.GetLocalUsername());
+            m_latencyDisplay = FindAnyObjectByType<LatencyDisplay>();
+            m_latencyDisplay.m_localPlayer = this;
         }
+    }
+
+
+    /*
+     FOR LATENCY PING NOT HEARTBEAT
+     */
+    [ServerRpc]
+    public void PingServer(float sentTime, RPCInfo info = default)
+    {
+        // info.sender = le client qui a envoye
+        PongClient(info.sender, sentTime);
+    }
+
+    /*
+     FOR LATENCY PING NOT HEARTBEAT
+     */
+    [TargetRpc]
+    void PongClient(PlayerID target, float _sentTime)
+    {
+        m_latencyDisplay.ReceivePong(_sentTime);
     }
 
     [ObserversRpc (runLocally: true, requireServer: false, bufferLast: true)]
@@ -154,9 +185,29 @@ public class PlayerControllerCore : NetworkBehaviour
         m_username = _username;
     }
     
+    private void OnEnable()
+    {
+        PauseMenuView.OnPauseChanged += OnPauseChanged;
+    }
+
     private void OnDisable()
     {
+        PauseMenuView.OnPauseChanged -= OnPauseChanged;
         Cursor.lockState = CursorLockMode.None;
+    }
+
+    private void OnPauseChanged(bool paused)
+    {
+        if (!isOwner) return;
+        var playerInput = GetComponent<PlayerInput>();
+        if (playerInput == null) return;
+        playerInput.enabled = !paused;
+        if (!paused)
+        {
+            string saved = PlayerPrefs.GetString("Settings_Keybindings", "");
+            if (!string.IsNullOrEmpty(saved))
+                playerInput.actions.LoadBindingOverridesFromJson(saved);
+        }
     }
 
     private void Start()

@@ -16,7 +16,7 @@ public class ChildCameraController : MonoBehaviour
     public LayerMask m_collisionMask;
     public Vector3 m_pivotOffset = new Vector3(0f, 1.6f, 0f); // approx head height
 
-    private float m_yaw;
+    public float m_yaw;
     private float m_pitch;
     [SerializeField] private float m_xOffset;
 
@@ -35,8 +35,13 @@ public class ChildCameraController : MonoBehaviour
         m_target = transform.parent;
         m_rigidbody = GetComponentInParent<Rigidbody>();
 
+        m_sensitivity = PlayerPrefs.GetFloat("Settings_MouseSensitivity", PurrLobby.AccessibilitySettingsPanel.DefaultSensitivity);
         UnityEngine.Cursor.lockState = CursorLockMode.Locked;
     }
+
+    private void OnEnable()  => PurrLobby.AccessibilitySettingsPanel.OnSensitivityChanged += OnSensitivityChanged;
+    private void OnDisable() => PurrLobby.AccessibilitySettingsPanel.OnSensitivityChanged -= OnSensitivityChanged;
+    private void OnSensitivityChanged(float v) => m_sensitivity = v;
 
     /*
      * @brief   Updates camera rotation and position after player movement
