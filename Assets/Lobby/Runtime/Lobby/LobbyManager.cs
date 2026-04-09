@@ -142,14 +142,43 @@ namespace PurrLobby
             }
         }
 
+        public async Task CleanLobby() {
+            EnsureProviderSet();
+            await _currentProvider.CleanLobby();
+            Destroy(gameObject);
+        }
+
         private async Task ReconnectToLobbyAsync()
         {
             m_loadingCanvas.gameObject.SetActive(true);
-            EnsureProviderSet();
-            await _currentProvider.OnLobbyUpdateData(_currentLobby.LobbyId);
-            UpdateLobbyOnScreen();            
-            m_loadingCanvas.gameObject.SetActive(false);
-            _viewManager.BackToLobby(); 
+            if (_lobbyDataHolder.CurrentLobby.IsOwner)
+            {
+                EnsureProviderSet();
+                await _currentProvider.OnLobbyUpdateData(_currentLobby.LobbyId);
+                UpdateLobbyOnScreen();            
+                m_loadingCanvas.gameObject.SetActive(false);
+                _viewManager.BackToLobby();
+            }
+            else
+            {
+                FindAnyObjectByType<RoleKeeper>().DeleteList();
+                EnsureProviderSet();
+                var room = await _currentProvider.JoinLobbyAsync(_currentLobby.LobbyId);
+                if (room.IsValid)
+                {
+                    _viewManager.BackToLobby();
+                    m_loading = true;
+                    _currentLobby = room;
+                    OnRoomJoined?.Invoke(room);
+                    UpdateLobbyOnScreen();  
+                }
+                else
+                {
+                    m_loading = false;
+                    OnRoomJoinFailed?.Invoke($"Failed to join room {_currentLobby.LobbyId}");
+                }
+            }
+             
             //refresh lobby info
             _elapsedTime = _refreshRate;
             _restartGame = false;
@@ -257,6 +286,7 @@ namespace PurrLobby
                 if (!IsStarting && room.Members.TrueForAll(x => x.IsReady))
                 {
                     IsStarting = true; //Prevent calling ready again if lobby is updated after all ready
+                    m_loadingCanvas.gameObject.SetActive(true);
                     CallOnAllReady();
                 }
             });

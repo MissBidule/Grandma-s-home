@@ -629,37 +629,31 @@ namespace PurrLobby.Providers {
             });
         }
 
+        public async Task CleanLobby()
+        {
+            if(!IsUnityServiceAvailable) { return; }
+            foreach(var player in CurrentLobby.Players )
+            {
+                if (IsPlayerHost(player.Id)) continue;
+                await LobbyService.Instance.RemovePlayerAsync(CurrentLobby.Id, player.Id);
+            }
+        }
+
         /// <summary>
         /// Retrieves the lobby currently connected
         /// </summary>
         public async Task OnLobbyUpdateData(string _lobbyId) {
             if(!IsUnityServiceAvailable) { return; }
-            RoleKeeper roleList = FindAnyObjectByType<RoleKeeper>();
-            List<string> disconnectedPlayers = roleList.GetDisconnectedPlayers();
-            foreach(string disconnectedPlayer in disconnectedPlayers)
-            {
-                await LobbyService.Instance.RemovePlayerAsync(_lobbyId, disconnectedPlayer);
-            }
-
             CurrentLobby = await LobbyService.Instance.GetLobbyAsync(_lobbyId);
-
+            RoleKeeper roleList = FindAnyObjectByType<RoleKeeper>();
             await SubscribeLobbyEventsAsync();
-            _ = InitializeLocalPlayerData();
-            
-            if (IsLocalPlayerHost)
-            {
-                _ = SetLobbyDataAsync("JoinCode", "");
-            }
 
-            foreach (Player player in CurrentLobby.Players)
-            {
-                _ = SetIsReadyAsync(player.Id, false);
-                _ = SetIsInGameAsync(player.Id, false);
-            }
-            
-            roleList.DeleteList();
+            await InitializeLocalPlayerData();
+            _ = SetLobbyDataAsync("JoinCode", "");
 
             OnLobbyUpdate();
+            
+            roleList.DeleteList();
         }
 
         /// <summary>
