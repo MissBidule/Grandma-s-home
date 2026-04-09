@@ -37,6 +37,7 @@ namespace PurrLobby {
         Task<string> GetPlayer();
         Task TriggerLobbyUpdated();
         Task OnLobbyUpdateData(string _lobbyId);
+        Task CleanLobby();
 
         // Events
         event UnityAction<string> OnLobbyJoinFailed;

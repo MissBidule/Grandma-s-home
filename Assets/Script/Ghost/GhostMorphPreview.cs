@@ -39,6 +39,8 @@ public class GhostMorphPreview : MonoBehaviour
     private MaterialPropertyBlock m_propertyBlock;
 
     private Transform m_cameraTransform;
+    private PlayerControllerCore m_core;
+    private Interact m_interact;
     private bool m_rotateLeft = false;
     private bool m_rotateRight = false;
 
@@ -60,14 +62,16 @@ public class GhostMorphPreview : MonoBehaviour
         m_propertyBlock = new MaterialPropertyBlock();
         // Use PlayerControllerCore.m_playerCamera (Inspector-assigned, always valid)
         // instead of GhostClientController.m_playerCamera (lazy-initialized, may be null)
-        var core = transform.parent.GetComponent<PlayerControllerCore>();
-        if (core != null && core.m_playerCamera != null)
-            m_cameraTransform = core.m_playerCamera.transform;
+        m_core = transform.parent.GetComponent<PlayerControllerCore>();
+        if (m_core != null && m_core.m_playerCamera != null)
+            m_cameraTransform = m_core.m_playerCamera.transform;
+        m_interact = transform.parent.GetComponentInChildren<Interact>();
     }
 
 
     private void Update()
     {
+        if (m_core == null || !m_core.isOwner) return;
         CheckForScannableObject();
 
         if (m_currentPrefab != null)
@@ -275,9 +279,9 @@ public class GhostMorphPreview : MonoBehaviour
         if (m_cameraTransform == null || GetComponentInParent<GhostMorph>().m_isMorphed)
         {
             ClearHighlight();
-            
             return;
         }
+        if (m_interact != null && m_interact.m_onFocus != null) return;
 
         Vector3 rayOrigin = m_cameraTransform.transform.position;
         Vector3 rayDirection = m_cameraTransform.transform.forward;
@@ -312,6 +316,7 @@ public class GhostMorphPreview : MonoBehaviour
             else
             {
                 ClearHighlight();
+                InteractPromptUI.m_Instance.Hide();
             }
         }
         else
