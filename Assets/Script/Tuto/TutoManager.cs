@@ -1,63 +1,72 @@
+/*
+ * @brief This code is used to scroll through the instructions
+*/
 using UnityEngine;
 using TMPro;
-using UnityEngine.UI;
 
 public class TutoManager : MonoBehaviour
 {
-    [SerializeField] private GameObject canvas;
-    [SerializeField] private TMP_Text text;
-    [SerializeField] private Button nextButton;
+    [Header("Prefab UI")]
+    [SerializeField] private GameObject m_canvasPrefab;
 
-    [SerializeField] private TutorialStep[] steps;
+    [Header("Steps")]
+    [SerializeField] private TutorialStep[] m_steps;
 
-    private int currentStep = 0;
-    private bool waitingForAction = false;
+    private GameObject m_canvasInstance;
+    private TMP_Text m_text;
+
+    private int m_currentStep = 0;
+    private float m_timer = 0f;
 
     void Start()
     {
-        canvas.SetActive(true);
-        nextButton.onClick.AddListener(NextStep);
+        m_canvasInstance = Instantiate(m_canvasPrefab);
+
+        m_text = m_canvasInstance.GetComponentInChildren<TMP_Text>();
 
         ShowStep();
     }
 
     void Update()
     {
-        if (waitingForAction && steps[currentStep].waitForAction)
+        if (m_currentStep >= m_steps.Length) return;
+
+        var step = m_steps[m_currentStep];
+
+        if (step.waitForAction) //not yet
         {
-            if (Input.GetButtonDown(steps[currentStep].actionName)) //je vais me faire taper je sais c pas definitive
+            if (Input.GetButtonDown(step.actionName))
             {
-                waitingForAction = false;
-                nextButton.interactable = true;
+                NextStep();
+            }
+        }
+        else
+        {
+            m_timer += Time.deltaTime;
+
+            if (m_timer >= step.duration)
+            {
+                NextStep();
             }
         }
     }
 
     void ShowStep()
     {
-        var step = steps[currentStep];
+        var step = m_steps[m_currentStep];
 
-        text.text = step.message;
+        m_text.text = step.message;
 
-        if (step.waitForAction)
-        {
-            waitingForAction = true;
-            nextButton.interactable = false;
-        }
-        else
-        {
-            waitingForAction = false;
-            nextButton.interactable = true;
-        }
+        m_timer = 0f;
     }
 
-    public void NextStep()
+    void NextStep()
     {
-        currentStep++;
+        m_currentStep++;
 
-        if (currentStep >= steps.Length)
+        if (m_currentStep >= m_steps.Length)
         {
-            canvas.SetActive(false);
+            Destroy(m_canvasInstance);
             return;
         }
 
