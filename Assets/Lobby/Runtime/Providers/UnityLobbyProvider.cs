@@ -183,6 +183,7 @@ namespace PurrLobby.Providers {
                 }
 
                 lobbyName = playerName + "'s Lobby";
+                lobbyType = LobbyType.Public;//by default
 
                 CurrentLobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, maxPlayers, new CreateLobbyOptions() {
                     IsPrivate = lobbyType == LobbyType.Private,
