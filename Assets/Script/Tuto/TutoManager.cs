@@ -16,13 +16,14 @@ public class TutoManager : MonoBehaviour
     private TMP_Text m_text;
 
     private int m_currentStep = 0;
-    private float m_timer = 0f;
+    private float m_timer = 5f;
 
     void Start()
     {
         m_canvasInstance = Instantiate(m_canvasPrefab);
 
         m_text = m_canvasInstance.GetComponentInChildren<TMP_Text>();
+        if (m_steps == null || m_steps.Length == 0) return;
 
         ShowStep();
     }
@@ -53,6 +54,7 @@ public class TutoManager : MonoBehaviour
 
     void ShowStep()
     {
+        if (m_currentStep >= m_steps.Length) return;
         var step = m_steps[m_currentStep];
 
         m_text.text = step.message;
