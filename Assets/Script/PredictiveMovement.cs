@@ -50,7 +50,7 @@ public class PredictiveMovement : NetworkBehaviour
 
     private PredictiveInputData m_currentInput = new();
     private float m_positionErrorThreshold = 0.75f;
-    private bool m_debugging = false;
+    private readonly bool m_debugging = true;
 
     private void Start()
     {
