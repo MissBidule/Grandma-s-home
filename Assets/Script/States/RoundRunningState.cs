@@ -182,7 +182,7 @@ namespace Script.States
             MoveToEnd(true);
         }
 
-        [ObserversRpc]
+        [ObserversRpc(bufferLast:true)]
         public void StartDayNight(float _roundDuration)
         {
             if (InstanceHandler.TryGetInstance(out LightTimer lightTimer))
