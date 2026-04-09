@@ -15,14 +15,14 @@ namespace PurrLobby {
         public object ServerObject;
 
         public bool HasChanged(Lobby @new) {
-            if(!IsValid || Name != @new.Name || LobbyId != @new.LobbyId || LobbyCode != @new.LobbyCode || Members.Count != @new.Members.Count || Properties.Count != @new.Properties.Count || ServerObject != @new.ServerObject || IsPrivate != @new.IsPrivate)
+            if(!IsValid || Name != @new.Name || LobbyId != @new.LobbyId || MaxPlayers != @new.MaxPlayers || LobbyCode != @new.LobbyCode || Members.Count != @new.Members.Count  || Properties.Count != @new.Properties.Count || ServerObject != @new.ServerObject || IsPrivate != @new.IsPrivate)
                 return true;
 
             for(int i = 0; i < @new.Members.Count; i++) {
                 var newMember = @new.Members[i];
                 var oldMember = Members[i];
 
-                if(newMember.Id != oldMember.Id || newMember.IsReady != oldMember.IsReady || newMember.DisplayName != oldMember.DisplayName || newMember.Avatar != oldMember.Avatar || newMember.IsGhost != oldMember.IsGhost || newMember.IsInGame != oldMember.IsInGame)
+                if(newMember.Id != oldMember.Id || newMember.IsReady != oldMember.IsReady || newMember.DisplayName != oldMember.DisplayName || newMember.Skin != oldMember.Skin || newMember.IsGhost != oldMember.IsGhost || newMember.IsInGame != oldMember.IsInGame)
                     return true;
             }
 

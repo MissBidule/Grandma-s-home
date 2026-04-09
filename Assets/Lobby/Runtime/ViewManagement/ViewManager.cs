@@ -83,51 +83,6 @@ namespace PurrLobby
             }
         }
 
-        public void OnRoomJoined()
-        {
-            ShowView<LobbyView>();
-        }   
-        
-        public void OnRoomLeft()
-        {
-            ShowView<PlayView>();
-        }
-
-        public void OnBrowseClicked()
-        {
-            ShowView<BrowseView>();
-        }
-        
-        public void OnRoomCreateClicked()
-        {
-            ShowView<CreatingRoomView>(false);
-        }
-        
-        public void OnJoiningRoom()
-        {
-            ShowView<LoadingRoomView>(false);
-        }
-
-        public void OnBackToMenu()
-        {
-            ShowView<MainMenuView>();
-        }
-
-        public void OnPlayClicked()
-        {
-            ShowView<PlayView>();
-        }   
-
-        public void OnOptionsClicked()
-        {
-            ShowView<OptionsView>();
-        }   
-
-        public void OnCreditsClicked()
-        {
-            ShowView<CreditsView>();
-        }   
-
         #endregion
     }
     

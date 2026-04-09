@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace PurrLobby
 {
-    public class BrowseView : View
+    public class BrowseView : MonoBehaviour
     {
         [SerializeField] private LobbyManager lobbyManager;
         [SerializeField] private LobbyList lobbyList;
@@ -10,14 +10,14 @@ namespace PurrLobby
         private bool _isActive;
         private float _lastSearchTime;
         
-        public override void OnShow()
+        public void StartSearch()
         {
             lobbyManager.SearchLobbies();
             _lastSearchTime = Time.time;
             _isActive = true;
         }
 
-        public override void OnHide()
+        public void StopSearch()
         {
             _isActive = false;
         }

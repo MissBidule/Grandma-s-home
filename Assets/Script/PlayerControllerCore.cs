@@ -23,6 +23,7 @@ public class PlayerControllerCore : NetworkBehaviour
     [SerializeField] private NetworkAnimator m_playerAnimator;
 
     [Header("ServerResponse")]
+    private LatencyDisplay m_latencyDisplay;
     public float m_PingCooldown = 5f;
     public float m_elapsedTimeSincePing = 0f;
     public bool m_isServerAccessible = true;
@@ -92,8 +93,8 @@ public class PlayerControllerCore : NetworkBehaviour
     [ObserversRpc]
     private void DisconnectPlayer()
     {
-        FindAnyObjectByType<RoleKeeper>().SetMemberDisconnected(m_memberID);
-        FindAnyObjectByType<LeaderboardUI>().UpdateDisconnected();
+        FindAnyObjectByType<RoleKeeper>()?.SetMemberDisconnected(m_memberID);
+        FindAnyObjectByType<LeaderboardUI>()?.UpdateDisconnected();
     }
 
     /*
@@ -126,7 +127,6 @@ public class PlayerControllerCore : NetworkBehaviour
 
     private void ApplyOwnership()
     {
-
         var playerInput = GetComponent<PlayerInput>();
         if (playerInput != null)
         {
@@ -153,7 +153,29 @@ public class PlayerControllerCore : NetworkBehaviour
             DisableWaitUIObserverRPC();
             RoleKeeper roleKeeper = FindAnyObjectByType<RoleKeeper>();
             ApplyUserData(roleKeeper.GetLocalMemberID(), roleKeeper.GetLocalUsername());
+            m_latencyDisplay = FindAnyObjectByType<LatencyDisplay>();
+            m_latencyDisplay.m_localPlayer = this;
         }
+    }
+
+
+    /*
+     FOR LATENCY PING NOT HEARTBEAT
+     */
+    [ServerRpc]
+    public void PingServer(float sentTime, RPCInfo info = default)
+    {
+        // info.sender = le client qui a envoye
+        PongClient(info.sender, sentTime);
+    }
+
+    /*
+     FOR LATENCY PING NOT HEARTBEAT
+     */
+    [TargetRpc]
+    void PongClient(PlayerID target, float _sentTime)
+    {
+        m_latencyDisplay.ReceivePong(_sentTime);
     }
 
     [ObserversRpc (runLocally: true, requireServer: false, bufferLast: true)]

@@ -9,18 +9,18 @@ namespace Script.HouseBuilding
 {
     public struct LinkingPacket
     {
-        public GameObject m_trapdoorEntry;
-        public RoomType m_roomType;
-        public GameObject m_trapdoorExit;
-        public RoomType m_trapdoorExitRoomType;
+        public Vent TrapdoorEntry;
+        public RoomType RoomType;
+        public VentExit TrapdoorExit;
+        public RoomType TrapdoorExitRoomType;
     }
     
     public class Room : NetworkBehaviour
     {
         [Header("Networked Objects")]
         [SerializeField] [Tooltip("Sabotage Object.")] private SabotageObject m_sabotageObject;
-        [SerializeField] [Tooltip("(The one you go in)")] private GameObject m_trapdoorEntry;
-        [SerializeField] [Tooltip("(The one you exit from)")] private GameObject m_trapdoorExit; // TODO change to trapdoor type
+        [SerializeField] [Tooltip("(The one you go in)")] private Vent m_trapdoorEntry;
+        [SerializeField] [Tooltip("(The one you exit from)")] private VentExit m_trapdoorExit; // TODO change to trapdoor type
         [SerializeField] [Tooltip("(Where you go after entering the trapdoor in this room.)")] private RoomType m_trapdoorExitRoomType;
         
         [Header("Props Infos")]
@@ -31,7 +31,7 @@ namespace Script.HouseBuilding
 
         private void Awake()
         {
-            // Object Validation
+            /* Object Validation
             if (m_sabotageObject == null)
                 PurrLogger.LogWarning($"{m_roomType} Sabotage Object is null", this);
             if (m_trapdoorEntry == null)
@@ -42,6 +42,7 @@ namespace Script.HouseBuilding
                 PurrLogger.LogWarning($"{m_roomType} Small Props Anchors is null", this);
             if (m_mediumPropsAnchors == null)
                 PurrLogger.LogWarning($"{m_roomType} Medium Props Anchors is null", this);
+            */
         }
         
         public SabotageObject GetSabotageObject()
@@ -52,10 +53,10 @@ namespace Script.HouseBuilding
         public LinkingPacket GetTrapLinkingPacket()
         {
             LinkingPacket packet;
-            packet.m_trapdoorEntry = m_trapdoorEntry;
-            packet.m_roomType = m_roomType;
-            packet.m_trapdoorExit = m_trapdoorExit;
-            packet.m_trapdoorExitRoomType = m_trapdoorExitRoomType;
+            packet.TrapdoorEntry = m_trapdoorEntry;
+            packet.RoomType = m_roomType;
+            packet.TrapdoorExit = m_trapdoorExit;
+            packet.TrapdoorExitRoomType = m_trapdoorExitRoomType;
             return packet;
         }
 
@@ -107,11 +108,21 @@ namespace Script.HouseBuilding
             // Initialize the given proportion of the room props
             for (int index = 0; index < m_smallPropsAnchors.Count * _smallPropsPercentage; index++)
             {
+                if (m_smallPropsAnchors[index] == null)
+                {
+                    PurrLogger.LogError($"Small PropAnchor initialization failed (Anchor {index} malformed)", this);
+                    continue;
+                }
                 m_smallPropsAnchors[index].Initialize();
             }
 
             for (int index = 0; index < m_mediumPropsAnchors.Count * _mediumPropsPercentage; index++)
             {
+                if (m_mediumPropsAnchors[index] == null)
+                {
+                    PurrLogger.LogError($"Medium PropAnchor initialization failed (Anchor {index} malformed)", this);
+                    continue;
+                }
                 m_mediumPropsAnchors[index].Initialize();
             }
         }

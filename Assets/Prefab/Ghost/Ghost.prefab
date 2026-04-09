@@ -621,7 +621,19 @@ MonoBehaviour:
     m_ActionId: 61bab1c3-7cd0-463b-bacb-6885ab4e4463
     m_ActionName: 'Ghost/PushToTalk[/Keyboard/t]'
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 8778548429194373776}
+        m_TargetAssemblyTypeName: GhostInputController, Assembly-CSharp
+        m_MethodName: OnLeaderboard
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: d88c83f4-8b4b-485a-a2f9-0bbb920b086c
     m_ActionName: Ghost/Leaderboard
   m_NeverAutoSwitchControlSchemes: 0
@@ -911,7 +923,7 @@ MonoBehaviour:
   _directChildren: []
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
-  m_errorThreshold: 0
+  m_errorThreshold: 0.75
 --- !u!114 &1053912558784888777
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -945,7 +957,7 @@ MonoBehaviour:
   m_raycastHeightOffset: 0.1
   m_climbableLayerMask:
     serializedVersion: 2
-    m_Bits: 9
+    m_Bits: 16393
 --- !u!1 &3407796363210345922
 GameObject:
   m_ObjectHideFlags: 0

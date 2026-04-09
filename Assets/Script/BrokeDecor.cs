@@ -9,7 +9,6 @@ using System.Collections.Generic;
 public class BrokeDecor : NetworkBehaviour
 {
     [Header("State Meshes")]
-    [SerializeField] private GameObject m_brokenMesh = null;
     [SerializeField] private List<GameObject> m_additionalMeshes = new();
     [SerializeField] private GameObject m_brokenPrefab;
 
@@ -21,10 +20,6 @@ public class BrokeDecor : NetworkBehaviour
 
     public void Start()
     {
-        if (m_brokenPrefab != null) {
-            m_brokenMesh = UnityProxy.Instantiate(m_brokenPrefab, transform);
-            m_brokenMesh.transform.localPosition = Vector3.zero;
-        }
     }
 
     [ObserversRpc(runLocally:true)]
@@ -61,13 +56,13 @@ public class BrokeDecor : NetworkBehaviour
             }
         }
 
-        if (m_brokenMesh != null)
+        if (m_brokenPrefab != null)
         {
-            r = m_brokenMesh.GetComponent<Renderer>();
+            r = m_brokenPrefab.GetComponent<Renderer>();
             if (r != null)
                 r.enabled = m_isBroken;
                 
-            c = m_brokenMesh.GetComponent<Collider>();
+            c = m_brokenPrefab.GetComponent<Collider>();
             if (c != null)
                 c.enabled = m_isBroken;
         }

@@ -49,7 +49,8 @@ public class PredictiveMovement : NetworkBehaviour
     private bool m_alreadySimulated = false;
 
     private PredictiveInputData m_currentInput = new();
-    [SerializeField] private float m_errorThreshold;
+    private float m_positionErrorThreshold = 0.75f;
+    private bool m_debugging = false;
 
     private void Start()
     {
@@ -125,7 +126,7 @@ public class PredictiveMovement : NetworkBehaviour
         m_currentInput.dashPressed = m_currentInput.dashPressed | _data.dashPressed;
         m_currentInput.position = transform.position;
         // Save the tick sent by the client
-        m_lastProcessedClientTick = _data.tick; 
+        m_lastProcessedClientTick = _data.tick;
     }
 
     /*
@@ -141,10 +142,11 @@ public class PredictiveMovement : NetworkBehaviour
 
             if (m_alreadySimulated) m_simulateMovement.SimulateMovement(m_currentInput);
             m_alreadySimulated = true;
-            if (!isHost) 
+            if (!isHost)
             {
                 m_inputHistory.Add(m_currentInput);
-                m_stateHistory.Add(new HistoricalState {
+                m_stateHistory.Add(new HistoricalState
+                {
                     tick = m_tick,
                     position = transform.position,
                     rotation = transform.rotation,
@@ -161,7 +163,7 @@ public class PredictiveMovement : NetworkBehaviour
             {
                 if (m_alreadySimulated) m_simulateMovement.SimulateMovement(m_currentInput);
                 m_alreadySimulated = true;
-                
+
                 // The server only sends a correction if it has processed a NEW input from the client
                 if (m_lastProcessedClientTick != m_lastSentCorrectionTick)
                 {
@@ -200,7 +202,7 @@ public class PredictiveMovement : NetworkBehaviour
      * @param _velocity The server velocity
      * @return void
      */
-    [ObserversRpc(runLocally:false)]
+    [ObserversRpc(runLocally: false)]
     public void ClientReceiveCorrection(int _serverTick, Vector3 _position, Quaternion _rotation, Vector3 _velocity)
     {
         if (isServer) return;
@@ -228,18 +230,23 @@ public class PredictiveMovement : NetworkBehaviour
     public void Reconciliation(Vector3 _serverPos, Quaternion _serverRot, Vector3 _serverVel, int _serverTick)
     {
         var rb = GetComponent<Rigidbody>();
-        
+
         bool shouldRollback = true;
         int stateIndex = m_stateHistory.FindIndex(s => s.tick == _serverTick);
-        
+
         if (stateIndex != -1)
         {
             HistoricalState pastState = m_stateHistory[stateIndex];
-            float distanceError = Vector3.Distance(pastState.position, _serverPos);
-            
-            if (distanceError < m_errorThreshold)
+            float positionError = Vector3.Distance(pastState.position, _serverPos);
+
+            if (m_debugging) print($"Position Error: {positionError}");
+
+            if (positionError < m_positionErrorThreshold)
             {
-                shouldRollback = false; // The past prediction was accurate! No rollback!
+                shouldRollback = false;
+
+                // Apply the error delta to the current position (not lerp toward past server position)
+                rb.position += (_serverPos - pastState.position) * 0.1f;
             }
         }
 
@@ -247,11 +254,11 @@ public class PredictiveMovement : NetworkBehaviour
         m_inputHistory.RemoveAll(input => input.tick <= _serverTick);
         m_stateHistory.RemoveAll(s => s.tick <= _serverTick);
 
-        if (!shouldRollback) return; 
+        if (!shouldRollback) return;
 
         // Otherwise, reality differs, perform a true strict rollback
         rb.rotation = _serverRot;
-        rb.position = _serverPos; 
+        rb.position = _serverPos;
         rb.linearVelocity = _serverVel; // Essential for the jump curve!
 
         foreach (var input in m_inputHistory)

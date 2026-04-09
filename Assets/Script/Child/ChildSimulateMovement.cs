@@ -64,6 +64,7 @@ public class ChildSimulateMovement : NetworkBehaviour, ISimulateMovement
     float GetSpeedModifier(bool _sneak)
     {
         var speedModifier = 1f;
+        m_isScared = m_childController.m_isScared;
         if (_sneak) speedModifier *= m_sneakAmplitude;
         if (m_isScared) speedModifier *= m_scaredAmplitude;
 
@@ -91,15 +92,13 @@ public class ChildSimulateMovement : NetworkBehaviour, ISimulateMovement
      */
     public bool IsGrounded()
     {
-        if (Physics.Raycast(transform.position, Vector3.down, out _, 1.0f) || (m_jumpTriggerScript.m_colliders.Count > 0 && m_rigidbody.linearVelocity.y == 0f))
-        {
-            if (m_rigidbody.linearVelocity.y < 1.0E-07f && m_rigidbody.linearVelocity.y > -1.0E-07f)
-            {
-                m_isJumping = false;
-            }
-            return true;
-        }
-        else return false;
+        bool onGround = Physics.Raycast(transform.position, Vector3.down, out _, 1.0f)
+                        || m_jumpTriggerScript.m_colliders.Count > 0;
+
+        if (onGround && m_isJumping && Mathf.Abs(m_rigidbody.linearVelocity.y) < 0.2f)
+            m_isJumping = false;
+
+        return onGround && !m_isJumping;
     }
 
 

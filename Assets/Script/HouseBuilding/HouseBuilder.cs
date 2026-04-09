@@ -175,11 +175,10 @@ namespace Script.HouseBuilding
             {
                 foreach (LinkingPacket linkingPacket2 in linkingPackets)
                 {
-                    if (linkingPacket.m_trapdoorExitRoomType == linkingPacket2.m_roomType)
-                    {
-                        PurrLogger.LogWarning("TODO : Link TrappDoors"); // TODO Adapt once Trapdoor Implementation donne
-                        //linkingPacket.m_trapdoorEntry.SetExit(linkingPacket2.m_trapdoorExit);
-                    }
+                    if (linkingPacket.TrapdoorExitRoomType != linkingPacket2.RoomType)
+                        continue;
+                    if (linkingPacket.TrapdoorEntry!=null && linkingPacket2.TrapdoorExit != null)
+                        linkingPacket.TrapdoorEntry.LinkExit(linkingPacket2.TrapdoorExit);
                 } 
             } 
         }
@@ -235,7 +234,7 @@ namespace Script.HouseBuilding
 
                 int layoutIndex = Random.Range(0, room.m_roomLayouts.Count);
 
-                GameObject go = (GameObject)PrefabUtility.InstantiatePrefab(
+                GameObject go = Instantiate(
                     room.m_roomLayouts[layoutIndex].gameObject,
                     room.m_roomAnchor
                 );

@@ -14,25 +14,29 @@ public class TextureTilingController : MonoBehaviour {
 	private float offsetYCpy;
     public Material originalMaterial;
     private Material originalMaterialCpy = null;
+	public int materialIndex = 0;
 
 	Vector3 prevScale = Vector3.one;
 	float prevTextureToMeshZ = -1f;
 
 	// Use this for initialization
 	void Start () {
-		this.prevScale = gameObject.transform.lossyScale;
-		this.prevTextureToMeshZ = this.textureToMeshZ;
+		prevScale = gameObject.transform.lossyScale;
+		prevTextureToMeshZ = textureToMeshZ;
         
         RefreshMaterial();
-
-		this.UpdateTiling();
 	}
 
 	void RefreshMaterial()
 	{
 		MeshRenderer renderer = gameObject.GetComponent<MeshRenderer>();
         var tempMaterial = new Material(originalMaterial);
-        renderer.sharedMaterial = tempMaterial;
+		tempMaterial.name = "tempMaterial";
+		//replace the whole array because otherwse it doesn't work
+		Material[] materials = renderer.sharedMaterials;
+		materials[materialIndex] = tempMaterial;
+		renderer.sharedMaterials=materials;
+
 		originalMaterialCpy = originalMaterial;
 		UpdateTiling();
 	}
@@ -45,11 +49,11 @@ public class TextureTilingController : MonoBehaviour {
 		}
 		// If something has changed
 		if(gameObject.transform.lossyScale != prevScale || !Mathf.Approximately(this.textureToMeshZ, prevTextureToMeshZ) || offsetX != offsetXCpy || offsetY != offsetYCpy)
-			this.UpdateTiling();
+			UpdateTiling();
 
 		// Maintain previous state variables
-		this.prevScale = gameObject.transform.lossyScale;
-		this.prevTextureToMeshZ = this.textureToMeshZ;
+		prevScale = gameObject.transform.lossyScale;
+		prevTextureToMeshZ = textureToMeshZ;
 	}
 
 	[ContextMenu("UpdateTiling")]
@@ -63,8 +67,8 @@ public class TextureTilingController : MonoBehaviour {
 		float textureToMeshX = ((float)this.texture.width/this.texture.height)*this.textureToMeshZ;
 
 		MeshRenderer meshRenderer = gameObject.GetComponent<MeshRenderer>();
-		meshRenderer.sharedMaterial.mainTextureScale = new Vector2(planeSizeX*gameObject.transform.lossyScale.x/textureToMeshX, planeSizeZ*gameObject.transform.lossyScale.z/textureToMeshZ);
-		meshRenderer.sharedMaterial.mainTextureOffset = new Vector2(offsetX, offsetY);
+		meshRenderer.sharedMaterials[materialIndex].mainTextureScale = new Vector2(planeSizeX*gameObject.transform.lossyScale.x/textureToMeshX, planeSizeZ*gameObject.transform.lossyScale.z/textureToMeshZ);
+		meshRenderer.sharedMaterials[materialIndex].mainTextureOffset = new Vector2(offsetX, offsetY);
 		offsetXCpy = offsetX;
 		offsetYCpy = offsetY;
 	}
