@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-
+// Not the good script pourquoi je laisse cette merde............ je sais pas
 public class TutoREANIM : MonoBehaviour
 {
     [SerializeField] private GameObject m_barRoot;
@@ -14,14 +14,14 @@ public class TutoREANIM : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            ReanimGhost();
-        }
-        if (Input.GetMouseButtonUp(0))
-        {
-            CancelReanimGhost();
-        }
+        //if (Input.GetMouseButtonDown(0))
+        //{
+          //  ReanimGhost();
+        //}
+        //if (Input.GetMouseButtonUp(0))
+        //{
+          //  CancelReanimGhost();
+        //}
     }
     void Awake()
     {

@@ -36,10 +36,10 @@ public class TutoManager : MonoBehaviour
 
         if (step.waitForAction) //not yet
         {
-            if (Input.GetButtonDown(step.actionName))
-            {
+            //if (Input.GetButtonDown(step.actionName))
+            //{
                 NextStep();
-            }
+            //}
         }
         else
         {
