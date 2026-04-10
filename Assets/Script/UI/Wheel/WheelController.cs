@@ -17,6 +17,8 @@ public class WheelController : MonoBehaviour
     [SerializeField] private float m_angleOffset = 114f;
     [SerializeField] private float m_minSelectDistance = 5f;
 
+    [SerializeField] private string m_promptLabelReplace = "Replace transform slot";
+
     [NonSerialized] public GameObject m_selectedPrefab;
     [NonSerialized] public bool m_isWaitingForSlotSelection = false;
 
@@ -45,7 +47,7 @@ public class WheelController : MonoBehaviour
      */
     void Update()
     {
-        if (!m_isOpen || m_isWaitingForSlotSelection) return;
+        if (!m_isOpen) return;
 
         Vector2 dir = Mouse.current.position.ReadValue() - new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
         if (dir.sqrMagnitude < m_minSelectDistance * m_minSelectDistance) return;
@@ -69,7 +71,8 @@ public class WheelController : MonoBehaviour
     {
         for (int i = 0; i < m_wheelButtons.Count; i++)
         {
-            m_wheelButtons[i].SetHighlight(i == index && !m_wheelButtons[i].IsEmpty());
+            bool canHighlight = m_isWaitingForSlotSelection || !m_wheelButtons[i].IsEmpty();
+            m_wheelButtons[i].SetHighlight(i == index && canHighlight);
         }
         m_highlightedIndex = index;
     }
@@ -123,14 +126,19 @@ public class WheelController : MonoBehaviour
      */
     public void Close()
     {
-        if (m_isWaitingForSlotSelection) return;
-
         m_isOpen = false;
 
         int confirmedIndex = m_highlightedIndex;
         ApplyHighlight(-1);
 
-        if (confirmedIndex >= 0 && confirmedIndex < m_wheelButtons.Count)
+        if (m_isWaitingForSlotSelection)
+        {
+            if (confirmedIndex >= 0 && confirmedIndex < m_wheelButtons.Count)
+            {
+                OnSlotChosenForReplacement(m_wheelButtons[confirmedIndex]);
+            }
+        }
+        else if (confirmedIndex >= 0 && confirmedIndex < m_wheelButtons.Count)
         {
             m_wheelButtons[confirmedIndex].Select();
         }
@@ -186,14 +194,13 @@ public class WheelController : MonoBehaviour
             m_pendingPrefabToAdd = _prefab;
             m_pendingIconToAdd = _icon;
             m_isWaitingForSlotSelection = true;
-            m_isOpen = false;
+            m_isOpen = true;
             ApplyHighlight(-1);
 
             Cursor.lockState = CursorLockMode.Confined;
 
             m_anim.SetBool("OpenWheel", true);
-
-            Debug.Log("Wheel full");
+            InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "OpenProps", m_promptLabelReplace));
         }
     }
 
@@ -254,17 +261,10 @@ public class WheelController : MonoBehaviour
      */
     public void OnSlotChosenForReplacement(WheelButtonController _chosenSlot)
     {
-        if (!m_isWaitingForSlotSelection)
-        {
-            return;
-        }
+        if (!m_isWaitingForSlotSelection) return;
 
         AddPrefabToSlot(_chosenSlot, m_pendingPrefabToAdd, m_pendingIconToAdd);
-
         SelectPrefab(m_pendingPrefabToAdd);
-
-        Cursor.lockState = CursorLockMode.Locked;
-        m_anim.SetBool("OpenWheel", false);
 
         m_isWaitingForSlotSelection = false;
         m_pendingPrefabToAdd = null;
