@@ -228,6 +228,7 @@ MonoBehaviour:
   m_bulletSpawnTransform: {fileID: 8286851940836659514}
   m_bulletPrefab: {fileID: 366779594710045177, guid: 90e50898fd15e4755813076e701192cc, type: 3}
   m_scaredDuration: 5
+  m_isScared: 0
   m_animator: {fileID: 3610933806309611657}
   m_shootAnimRunning: 0
   m_faceMat: {fileID: 2546100076293216404}
@@ -819,7 +820,6 @@ MonoBehaviour:
   _directChildren: []
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
-  m_errorThreshold: 0
 --- !u!114 &1021629915726153006
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -876,56 +876,56 @@ MonoBehaviour:
   - message: 'Bienvenue sur le Tuto. '
     waitForAction: 0
     actionName: 
-    duration: 8
+    duration: 10
   - message: "Vous pouvez taper un Ghost pour le neutraliser ou le d\xE9 transformer."
     waitForAction: 0
     actionName: 
-    duration: 5
+    duration: 7
   - message: "Cliquez sur CTRL pour switcher d'armes entre une arme \xE0 slime et
       une arme au corps \xE0 corps."
     waitForAction: 0
     actionName: 
-    duration: 5
+    duration: 7
   - message: Vous pouvez tirer sur les Ghost avec le CLICK GAUCHE pour les ralentir.
     waitForAction: 0
     actionName: 
-    duration: 5
+    duration: 7
   - message: "Vous pouvez r\xE9parer un objet sabot\xE9 en cliquant sur E."
     waitForAction: 0
     actionName: 
-    duration: 5
+    duration: 7
   - message: Cliquer sur ESPACE au bon moment pour valider.
     waitForAction: 0
     actionName: 
-    duration: 5
+    duration: 7
   - message: "Les Ghost peuvent se cacher en objets, vous pouvez taper ou tirer sur
       les objets pour d\xE9former un Ghost qui se cache."
     waitForAction: 0
     actionName: 
-    duration: 5
+    duration: 7
   - message: "Si vous tapez un objet qui n'\xE9tait pas un Ghost, alors le score
       Broken augmente, si vous cassez trop d'objets les Enfants perdent la partie."
     waitForAction: 0
     actionName: 
-    duration: 5
+    duration: 7
   - message: "Quand les Ghost remplissent la jauge de sabotage, la phase de panic
       d\xE9bute, et l\xE0 les Ghost ne peuvent plus rien faire sauf s'enfuir."
     waitForAction: 0
     actionName: 
-    duration: 5
+    duration: 7
   - message: 'Vous pouvez gagner la partie si :'
     waitForAction: 0
     actionName: 
-    duration: 5
+    duration: 7
   - message: "Le temps de la partie est \xE9coul\xE9 sans que la jauge de sabotage
       ne soit remplie."
     waitForAction: 0
     actionName: 
-    duration: 5
+    duration: 7
   - message: Vous neutralisez tous les Ghosts.
     waitForAction: 0
     actionName: 
-    duration: 5
+    duration: 7
 --- !u!1 &2316951510614423555
 GameObject:
   m_ObjectHideFlags: 0
@@ -1019,6 +1019,9 @@ MonoBehaviour:
   m_minPitch: -40
   m_maxPitch: 70
   m_collisionOffset: 0.2
+  m_collisionRadius: 0.2
+  m_cameraSnapSpeed: 15
+  m_cameraReturnSpeed: 4
   m_collisionMask:
     serializedVersion: 2
     m_Bits: 1

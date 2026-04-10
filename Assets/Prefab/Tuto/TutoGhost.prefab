@@ -201,7 +201,7 @@ MonoBehaviour:
   m_baseReviveTime: 5
   m_maxReviveTime: 30
   m_reviveDuration: 0
-  m_promptMessage: 'Hold E : Revive'
+  m_promptLabelRevive: Revive
   m_highlightRenderers:
   - {fileID: 3546755036577467750}
   m_highlightColor: {r: 0, g: 1, b: 0, a: 1}
@@ -912,7 +912,6 @@ MonoBehaviour:
   _directChildren: []
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
-  m_errorThreshold: 0
 --- !u!114 &1053912558784888777
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -964,15 +963,15 @@ MonoBehaviour:
   - message: 'Bienvenue sur le Tuto. '
     waitForAction: 0
     actionName: 
-    duration: 8
+    duration: 10
   - message: Cliquer sur E pour saboter un objet en surbrillance.
     waitForAction: 0
     actionName: 
-    duration: 5
+    duration: 7
   - message: Cliquer sur ESPACE au bon moment pour valider.
     waitForAction: 0
     actionName: 
-    duration: 5
+    duration: 7
   - message: Quand un Ghost sabote, le score du Sabotage augmente au fil du temps.
     waitForAction: 0
     actionName: 
@@ -980,43 +979,43 @@ MonoBehaviour:
   - message: Approchez-vous d'un objet et cliquez sur T pour vous mettre en preview.
     waitForAction: 0
     actionName: 
-    duration: 5
+    duration: 7
   - message: "Vous pouvez vous d\xE9placer en preview et utiliser A et E pour mieux
       vous placer."
     waitForAction: 0
     actionName: 
-    duration: 5
+    duration: 7
   - message: Cliquez sur F pour valider la preview et ainsi vous cacher quand un
       enfant arrive.
     waitForAction: 0
     actionName: 
-    duration: 5
+    duration: 7
   - message: "Une fois transform\xE9, si vous bougez, vous revenez \xE0 votre \xE9tat
       de Ghost."
     waitForAction: 0
     actionName: 
-    duration: 5
+    duration: 7
   - message: "Vous pouvez grimper sur les objets en avan\xE7ant tout droit."
     waitForAction: 0
     actionName: 
-    duration: 5
+    duration: 7
   - message: "Quand les Ghost remplissent la jauge de sabotage, la phase de panic
       d\xE9bute, et l\xE0 les Ghost ne peuvent plus rien faire sauf s'enfuir."
     waitForAction: 0
     actionName: 
-    duration: 5
+    duration: 7
   - message: 'Vous pouvez gagner la partie si :'
     waitForAction: 0
     actionName: 
-    duration: 5
+    duration: 7
   - message: "Les enfants d\xE9passent la limite de casse d'objets."
     waitForAction: 0
     actionName: 
-    duration: 5
+    duration: 7
   - message: "Au moins un Ghost reste vivant apr\xE8s la phase de panique."
     waitForAction: 0
     actionName: 
-    duration: 5
+    duration: 7
 --- !u!1 &3407796363210345922
 GameObject:
   m_ObjectHideFlags: 0
@@ -1455,6 +1454,9 @@ MonoBehaviour:
   m_minPitch: -40
   m_maxPitch: 70
   m_collisionOffset: 0.2
+  m_collisionRadius: 0.2
+  m_cameraSnapSpeed: 15
+  m_cameraReturnSpeed: 4
   m_collisionMask:
     serializedVersion: 2
     m_Bits: 1
