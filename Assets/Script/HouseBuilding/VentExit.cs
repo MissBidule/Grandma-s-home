@@ -1,9 +1,10 @@
+using PurrNet;
 using PurrNet.Logging;
 using UnityEngine;
 
 namespace Script.HouseBuilding
 {
-    public class VentExit : MonoBehaviour
+    public class VentExit : NetworkBehaviour
     {
         [SerializeField] [Tooltip("Where the ghost appear on exit")] private Transform m_exitTransform;
 

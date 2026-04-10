@@ -25,7 +25,7 @@ namespace Script.HouseBuilding
         private MaterialPropertyBlock m_propertyBlock;
         
         [Header("Exit")]
-        [SerializeField] private VentExit m_exit;
+        [SerializeField] private SyncVar<VentExit> m_exit;
         
         private void Start()
         {
@@ -48,7 +48,7 @@ namespace Script.HouseBuilding
 
         public void LinkExit(VentExit _exit)
         {
-            m_exit = _exit;
+            m_exit.value = _exit;
         }
 
         public void OnFocus(Interact _player)
@@ -84,7 +84,7 @@ namespace Script.HouseBuilding
         
         public void OnInteract(Interact _player)
         {
-            if (m_exit == null)
+            if (m_exit.value == null)
                 return;
 
             PlayerControllerCore playerController = _player.GetComponentInParent<PlayerControllerCore>();
@@ -94,7 +94,7 @@ namespace Script.HouseBuilding
         [ServerRpc(requireOwnership: false)]
         private void TP_Player(GameObject _player)
         {
-            _player.transform.position = m_exit.GetExitTransform.position;
+            _player.transform.position = m_exit.value.GetExitTransform.position;
         }
         
         public void OnStopInteract(Interact _player) { }
