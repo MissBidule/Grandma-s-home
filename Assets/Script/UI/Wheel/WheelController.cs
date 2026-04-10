@@ -17,7 +17,7 @@ public class WheelController : MonoBehaviour
     [SerializeField] private float m_angleOffset = 114f;
     [SerializeField] private float m_minSelectDistance = 5f;
 
-    [SerializeField] private string m_promptLabelReplace = "Replace transformation slot";
+    [SerializeField] private string m_promptLabelReplace = "Replace transform slot";
 
     [NonSerialized] public GameObject m_selectedPrefab;
     [NonSerialized] public bool m_isWaitingForSlotSelection = false;
