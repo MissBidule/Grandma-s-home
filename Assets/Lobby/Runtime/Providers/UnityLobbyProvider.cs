@@ -644,16 +644,15 @@ namespace PurrLobby.Providers {
         /// </summary>
         public async Task OnLobbyUpdateData(string _lobbyId) {
             if(!IsUnityServiceAvailable) { return; }
-            CurrentLobby = await LobbyService.Instance.GetLobbyAsync(_lobbyId);
             RoleKeeper roleList = FindAnyObjectByType<RoleKeeper>();
+            roleList.DeleteList();
+            CurrentLobby = await LobbyService.Instance.GetLobbyAsync(_lobbyId);
             await SubscribeLobbyEventsAsync();
 
             await InitializeLocalPlayerData();
             _ = SetLobbyDataAsync("JoinCode", "");
 
             OnLobbyUpdate();
-            
-            roleList.DeleteList();
         }
 
         /// <summary>

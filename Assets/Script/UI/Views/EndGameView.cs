@@ -11,6 +11,7 @@ namespace Script.UI.Views
         [Header("End Game Information")]
         [SerializeField] private TMP_Text m_winnerText;
         [SerializeField] private GameObject m_hostTools;
+        private bool m_alreadyPressed = false;
 
         private void Awake()
         {
@@ -33,9 +34,12 @@ namespace Script.UI.Views
         }
         
         public void BackToLobby()
-        {
+        {  
             if (!InstanceHandler.TryGetInstance(out EndGameState endGameState))
                 return;
+            if (m_alreadyPressed)
+                return;
+            m_alreadyPressed = true;
             endGameState.StopGame();
         }
     }

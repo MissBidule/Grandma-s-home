@@ -145,7 +145,6 @@ namespace PurrLobby
         public async Task CleanLobby() {
             EnsureProviderSet();
             await _currentProvider.CleanLobby();
-            Destroy(gameObject);
         }
 
         private async Task ReconnectToLobbyAsync()
@@ -177,6 +176,7 @@ namespace PurrLobby
                     m_loading = false;
                     OnRoomJoinFailed?.Invoke($"Failed to join room {_currentLobby.LobbyId}");
                 }
+                OnRoomUpdated?.Invoke(room);
             }
              
             //refresh lobby info

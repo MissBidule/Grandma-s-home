@@ -41,8 +41,6 @@ namespace Script.States
             IsGameOver = true;
             base.Enter(_asServer);
 
-            HidePause();
-
             foreach (StateNode state in machine.states)
             {
                 if (state is PlayerSpawningState playerSpawningState)
@@ -53,6 +51,9 @@ namespace Script.States
             
             if (!_asServer)
                 return;
+
+            _ = FindAnyObjectByType<LobbyManager>().CleanLobby();
+            HidePause();
             
             SetupEndGameUI(_childWin);
             InteractPromptUI.m_Instance.Hide();
@@ -62,7 +63,7 @@ namespace Script.States
             endGameView.EnableHostTools();
         }
 
-        [ObserversRpc (requireServer: true)]
+        [ObserversRpc]
         public void HidePause()
         {
             Destroy(pauseMenu);
@@ -93,9 +94,8 @@ namespace Script.States
             SceneManager.LoadSceneAsync(m_lobbyScene);
         }
 
-        public async Task StopGame() {
-            if (isServer) await FindAnyObjectByType<LobbyManager>().CleanLobby();
-            else Destroy(FindAnyObjectByType<LobbyManager>().gameObject);
+        public void StopGame() {
+            Destroy(FindAnyObjectByType<LobbyManager>().gameObject);
             BackToLobby();
         }
 
@@ -122,7 +122,7 @@ namespace Script.States
         {
             PurrLogger.LogWarning("Server is not accessible. Returning to menu.", this);
             FindAnyObjectByType<LobbyDataHolder>().SetCurrentLobby(default);
-            _ = StopGame();
+            StopGame();
         }
 
         [ObserversRpc]
