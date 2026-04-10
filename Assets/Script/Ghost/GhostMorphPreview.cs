@@ -45,7 +45,7 @@ public class GhostMorphPreview : MonoBehaviour
     private bool m_rotateRight = false;
 
     [SerializeField] private string m_promptLabelSCAN = "SCAN";
-    [SerializeField] private string m_promptLabelValid = "Valid transformation";
+    [SerializeField] private string m_promptLabelValid = "Confirm transform";
     [SerializeField] private float m_rotateSpeed = 120f;
 
     [SerializeField] private bool m_GhostPreviewOn;

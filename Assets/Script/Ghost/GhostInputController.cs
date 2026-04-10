@@ -24,7 +24,7 @@ public class GhostInputController : MonoBehaviour
 
     private bool isOwner => m_ghostClientController != null && m_ghostClientController.isOwner;
 
-    [SerializeField] private string m_promptLabelValid = "Valid transformation";
+    [SerializeField] private string m_promptLabelValid = "Confirm transform";
 
     /*
      * @brief Awake is called when the script instance is being loaded
