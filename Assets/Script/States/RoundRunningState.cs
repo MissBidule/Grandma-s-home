@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -165,7 +166,7 @@ namespace Script.States
         private IEnumerator RoundTimer(float _roundDuration)
         {
             // Call Ethan day/night cycle
-            StartDayNight(_roundDuration + m_startDelay);
+            StartDayNight(_roundDuration + m_startDelay, DateTime.Now.Millisecond);
             
             // Wait for players to settle in the starting room before opening the doors
             yield return new WaitForSeconds(m_startDelay);
@@ -183,10 +184,10 @@ namespace Script.States
         }
 
         [ObserversRpc(bufferLast:true)]
-        public void StartDayNight(float _roundDuration)
+        public void StartDayNight(float _roundDuration, int _seed)
         {
             if (InstanceHandler.TryGetInstance(out LightTimer lightTimer))
-                lightTimer.StartLightSystem(_roundDuration);
+                lightTimer.StartLightSystem(_roundDuration, _seed);
         }
         
         // Action Reactions
