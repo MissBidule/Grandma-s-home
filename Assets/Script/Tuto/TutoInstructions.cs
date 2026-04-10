@@ -4,7 +4,7 @@
 using UnityEngine;
 using TMPro;
 
-public class TutoManager : MonoBehaviour
+public class TutoInstructions : MonoBehaviour
 {
     [Header("Prefab UI")]
     [SerializeField] private GameObject m_canvasPrefab;
