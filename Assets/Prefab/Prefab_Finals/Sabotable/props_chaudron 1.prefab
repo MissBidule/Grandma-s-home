@@ -42,11 +42,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5640562698000028052, guid: b5c8ca7ed10b61e499cce8ec3b6e2e4c, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.66161084
+      value: 0.905
       objectReference: {fileID: 0}
     - target: {fileID: 5640562698000028052, guid: b5c8ca7ed10b61e499cce8ec3b6e2e4c, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.049
+      value: 0.073
       objectReference: {fileID: 0}
     - target: {fileID: 5640562698000028052, guid: b5c8ca7ed10b61e499cce8ec3b6e2e4c, type: 3}
       propertyPath: m_LocalRotation.w
@@ -92,13 +92,21 @@ PrefabInstance:
       propertyPath: looping
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 7660836441076557302, guid: b5c8ca7ed10b61e499cce8ec3b6e2e4c, type: 3}
+      propertyPath: CollisionModule.enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7660836441076557302, guid: b5c8ca7ed10b61e499cce8ec3b6e2e4c, type: 3}
+      propertyPath: 'CollisionModule.m_Planes.Array.data[0]'
+      value: 
+      objectReference: {fileID: 3566993904807897664}
     - target: {fileID: 7660836441076557303, guid: b5c8ca7ed10b61e499cce8ec3b6e2e4c, type: 3}
       propertyPath: m_Materials.Array.size
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7660836442491109380, guid: b5c8ca7ed10b61e499cce8ec3b6e2e4c, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7660836442491109401, guid: b5c8ca7ed10b61e499cce8ec3b6e2e4c, type: 3}
       propertyPath: looping
@@ -108,48 +116,14 @@ PrefabInstance:
       propertyPath: m_Materials.Array.size
       value: 1
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedComponents:
+    - {fileID: 114114994653804418, guid: b5c8ca7ed10b61e499cce8ec3b6e2e4c, type: 3}
+    m_RemovedGameObjects:
+    - {fileID: 4208956261938065561, guid: b5c8ca7ed10b61e499cce8ec3b6e2e4c, type: 3}
+    - {fileID: 7660836442491109380, guid: b5c8ca7ed10b61e499cce8ec3b6e2e4c, type: 3}
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 4208956261938065561, guid: b5c8ca7ed10b61e499cce8ec3b6e2e4c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 637704074503956869}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b5c8ca7ed10b61e499cce8ec3b6e2e4c, type: 3}
---- !u!1 &4302582655553985528 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4208956261938065561, guid: b5c8ca7ed10b61e499cce8ec3b6e2e4c, type: 3}
-  m_PrefabInstance: {fileID: 134245192217930593}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &637704074503956869
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4302582655553985528}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
-  m_UsePipelineSettings: 1
-  m_AdditionalLightsShadowResolutionTier: 2
-  m_CustomShadowLayers: 0
-  m_LightCookieSize: {x: 1, y: 1}
-  m_LightCookieOffset: {x: 0, y: 0}
-  m_SoftShadowQuality: 0
-  m_RenderingLayersMask:
-    serializedVersion: 0
-    m_Bits: 1
-  m_ShadowRenderingLayersMask:
-    serializedVersion: 0
-    m_Bits: 1
-  m_Version: 4
-  m_LightLayerMask: 1
-  m_ShadowLayerMask: 1
-  m_RenderingLayers: 1
-  m_ShadowRenderingLayers: 1
 --- !u!1 &5734152442382832239 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5642766282230003982, guid: b5c8ca7ed10b61e499cce8ec3b6e2e4c, type: 3}
@@ -170,15 +144,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2468237517285583461, guid: 37dc3cafd6e1f9a4292cc71b598ec0e7, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.33969587
+      value: 1.621776
       objectReference: {fileID: 0}
     - target: {fileID: 2468237517285583461, guid: 37dc3cafd6e1f9a4292cc71b598ec0e7, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.33969587
+      value: 1.621776
       objectReference: {fileID: 0}
     - target: {fileID: 2468237517285583461, guid: 37dc3cafd6e1f9a4292cc71b598ec0e7, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.33969587
+      value: 1.621776
       objectReference: {fileID: 0}
     - target: {fileID: 2468237517285583461, guid: 37dc3cafd6e1f9a4292cc71b598ec0e7, type: 3}
       propertyPath: m_LocalPosition.x
@@ -186,11 +160,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2468237517285583461, guid: 37dc3cafd6e1f9a4292cc71b598ec0e7, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.685
+      value: 0.79
       objectReference: {fileID: 0}
     - target: {fileID: 2468237517285583461, guid: 37dc3cafd6e1f9a4292cc71b598ec0e7, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 0.048
       objectReference: {fileID: 0}
     - target: {fileID: 2468237517285583461, guid: 37dc3cafd6e1f9a4292cc71b598ec0e7, type: 3}
       propertyPath: m_LocalRotation.w
@@ -399,9 +373,9 @@ MonoBehaviour:
   m_pulseSpeed: 3
   m_minIntensity: 0.2
   m_maxIntensity: 0.6
-  m_promptMessageSABOTAGE: 'E : Sabotage'
-  m_promptMessageREPAIR: 'E : Repair'
-  m_promptMessageSPACE: 'SPACE : Valid'
+  m_promptLabelSABOTAGE: Sabotage
+  m_promptLabelREPAIR: Repair
+  m_promptLabelVALID: Valid
   m_saboteur: {fileID: 0}
   m_isSabotaged: 0
   m_saboteurs: []
