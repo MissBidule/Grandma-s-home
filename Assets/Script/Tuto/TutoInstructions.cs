@@ -17,19 +17,22 @@ public class TutoInstructions : MonoBehaviour
 
     private int m_currentStep = 0;
     private float m_timer = 5f;
+    public bool m_hasStarted = false;
 
-    void Start()
+    void StartTuto()
     {
         m_canvasInstance = Instantiate(m_canvasPrefab);
-
         m_text = m_canvasInstance.GetComponentInChildren<TMP_Text>();
+
         if (m_steps == null || m_steps.Length == 0) return;
 
+        //m_currentStep = 0;
         ShowStep();
     }
 
     void Update()
     {
+        if (!m_hasStarted) return;
         if (m_currentStep >= m_steps.Length) return;
 
         var step = m_steps[m_currentStep];
@@ -73,5 +76,17 @@ public class TutoInstructions : MonoBehaviour
         }
 
         ShowStep();
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (m_hasStarted) return;
+
+        if (other.CompareTag("Tuto"))
+        {
+            m_hasStarted = true;
+            Debug.Log("il trouve un tag");
+            StartTuto();
+        }
     }
 }
