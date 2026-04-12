@@ -875,59 +875,57 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TutoManager
   m_canvasPrefab: {fileID: 492682312804705504, guid: f736cf1368213be44adf64056ea5d815, type: 3}
   m_steps:
-  - message: 'Bienvenue sur le Tuto. '
+  - message: Welcome to the Tutorial.
+    waitForAction: 0
+    actionName: 
+    duration: 5
+  - message: You can hit a Ghost to neutralize it or detransform it.
+    waitForAction: 0
+    actionName: 
+    duration: 7
+  - message: Click CTRL to switch weapons between a slime weapon and a melee weapon.
+    waitForAction: 0
+    actionName: 
+    duration: 7
+  - message: You can shoot the Ghosts with the LEFT CLICK to slow them down.
+    waitForAction: 0
+    actionName: 
+    duration: 7
+  - message: You can repair a sabotaged object by clicking on F.
+    waitForAction: 0
+    actionName: 
+    duration: 7
+  - message: Click on SPACE at the right time to confirm.
+    waitForAction: 0
+    actionName: 
+    duration: 7
+  - message: Ghosts can hide in objects, you can tap or pull on objects to distort
+      a hiding Ghost.
+    waitForAction: 0
+    actionName: 
+    duration: 7
+  - message: If you hit an object that was not a Ghost, then the Broken score increases,
+      if you break too many objects, the Children lose the game.
     waitForAction: 0
     actionName: 
     duration: 10
-  - message: "Vous pouvez taper un Ghost pour le neutraliser ou le d\xE9 transformer."
+  - message: When the Ghosts fill the sabotage gauge, the panic phase begins, and
+      at that point the Ghosts can do nothing but flee.
+    waitForAction: 0
+    actionName: 
+    duration: 10
+  - message: 'You can win the game if:'
     waitForAction: 0
     actionName: 
     duration: 7
-  - message: "Cliquez sur CTRL pour switcher d'armes entre une arme \xE0 slime et
-      une arme au corps \xE0 corps."
+  - message: The game time has expired without the sabotage gauge being filled.
     waitForAction: 0
     actionName: 
-    duration: 7
-  - message: Vous pouvez tirer sur les Ghost avec le CLICK GAUCHE pour les ralentir.
+    duration: 10
+  - message: You neutralize all the Ghosts.
     waitForAction: 0
     actionName: 
-    duration: 7
-  - message: "Vous pouvez r\xE9parer un objet sabot\xE9 en cliquant sur E."
-    waitForAction: 0
-    actionName: 
-    duration: 7
-  - message: Cliquer sur ESPACE au bon moment pour valider.
-    waitForAction: 0
-    actionName: 
-    duration: 7
-  - message: "Les Ghost peuvent se cacher en objets, vous pouvez taper ou tirer sur
-      les objets pour d\xE9former un Ghost qui se cache."
-    waitForAction: 0
-    actionName: 
-    duration: 7
-  - message: "Si vous tapez un objet qui n'\xE9tait pas un Ghost, alors le score
-      Broken augmente, si vous cassez trop d'objets les Enfants perdent la partie."
-    waitForAction: 0
-    actionName: 
-    duration: 7
-  - message: "Quand les Ghost remplissent la jauge de sabotage, la phase de panic
-      d\xE9bute, et l\xE0 les Ghost ne peuvent plus rien faire sauf s'enfuir."
-    waitForAction: 0
-    actionName: 
-    duration: 7
-  - message: 'Vous pouvez gagner la partie si :'
-    waitForAction: 0
-    actionName: 
-    duration: 7
-  - message: "Le temps de la partie est \xE9coul\xE9 sans que la jauge de sabotage
-      ne soit remplie."
-    waitForAction: 0
-    actionName: 
-    duration: 7
-  - message: Vous neutralisez tous les Ghosts.
-    waitForAction: 0
-    actionName: 
-    duration: 7
+    duration: 10
   m_hasStarted: 0
 --- !u!114 &-1637920037281884883
 MonoBehaviour:

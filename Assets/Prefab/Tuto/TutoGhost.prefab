@@ -961,62 +961,60 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TutoManager
   m_canvasPrefab: {fileID: 492682312804705504, guid: f736cf1368213be44adf64056ea5d815, type: 3}
   m_steps:
-  - message: 'Bienvenue sur le Tuto. '
-    waitForAction: 0
-    actionName: 
-    duration: 10
-  - message: Cliquer sur E pour saboter un objet en surbrillance.
-    waitForAction: 0
-    actionName: 
-    duration: 7
-  - message: Cliquer sur ESPACE au bon moment pour valider.
-    waitForAction: 0
-    actionName: 
-    duration: 7
-  - message: Quand un Ghost sabote, le score du Sabotage augmente au fil du temps.
+  - message: Welcome to the Tutorial.
     waitForAction: 0
     actionName: 
     duration: 5
-  - message: Approchez-vous d'un objet et cliquez sur T pour vous mettre en preview.
+  - message: Click F to sabotage a highlighted object.
     waitForAction: 0
     actionName: 
     duration: 7
-  - message: "Vous pouvez vous d\xE9placer en preview et utiliser A et E pour mieux
-      vous placer."
+  - message: Click on SPACE at the right time to confirm.
     waitForAction: 0
     actionName: 
     duration: 7
-  - message: Cliquez sur F pour valider la preview et ainsi vous cacher quand un
-      enfant arrive.
+  - message: When a Ghost sabotages, the Sabotage score increases over time.
+    waitForAction: 0
+    actionName: 
+    duration: 5
+  - message: Approach an object and click on T to preview it.
     waitForAction: 0
     actionName: 
     duration: 7
-  - message: "Une fois transform\xE9, si vous bougez, vous revenez \xE0 votre \xE9tat
-      de Ghost."
+  - message: You can move around in preview mode and use A and E to position yourself
+      better.
+    waitForAction: 0
+    actionName: 
+    duration: 10
+  - message: Click on F to confirm the preview and thus hide when a child arrives.
+    waitForAction: 0
+    actionName: 
+    duration: 10
+  - message: Once transformed, if you move, you revert to your Ghost state.
     waitForAction: 0
     actionName: 
     duration: 7
-  - message: "Vous pouvez grimper sur les objets en avan\xE7ant tout droit."
+  - message: You can climb on objects by moving straight ahead.
     waitForAction: 0
     actionName: 
     duration: 7
-  - message: "Quand les Ghost remplissent la jauge de sabotage, la phase de panic
-      d\xE9bute, et l\xE0 les Ghost ne peuvent plus rien faire sauf s'enfuir."
+  - message: When the Ghosts fill the sabotage gauge, the panic phase begins, and
+      at that point the Ghosts can do nothing but flee.
+    waitForAction: 0
+    actionName: 
+    duration: 10
+  - message: 'You can win the game if:'
     waitForAction: 0
     actionName: 
     duration: 7
-  - message: 'Vous pouvez gagner la partie si :'
+  - message: The children are exceeding the limit for breaking objects.
     waitForAction: 0
     actionName: 
-    duration: 7
-  - message: "Les enfants d\xE9passent la limite de casse d'objets."
+    duration: 10
+  - message: At least one Ghost remains alive after the panic phase.
     waitForAction: 0
     actionName: 
-    duration: 7
-  - message: "Au moins un Ghost reste vivant apr\xE8s la phase de panique."
-    waitForAction: 0
-    actionName: 
-    duration: 7
+    duration: 10
   m_hasStarted: 0
 --- !u!114 &3708811602893915025
 MonoBehaviour:
