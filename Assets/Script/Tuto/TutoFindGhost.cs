@@ -1,5 +1,9 @@
 using UnityEngine;
 
+/*
+     * @brief  Contains class declaration for Finding a hiding ghost in the Tuto
+     */
+     
 public class TutoFindGhost : MonoBehaviour
 {
     public GameObject m_ghost;

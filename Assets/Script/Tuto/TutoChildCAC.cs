@@ -1,5 +1,9 @@
 using UnityEngine;
 
+/*
+     * @brief  Contains class declaration for kill a ghost in the Tuto
+     */
+
 public class TutoChildCAC : MonoBehaviour
 {
     public float m_attackRange = 3f;

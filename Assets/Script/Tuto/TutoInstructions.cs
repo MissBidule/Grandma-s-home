@@ -91,7 +91,6 @@ public class TutoInstructions : MonoBehaviour
             m_tutoRunning = true;
 
             m_hasStarted = true;
-            Debug.Log("il trouve un tag");
             StartTuto();
         }
     }

@@ -13,7 +13,7 @@ using System.Linq;
 namespace Script.States
 {
     /*
-     * @brief  Contains class declaration for the state PlayerSpawningState
+     * @brief  Contains TUTO version of the class declaration for the state PlayerSpawningState
      * @details Script that will handle the correct spawning of each player element
      */
     public class TutoPlayerSpawningState : StateNode

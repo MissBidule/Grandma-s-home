@@ -2,6 +2,10 @@ using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+/*
+     * @brief  Contains class declaration for Switching between the Ghost Tuto and the Child Tutos
+     */
+
 public class SwitchTuto : MonoBehaviour
 {
     private void OnTriggerEnter(Collider other)

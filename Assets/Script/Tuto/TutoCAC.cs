@@ -1,5 +1,9 @@
 using UnityEngine;
 
+/*
+     * @brief  Contains class declaration for active the deathIcon in the Tuto
+     */
+
 public class TutoCAC : MonoBehaviour
 {
     public GameObject m_deathIcon;
