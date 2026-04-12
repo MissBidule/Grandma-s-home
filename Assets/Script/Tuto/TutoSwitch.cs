@@ -4,18 +4,14 @@ using UnityEngine.InputSystem;
 
 public class SwitchTuto : MonoBehaviour
 {
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     private void OnTriggerEnter(Collider other)
     {
 
         if (other.CompareTag("Switch"))
         {
+            TutoInstructions tutoInstructions = GetComponent<TutoInstructions>();
+            tutoInstructions.HideTuto();
+            
             GameObject otherPlayer = GetOtherPlayer();
 
             PlayerInput playerInput = GetComponent<PlayerInput>();

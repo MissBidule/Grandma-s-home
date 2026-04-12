@@ -18,15 +18,17 @@ public class TutoInstructions : MonoBehaviour
     private int m_currentStep = 0;
     private float m_timer = 5f;
     public bool m_hasStarted = false;
+    private static bool m_tutoRunning = false;
 
     void StartTuto()
     {
+        if (m_canvasInstance != null) return;
         m_canvasInstance = Instantiate(m_canvasPrefab);
-        m_text = m_canvasInstance.GetComponentInChildren<TMP_Text>();
+        m_text = m_canvasInstance.GetComponentInChildren<TMP_Text>(true);
 
         if (m_steps == null || m_steps.Length == 0) return;
 
-        //m_currentStep = 0;
+        m_currentStep = 0;
         ShowStep();
     }
 
@@ -71,7 +73,8 @@ public class TutoInstructions : MonoBehaviour
 
         if (m_currentStep >= m_steps.Length)
         {
-            Destroy(m_canvasInstance);
+            //Destroy(m_canvasInstance);
+            HideTuto();
             return;
         }
 
@@ -84,9 +87,26 @@ public class TutoInstructions : MonoBehaviour
 
         if (other.CompareTag("Tuto"))
         {
+            if(m_tutoRunning) return;
+            m_tutoRunning = true;
+
             m_hasStarted = true;
             Debug.Log("il trouve un tag");
             StartTuto();
         }
+    }
+
+    public void HideTuto()
+    {
+        if (m_canvasInstance != null)
+        {
+            Destroy(m_canvasInstance);
+            m_canvasInstance = null;
+        }
+
+        m_hasStarted = false;
+        m_currentStep = 0;
+        m_timer = 0f;
+        m_tutoRunning=false;
     }
 }
