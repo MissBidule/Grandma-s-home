@@ -45,7 +45,7 @@ public class GhostMorphPreview : MonoBehaviour
     private bool m_rotateRight = false;
 
     [SerializeField] private string m_promptLabelSCAN = "SCAN";
-    [SerializeField] private string m_promptLabelValid = "Valid";
+    [SerializeField] private string m_promptLabelValid = "Confirm transform";
     [SerializeField] private float m_rotateSpeed = 120f;
 
     [SerializeField] private bool m_GhostPreviewOn;
@@ -282,6 +282,7 @@ public class GhostMorphPreview : MonoBehaviour
             return;
         }
         if (m_interact != null && m_interact.m_onFocus != null) return;
+        if (m_wheel != null && m_wheel.IsWheelOpen()) return;
 
         Vector3 rayOrigin = m_cameraTransform.transform.position;
         Vector3 rayDirection = m_cameraTransform.transform.forward;
