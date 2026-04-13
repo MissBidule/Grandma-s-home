@@ -52,7 +52,6 @@ namespace Script.States
             if (!_asServer)
                 return;
 
-            _ = FindAnyObjectByType<LobbyManager>().CleanLobby();
             HidePause();
             
             SetupEndGameUI(_childWin);

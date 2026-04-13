@@ -28,7 +28,7 @@ namespace PurrLobby
                 return;
 
             if (m_roleKeeper == null)
-                m_roleKeeper = FindAnyObjectByType<RoleKeeper>();
+                m_roleKeeper = FindAnyObjectByType<RoleKeeper>();            
 
             HandleExistingMembers(room);
             HandleNewMembers(room);
@@ -45,10 +45,8 @@ namespace PurrLobby
 
         private void HandleExistingMembers(Lobby room)
         {
-                Debug.Log("existing members update");
             if (room.Members.Count(x => x.IsReady) == room.Members.Count)  
             {
-                Debug.Log("first if");
                 roleButton.interactable = false;
             }
             MemberEntry hostEntry = null;
@@ -88,7 +86,6 @@ namespace PurrLobby
 
         private async void HandleNewMembers(Lobby room)
         {
-            Debug.Log("new members update");
             var existingMembers = content.GetComponentsInChildren<MemberEntry>();
     
             foreach (var member in room.Members)

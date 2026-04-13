@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+using PurrLobby;
 using PurrNet;
 using Script.States;
 using TMPro;
@@ -40,6 +42,12 @@ namespace Script.UI.Views
             if (m_alreadyPressed)
                 return;
             m_alreadyPressed = true;
+            _ = WaitCleanUp(endGameState);
+        }
+
+        private async Task WaitCleanUp(EndGameState endGameState)
+        {
+            await FindAnyObjectByType<LobbyManager>().CleanLobby();
             endGameState.StopGame();
         }
     }
