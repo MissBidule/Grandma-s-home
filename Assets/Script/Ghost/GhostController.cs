@@ -215,6 +215,7 @@ public class GhostController : PlayerControllerCore, IInteractable
         StopQTE();
     }
 
+    [ObserversRpc(runLocally:true)]
     private void StopQTE()
     {
         if(!isOwner) return;
