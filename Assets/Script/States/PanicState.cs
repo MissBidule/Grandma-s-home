@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using PurrNet;
 using PurrNet.Logging;
 using PurrNet.StateMachine;
+using Script.Music;
 using Script.UI.Views;
 using UnityEngine;
 
@@ -90,6 +91,8 @@ namespace Script.States
                 }
             }
 
+            StartPanicMusic();
+
             GhostInitialize(_ghostGameStateData);
 
             if (!InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
@@ -103,6 +106,13 @@ namespace Script.States
             m_panicTimer = StartCoroutine(PanicTimer(m_roundDuration * 60));
 
             RpcPanicTimer();
+        }
+
+        [ObserversRpc(bufferLast: true)]
+        public void StartPanicMusic()
+        {
+            if (InstanceHandler.TryGetInstance(out MusicLooper  looper))
+                looper.PlayMusic(MusicTrack.Panic);
         }
         
         /*

@@ -6,6 +6,7 @@ using PurrLobby;
 using PurrNet;
 using PurrNet.Logging;
 using PurrNet.StateMachine;
+using Script.Music;
 using UnityEngine;
 
 namespace Script.States
@@ -63,6 +64,9 @@ namespace Script.States
                         break;
                 }
             }
+            
+            // Play Music
+            StartGameMusic();
 
             ClearLists();
             
@@ -71,6 +75,13 @@ namespace Script.States
             m_roundTimer = StartCoroutine(RoundTimer(m_roundDuration*60));
 
             m_roleKeeper = FindAnyObjectByType<RoleKeeper>();
+        }
+        
+        [ObserversRpc(bufferLast: true)]
+        public void StartGameMusic()
+        {
+            if (InstanceHandler.TryGetInstance(out MusicLooper  looper))
+                looper.PlayMusic(MusicTrack.Game);
         }
 
         protected override void OnDestroy()
