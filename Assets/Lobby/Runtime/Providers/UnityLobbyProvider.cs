@@ -650,7 +650,7 @@ namespace PurrLobby.Providers {
             await SubscribeLobbyEventsAsync();
 
             await InitializeLocalPlayerData();
-            _ = SetLobbyDataAsync("JoinCode", "");
+            await SetLobbyDataAsync("JoinCode", "");
 
             OnLobbyUpdate();
         }
