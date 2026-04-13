@@ -45,13 +45,16 @@ namespace PurrLobby
 
         private void HandleExistingMembers(Lobby room)
         {
+                Debug.Log("existing members update");
             if (room.Members.Count(x => x.IsReady) == room.Members.Count)  
             {
+                Debug.Log("first if");
                 roleButton.interactable = false;
             }
             MemberEntry hostEntry = null;
             foreach (Transform child in content)
             {
+                Debug.Log("foreach");
                 if (!child.TryGetComponent(out MemberEntry member))
                     continue;
 
@@ -72,7 +75,6 @@ namespace PurrLobby
             {
                 _member._lobbyManager.showHostObjects(true);
                 int readyMembers = _room.Members.Count(x => x.IsReady);
-                Debug.Log(readyMembers);
                 if (readyMembers < _room.Members.Count - 1)
                 {
                     _member.LockReady(true);
@@ -86,6 +88,7 @@ namespace PurrLobby
 
         private async void HandleNewMembers(Lobby room)
         {
+            Debug.Log("new members update");
             var existingMembers = content.GetComponentsInChildren<MemberEntry>();
     
             foreach (var member in room.Members)
