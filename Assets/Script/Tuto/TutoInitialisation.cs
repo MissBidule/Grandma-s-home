@@ -1,18 +1,24 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Cinemachine;
+using PurrLobby;
 
-public class TutoManager : MonoBehaviour
+public class TutoInitialisation : MonoBehaviour
 {
-
-    void Start() //a fix
+    private bool m_tutoOn;
+    void Start()
     {
-        Debug.Log("ca se lance maintenant");
+        foreach(SceneSwitcher sceneSwitcher in FindObjectsByType<SceneSwitcher>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+        {
+            m_tutoOn=sceneSwitcher._isTuto;
+        }
         foreach(GameObject obj in FindObjectsByType<GameObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+        {
+            if(m_tutoOn)
             {
                 if(obj.layer == LayerMask.NameToLayer("Ghost"))
                 {
-                     PlayerInput ghostplayerInput = obj.GetComponent<PlayerInput>();
+                    PlayerInput ghostplayerInput = obj.GetComponent<PlayerInput>();
                     if (ghostplayerInput != null)
                     {
                         ghostplayerInput.enabled = false;
@@ -24,13 +30,14 @@ public class TutoManager : MonoBehaviour
                         ghostcinemachineCamera.enabled = false;
                     }
                 }
-
+                if(obj.layer == LayerMask.NameToLayer("UI"))
+                {
+                    if (obj.GetComponent<TutoInitialisation>() != null)
+                    {
+                        obj.SetActive(false);
+                    }
+                }
             }
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-      
+        }
     }
 }

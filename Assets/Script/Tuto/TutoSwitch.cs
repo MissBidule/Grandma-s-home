@@ -39,6 +39,21 @@ public class SwitchTuto : MonoBehaviour
             {
                 othercinemachineCamera.enabled = true;
             }
+
+            foreach(GameObject obj in FindObjectsByType<GameObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+            {
+                if(obj.layer == LayerMask.NameToLayer("UI"))
+                {
+                    //if (obj.GetComponent<TutoInitialisation>() != null)
+                    obj.SetActive(true);
+                    /**if(obj.activeInHierarchy)
+                        obj.SetActive(false);
+
+                    if(!obj.activeInHierarchy)
+                        obj.SetActive(true);**/
+                    
+                }
+            }
         }
     }
 
