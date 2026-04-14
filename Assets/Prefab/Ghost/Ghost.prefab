@@ -200,7 +200,7 @@ MonoBehaviour:
   m_baseReviveTime: 5
   m_maxReviveTime: 30
   m_reviveDuration: 0
-  m_promptMessage: 'Hold E : Revive'
+  m_promptLabelRevive: Revive
   m_highlightRenderers:
   - {fileID: 3546755036577467750}
   m_highlightColor: {r: 0, g: 1, b: 0, a: 1}
@@ -923,7 +923,6 @@ MonoBehaviour:
   _directChildren: []
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
-  m_errorThreshold: 0.75
 --- !u!114 &1053912558784888777
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1396,6 +1395,9 @@ MonoBehaviour:
   m_minPitch: -40
   m_maxPitch: 70
   m_collisionOffset: 0.2
+  m_collisionRadius: 0.2
+  m_cameraSnapSpeed: 15
+  m_cameraReturnSpeed: 4
   m_collisionMask:
     serializedVersion: 2
     m_Bits: 1
@@ -1532,8 +1534,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5516181086441010449}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.078459114, y: 0, z: 0, w: 0.99691737}
-  m_LocalPosition: {x: 0, y: 2, z: -5}
+  m_LocalRotation: {x: 0.00038735563, y: 0.9976522, z: 0.06824943, w: -0.005662263}
+  m_LocalPosition: {x: 259.23013, y: 2.1679902, z: -12.33695}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1604,7 +1606,7 @@ Camera:
     height: 1
   near clip plane: 0.1
   far clip plane: 5000
-  field of view: 60.000004
+  field of view: 56.8
   orthographic: 0
   orthographic size: 10
   m_Depth: 0
@@ -1813,6 +1815,7 @@ MonoBehaviour:
   m_pulseSpeed: 3
   m_minIntensity: 0.2
   m_maxIntensity: 0.6
+  m_ghostTransparentMaterial: {fileID: 2100000, guid: 5e4a9d36f340f4e21b9eae4d6f83bda9, type: 2}
   m_promptLabelSCAN: SCAN
   m_promptLabelValid: Confirm transform
   m_rotateSpeed: 120
