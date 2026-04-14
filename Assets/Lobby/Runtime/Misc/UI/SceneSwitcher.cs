@@ -19,6 +19,8 @@ namespace PurrLobby
     {
         [SerializeField] private LobbyManager lobbyManager;
         [PurrScene, SerializeField] private string nextScene;
+        [PurrScene, SerializeField] private string _tutoScene;
+        public bool _isTuto = false;
         [Tooltip("Automatically switch scene when OnAllReady event fires (recommended for Unity Relay)")]
         [SerializeField] private bool subscribeToOnAllReady = true;
 
@@ -60,22 +62,43 @@ namespace PurrLobby
             
             _hasAlreadySwitched = true;
             
-            if (string.IsNullOrEmpty(nextScene))
-            {
-                PurrLogger.LogError("Next scene name is not set!", this);
-                return;
-            }
+            if(!_isTuto){
+                if (string.IsNullOrEmpty(nextScene))
+                {
+                    PurrLogger.LogError("Next scene name is not set!", this);
+                    return;
+                }
 
-            PurrLogger.Log($"Switching to scene: {nextScene}", this);
-            
-            // Mark lobby as started to prevent new players from joining
-            if (lobbyManager != null)
-            {
-                lobbyManager.SetLobbyStarted();
+                PurrLogger.Log($"Switching to scene: {nextScene}", this);
+                
+                // Mark lobby as started to prevent new players from joining
+                if (lobbyManager != null)
+                {
+                    lobbyManager.SetLobbyStarted();
+                }
+                
+                // Load game scene - ConnectionStarter in new scene will handle network initialization
+                SceneManager.LoadSceneAsync(nextScene);
             }
-            
-            // Load game scene - ConnectionStarter in new scene will handle network initialization
-            SceneManager.LoadSceneAsync(nextScene);
+            else
+            {
+                if (string.IsNullOrEmpty(_tutoScene))
+                {
+                    PurrLogger.LogError("Next scene name is not set!", this);
+                    return;
+                }
+
+                PurrLogger.Log($"Switching to scene: {_tutoScene}", this);
+                
+                // Mark lobby as started to prevent new players from joining
+                if (lobbyManager != null)
+                {
+                    lobbyManager.SetLobbyStarted();
+                }
+                
+                // Load game scene - ConnectionStarter in new scene will handle network initialization
+                SceneManager.LoadSceneAsync(_tutoScene);
+            }
         }
     }
 }
