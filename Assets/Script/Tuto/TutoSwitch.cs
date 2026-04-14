@@ -45,15 +45,17 @@ public class SwitchTuto : MonoBehaviour
             {
                 if(obj.layer == LayerMask.NameToLayer("UI"))
                 {
-                    Debug.Log("leurs noms: "+obj);
-                    if (obj.GetComponent<TutoInitialisation>() != null)
-                        obj.SetActive(true);
-                    /**if(obj.activeInHierarchy)
-                        obj.SetActive(false);
-
-                    if(!obj.activeInHierarchy)
-                        obj.SetActive(true);**/
-                    
+                    if((obj.name == "GhostUIHolder(Clone)")||(obj.name == "ChildUIHolder(Clone)"))
+                    {
+                        if(obj.activeInHierarchy)
+                        {
+                            obj.SetActive(false);
+                        }
+                        else
+                        {
+                            obj.SetActive(true);
+                        }
+                    }  
                 }
             }
         }
