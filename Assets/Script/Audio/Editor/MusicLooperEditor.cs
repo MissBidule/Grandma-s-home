@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Script.Music.Editor
+namespace Script.Audio.Editor
 {
     [CustomEditor(typeof(MusicLooper))]
     public class MusicLooperEditor : UnityEditor.Editor
