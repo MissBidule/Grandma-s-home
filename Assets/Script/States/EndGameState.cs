@@ -4,6 +4,7 @@ using PurrNet.Logging;
 using PurrNet.StateMachine;
 using Script.UI.Views;
 using System;
+using System.Threading.Tasks;
 using UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -61,7 +62,7 @@ namespace Script.States
             endGameView.EnableHostTools();
         }
 
-        [ObserversRpc]
+        [ObserversRpc (requireServer: true)]
         public void HidePause()
         {
             Destroy(pauseMenu);
@@ -92,8 +93,9 @@ namespace Script.States
             SceneManager.LoadSceneAsync(m_lobbyScene);
         }
 
-        public void StopGame() {
-            Destroy(FindAnyObjectByType<LobbyManager>().gameObject);
+        public async Task StopGame() {
+            if (isServer) await FindAnyObjectByType<LobbyManager>().CleanLobby();
+            else Destroy(FindAnyObjectByType<LobbyManager>().gameObject);
             BackToLobby();
         }
 
@@ -120,7 +122,7 @@ namespace Script.States
         {
             PurrLogger.LogWarning("Server is not accessible. Returning to menu.", this);
             FindAnyObjectByType<LobbyDataHolder>().SetCurrentLobby(default);
-            StopGame();
+            _ = StopGame();
         }
 
         [ObserversRpc]
