@@ -34,6 +34,12 @@ public class TutoInitialisation : MonoBehaviour
                     {
                         ghostcinemachineCamera.enabled = false;
                     }
+
+                    AudioListener ghostaudioListener = obj.GetComponentInChildren<AudioListener>();
+                    if(ghostaudioListener != null)
+                    {
+                        ghostaudioListener.enabled = false;
+                    }
                 }
                 if(obj.layer == LayerMask.NameToLayer("UI"))
                 {
