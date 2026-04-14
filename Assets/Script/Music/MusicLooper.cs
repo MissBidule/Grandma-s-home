@@ -37,6 +37,9 @@ namespace Script.Music
         [SerializeField] private float m_panicTransitionTime = 3;
         [SerializeField] private float m_panicLoopStartTime = 2;
         [SerializeField] private float m_panicLoopEndTime = 30;
+        
+        // Volume settings
+        private float m_musicVolume = 1; // 0 - 1 the volume of the music
 
         // Transition Running Parameters
         private MusicTrack m_currentMusicTrack;
@@ -82,6 +85,8 @@ namespace Script.Music
             {
                 case MusicTrack.Menu:
                     m_currentMusicTrack = MusicTrack.Menu;
+                    Reset();
+                    
                     // Simple set loop parameters and music clip
                     m_mainAudioSource.clip = m_menuMusic;
                     m_loopStartSamples = (int)(m_menuLoopStartTime * m_mainAudioSource.clip.frequency);
@@ -95,8 +100,8 @@ namespace Script.Music
                     m_currentMusicTrack = MusicTrack.Game;
                     // Setup for transition
                     m_inTransition = true;
-                    m_mainAudioSource.volume = 0;
-                    m_transitionAudioSource.volume = 1;
+                    m_mainAudioSource.volume = m_musicVolume;
+                    m_transitionAudioSource.volume = m_musicVolume;
                     m_elapsedTime = 0f;
                     
                     // Get current clip info to transition audio source
@@ -121,7 +126,7 @@ namespace Script.Music
                     // Setup for transition
                     m_inTransition = true;
                     m_mainAudioSource.volume = 0;
-                    m_transitionAudioSource.volume = 1;
+                    m_transitionAudioSource.volume = m_musicVolume;
                     m_elapsedTime = 0f;
                     
                     // Get current clip info to transition audio source
@@ -168,7 +173,7 @@ namespace Script.Music
 
             if (m_elapsedTime >= transitionTime)
             {
-                m_mainAudioSource.volume = 1;
+                m_mainAudioSource.volume = m_musicVolume;
                 m_transitionAudioSource.volume = 0;
                 m_transitionAudioSource.Stop();
                 m_transitionAudioSource.timeSamples = 0;
@@ -178,15 +183,15 @@ namespace Script.Music
             }
             // Transitioning
             float transitionProgress = m_elapsedTime / transitionTime;
-            m_mainAudioSource.volume = transitionProgress;
-            m_transitionAudioSource.volume = 1-transitionProgress;
+            m_mainAudioSource.volume = m_musicVolume * transitionProgress;
+            m_transitionAudioSource.volume = m_musicVolume - m_musicVolume * transitionProgress;
             
             m_elapsedTime += Time.deltaTime;
         }
 
         public void Reset()
         {
-            m_mainAudioSource.volume = 1;
+            m_mainAudioSource.volume = m_musicVolume;
             m_mainAudioSource.timeSamples = 0;
             m_transitionAudioSource.volume = 0;
             m_transitionAudioSource.timeSamples = 0;
@@ -197,6 +202,14 @@ namespace Script.Music
             Reset();
             m_mainAudioSource.Stop();
             m_transitionAudioSource.Stop();
+        }
+        
+        public void SetMusicVolume(float _volume)
+        {
+            m_musicVolume = _volume;
+            if (m_inTransition)
+                return;
+            m_mainAudioSource.volume = m_musicVolume;
         }
     }
 }

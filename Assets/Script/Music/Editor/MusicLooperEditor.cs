@@ -1,12 +1,15 @@
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Script.Music.Editor
 {
     [CustomEditor(typeof(MusicLooper))]
     public class MusicLooperEditor : UnityEditor.Editor
     {
+        private float m_musicVolume = 1f;
+        
         public override void OnInspectorGUI()
         {
             DrawDefaultInspector();
@@ -37,6 +40,17 @@ namespace Script.Music.Editor
             }
             
             GUI.backgroundColor = Color.white;
+            
+            GUILayout.Space(10);
+            GUILayout.Label("Music Volume");
+
+            EditorGUI.BeginChangeCheck();
+            m_musicVolume = GUILayout.HorizontalSlider(m_musicVolume, 0f, 1f);
+            if (EditorGUI.EndChangeCheck())
+            {
+                looper.SetMusicVolume(m_musicVolume);
+            }
+            GUILayout.Space(10);
         }
     }
 }
