@@ -53,6 +53,12 @@ namespace Script.Audio
 
         private void Awake()
         {
+            if (InstanceHandler.TryGetInstance(out MusicLooper looper))
+            {
+                looper.PlayMusic(MusicTrack.Menu);
+                Destroy(this);
+                return;
+            }
             InstanceHandler.RegisterInstance(this);
             DontDestroyOnLoad(this);
         }
