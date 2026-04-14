@@ -6,12 +6,17 @@ using PurrLobby;
 public class TutoInitialisation : MonoBehaviour
 {
     private bool m_tutoOn;
-    void Start()
+
+    void Awake()
     {
         foreach(SceneSwitcher sceneSwitcher in FindObjectsByType<SceneSwitcher>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
         {
             m_tutoOn=sceneSwitcher._isTuto;
         }
+    }
+    void Start()
+    {
+        
         foreach(GameObject obj in FindObjectsByType<GameObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
         {
             if(m_tutoOn)
@@ -34,6 +39,7 @@ public class TutoInitialisation : MonoBehaviour
                 {
                     if (obj.GetComponent<TutoInitialisation>() != null)
                     {
+
                         obj.SetActive(false);
                     }
                 }
