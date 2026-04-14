@@ -94,9 +94,8 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         if (m_isSabotaged)
         {
             if (_player.m_isGhost) InteractPromptUI.m_Instance.Hide();
-            else if (m_repairEnabled) InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Child", "Interact", m_promptLabelREPAIR));
-            else InteractPromptUI.m_Instance.Hide();
-            SetHighlight(!_player.m_isGhost && m_repairEnabled);
+            else InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Child", "Interact", m_promptLabelREPAIR));
+            SetHighlight(!_player.m_isGhost);
         }
         m_saboteurs.Add(_player);
     }
@@ -131,9 +130,6 @@ public class SabotageObject : NetworkBehaviour, IInteractable
             return;
         }
         if ((m_isSabotaged && _player.m_isGhost) || (!_player.m_isGhost && !m_isSabotaged))
-            return;
-        //Debug.Log($"[Sabotage Delay] OnInteract isGhost={_player.m_isGhost} isSabotaged={m_isSabotaged} repairEnabled={m_repairEnabled} delay={m_repairDelay}");
-        if (!_player.m_isGhost && !m_repairEnabled)
             return;
         GhostMorph ghostMorph = _player.GetComponentInParent<GhostMorph>();
         if (ghostMorph != null && ghostMorph.m_isMorphed)
