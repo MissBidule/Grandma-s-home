@@ -430,19 +430,19 @@ public class GhostMorphPreview : MonoBehaviour
 
     private void SwapGhostMaterial(bool _transparent)
     {
-        if (m_ghostBodyRenderer == null)
-            m_ghostBodyRenderer = m_mesh.GetComponentInChildren<Renderer>();
-
         if (_transparent)
         {
-            m_ghostOriginalMaterials = m_ghostBodyRenderer.sharedMaterials;
+            m_ghostBodyRenderer = m_mesh.GetComponentInChildren<Renderer>();
+            if (m_ghostOriginalMaterials == null)
+                m_ghostOriginalMaterials = m_ghostBodyRenderer.sharedMaterials;
             var mats = m_ghostBodyRenderer.sharedMaterials;
             mats[0] = m_ghostTransparentMaterial;
             m_ghostBodyRenderer.sharedMaterials = mats;
         }
-        else
+        else if (m_ghostBodyRenderer != null && m_ghostOriginalMaterials != null)
         {
             m_ghostBodyRenderer.sharedMaterials = m_ghostOriginalMaterials;
+            m_ghostBodyRenderer = null;
             m_ghostOriginalMaterials = null;
         }
     }
