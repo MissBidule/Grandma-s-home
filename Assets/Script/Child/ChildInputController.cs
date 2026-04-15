@@ -15,6 +15,7 @@ public class ChildInputController : MonoBehaviour
     private Interact m_childInteract;
 
     public ChildClientController m_childClientController;
+    public TutoChildCAC m_tutoChildCac ;
     private QteCircle m_qteCircle;
 
 
@@ -29,6 +30,7 @@ public class ChildInputController : MonoBehaviour
     {
         m_childClientController = GetComponent<ChildClientController>();
         m_childInteract = GetComponentInChildren<Interact>();
+        m_tutoChildCac = GetComponentInChildren<TutoChildCAC>();
     }
 
     /*
@@ -80,6 +82,10 @@ public class ChildInputController : MonoBehaviour
         if (_context.performed)
         {
             m_childClientController.OnAttack();
+            if(m_tutoChildCac!=null)
+            {
+                m_tutoChildCac.Attack();
+            }
         }
     }
 

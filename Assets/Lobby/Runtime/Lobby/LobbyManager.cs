@@ -75,6 +75,7 @@ namespace PurrLobby
         [SerializeField] private GameObject m_roleKeeperPrefab;
         public Canvas m_loadingCanvas;
         private bool m_loading = false;
+        SceneSwitcher m_sceneSwitcher;
 
         private void Awake()
         {
@@ -93,6 +94,7 @@ namespace PurrLobby
             {
                 PurrLogger.LogWarning("No lobby provider assigned to LobbyManager.");
             }
+            m_sceneSwitcher = GetComponent<SceneSwitcher>();
         }
 
         public bool isPlayerHost(string _playerId)
@@ -191,6 +193,21 @@ namespace PurrLobby
         public void UpdateLobbyOnScreen()
         {
             if (IsStarting) return;
+            if(m_sceneSwitcher._isTuto)
+            {
+                foreach (var member in CurrentLobby.Members)
+                {
+                    SetIsReady(member.Id, true);
+                }
+                foreach(GameObject obj in FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                {
+                    if(obj.name == "Canvas_Lobby")
+                    {
+                        obj.SetActive(false);
+                    }  
+                }
+            }
+
             m_serverName.transform.GetChild(0).GetComponentInChildren<TextMeshProUGUI>().text = _currentLobby.Name.ToUpper();
             m_serverType.GetComponentInChildren<TextMeshProUGUI>().text = _currentLobby.IsPrivate ? "Private" : "Public";     
             m_playerCount.transform.GetChild(0).GetComponentInChildren<TextMeshProUGUI>().text = "Max players (" + _currentLobby.MaxPlayers + ")";

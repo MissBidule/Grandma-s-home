@@ -32,6 +32,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     [SerializeField] private string m_promptLabelSABOTAGE = "Sabotage";
     [SerializeField] private string m_promptLabelREPAIR = "Repair";
     [SerializeField] private string m_promptLabelVALID = "Valid";
+    [SerializeField] private float m_repairDelay = 10f;
     [SerializeField] private Interact m_saboteur;
 
     public bool m_isSabotaged;
@@ -198,7 +199,6 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     public void StartQte(Interact _sabo)
     {
         m_interactPrefab.SetActive(true);
-        Debug.Log(_sabo.transform.parent.name + " started sabotage");
         m_isQteRunning = true;
         SetHighlight(false);
 
@@ -284,8 +284,28 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     private void SabotageForAll()
     {
         m_isSabotaged = true;
+        m_repairEnabled = false;
         ApplyState();
         SetHighlight(false);
+        StartCoroutine(EnableRepairAfterDelay());
+    }
+
+    private bool m_repairEnabled;
+
+    private IEnumerator EnableRepairAfterDelay()
+    {
+        yield return new WaitForSeconds(m_repairDelay);
+        m_repairEnabled = true;
+        ApplyRenderingLayer();
+        foreach (Interact player in m_saboteurs)
+        {
+            if (!player.m_isGhost)
+            {
+                InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Child", "Interact", m_promptLabelREPAIR));
+                SetHighlight(true);
+                break;
+            }
+        }
     }
 
     [ServerRpc(requireOwnership:false)]
@@ -317,6 +337,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     private void UnsabotageForAll()
     {
         m_isSabotaged = false;
+        m_repairEnabled = false;
         ApplyState();
         SetHighlight(false);
     }
@@ -328,17 +349,16 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     private void ApplyState()
     {
         foreach (Interact interact in m_saboteurs)
-        {
-            
-            interact.OnSabotageOver( true);
+            interact.OnSabotageOver(true);
+        ApplyRenderingLayer();
+    }
 
-            Debug.Log("iteration");       
-        }
-    
+    private void ApplyRenderingLayer()
+    {
         foreach (Renderer renderer in m_highlightRenderers)
         {
             renderer.renderingLayerMask = 0;
-            RenderingLayerMask activeLayer = m_isSabotaged ? m_sabotagedLayer : (m_isSabotable ? m_notSabotagedLayer : default);
+            RenderingLayerMask activeLayer = (m_isSabotaged && m_repairEnabled) ? m_sabotagedLayer : (m_isSabotable && !m_isSabotaged ? m_notSabotagedLayer : default);
             renderer.renderingLayerMask |= activeLayer + (uint)RenderingLayerMask.defaultRenderingLayerMask;
         }
         if (m_vfx != null)
