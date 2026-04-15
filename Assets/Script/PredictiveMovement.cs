@@ -116,11 +116,19 @@ public class PredictiveMovement : NetworkBehaviour
 
         float horizontalSpeed = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z).magnitude;
         
+        // Account for dash state by checking if the ghost controller is dashing
+        float speedModifier = 1f;
+        var ghostController = GetComponent<GhostController>();
+        if (ghostController != null && ghostController.m_isDashing)
+        {
+            speedModifier = 2f; // m_dashAmplitude from GhostSimulateMovement
+        }
+        
         // Scale threshold based on current speed relative to the reference base speed
         // At reference base speed: threshold = base * 1
-        // At 2x speed (dash): threshold = base * 2
+        // At 2x speed (dash): threshold = base * 3 (accounting for higher expected velocity)
         // Scale linearly: more speed = more tolerance needed
-        float speedRatio = horizontalSpeed / m_referenceBaseSpeed;
+        float speedRatio = (horizontalSpeed * speedModifier) / m_referenceBaseSpeed;
         float dynamicThreshold = m_basePositionErrorThreshold * (1f + speedRatio);
         
         return dynamicThreshold;
