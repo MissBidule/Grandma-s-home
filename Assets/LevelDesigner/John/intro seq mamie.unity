@@ -81607,6 +81607,7 @@ GameObject:
   m_Component:
   - component: {fileID: 545003834}
   - component: {fileID: 545003833}
+  - component: {fileID: 545003835}
   m_Layer: 0
   m_Name: Global Volume
   m_TagString: Untagged
@@ -81646,6 +81647,28 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &545003835
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 545003832}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 0}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!4 &545072347 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: b12053e8aa1c5be4faedec8ec11788c9, type: 3}
@@ -195012,7 +195035,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DayNightSystem
   skybox: {fileID: 2100000, guid: 6647cac18b8fce68e869d9940f53a026, type: 2}
-  gameTime: 1000
+  gameTime: 120
   StillRunningAfterGameTime: 1
   sunInitialX: 150
   sunInitialY: 0
