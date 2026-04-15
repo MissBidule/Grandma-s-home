@@ -52,6 +52,21 @@ public class GhostInputController : MonoBehaviour
     }
 
     /*
+     * @brief OnJump is called by the Input System when jump input is detected
+     * @param _context: The context of the input action.
+     * @return void
+     * [SERVER]
+     */
+    public void OnJump(InputAction.CallbackContext _context)
+    {
+        if (!isOwner) return;
+        if (_context.performed)
+        {
+            m_ghostClientController.OnJump();
+        }
+    }
+
+    /*
      * @brief OnLook is called by the Input System when camera movement input is detected
      * @param _context: The context of the input action
      * @return void

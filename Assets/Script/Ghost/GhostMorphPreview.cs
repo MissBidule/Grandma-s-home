@@ -26,8 +26,8 @@ public class GhostMorphPreview : MonoBehaviour
 
     [NonSerialized] public GameObject m_currentPrefab = null;
 
-    [SerializeField] private Color m_validColor = new Color(1f, 1f, 1f, 0f);
-    [SerializeField] private Color m_invalidColor = new Color(1f, 0f, 0f, 0f);
+    [SerializeField] private Color m_validColor = new Color(1f, 1f, 1f, 1f);
+    [SerializeField] private Color m_invalidColor = new Color(1f, 0f, 0f, 1f);
 
     [SerializeField] private Color m_highlightColor = Color.yellow;
     [SerializeField] private float m_pulseSpeed = 3f;
@@ -38,9 +38,13 @@ public class GhostMorphPreview : MonoBehaviour
     private Coroutine m_pulseCoroutine = null;
     private MaterialPropertyBlock m_propertyBlock;
 
+    [SerializeField] private Material m_ghostTransparentMaterial;
+
     private Transform m_cameraTransform;
     private PlayerControllerCore m_core;
     private Interact m_interact;
+    private Material[] m_ghostOriginalMaterials;
+    private Renderer m_ghostBodyRenderer;
     private bool m_rotateLeft = false;
     private bool m_rotateRight = false;
 
@@ -149,6 +153,8 @@ public class GhostMorphPreview : MonoBehaviour
         m_meshRenderer.enabled = true;
         GetComponent<MeshFilter>().mesh = meshFilter.sharedMesh;
 
+        SwapGhostMaterial(true);
+
         if (prefabRenderer != null)
         {
             m_meshRenderer.sharedMaterials = prefabRenderer.sharedMaterials;
@@ -187,8 +193,10 @@ public class GhostMorphPreview : MonoBehaviour
     public void HidePreview()
     {
         m_meshRenderer.enabled = false;
-        m_GhostPreviewOn=false;//
+        m_GhostPreviewOn = false;
         m_currentPrefab = null;
+
+        SwapGhostMaterial(false);
     }
 
     /*
@@ -260,13 +268,6 @@ public class GhostMorphPreview : MonoBehaviour
         {
             mat.shader = m_shader;
             mat.color = targetColor;
-
-            mat.SetFloat("_Surface", 1);
-            mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-            mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-            mat.SetInt("_ZWrite", 0);
-            mat.renderQueue = 3000;
-            mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
         }
     }
 
@@ -426,4 +427,23 @@ public class GhostMorphPreview : MonoBehaviour
 
     public void SetRotateLeft(bool active) => m_rotateLeft = active;
     public void SetRotateRight(bool active) => m_rotateRight = active;
+
+    private void SwapGhostMaterial(bool _transparent)
+    {
+        if (_transparent)
+        {
+            m_ghostBodyRenderer = m_mesh.GetComponentInChildren<Renderer>();
+            if (m_ghostOriginalMaterials == null)
+                m_ghostOriginalMaterials = m_ghostBodyRenderer.sharedMaterials;
+            var mats = m_ghostBodyRenderer.sharedMaterials;
+            mats[0] = m_ghostTransparentMaterial;
+            m_ghostBodyRenderer.sharedMaterials = mats;
+        }
+        else if (m_ghostBodyRenderer != null && m_ghostOriginalMaterials != null)
+        {
+            m_ghostBodyRenderer.sharedMaterials = m_ghostOriginalMaterials;
+            m_ghostBodyRenderer = null;
+            m_ghostOriginalMaterials = null;
+        }
+    }
 }

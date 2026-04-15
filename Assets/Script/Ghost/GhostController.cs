@@ -212,6 +212,17 @@ public class GhostController : PlayerControllerCore, IInteractable
         m_currentTimerStop = m_timerStop;
         m_animator.SetBool("GotShot", false);
         callAnimationTrigger("OnHit");
+        StopQTE();
+    }
+
+    [ObserversRpc(runLocally:true)]
+    private void StopQTE()
+    {
+        if(!isOwner) return;
+        QteCircle qteCircle = FindAnyObjectByType<QteCircle>();
+        if (qteCircle == null) return;
+        if (!qteCircle.m_isRunning) return;
+        qteCircle.CancelQte();
     }
 
     [ObserversRpc(runLocally:true)]
