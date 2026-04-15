@@ -9,10 +9,10 @@ using UnityEngine;
 public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
 {
     [Header("Movement")]
-    [SerializeField] private float m_walkSpeed = 4f;
+    [SerializeField] public float m_walkSpeed = 4f;
     [SerializeField] private float m_acceleration = 25f;
     [SerializeField] private float m_slowAmplitude = 0.5f;
-    [SerializeField] private float m_dashAmplitude = 1.5f;
+    [SerializeField] private float m_dashAmplitude = 2f;
     [SerializeField] private float m_sneakAmplitude = 0.5f;
     [SerializeField] private float m_jumpImpulse = 6.0f;
 

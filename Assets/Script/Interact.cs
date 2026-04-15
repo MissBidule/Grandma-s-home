@@ -84,7 +84,11 @@ public class Interact : NetworkBehaviour
     {
         if (m_isGhost)
         {
-            GetComponentInParent<GhostController>().ApplyDashToAll(false, true);
+            GhostController ghostController = GetComponentInParent<GhostController>();
+            if (ghostController != null)
+            {
+                ghostController.ResetDashCooldown();
+            }
         }
         else
         {
