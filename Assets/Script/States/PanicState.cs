@@ -111,8 +111,7 @@ namespace Script.States
         [ObserversRpc(bufferLast: true)]
         public void StartPanicMusic()
         {
-            if (InstanceHandler.TryGetInstance(out MusicLooper  looper))
-                looper.PlayMusic(MusicTrack.Panic);
+            MusicLooper.Instance.PlayMusic(MusicTrack.Panic);
         }
         
         /*
