@@ -7,7 +7,7 @@ using UnityEngine;
  */
 public class ChildSimulateMovement : NetworkBehaviour, ISimulateMovement
 {
-    [SerializeField] private float m_speed = 5f;
+    [SerializeField] public float m_speed = 5f;
     [SerializeField] private float m_jumpImpulse = 6.0f;
     public bool m_isScared = false;
     [SerializeField] private float m_scaredAmplitude = 0.5f;
