@@ -29,9 +29,10 @@ public class GhostClientController : NetworkBehaviour
     private GhostHUDView m_ghostHUDView;
     private QteCircle m_qteCircle;
 
-    private bool morphPressed = false;
-    private bool dashPressed = false;
-    private bool sneakPressed = false;
+    private bool m_jumpPressed = false;
+    private bool m_morphPressed = false;
+    private bool m_dashPressed = false;
+    private bool m_sneakPressed = false;
     private bool m_waitingForInputRelease = false;
 
     private bool m_reviveUIActive = false;
@@ -121,26 +122,26 @@ public class GhostClientController : NetworkBehaviour
         {
             tick = m_predictiveMovement.GetTick(),
             wishDirection = wishDir,
-            dashPressed = dashPressed,
-            sneakPressed = sneakPressed,
+            dashPressed = m_dashPressed,
+            sneakPressed = m_sneakPressed,
             position = transform.position,
+            jumpPressed = m_jumpPressed
         };
 
         m_predictiveMovement.NewInput(inputData);
 
         SendGhostRPC(
             inputData,
-            morphPressed ? m_ghostMorphPreview.m_currentPrefab : null,                  // Morph Parameters
+            m_morphPressed ? m_ghostMorphPreview.m_currentPrefab : null,                  // Morph Parameters
             m_ghostMorphPreview.transform.localPosition,                                 // Morph Parameters
             m_ghostMorphPreview.transform.localRotation
         );
 
         // Reset values after sending to server
-        if (morphPressed) { m_ghostMorphPreview.HidePreview(); m_waitingForInputRelease = true; }
-        morphPressed = false;
-        
-        // Dash 
-        dashPressed = false;
+        if (m_morphPressed) { m_ghostMorphPreview.HidePreview(); m_waitingForInputRelease = true; }
+        m_morphPressed = false;
+        m_jumpPressed = false;
+        m_dashPressed = false;
         
         if (m_reviveUIActive)
         {
@@ -162,8 +163,9 @@ public class GhostClientController : NetworkBehaviour
         print("sended");
         print(m_ghostInputController.m_movementInputVector);
         print(GetDirectionIntention(m_ghostInputController.m_movementInputVector));
-        print(morphPressed);
-        print(morphPressed ? m_ghostMorphPreview.m_currentPrefab : null);
+        print(m_jumpPressed);
+        print(m_morphPressed);
+        print(m_morphPressed ? m_ghostMorphPreview.m_currentPrefab : null);
         print(m_ghostMorphPreview.transform.localPosition);
     }
 
@@ -224,6 +226,13 @@ public class GhostClientController : NetworkBehaviour
         m_ghostMorphPreview.ScanForPrefab();
     }
 
+    public void OnJump()
+    {
+        if (!isOwner) return;
+        if (m_qteCircle != null && m_qteCircle.m_isRunning) return;
+        m_jumpPressed = true;
+    }
+
     public void OnOpenWheel()
     {
         if (!isOwner) return;
@@ -248,7 +257,7 @@ public class GhostClientController : NetworkBehaviour
         if (m_wheel.IsWheelOpen()) m_wheel.Toggle();
         
         m_wheel.ClearSelection();
-        morphPressed = true;
+        m_morphPressed = true;
         InteractPromptUI.m_Instance.Hide();
     }
 
@@ -257,7 +266,7 @@ public class GhostClientController : NetworkBehaviour
      */
     public void OnDash()
     {
-        dashPressed = true;
+        m_dashPressed = true;
     }
     
     /*
@@ -265,7 +274,7 @@ public class GhostClientController : NetworkBehaviour
      */
     public void Sneak(bool _sneakStatus)
     {
-        sneakPressed = _sneakStatus;
+        m_sneakPressed = _sneakStatus;
     }
 
     /**

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -164,6 +165,9 @@ namespace Script.States
          */
         private IEnumerator RoundTimer(float _roundDuration)
         {
+            // Call Ethan day/night cycle
+            StartDayNight(_roundDuration + m_startDelay, DateTime.Now.Millisecond);
+            
             // Wait for players to settle in the starting room before opening the doors
             yield return new WaitForSeconds(m_startDelay);
 
@@ -171,22 +175,19 @@ namespace Script.States
 
             SabotageManager sabotageManager = FindAnyObjectByType<SabotageManager>();
             sabotageManager?.Initialize();
-
-            // Call Ethan day/night cycle
-            StartDayNight(_roundDuration);
             
-            PurrLogger.Log($"m_roundDuration {_roundDuration}");
+            PurrLogger.Log($"Round Duration {_roundDuration}s");
             yield return new WaitForSeconds(_roundDuration);
             // Time ended
             PurrLogger.Log("Round Timer Ended", this);
             MoveToEnd(true);
         }
 
-        [ObserversRpc]
-        public void StartDayNight(float _roundDuration)
+        [ObserversRpc(bufferLast:true)]
+        public void StartDayNight(float _roundDuration, int _seed)
         {
             if (InstanceHandler.TryGetInstance(out LightTimer lightTimer))
-                lightTimer.StartLightSystem(_roundDuration);
+                lightTimer.StartLightSystem(_roundDuration, _seed);
         }
         
         // Action Reactions
