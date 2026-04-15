@@ -51,7 +51,7 @@ public class PredictiveMovement : NetworkBehaviour
     private PredictiveInputData m_currentInput = new();
     private float m_basePositionErrorThreshold = 0.75f; // Ex-position threshold, used as a base for dynamic calculation.
     private float m_referenceBaseSpeed; // Will be set dynamically from the movement script
-    private readonly bool m_debugging = true;
+    private readonly bool m_debugging = false;
 
     private void Start()
     {
