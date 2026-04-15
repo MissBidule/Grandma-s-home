@@ -206,10 +206,12 @@ public class PredictiveMovement : NetworkBehaviour
     public void ClientReceiveCorrection(int _serverTick, Vector3 _position, Quaternion _rotation, Vector3 _velocity)
     {
         if (isServer) return;
+        var rb = GetComponent<Rigidbody>();
         if (!isOwner)
         {
             transform.position = Vector3.Lerp(transform.position, _position, 0.5f);
             transform.rotation = _rotation;
+            rb.linearVelocity = _velocity; // Apply velocity for remote players so they maintain jump trajectories
             return;
         }
         else

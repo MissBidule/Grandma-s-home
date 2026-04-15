@@ -21,6 +21,7 @@ public class ChildSimulateMovement : NetworkBehaviour, ISimulateMovement
 
     private JumpTriggerScript m_jumpTriggerScript;
     private bool m_isJumping = false;
+    private bool m_jumpAppliedThisFrame = false;
 
     /*
      * @brief Initializes component references
@@ -53,7 +54,15 @@ public class ChildSimulateMovement : NetworkBehaviour, ISimulateMovement
 
         m_rigidbody.position += movement;
 
-        if (_input.jumpPressed) Jump();
+        m_jumpAppliedThisFrame = false;
+        if (_input.jumpPressed) 
+        {
+            Jump();
+            m_jumpAppliedThisFrame = true;
+        }
+        
+        // Clamp the player to the ground to prevent glitching through the floor during prediction errors
+        ClampToGround();
     }
 
     /*
@@ -101,8 +110,32 @@ public class ChildSimulateMovement : NetworkBehaviour, ISimulateMovement
         return onGround && !m_isJumping;
     }
 
-
-
-
-
+    /*
+     * @brief Clamps the child's position to prevent glitching through the ground due to prediction errors
+     * @return void
+     */
+    private void ClampToGround()
+    {
+        // Don't clamp if we just applied a jump impulse this frame, as the force hasn't been integrated yet
+        // Also don't clamp if moving upward (already jumping or in mid-air)
+        if (m_jumpAppliedThisFrame || m_rigidbody.linearVelocity.y > 0) return;
+        
+        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 2.0f))
+        {
+            float groundY = hit.point.y;
+            Vector3 currentPos = m_rigidbody.position;
+            
+            if (currentPos.y < groundY)
+            {
+                m_rigidbody.position = new Vector3(currentPos.x, groundY, currentPos.z);
+                // Stop downward velocity to prevent further sinking
+                if (m_rigidbody.linearVelocity.y < 0)
+                {
+                    Vector3 vel = m_rigidbody.linearVelocity;
+                    vel.y = 0;
+                    m_rigidbody.linearVelocity = vel;
+                }
+            }
+        }
+    }
 }
