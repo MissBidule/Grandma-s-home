@@ -14,7 +14,6 @@ public class NewMonoBehaviourScript : MonoBehaviour
     }
     public void StartScrolling()
     {
-        Debug.Log("StartScrolling appelé !");
         isScrolling = true;
     }
 
@@ -22,7 +21,6 @@ public class NewMonoBehaviourScript : MonoBehaviour
     void Update()
     {
         if (!isScrolling) return;
-        Debug.Log("Position : " + transform.position);
         transform.position += new Vector3(0, 0, scrollSpeed + Time.deltaTime);
     }
 }
