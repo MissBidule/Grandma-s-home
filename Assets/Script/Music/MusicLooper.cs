@@ -50,28 +50,28 @@ namespace Script.Music
         private int m_loopStartSamples;
         private int m_loopEndSamples;
         private int m_loopLengthSamples;
+        
+        
+        // Singleton
+
+        public static MusicLooper Instance { get; private set; } = null;
+
 
         private void Awake()
         {
-            if (InstanceHandler.TryGetInstance(out MusicLooper looper))
+            if (Instance != null && Instance != this)
             {
-                looper.PlayMusic(MusicTrack.Menu);
-                Destroy(this);
+                Instance.PlayMusic(MusicTrack.Menu);
+                Destroy(gameObject);
                 return;
             }
-            InstanceHandler.RegisterInstance(this);
+            Instance = this;
+            
+            // register Instance.
             DontDestroyOnLoad(this);
-        }
-
-        private void OnDestroy()
-        {
-            InstanceHandler.UnregisterInstance<MusicLooper>();
-        }
-
-        private void Start()
-        {
+            
             AudioSource[] audioSources = GetComponents<AudioSource>();
-
+            
             if (audioSources.Length != 2)
             {
                 PurrLogger.LogError("No audio sources found", this);
@@ -80,7 +80,10 @@ namespace Script.Music
             
             m_mainAudioSource = audioSources[0];
             m_transitionAudioSource = audioSources[1];
-            
+        }
+
+        private void Start()
+        {
             if (m_menuMusic != null)
                 PlayMusic(0);
         }
@@ -91,7 +94,7 @@ namespace Script.Music
             {
                 case MusicTrack.Menu:
                     m_currentMusicTrack = MusicTrack.Menu;
-                    Reset();
+                    StopMusic();
                     
                     // Simple set loop parameters and music clip
                     m_mainAudioSource.clip = m_menuMusic;

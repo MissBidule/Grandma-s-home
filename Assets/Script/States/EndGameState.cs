@@ -68,8 +68,7 @@ namespace Script.States
             Destroy(pauseMenu);
             Cursor.lockState = CursorLockMode.None;
             
-            if (InstanceHandler.TryGetInstance(out MusicLooper  looper))
-                looper.StopMusic();
+            MusicLooper.Instance.StopMusic();
         }
         
         [ObserversRpc]

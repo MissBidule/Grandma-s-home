@@ -80,8 +80,7 @@ namespace Script.States
         [ObserversRpc(bufferLast: true)]
         public void StartGameMusic()
         {
-            if (InstanceHandler.TryGetInstance(out MusicLooper  looper))
-                looper.PlayMusic(MusicTrack.Game);
+            MusicLooper.Instance.PlayMusic(MusicTrack.Game);
         }
 
         protected override void OnDestroy()
