@@ -1,6 +1,8 @@
+using System;
 using UnityEngine;
 using System.Collections;
 using System.Diagnostics;
+using Random = UnityEngine.Random;
 
 public class DayNightSystem : MonoBehaviour
 {
@@ -89,11 +91,11 @@ public class DayNightSystem : MonoBehaviour
         lightOnSystem = GetComponentInParent<LightOnSystem>();//récupère le script d'allumage des lumières dans le parent
 
         if (m_autoStart)
-            UpdateSky(gameTime);
+            UpdateSky(gameTime, DateTime.Now.Millisecond);
     }
 
     //toutes les actualisations a prendre en compte en fonction de l'état du jeu
-    public void UpdateSky(float _serverGameTime)
+    public void UpdateSky(float _serverGameTime, int _seed)
     {
         gameTime = _serverGameTime;
 
@@ -105,7 +107,7 @@ public class DayNightSystem : MonoBehaviour
         //random de l'angle y
         if (isRandomSunY)
         {
-            Random.InitState((int)_serverGameTime);
+            Random.InitState(_seed);
             sunInitialY = Random.Range(0f, 360f);
         }
 

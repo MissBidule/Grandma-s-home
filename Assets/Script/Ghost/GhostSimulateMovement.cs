@@ -1,4 +1,5 @@
 using PurrNet;
+using TMPEffects.Components;
 using UnityEngine;
 
 /*
@@ -13,6 +14,7 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
     [SerializeField] private float m_slowAmplitude = 0.5f;
     [SerializeField] private float m_dashAmplitude = 1.5f;
     [SerializeField] private float m_sneakAmplitude = 0.5f;
+    [SerializeField] private float m_jumpImpulse = 6.0f;
 
     [Header("Rotation")]
     [SerializeField] private float m_rotationSpeed = 12f;
@@ -31,9 +33,14 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
     private bool m_canClimbThisFrame;
     private Vector3 m_wallNormal;
 
+    private JumpTriggerScript m_jumpTriggerScript;
+    private bool m_isJumping = false;
+    private bool m_jumpAppliedThisFrame = false;
+
     void Start()
     {
         m_rigidbody = GetComponent<Rigidbody>();
+        m_jumpTriggerScript = GetComponentInChildren<JumpTriggerScript>();
         m_ghostController = GetComponent<GhostController>();
     }
 
@@ -64,6 +71,13 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
                     targetRotation,
                     m_rotationSpeed * Time.fixedDeltaTime
             );
+        }
+
+        m_jumpAppliedThisFrame = false;
+        if (_input.jumpPressed) 
+        {
+            Jump();
+            m_jumpAppliedThisFrame = true;
         }
 
         if (CheckForClimbableWall())
@@ -99,6 +113,9 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
         m_rigidbody.linearVelocity += new Vector3(accel.x, 0f, accel.z) * Time.fixedDeltaTime;
 
         ResetClimbFlags();
+        
+        // Clamp the ghost to the ground to prevent glitching through the floor during prediction errors
+        ClampToGround();
     }
 
     /*
@@ -152,5 +169,62 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
     {
         m_canClimbThisFrame = false;
         m_wallNormal = Vector3.zero;
+    }
+
+    /*
+    * @brief   Makes the child jump by applying an impulse force upwards
+     * @return  void
+     */
+    public void Jump()
+    {
+        if (!IsGrounded()) return;
+        if (m_isJumping) return;
+        m_rigidbody.AddForce(Vector3.up * m_jumpImpulse, ForceMode.Impulse);
+        m_isJumping = true;
+    }
+
+
+    /*
+     * @brief   Checks if the child is grounded by casting a ray downwards
+     * @return  bool True if grounded, false otherwise
+     */
+    public bool IsGrounded()
+    {
+        bool onGround = Physics.Raycast(transform.position, Vector3.down, out _, 1.0f)
+                        || m_jumpTriggerScript.m_colliders.Count > 0;
+
+        if (onGround && m_isJumping && Mathf.Abs(m_rigidbody.linearVelocity.y) < 0.2f)
+            m_isJumping = false;
+
+        return onGround && !m_isJumping;
+    }
+
+    /*
+     * @brief Clamps the ghost's position to prevent glitching through the ground due to prediction errors
+     * @return void
+     */
+    private void ClampToGround()
+    {
+        // Don't clamp if we just applied a jump impulse this frame, as the force hasn't been integrated yet
+        // Also don't clamp if moving upward (already jumping or in mid-air)
+        if (m_jumpAppliedThisFrame || m_rigidbody.linearVelocity.y > 0) return;
+        
+        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 2.0f))
+        {
+            float groundY = hit.point.y;
+            Vector3 currentPos = m_rigidbody.position;
+            
+            if (currentPos.y < groundY)
+            {
+                m_rigidbody.position = new Vector3(currentPos.x, groundY, currentPos.z);
+                // Stop downward velocity to prevent further sinking
+                if (m_rigidbody.linearVelocity.y < 0)
+                {
+                    Vector3 vel = m_rigidbody.linearVelocity;
+                    vel.y = 0;
+                    m_rigidbody.linearVelocity = vel;
+                }
+            }
+        }
     }
 }
