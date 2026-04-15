@@ -199,7 +199,6 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     public void StartQte(Interact _sabo)
     {
         m_interactPrefab.SetActive(true);
-        Debug.Log(_sabo.transform.parent.name + " started sabotage");
         m_isQteRunning = true;
         SetHighlight(false);
 
