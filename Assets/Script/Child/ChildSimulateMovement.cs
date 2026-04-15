@@ -53,6 +53,8 @@ public class ChildSimulateMovement : NetworkBehaviour, ISimulateMovement
         Vector3 movement = _input.wishDirection * (m_speed * Time.fixedDeltaTime * speedModifier);
 
         m_rigidbody.position += movement;
+        
+        m_childController.m_soundEffects.SetWalkingSpeed((_input.wishDirection * (m_speed * speedModifier)).magnitude);
 
         m_jumpAppliedThisFrame = false;
         if (_input.jumpPressed) 
@@ -88,6 +90,7 @@ public class ChildSimulateMovement : NetworkBehaviour, ISimulateMovement
     {
         if (!IsGrounded()) return;
         if (m_isJumping) return;
+        m_childController.m_soundEffects.PlayJumpAudio();
         m_rigidbody.AddForce(Vector3.up * m_jumpImpulse, ForceMode.Impulse);
         m_childController.callChangeFace(new Vector2(0.66f, 0.66f));
         m_animator.SetTrigger("OnJump");

@@ -37,37 +37,71 @@ public class ChildSoundEffects : MonoBehaviour
     
     public void PlayGunAudio()
     {
+        if (!m_isOwner)
+            return;
         PlayAudio(m_gunAudioSource, "Gun");
     }
 
     public void PlayCacAudio()
     {
+        if (!m_isOwner)
+            return;
         PlayAudio(m_cacAudioSource, "CAC");
     }
 
     public void PlayScarredAudio()
     {
+        if (!m_isOwner)
+            return;
         PlayAudio(m_scarredAudioSource, "Scarred");
     }
 
     public void PlayJumpAudio()
     {
+        if (!m_isOwner)
+            return;
         PlayAudio(m_jumpAudioSource, "Jump");
     }
 
     public void PlayLandAudio()
     {
+        if (!m_isOwner)
+            return;
         PlayAudio(m_landAudioSource, "Land");
     }
 
     public void PlayRepairAudio()
     {
+        if (!m_isOwner)
+            return;
         PlayAudio(m_repairingAudioSource, "Repair", true);
     }
     
     public void StopRepairAudio()
     {
+        if (!m_isOwner)
+            return;
         StopAudio(m_repairingAudioSource, "Repair");
+    }
+
+    public void SetWalkingSpeed(float _speed)
+    {
+        if (!m_isOwner)
+            return;
+        print(_speed);
+        if (_speed < 0.1f)
+        {
+            m_movementAudioSource.Stop();
+            return;
+        }
+
+        if (!m_movementAudioSource.isPlaying)
+        {
+            m_movementAudioSource.Play();
+        }
+        
+        const float maxSpeed = 5;
+        m_movementAudioSource.volume = _speed/maxSpeed;
     }
 
     private void PlayAudio(NetworkAudioSource _source, string _name, bool _loop = false, float _loopDuration = 0)

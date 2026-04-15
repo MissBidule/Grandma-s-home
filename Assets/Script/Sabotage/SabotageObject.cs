@@ -142,6 +142,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         if (childClientController = _player.GetComponentInParent<ChildClientController>())
         {
             childClientController.RepairAnimation(true);
+            childClientController.m_childSoundEffects.PlayRepairAudio();
         }
         else
         {
@@ -223,10 +224,12 @@ public class SabotageObject : NetworkBehaviour, IInteractable
 
         m_saboteur.OnSabotageOver(_success);
 
+        ChildController childController = m_saboteur.GetComponentInParent<ChildController>();
         ChildClientController childClientController = m_saboteur.GetComponentInParent<ChildClientController>();
         if (childClientController != null)
         {
             childClientController.RepairAnimation(false);
+            childClientController.m_childSoundEffects.StopRepairAudio();
         }
         else
         {
