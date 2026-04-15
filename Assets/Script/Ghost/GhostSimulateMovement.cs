@@ -11,7 +11,7 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
     [SerializeField] private float m_walkSpeed = 4f;
     [SerializeField] private float m_acceleration = 25f;
     [SerializeField] private float m_slowAmplitude = 0.5f;
-    [SerializeField] private float m_dashAmplitude = 1.5f;
+    [SerializeField] private float m_dashAmplitude = 2f;
     [SerializeField] private float m_sneakAmplitude = 0.5f;
 
     [Header("Rotation")]
