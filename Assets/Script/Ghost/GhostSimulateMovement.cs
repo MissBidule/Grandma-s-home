@@ -1,4 +1,5 @@
 using PurrNet;
+using TMPEffects.Components;
 using UnityEngine;
 
 /*
@@ -13,6 +14,7 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
     [SerializeField] private float m_slowAmplitude = 0.5f;
     [SerializeField] private float m_dashAmplitude = 1.5f;
     [SerializeField] private float m_sneakAmplitude = 0.5f;
+    [SerializeField] private float m_jumpImpulse = 6.0f;
 
     [Header("Rotation")]
     [SerializeField] private float m_rotationSpeed = 12f;
@@ -31,9 +33,13 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
     private bool m_canClimbThisFrame;
     private Vector3 m_wallNormal;
 
+    private JumpTriggerScript m_jumpTriggerScript;
+    private bool m_isJumping = false;
+
     void Start()
     {
         m_rigidbody = GetComponent<Rigidbody>();
+        m_jumpTriggerScript = GetComponentInChildren<JumpTriggerScript>();
         m_ghostController = GetComponent<GhostController>();
     }
 
@@ -65,6 +71,9 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
                     m_rotationSpeed * Time.fixedDeltaTime
             );
         }
+
+
+        if (_input.jumpPressed) Jump();
 
         if (CheckForClimbableWall())
         {
@@ -152,5 +161,33 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
     {
         m_canClimbThisFrame = false;
         m_wallNormal = Vector3.zero;
+    }
+
+    /*
+    * @brief   Makes the child jump by applying an impulse force upwards
+     * @return  void
+     */
+    public void Jump()
+    {
+        if (!IsGrounded()) return;
+        if (m_isJumping) return;
+        m_rigidbody.AddForce(Vector3.up * m_jumpImpulse, ForceMode.Impulse);
+        m_isJumping = true;
+    }
+
+
+    /*
+     * @brief   Checks if the child is grounded by casting a ray downwards
+     * @return  bool True if grounded, false otherwise
+     */
+    public bool IsGrounded()
+    {
+        bool onGround = Physics.Raycast(transform.position, Vector3.down, out _, 1.0f)
+                        || m_jumpTriggerScript.m_colliders.Count > 0;
+
+        if (onGround && m_isJumping && Mathf.Abs(m_rigidbody.linearVelocity.y) < 0.2f)
+            m_isJumping = false;
+
+        return onGround && !m_isJumping;
     }
 }
