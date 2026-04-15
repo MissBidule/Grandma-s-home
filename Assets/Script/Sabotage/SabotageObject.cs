@@ -148,6 +148,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         {
             GhostClientController ghostClientController = _player.GetComponentInParent<GhostClientController>();
             ghostClientController.SabotageAnimation(true);
+            ghostClientController.m_soundEffects.PlaySabotageAudio();
         }
             Rigidbody rb = _player.GetComponentInParent<Rigidbody>();
         rb.constraints = (RigidbodyConstraints)(RigidbodyConstraints.FreezeAll - RigidbodyConstraints.FreezePositionY);
@@ -235,6 +236,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         {
             GhostClientController ghostClientController = m_saboteur.GetComponentInParent<GhostClientController>();
             ghostClientController.SabotageAnimation(false);
+            ghostClientController.m_soundEffects.StopSabotageAudio();
         }
         if (_success)
         {

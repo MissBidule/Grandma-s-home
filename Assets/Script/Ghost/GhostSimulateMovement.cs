@@ -99,8 +99,10 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
             ResetClimbFlags();
             return;
         }
-
+        
         Vector3 targetVel = speedModifier * m_walkSpeed * wishDir;
+        
+        m_ghostController.m_soundEffects.SetWalkingSpeed((_input.wishDirection * (m_walkSpeed * speedModifier)).magnitude);
 
         Vector3 currentVel = m_rigidbody.linearVelocity;
         Vector3 currentHorizontal = new Vector3(currentVel.x, 0f, currentVel.z);
@@ -179,6 +181,7 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
     {
         if (!IsGrounded()) return;
         if (m_isJumping) return;
+        m_ghostController.m_soundEffects.PlayJumpAudio();
         m_rigidbody.AddForce(Vector3.up * m_jumpImpulse, ForceMode.Impulse);
         m_isJumping = true;
     }
