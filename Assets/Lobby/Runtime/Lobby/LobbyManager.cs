@@ -195,10 +195,7 @@ namespace PurrLobby
             if (IsStarting) return;
             if(m_sceneSwitcher._isTuto)
             {
-                foreach (var member in CurrentLobby.Members)
-                {
-                    SetIsReady(member.Id, true);
-                }
+                SetIsReady(true);
                 foreach(GameObject obj in FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.None))
                 {
                     if(obj.name == "Canvas_Lobby")
