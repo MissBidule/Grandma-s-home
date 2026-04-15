@@ -16,7 +16,7 @@ namespace PurrLobby {
         Task InviteFriendAsync(FriendUser user);
 
         // Lobby Management
-        Task<Lobby> CreateLobbyAsync(int maxPlayers, Dictionary<string, string> lobbyProperties = null);
+        Task<Lobby> CreateLobbyAsync(int maxPlayers, Dictionary<string, string> lobbyProperties = null, bool isPrivate = false, string _lobbyName = "");
         Task LeaveLobbyAsync();
         Task LeaveLobbyAsync(string lobbyId);
         Task<Lobby> JoinLobbyAsync(string lobbyId);

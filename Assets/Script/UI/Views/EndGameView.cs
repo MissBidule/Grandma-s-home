@@ -47,8 +47,8 @@ namespace Script.UI.Views
 
         private async Task WaitCleanUp(EndGameState endGameState)
         {
-            await FindAnyObjectByType<LobbyManager>().CleanLobby();
-            endGameState.StopGame();
+            string newLobbyId = await FindAnyObjectByType<LobbyManager>().CleanLobby();
+            endGameState.StopGame(newLobbyId);
         }
     }
 }

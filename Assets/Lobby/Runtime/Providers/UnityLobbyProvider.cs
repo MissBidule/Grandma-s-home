@@ -170,8 +170,9 @@ namespace PurrLobby.Providers {
             return updatedLobby;
         }
 
-        public async Task<Lobby> CreateLobbyAsync(int maxPlayers, Dictionary<string, string> lobbyProperties = null) {
-            playerName = FindAnyObjectByType<PersistentDataManager>().LoadUsername();
+        public async Task<Lobby> CreateLobbyAsync(int maxPlayers, Dictionary<string, string> lobbyProperties = null, bool isPrivate = false, string _lobbyName = "") {
+            PersistentDataManager dataManager = FindAnyObjectByType<PersistentDataManager>();
+            playerName = dataManager ? dataManager.LoadUsername() : playerName;
             try {
                 if(!IsUnityServiceAvailable) { return default; }
 
@@ -182,8 +183,8 @@ namespace PurrLobby.Providers {
                     lobbyData.Add(prop.Key, new DataObject(DataObject.VisibilityOptions.Public, prop.Value, 0));
                 }
 
-                lobbyName = playerName + "'s Lobby";
-                lobbyType = LobbyType.Public;//by default
+                lobbyName = string.IsNullOrEmpty(_lobbyName) ? playerName + "'s Lobby" : _lobbyName;
+                lobbyType = isPrivate ? LobbyType.Private : LobbyType.Public;//public by default
 
                 CurrentLobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, maxPlayers, new CreateLobbyOptions() {
                     IsPrivate = lobbyType == LobbyType.Private,
@@ -252,7 +253,8 @@ namespace PurrLobby.Providers {
         }
 
         public async Task InitializeLocalPlayerData() {
-            playerName = FindAnyObjectByType<PersistentDataManager>().LoadUsername();
+            PersistentDataManager dataManager = FindAnyObjectByType<PersistentDataManager>();
+            playerName = dataManager ? dataManager.LoadUsername() : playerName;
             string isGhost = (UnityEngine.Random.Range(0, 2) == 0).ToString();
             string skin = UnityEngine.Random.Range(0, 5).ToString();
             LocalPlayer.Data = new Dictionary<string, PlayerDataObject>() {
@@ -632,11 +634,7 @@ namespace PurrLobby.Providers {
         public async Task CleanLobby()
         {
             if(!IsUnityServiceAvailable) { return; }
-            List<string> disconnectedList = FindAnyObjectByType<RoleKeeper>().GetDisconnectedPlayers();
-            foreach(var player in disconnectedList)
-            {
-                await LobbyService.Instance.RemovePlayerAsync(CurrentLobby.Id, player);
-            }
+            await DeleteLobbyAsync(true);
         }
 
         /// <summary>
@@ -644,12 +642,8 @@ namespace PurrLobby.Providers {
         /// </summary>
         public async Task OnLobbyUpdateData(string _lobbyId) {
             if(!IsUnityServiceAvailable) { return; }
-            RoleKeeper roleList = FindAnyObjectByType<RoleKeeper>();
-            roleList.DeleteList();
             CurrentLobby = await LobbyService.Instance.ReconnectToLobbyAsync(_lobbyId);
             await SubscribeLobbyEventsAsync();
-
-            await InitializeLocalPlayerData();
         }
 
         /// <summary>

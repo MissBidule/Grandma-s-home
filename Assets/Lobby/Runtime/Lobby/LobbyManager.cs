@@ -142,21 +142,46 @@ namespace PurrLobby
             }
         }
 
-        public async Task CleanLobby() {
+        public async Task<string> CleanLobby() {
             EnsureProviderSet();
+            int previousMaxPlayers = _currentLobby.MaxPlayers;
+            string previousLobbyName = _currentLobby.Name;
+            Dictionary<string, string> roomProperties = createRoomArgs.roomProperties.ToDictionary();
             await _currentProvider.CleanLobby();
-            await _currentProvider.SetLobbyDataAsync("JoinCode", "");
+            var room = await _currentProvider.CreateLobbyAsync(previousMaxPlayers, roomProperties, true, previousLobbyName);
+            _currentLobby = room;
+            return _currentLobby.LobbyId;
         }
 
         private async Task ReconnectToLobbyAsync()
         {
-            m_loadingCanvas.gameObject.SetActive(true);
-
-            EnsureProviderSet();
-            await _currentProvider.OnLobbyUpdateData(_currentLobby.LobbyId);
-            UpdateLobbyOnScreen();            
-            m_loadingCanvas.gameObject.SetActive(false);
-            _viewManager.BackToLobby();
+            FindAnyObjectByType<RoleKeeper>().DeleteList();
+            EnsureProviderSet(); 
+            
+            if (_lobbyDataHolder.CurrentLobby.IsOwner) 
+            { 
+                await _currentProvider.OnLobbyUpdateData(_currentLobby.LobbyId);         
+                m_loadingCanvas.gameObject.SetActive(false); 
+                _viewManager.BackToLobby(); 
+                UpdateLobbyOnScreen();     
+            } 
+            else 
+            { 
+                var room = await _currentProvider.JoinLobbyAsync(_currentLobby.LobbyId); 
+                if (room.IsValid) 
+                { 
+                    _viewManager.BackToLobby();
+                    UpdateLobbyOnScreen();    
+                    m_loading = true; 
+                    _currentLobby = room; 
+                    OnRoomJoined?.Invoke(room); 
+                } 
+                else 
+                { 
+                    m_loading = false; 
+                    OnRoomJoinFailed?.Invoke($"Failed to join room {_currentLobby.LobbyId}"); 
+                } 
+            } 
             
             //refresh lobby info
             _elapsedTime = _refreshRate;
@@ -175,7 +200,15 @@ namespace PurrLobby
         {
             if (_restartAsked)
             {
-                _ = ReconnectToLobbyAsync();
+                m_loadingCanvas.gameObject.SetActive(true);
+                if (_lobbyDataHolder.CurrentLobby.IsOwner) 
+                { 
+                    _ = ReconnectToLobbyAsync();
+                }
+                else
+                {
+                    Invoke("ReconnectToLobbyAsync", .5f);
+                }
                 _restartAsked = false;
                 _restartGame = true;
             }
