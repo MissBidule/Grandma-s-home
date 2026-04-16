@@ -4,6 +4,7 @@
 using UnityEngine;
 using TMPro;
 using System.Text.RegularExpressions;
+using UnityEngine.InputSystem;
 
 public class TutoInstructions : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class TutoInstructions : MonoBehaviour
 
     [Header("Steps")]
     [SerializeField] private TutorialStep[] m_steps;
+    [SerializeField] private InputActionReference m_nextStepAction;
 
     private GameObject m_canvasInstance;
     private TMP_Text m_text;
@@ -36,6 +38,26 @@ public class TutoInstructions : MonoBehaviour
             return InputBindingHelper.BuildPrompt(actionMap, actionName, null);
         });
     }
+    private void OnEnable()
+    {
+        if (m_nextStepAction != null)
+            m_nextStepAction.action.performed += OnNextStepInput;
+    }
+
+    private void OnDisable()
+    {
+        if (m_nextStepAction != null)
+            m_nextStepAction.action.performed -= OnNextStepInput;
+    }
+
+    void OnNextStepInput(InputAction.CallbackContext context)
+    {
+        if (!m_hasStarted) return;
+        if (m_currentStep >= m_steps.Length) return;
+
+        var step = m_steps[m_currentStep];
+        NextStep();
+    }
     void StartTuto()
     {
         if (m_canvasInstance != null) return;
@@ -55,14 +77,7 @@ public class TutoInstructions : MonoBehaviour
 
         var step = m_steps[m_currentStep];
 
-        if (step.waitForAction) //not yet
-        {
-            //if (Input.GetButtonDown(step.actionName))
-            //{
-                NextStep();
-            //}
-        }
-        else
+        if (!step.waitForAction) // a retirer
         {
             m_timer += Time.deltaTime;
 
@@ -77,8 +92,6 @@ public class TutoInstructions : MonoBehaviour
     {
         if (m_currentStep >= m_steps.Length) return;
         var step = m_steps[m_currentStep];
-
-        //m_text.text = step.message;
         m_text.text = ProcessInputBindings(step.message);
 
         m_timer = 0f;
@@ -90,7 +103,6 @@ public class TutoInstructions : MonoBehaviour
 
         if (m_currentStep >= m_steps.Length)
         {
-            //Destroy(m_canvasInstance);
             HideTuto();
             return;
         }

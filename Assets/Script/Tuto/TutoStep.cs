@@ -9,7 +9,7 @@ public class TutorialStep
 {
     [TextArea] public string message;
 
-    public bool waitForAction; //not yet
+    public bool waitForAction; //a retirer
 
     public string actionName;
 
