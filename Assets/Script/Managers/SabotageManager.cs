@@ -41,6 +41,13 @@ public class SabotageManager : NetworkBehaviour
         }
     }
 
+    public void EnablePanicMode()
+    {
+        if (!isServer) return;
+        foreach (SabotageObject obj in m_allObjects)
+            obj.SetPanicMode();
+    }
+
     /*
      * @brief Called by SabotageObject when it has been repaired.
      *        Retires the object and activates a new random one.
