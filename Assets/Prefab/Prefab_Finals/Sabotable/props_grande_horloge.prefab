@@ -68,6 +68,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6014503084441653313, guid: 49fb313ec0bfe1145b7ea13c65ddea25, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8725503358426686622}
+    - targetCorrespondingSourceObject: {fileID: 6014503084441653313, guid: 49fb313ec0bfe1145b7ea13c65ddea25, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3547719205342714111}
+    - targetCorrespondingSourceObject: {fileID: 6014503084441653313, guid: 49fb313ec0bfe1145b7ea13c65ddea25, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8535347015972868750}
   m_SourcePrefab: {fileID: 100100000, guid: 49fb313ec0bfe1145b7ea13c65ddea25, type: 3}
 --- !u!4 &768333617498677921 stripped
 Transform:
@@ -91,6 +97,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97340a60afd4ec841aef86574611c237, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SabotageObject
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -98,10 +106,9 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   m_vfxPrefab: {fileID: 3762597684149586555}
   m_interactPrefab: {fileID: 5860990760540248823}
+  m_vfxAudioSource: {fileID: 8535347015972868750}
   m_scoreValue: 1
   m_highlightRenderers: []
   m_highlightColor: {r: 0, g: 1, b: 1, a: 1}
@@ -117,6 +124,7 @@ MonoBehaviour:
   m_promptLabelSABOTAGE: Sabotage
   m_promptLabelREPAIR: Repair
   m_promptLabelVALID: Valid
+  m_repairDelay: 10
   m_saboteur: {fileID: 0}
   m_isSabotaged: 0
   m_saboteurs: []
@@ -142,6 +150,126 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -3537709356157935800, guid: 49fb313ec0bfe1145b7ea13c65ddea25, type: 3}
+--- !u!82 &3547719205342714111
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6797300281490035979}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: 4f9c1322d5a864bbcad566663c761a15, type: 3}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 1
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &8535347015972868750
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6797300281490035979}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1f137a33c6343d44852c91b96225750, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkAudioSource
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _audioSource: {fileID: 3547719205342714111}
+  _ownerAuth: 0
 --- !u!1001 &1348153014535153818
 PrefabInstance:
   m_ObjectHideFlags: 0

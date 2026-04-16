@@ -14,6 +14,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     [Header("Sabotaged VFX")]
     [SerializeField] private GameObject m_vfxPrefab;
     [SerializeField] private GameObject m_interactPrefab;
+    [SerializeField] private NetworkAudioSource m_vfxAudioSource;
     private GameObject m_vfx;
 
     [Header("Score")]
@@ -278,6 +279,11 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     {
         if (m_isSabotaged) return;
         SabotageForAll();
+        if (m_vfxAudioSource != null && m_vfxAudioSource.clip != null)
+        {
+            m_vfxAudioSource.loop = true;
+            m_vfxAudioSource.Play();
+        }
         if(InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
         {
             scoreManager.AddPointSabotage(info.sender);
@@ -317,6 +323,13 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     private void UnsabotageRPC(RPCInfo info = default)
     {
         UnsabotageForAll();
+        
+        
+        if (m_vfxAudioSource != null && m_vfxAudioSource.clip != null)
+        {
+            m_vfxAudioSource.loop = true;
+            m_vfxAudioSource.Stop();
+        }
 
         if(InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
             scoreManager.SubPointSabotage(info.sender);
