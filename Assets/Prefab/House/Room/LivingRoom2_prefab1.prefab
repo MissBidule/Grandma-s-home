@@ -1,5 +1,59 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &52809953076808965
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1969958212491117180}
+  - component: {fileID: 5327969437100725351}
+  m_Layer: 0
+  m_Name: props_pouf
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1969958212491117180
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 52809953076808965}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -10.034393, y: -0.018000007, z: 33.98771}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4155102734396228565}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5327969437100725351
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 52809953076808965}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a6b8a39f1b47bf6ea7edb611e079933, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.PropAnchor
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  m_propPrefab: {fileID: 6280323286013529376, guid: b1d7c463155e8684086552aadb8c4da2, type: 3}
 --- !u!1 &568582714417190620
 GameObject:
   m_ObjectHideFlags: 0
@@ -44,8 +98,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a6b8a39f1b47bf6ea7edb611e079933, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.PropAnchor
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -53,6 +105,8 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   m_propPrefab: {fileID: 7881243922303910402, guid: 0d8ddc42ee8ee944db455c32e86887e0, type: 3}
 --- !u!1 &1221097043856440054
 GameObject:
@@ -84,73 +138,19 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1533603968665088029}
-  - {fileID: 744274915108069893}
+  - {fileID: 2510673298234128460}
   - {fileID: 1579212815678202647}
   - {fileID: 7513496659770360542}
   - {fileID: 8966265984333850521}
-  - {fileID: 1062080605642593003}
+  - {fileID: 5926023895744788320}
   - {fileID: 6691193056105171392}
   - {fileID: 8068713897761068086}
   - {fileID: 6045255581193742012}
   - {fileID: 3377514483755466021}
-  - {fileID: 3944030670209007208}
-  - {fileID: 3861315211483206602}
+  - {fileID: 7670470090282526766}
+  - {fileID: 4370416737580203448}
   m_Father: {fileID: 8432997204379512741}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1321166371045887648
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 9023733040761812892}
-  - component: {fileID: 3869880875850488063}
-  m_Layer: 0
-  m_Name: props_plant
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &9023733040761812892
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1321166371045887648}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -1.88, y: -0.007992566, z: 22.44}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 4155102734396228565}
-  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
---- !u!114 &3869880875850488063
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1321166371045887648}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2a6b8a39f1b47bf6ea7edb611e079933, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.PropAnchor
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
-  _isSetup: 0
-  _prefabId: -2147483648
-  _componentIndex: -2147483648
-  _shouldBePooled: 0
-  _parent: {fileID: 0}
-  _invertedPathToNearestParent: 
-  _directChildren: []
-  m_propPrefab: {fileID: 3552994085399002219, guid: d94cf536b4c02494898c2c69b482745a, type: 3}
 --- !u!1 &1362610056857229191
 GameObject:
   m_ObjectHideFlags: 0
@@ -181,126 +181,18 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4277713595467505821}
-  - {fileID: 7029795809654884541}
-  - {fileID: 1757191658244065506}
+  - {fileID: 3213847790699242135}
+  - {fileID: 1969958212491117180}
   - {fileID: 8775241320341586385}
   - {fileID: 2710796275912937205}
   - {fileID: 5606086797803791327}
   - {fileID: 3852516478950963259}
-  - {fileID: 9023733040761812892}
-  - {fileID: 215963557480039350}
+  - {fileID: 3703685689278070117}
+  - {fileID: 2829157400341495188}
   - {fileID: 1188031404617635080}
   - {fileID: 7790238264448550074}
   m_Father: {fileID: 8432997204379512741}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1716773247004496331
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1757191658244065506}
-  - component: {fileID: 4690208086338396167}
-  m_Layer: 0
-  m_Name: props_pouf
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1757191658244065506
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1716773247004496331}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -10.034393, y: -0.018000007, z: 33.98771}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 4155102734396228565}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4690208086338396167
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1716773247004496331}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2a6b8a39f1b47bf6ea7edb611e079933, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.PropAnchor
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
-  _isSetup: 0
-  _prefabId: -2147483648
-  _componentIndex: -2147483648
-  _shouldBePooled: 0
-  _parent: {fileID: 0}
-  _invertedPathToNearestParent: 
-  _directChildren: []
-  m_propPrefab: {fileID: 6280323286013529376, guid: b1d7c463155e8684086552aadb8c4da2, type: 3}
---- !u!1 &1755297754902166082
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 215963557480039350}
-  - component: {fileID: 6968140332442976520}
-  m_Layer: 0
-  m_Name: props_plant
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &215963557480039350
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1755297754902166082}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -14.08, y: -0.007992566, z: 17.46}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 4155102734396228565}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6968140332442976520
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1755297754902166082}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2a6b8a39f1b47bf6ea7edb611e079933, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.PropAnchor
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
-  _isSetup: 0
-  _prefabId: -2147483648
-  _componentIndex: -2147483648
-  _shouldBePooled: 0
-  _parent: {fileID: 0}
-  _invertedPathToNearestParent: 
-  _directChildren: []
-  m_propPrefab: {fileID: 3552994085399002219, guid: d94cf536b4c02494898c2c69b482745a, type: 3}
 --- !u!1 &1793846042257833238
 GameObject:
   m_ObjectHideFlags: 0
@@ -345,8 +237,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a6b8a39f1b47bf6ea7edb611e079933, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.PropAnchor
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -354,6 +244,8 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   m_propPrefab: {fileID: 7812248894833286972, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
 --- !u!1 &2552942829925374154
 GameObject:
@@ -384,9 +276,9 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1202893117648866437}
-  - {fileID: 2360108494911343916}
   - {fileID: 7401911938712057479}
+  - {fileID: 1202893117648866437}
+  - {fileID: 7691499401762491359}
   - {fileID: 4071229983322448240}
   - {fileID: 3248745702105639696}
   - {fileID: 1224182100187128758}
@@ -447,8 +339,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a6b8a39f1b47bf6ea7edb611e079933, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.PropAnchor
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -456,7 +346,63 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   m_propPrefab: {fileID: 4447825369596677905, guid: 28214e3030f65ac41a8899facd8049db, type: 3}
+--- !u!1 &3062754624851485178
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2829157400341495188}
+  - component: {fileID: 2854811474644556817}
+  m_Layer: 0
+  m_Name: props_plant
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2829157400341495188
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3062754624851485178}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -14.08, y: -0.007992566, z: 17.46}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4155102734396228565}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2854811474644556817
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3062754624851485178}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a6b8a39f1b47bf6ea7edb611e079933, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.PropAnchor
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  m_propPrefab: {fileID: 3552994085399002219, guid: d94cf536b4c02494898c2c69b482745a, type: 3}
 --- !u!1 &3386034250908892064
 GameObject:
   m_ObjectHideFlags: 0
@@ -501,8 +447,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a6b8a39f1b47bf6ea7edb611e079933, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.PropAnchor
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -510,8 +454,10 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   m_propPrefab: {fileID: 4840540581563705086, guid: 656cf9a0afc94784391124d3ef32b16b, type: 3}
---- !u!1 &3391071549605278390
+--- !u!1 &4706665954354963107
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -519,62 +465,8 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 744274915108069893}
-  - component: {fileID: 6453774333026210377}
-  m_Layer: 0
-  m_Name: props_wall_painting_frame_7
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &744274915108069893
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3391071549605278390}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -6.8515587, y: 3.3119998, z: 16.25547}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 8284938599454443860}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6453774333026210377
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3391071549605278390}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2a6b8a39f1b47bf6ea7edb611e079933, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.PropAnchor
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
-  _isSetup: 0
-  _prefabId: -2147483648
-  _componentIndex: -2147483648
-  _shouldBePooled: 0
-  _parent: {fileID: 0}
-  _invertedPathToNearestParent: 
-  _directChildren: []
-  m_propPrefab: {fileID: 7881243922303910402, guid: 0d8ddc42ee8ee944db455c32e86887e0, type: 3}
---- !u!1 &3697923696521697609
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 3944030670209007208}
-  - component: {fileID: 4013293243809916383}
+  - component: {fileID: 4370416737580203448}
+  - component: {fileID: 4721188498215297221}
   m_Layer: 0
   m_Name: props_woodlog
   m_TagString: Untagged
@@ -582,35 +474,33 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &3944030670209007208
+--- !u!4 &4370416737580203448
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3697923696521697609}
+  m_GameObject: {fileID: 4706665954354963107}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 0.09519206, z: -0, w: 0.9954589}
-  m_LocalPosition: {x: -3.3345566, y: -0.007991195, z: 22.332466}
+  m_LocalRotation: {x: -0, y: 0.8643286, z: -0, w: 0.5029275}
+  m_LocalPosition: {x: -3.0620003, y: -0.007990956, z: 27.614}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8284938599454443860}
   m_LocalEulerAnglesHint: {x: 0, y: 89.797, z: 0}
---- !u!114 &4013293243809916383
+--- !u!114 &4721188498215297221
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3697923696521697609}
+  m_GameObject: {fileID: 4706665954354963107}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2a6b8a39f1b47bf6ea7edb611e079933, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.PropAnchor
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -618,8 +508,10 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   m_propPrefab: {fileID: 7812248894833286972, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
---- !u!1 &4190428988546558715
+--- !u!1 &5074106781893215720
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -627,44 +519,42 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 7029795809654884541}
-  - component: {fileID: 2270833869644822694}
+  - component: {fileID: 3703685689278070117}
+  - component: {fileID: 9056249551466353316}
   m_Layer: 0
-  m_Name: props_pouf
+  m_Name: props_plant
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &7029795809654884541
+--- !u!4 &3703685689278070117
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4190428988546558715}
+  m_GameObject: {fileID: 5074106781893215720}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -3.9099998, y: -0.007992566, z: 30.18}
+  m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: -1.88, y: -0.007992566, z: 22.44}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4155102734396228565}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2270833869644822694
+  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
+--- !u!114 &9056249551466353316
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4190428988546558715}
+  m_GameObject: {fileID: 5074106781893215720}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2a6b8a39f1b47bf6ea7edb611e079933, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.PropAnchor
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -672,7 +562,9 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  m_propPrefab: {fileID: 6280323286013529376, guid: b1d7c463155e8684086552aadb8c4da2, type: 3}
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  m_propPrefab: {fileID: 3552994085399002219, guid: d94cf536b4c02494898c2c69b482745a, type: 3}
 --- !u!1 &5632250983273738246
 GameObject:
   m_ObjectHideFlags: 0
@@ -717,8 +609,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a6b8a39f1b47bf6ea7edb611e079933, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.PropAnchor
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -726,6 +616,8 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   m_propPrefab: {fileID: 5246472151334443020, guid: b90b2fd3f6b049a4795366914dbe92a8, type: 3}
 --- !u!1 &5819344800113004695
 GameObject:
@@ -771,8 +663,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a6b8a39f1b47bf6ea7edb611e079933, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.PropAnchor
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -780,6 +670,8 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   m_propPrefab: {fileID: 1160543709160599024, guid: 59745e327f6a04046a4b89c81cf981ab, type: 3}
 --- !u!1 &5983903877371039654
 GameObject:
@@ -825,8 +717,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a6b8a39f1b47bf6ea7edb611e079933, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.PropAnchor
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -834,7 +724,63 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   m_propPrefab: {fileID: 9071341382301619027, guid: 1cb5e90d50e1c114cb54e036cccf26b1, type: 3}
+--- !u!1 &6003945933975991467
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3213847790699242135}
+  - component: {fileID: 8590091991340920326}
+  m_Layer: 0
+  m_Name: props_pouf
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3213847790699242135
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6003945933975991467}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -3.9099998, y: -0.007992566, z: 30.18}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4155102734396228565}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8590091991340920326
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6003945933975991467}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a6b8a39f1b47bf6ea7edb611e079933, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.PropAnchor
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  m_propPrefab: {fileID: 6280323286013529376, guid: b1d7c463155e8684086552aadb8c4da2, type: 3}
 --- !u!1 &6445013732178299384
 GameObject:
   m_ObjectHideFlags: 0
@@ -879,8 +825,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a6b8a39f1b47bf6ea7edb611e079933, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.PropAnchor
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -888,6 +832,8 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   m_propPrefab: {fileID: 2976420427924087877, guid: 79603f7598c97b841823f972e4e1bd3b, type: 3}
 --- !u!1 &6586111079606331131
 GameObject:
@@ -933,8 +879,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a6b8a39f1b47bf6ea7edb611e079933, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.PropAnchor
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -942,8 +886,10 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   m_propPrefab: {fileID: 3552994085399002219, guid: d94cf536b4c02494898c2c69b482745a, type: 3}
---- !u!1 &6872706634397483942
+--- !u!1 &6770387233840894311
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -951,44 +897,42 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1062080605642593003}
-  - component: {fileID: 6882356206190265444}
+  - component: {fileID: 2510673298234128460}
+  - component: {fileID: 8950343110719193451}
   m_Layer: 0
-  m_Name: props_candle
+  m_Name: props_wall_painting_frame_7
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1062080605642593003
+--- !u!4 &2510673298234128460
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6872706634397483942}
+  m_GameObject: {fileID: 6770387233840894311}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -6.44, y: 1.4270281, z: 16.905}
+  m_LocalPosition: {x: -6.8515587, y: 3.3119998, z: 16.25547}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8284938599454443860}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6882356206190265444
+--- !u!114 &8950343110719193451
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6872706634397483942}
+  m_GameObject: {fileID: 6770387233840894311}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2a6b8a39f1b47bf6ea7edb611e079933, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.PropAnchor
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -996,7 +940,9 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  m_propPrefab: {fileID: 335011583992624736, guid: e3744737a8be6e94bae2918b6068d21a, type: 3}
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  m_propPrefab: {fileID: 7881243922303910402, guid: 0d8ddc42ee8ee944db455c32e86887e0, type: 3}
 --- !u!1 &6975566769651263183
 GameObject:
   m_ObjectHideFlags: 0
@@ -1041,8 +987,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a6b8a39f1b47bf6ea7edb611e079933, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.PropAnchor
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -1050,6 +994,8 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   m_propPrefab: {fileID: 2211506635375113982, guid: c01f07b6fd2a58341b634e0860d03726, type: 3}
 --- !u!1 &7473497219558069311
 GameObject:
@@ -1095,8 +1041,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a6b8a39f1b47bf6ea7edb611e079933, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.PropAnchor
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -1104,6 +1048,8 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   m_propPrefab: {fileID: 6280323286013529376, guid: b1d7c463155e8684086552aadb8c4da2, type: 3}
 --- !u!1 &7656815437625068985
 GameObject:
@@ -1152,8 +1098,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe04b8910ffb9c2f682c2fade6663a78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.Room
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -1161,33 +1105,35 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  m_sabotageObject: {fileID: 1239484529215803602}
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  m_sabotageObject: {fileID: 7289567412787448509}
   m_trapdoorEntry: {fileID: 0}
   m_trapdoorExit: {fileID: 0}
   m_trapdoorExitRoomType: 0
   m_smallPropsAnchors:
   - {fileID: 413553936743185920}
-  - {fileID: 6453774333026210377}
+  - {fileID: 8950343110719193451}
   - {fileID: 6505689572545109982}
   - {fileID: 2380532442470392122}
   - {fileID: 336492079074208072}
-  - {fileID: 6882356206190265444}
+  - {fileID: 1113868035980184877}
   - {fileID: 8260133805818414016}
   - {fileID: 292853709832122428}
   - {fileID: 1465764559830195714}
   - {fileID: 253662722786214284}
-  - {fileID: 4013293243809916383}
-  - {fileID: 684488732846861690}
+  - {fileID: 2377910386054753916}
+  - {fileID: 4721188498215297221}
   m_mediumPropsAnchors:
   - {fileID: 1318099894895180676}
-  - {fileID: 2270833869644822694}
-  - {fileID: 4690208086338396167}
+  - {fileID: 8590091991340920326}
+  - {fileID: 5327969437100725351}
   - {fileID: 8340768670339927298}
   - {fileID: 3997002175277250747}
   - {fileID: 6463240552286599596}
   - {fileID: 1456212878737500518}
-  - {fileID: 3869880875850488063}
-  - {fileID: 6968140332442976520}
+  - {fileID: 9056249551466353316}
+  - {fileID: 2854811474644556817}
   - {fileID: 5571736593515337714}
   - {fileID: 6054591598535135356}
 --- !u!1 &7842098171799288324
@@ -1234,8 +1180,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a6b8a39f1b47bf6ea7edb611e079933, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.PropAnchor
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -1243,6 +1187,8 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   m_propPrefab: {fileID: 335011583992624736, guid: e3744737a8be6e94bae2918b6068d21a, type: 3}
 --- !u!1 &8266376746579662874
 GameObject:
@@ -1277,7 +1223,7 @@ Transform:
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 778146064584282343}
-  m_Father: {fileID: 2360108494911343916}
+  m_Father: {fileID: 7691499401762491359}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!108 &7667643197797010242
 Light:
@@ -1435,8 +1381,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a6b8a39f1b47bf6ea7edb611e079933, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.PropAnchor
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -1444,61 +1388,9 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   m_propPrefab: {fileID: 9012590694338558219, guid: 5e897808dac662845b1f27394a7d4938, type: 3}
---- !u!1 &8520441894753582739
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 3861315211483206602}
-  - component: {fileID: 684488732846861690}
-  m_Layer: 0
-  m_Name: props_woodlog
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &3861315211483206602
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8520441894753582739}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 0.8643286, z: -0, w: 0.5029275}
-  m_LocalPosition: {x: -3.0620003, y: -0.007990956, z: 27.614}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 8284938599454443860}
-  m_LocalEulerAnglesHint: {x: 0, y: 89.797, z: 0}
---- !u!114 &684488732846861690
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8520441894753582739}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2a6b8a39f1b47bf6ea7edb611e079933, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.PropAnchor
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
-  _isSetup: 0
-  _prefabId: -2147483648
-  _componentIndex: -2147483648
-  _shouldBePooled: 0
-  _parent: {fileID: 0}
-  _invertedPathToNearestParent: 
-  _directChildren: []
-  m_propPrefab: {fileID: 7812248894833286972, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
 --- !u!1 &8639508271618605904
 GameObject:
   m_ObjectHideFlags: 0
@@ -1543,8 +1435,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a6b8a39f1b47bf6ea7edb611e079933, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.PropAnchor
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -1552,7 +1442,117 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   m_propPrefab: {fileID: 7995761847906841801, guid: 302de7309380c6e44bc881ab066089d1, type: 3}
+--- !u!1 &8862114090431694535
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7670470090282526766}
+  - component: {fileID: 2377910386054753916}
+  m_Layer: 0
+  m_Name: props_woodlog
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7670470090282526766
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8862114090431694535}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.09519206, z: -0, w: 0.9954589}
+  m_LocalPosition: {x: -3.3345566, y: -0.007991195, z: 22.332466}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8284938599454443860}
+  m_LocalEulerAnglesHint: {x: 0, y: 89.797, z: 0}
+--- !u!114 &2377910386054753916
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8862114090431694535}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a6b8a39f1b47bf6ea7edb611e079933, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.PropAnchor
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  m_propPrefab: {fileID: 7812248894833286972, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
+--- !u!1 &8872107510002767414
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5926023895744788320}
+  - component: {fileID: 1113868035980184877}
+  m_Layer: 0
+  m_Name: props_candle
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5926023895744788320
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8872107510002767414}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -6.44, y: 1.4270281, z: 16.905}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8284938599454443860}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1113868035980184877
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8872107510002767414}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a6b8a39f1b47bf6ea7edb611e079933, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.PropAnchor
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  m_propPrefab: {fileID: 335011583992624736, guid: e3744737a8be6e94bae2918b6068d21a, type: 3}
 --- !u!1 &9188379695261503738
 GameObject:
   m_ObjectHideFlags: 0
@@ -1597,8 +1597,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a6b8a39f1b47bf6ea7edb611e079933, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.PropAnchor
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -1606,7 +1604,90 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   m_propPrefab: {fileID: 4007080286361812332, guid: c42d516bab51a064a84fa681cabcfe2a, type: 3}
+--- !u!1001 &980887115361898073
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1647055299271653503}
+    m_Modifications:
+    - target: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -1.7182312
+      objectReference: {fileID: 0}
+    - target: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.006
+      objectReference: {fileID: 0}
+    - target: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 25.345488
+      objectReference: {fileID: 0}
+    - target: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7812248894833286972, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
+      propertyPath: m_Name
+      value: props_woodlog
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1568059118490229963}
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
+--- !u!4 &7691499401762491359 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
+  m_PrefabInstance: {fileID: 980887115361898073}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1341714666013309118
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2283,87 +2364,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1252592959683779161, guid: c9eea7f8897fd8745860b8530b5272d8, type: 3}
   m_PrefabInstance: {fileID: 4651465011621999112}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &5179619499667294378
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 1647055299271653503}
-    m_Modifications:
-    - target: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 1.3
-      objectReference: {fileID: 0}
-    - target: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1.3
-      objectReference: {fileID: 0}
-    - target: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 1.3
-      objectReference: {fileID: 0}
-    - target: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -1.7182312
-      objectReference: {fileID: 0}
-    - target: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -0.006
-      objectReference: {fileID: 0}
-    - target: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 25.345488
-      objectReference: {fileID: 0}
-    - target: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 90
-      objectReference: {fileID: 0}
-    - target: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
-      propertyPath: m_ConstrainProportionsScale
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7812248894833286972, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
-      propertyPath: m_Name
-      value: props_woodlog
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1568059118490229963}
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
---- !u!4 &2360108494911343916 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 7431359768168072582, guid: 1ae2122fd33b09345a03315c0f7d4d58, type: 3}
-  m_PrefabInstance: {fileID: 5179619499667294378}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6425520824603524008
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2560,7 +2560,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 135807235959797787, guid: a30b3c89c64104de397a14acea8a756f, type: 3}
       propertyPath: m_Name
-      value: props_grande_horloge
+      value: props_grande_horloge sabotable
       objectReference: {fileID: 0}
     - target: {fileID: 768333617498677921, guid: a30b3c89c64104de397a14acea8a756f, type: 3}
       propertyPath: m_LocalScale.x
@@ -2619,9 +2619,9 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a30b3c89c64104de397a14acea8a756f, type: 3}
---- !u!114 &1239484529215803602 stripped
+--- !u!114 &7289567412787448509 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: -206325044960803596, guid: a30b3c89c64104de397a14acea8a756f, type: 3}
+  m_CorrespondingSourceObject: {fileID: 664503162000760475, guid: a30b3c89c64104de397a14acea8a756f, type: 3}
   m_PrefabInstance: {fileID: 7787133780251661350}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
