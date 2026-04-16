@@ -31,6 +31,7 @@ public class PlayerControllerCore : NetworkBehaviour
 
     public string m_memberID = "";
     public string m_username = "";
+    private bool m_tutoOn;
 
     protected virtual void Awake()
     {
@@ -38,6 +39,11 @@ public class PlayerControllerCore : NetworkBehaviour
         // OnSpawned() will re-enable it for the local owner only.
         var playerInput = GetComponent<PlayerInput>();
         if (playerInput != null) playerInput.enabled = false;
+
+        foreach(SceneSwitcher sceneSwitcher in FindObjectsByType<SceneSwitcher>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+        {
+            m_tutoOn=sceneSwitcher._isTuto;
+        }
     }
 
     /**
@@ -201,7 +207,10 @@ public class PlayerControllerCore : NetworkBehaviour
         if (!isOwner) return;
         var playerInput = GetComponent<PlayerInput>();
         if (playerInput == null) return;
-        playerInput.enabled = !paused;
+        if(!m_tutoOn)
+        {
+            playerInput.enabled = !paused;
+        }
         if (!paused)
         {
             string saved = PlayerPrefs.GetString("Settings_Keybindings", "");
