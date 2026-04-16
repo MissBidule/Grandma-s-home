@@ -251,7 +251,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
             m_saboteur = null;
             return;
         }
-        else
+        else if (!m_isPanicMode)
         {
             string prompt = m_saboteur.m_isGhost
                 ? InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelSABOTAGE)
@@ -262,7 +262,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         m_saboteur = null;
         SetQteRunningServer(false);
 
-        if (m_isFocused)
+        if (m_isFocused && !m_isPanicMode)
         {
             SetHighlight(true);
         }
@@ -347,6 +347,11 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         m_isPanicMode = true;
         SetHighlight(false);
         ApplyRenderingLayer();
+        if (m_isQteRunning)
+        {
+            QteCircle qte = FindAnyObjectByType<QteCircle>();
+            qte?.CancelQte();
+        }
     }
 
     [ObserversRpc(runLocally:true, requireServer:true)]
