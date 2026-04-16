@@ -2,6 +2,7 @@ using PurrLobby;
 using PurrNet;
 using PurrNet.Logging;
 using PurrNet.StateMachine;
+using Script.Music;
 using Script.UI.Views;
 using System;
 using UI;
@@ -66,6 +67,8 @@ namespace Script.States
         {
             Destroy(pauseMenu);
             Cursor.lockState = CursorLockMode.None;
+            
+            MusicLooper.Instance.StopMusic();
         }
         
         [ObserversRpc]
