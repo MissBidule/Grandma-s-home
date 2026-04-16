@@ -3,6 +3,7 @@
 */
 using UnityEngine;
 using TMPro;
+using System.Text.RegularExpressions;
 
 public class TutoInstructions : MonoBehaviour
 {
@@ -20,6 +21,21 @@ public class TutoInstructions : MonoBehaviour
     public bool m_hasStarted = false;
     private static bool m_tutoRunning = false;
 
+    string ProcessInputBindings(string message)
+    {
+        return Regex.Replace(message, @"\{(.*?)\}", match =>
+        {
+            string[] parts = match.Groups[1].Value.Split('.');
+
+            if (parts.Length != 2)
+                return match.Value;
+
+            string actionMap = parts[0];
+            string actionName = parts[1];
+
+            return InputBindingHelper.BuildPrompt(actionMap, actionName, null);
+        });
+    }
     void StartTuto()
     {
         if (m_canvasInstance != null) return;
@@ -62,7 +78,8 @@ public class TutoInstructions : MonoBehaviour
         if (m_currentStep >= m_steps.Length) return;
         var step = m_steps[m_currentStep];
 
-        m_text.text = step.message;
+        //m_text.text = step.message;
+        m_text.text = ProcessInputBindings(step.message);
 
         m_timer = 0f;
     }

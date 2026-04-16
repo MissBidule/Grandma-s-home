@@ -965,11 +965,11 @@ MonoBehaviour:
     waitForAction: 0
     actionName: 
     duration: 5
-  - message: Click F to sabotage a highlighted object.
+  - message: Click {Ghost.Interact} to sabotage a highlighted object.
     waitForAction: 0
     actionName: 
     duration: 7
-  - message: Click on SPACE at the right time to confirm.
+  - message: Click on {Ghost.Validate} at the right time to confirm.
     waitForAction: 0
     actionName: 
     duration: 7
@@ -977,16 +977,17 @@ MonoBehaviour:
     waitForAction: 0
     actionName: 
     duration: 5
-  - message: Approach an object and click on T to preview it.
+  - message: Approach an object and click on {Ghost.Scan} to preview it.
     waitForAction: 0
     actionName: 
     duration: 7
-  - message: You can move around in preview mode and use A and E to position yourself
-      better.
+  - message: You can move around in preview mode and use {Ghost.RotatePreviewLeft}
+      and {Ghost.RotatePreviewRight} to position yourself better.
     waitForAction: 0
     actionName: 
     duration: 10
-  - message: Click on F to confirm the preview and thus hide when a child arrives.
+  - message: Click on {Ghost.Interact} to confirm the preview and thus hide when
+      a child arrives.
     waitForAction: 0
     actionName: 
     duration: 10
@@ -1886,6 +1887,7 @@ MonoBehaviour:
   m_pulseSpeed: 3
   m_minIntensity: 0.2
   m_maxIntensity: 0.6
+  m_ghostTransparentMaterial: {fileID: 0}
   m_promptLabelSCAN: SCAN
   m_promptLabelValid: Valid
   m_rotateSpeed: 120
