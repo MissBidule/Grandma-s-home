@@ -229,6 +229,7 @@ public class GhostClientController : NetworkBehaviour
     public void OnJump()
     {
         if (!isOwner) return;
+        if (!m_qteCircle) m_qteCircle = FindAnyObjectByType<QteCircle>();
         if (m_qteCircle != null && m_qteCircle.m_isRunning) return;
         m_jumpPressed = true;
     }
