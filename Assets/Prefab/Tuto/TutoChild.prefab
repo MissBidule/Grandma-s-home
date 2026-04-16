@@ -59,6 +59,7 @@ GameObject:
   - component: {fileID: 6785398436290800876}
   - component: {fileID: -6246369506338238647}
   - component: {fileID: -1637920037281884883}
+  - component: {fileID: 6300754893927784980}
   m_Layer: 8
   m_Name: TutoChild
   m_TagString: Child
@@ -79,7 +80,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 83983048607550061}
   - {fileID: 2721519371250250100}
   - {fileID: 8286851940836659514}
   - {fileID: 4642070448543893612}
@@ -186,7 +186,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChildInputController
   m_childClientController: {fileID: 2404275679153068628}
-  m_tutoChildCac: {fileID: 0}
 --- !u!114 &7371193213744557113
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -579,6 +578,10 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 72fdd004-b407-4dca-9f7e-17eb8c445dba
     m_ActionName: 'Player/NextStep[/Keyboard/space,/Mouse/leftButton]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: a2fa8b84-2db5-4865-aed7-f67dc01c57a5
+    m_ActionName: 'Ghost/Jump[/Keyboard/space]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Child
@@ -945,6 +948,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d7358f2c35665740b840d25b0738715, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TutoManager
+--- !u!114 &6300754893927784980
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2220852981099475913}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e3702c3e2f382d4bbe96170f351c660, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Interact
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  m_isGhost: 0
+  m_interactRange: 7
 --- !u!1 &2316951510614423555
 GameObject:
   m_ObjectHideFlags: 0
@@ -1488,82 +1514,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!1 &7519404107659677825
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 83983048607550061}
-  - component: {fileID: 8780211577051265866}
-  - component: {fileID: 7269442289814720077}
-  m_Layer: 10
-  m_Name: ChildInteract
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &83983048607550061
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7519404107659677825}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 2873181202271193540}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &8780211577051265866
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7519404107659677825}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1.31, y: 1.1864486, z: 1.56}
-  m_Center: {x: -0.15, y: 0.09322429, z: 0.37}
---- !u!114 &7269442289814720077
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7519404107659677825}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9e3702c3e2f382d4bbe96170f351c660, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GhostInteract
-  _isSetup: 0
-  _prefabId: -2147483648
-  _componentIndex: -2147483648
-  _shouldBePooled: 0
-  _parent: {fileID: 0}
-  _invertedPathToNearestParent: 
-  _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
-  m_isGhost: 0
 --- !u!1 &8321170004280547216
 GameObject:
   m_ObjectHideFlags: 0
