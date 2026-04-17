@@ -18,12 +18,38 @@ namespace PurrLobby
         private bool m_lastInGameState = false;
         // ? FIX BUG #2: Cache LobbyManager reference instead of calling FindAnyObjectByType in loop
         private LobbyManager m_lobbyManager;
+        // ? FIX PLAYER OVERFLOW: Dictionary cache for member entries to prevent duplicates
+        private Dictionary<string, MemberEntry> m_memberEntries = new Dictionary<string, MemberEntry>();
 
         void Start()
         {
             m_roleKeeper = FindAnyObjectByType<RoleKeeper>();
             // ? FIX BUG #2: Get LobbyManager once at start
             m_lobbyManager = FindAnyObjectByType<LobbyManager>();
+            
+            // ? FIX PLAYER OVERFLOW: Setup layout group for proper UI organization
+            SetupLayoutGroup();
+        }
+        
+        private void SetupLayoutGroup()
+        {
+            VerticalLayoutGroup vlg = content.gameObject.GetComponent<VerticalLayoutGroup>();
+            if (vlg == null)
+            {
+                vlg = content.gameObject.AddComponent<VerticalLayoutGroup>();
+                vlg.childForceExpandHeight = false;
+                vlg.childForceExpandWidth = false;
+                vlg.spacing = 5f;
+                vlg.padding = new RectOffset(10, 10, 10, 10);
+            }
+            
+            ContentSizeFitter csf = content.gameObject.GetComponent<ContentSizeFitter>();
+            if (csf == null)
+            {
+                csf = content.gameObject.AddComponent<ContentSizeFitter>();
+                csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+                csf.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+            }
         }
 
         public void LobbyDataUpdate(Lobby room)
@@ -47,6 +73,8 @@ namespace PurrLobby
         public void OnLobbyLeave()
         {
             m_roleKeeper.DeleteList();
+            // ? FIX PLAYER OVERFLOW: Clear dictionary cache
+            m_memberEntries.Clear();
             foreach (Transform child in content)
                 Destroy(child.gameObject);
         }
@@ -94,11 +122,11 @@ namespace PurrLobby
 
         private async void HandleNewMembers(Lobby room)
         {
-            var existingMembers = content.GetComponentsInChildren<MemberEntry>();
-    
+            // ? FIX PLAYER OVERFLOW: Use dictionary cache instead of GetComponentsInChildren
             foreach (var member in room.Members)
             {
-                if (Array.Exists(existingMembers, x => x.MemberId == member.Id))
+                // ? Check in DICTIONARY instead of array.exists for better accuracy
+                if (m_memberEntries.ContainsKey(member.Id))
                     continue;
 
                 var entry = Instantiate(memberEntryPrefab, content);
@@ -116,6 +144,10 @@ namespace PurrLobby
                 }
                 
                 entry.Init(member);
+                
+                // ? FIX PLAYER OVERFLOW: Add to cache immediately
+                m_memberEntries[member.Id] = entry;
+                
                 m_roleKeeper.AddRole(member.Id, member.DisplayName, member.IsGhost, member.Skin, entry._ownId == member.Id);
                 entry.SetRole(member.IsGhost, member.Skin);
                 if (entry.SetHost()) HandleHostOptions(entry, room);
@@ -124,24 +156,26 @@ namespace PurrLobby
 
         private void HandleLeftMembers(Lobby room)
         {
-            var childrenToRemove = new List<Transform>();
-
-            for (int i = 0; i < content.childCount; i++)
+            // ? FIX PLAYER OVERFLOW: Iterate over dictionary keys instead of scene hierarchy
+            var membersToRemove = new List<string>();
+            
+            foreach (var memberId in m_memberEntries.Keys)
             {
-                var child = content.GetChild(i);
-                if (!child.TryGetComponent(out MemberEntry member))
-                    continue;
-
-                if (!room.Members.Exists(x => x.Id == member.MemberId))
+                if (!room.Members.Exists(x => x.Id == memberId))
                 {
-                    m_roleKeeper.RemoveRole(member.MemberId);
-                    childrenToRemove.Add(child);
+                    membersToRemove.Add(memberId);
                 }
             }
 
-            foreach (var child in childrenToRemove)
+            foreach (var memberId in membersToRemove)
             {
-                Destroy(child.gameObject);
+                if (m_memberEntries.TryGetValue(memberId, out var entry))
+                {
+                    m_roleKeeper.RemoveRole(memberId);
+                    // ? FIX PLAYER OVERFLOW: Immediate destroy + remove from cache
+                    Destroy(entry.gameObject);
+                    m_memberEntries.Remove(memberId);
+                }
             }
         }
 

@@ -77,7 +77,12 @@ namespace PurrLobby
         {
             _isGhost = isGhost;
             _skin = skin;
-            FindAnyObjectByType<RoleKeeper>().SwitchRole(_memberId, isGhost, skin);
+            
+            // ? FIX PLAYER OVERFLOW: Use cached _roleKeeper instead of FindAnyObjectByType every time
+            if (_roleKeeper == null)
+                _roleKeeper = FindAnyObjectByType<RoleKeeper>();
+            
+            _roleKeeper.SwitchRole(_memberId, isGhost, skin);
             avatar.texture = _roleKeeper.GetSkinImage(_memberId);
         }
     }
