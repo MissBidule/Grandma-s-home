@@ -150,7 +150,7 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
         Vector3 rayOrigin = transform.position + Vector3.up * m_raycastHeightOffset;
         Vector3 rayDirection = transform.forward;
 
-        if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, m_climbCheckDistance, m_climbableLayerMask))
+        if (Physics.SphereCast(rayOrigin, 0.2f, rayDirection, out RaycastHit hit, m_climbCheckDistance, m_climbableLayerMask))
         {
             if (hit.normal.y <= m_wallNormalMaxY || hit.transform.gameObject.layer == LayerMask.NameToLayer("Stairs"))
             {
