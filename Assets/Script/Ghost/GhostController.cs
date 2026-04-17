@@ -40,8 +40,8 @@ public class GhostController : PlayerControllerCore, IInteractable
     public bool m_canScareChild = true;
 
     [Header("Revive")]
-    public float m_baseReviveTime = 3f;
-    public float m_maxReviveTime = 20f;
+    [NonSerialized] public float m_baseReviveTime = 3f;
+    [NonSerialized] public float m_maxReviveTime = 9f;
     private int m_deathCount = 0;
     private GhostController m_reviver = null;
     private float m_reviveTimer = 0f;
