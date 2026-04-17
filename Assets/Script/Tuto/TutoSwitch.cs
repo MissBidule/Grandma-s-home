@@ -8,7 +8,6 @@ using UnityEngine.InputSystem;
 
 public class SwitchTuto : MonoBehaviour
 {
-    public GameObject temp ; 
     private void OnTriggerEnter(Collider other)
     {
 
