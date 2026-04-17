@@ -49,13 +49,15 @@ public class PredictiveMovement : NetworkBehaviour
     private bool m_alreadySimulated = false;
 
     private PredictiveInputData m_currentInput = new();
-    private float m_positionErrorThreshold = 0.75f;
-    private bool m_debugging = false;
+    private float m_basePositionErrorThreshold = 0.75f; // Ex-position threshold, used as a base for dynamic calculation.
+    private float m_referenceBaseSpeed; // Will be set dynamically from the movement script
+    private readonly bool m_debugging = false;
 
     private void Start()
     {
         m_simulateMovement = GetComponent<ISimulateMovement>();
         InitInputData();
+        InitializeReferenceSpeed();
 
         //StartCoroutine(PredictiveUpdate());
     }
@@ -74,6 +76,62 @@ public class PredictiveMovement : NetworkBehaviour
     public int GetTick()
     {
         return m_tick;
+    }
+
+    /*
+     * @brief Initializes the reference base speed by detecting the movement script type (Ghost or Child)
+     * @details Retrieves the base speed from GhostSimulateMovement or ChildSimulateMovement dynamically
+     * @return void
+     */
+    private void InitializeReferenceSpeed()
+    {
+        var ghostMovement = GetComponent<GhostSimulateMovement>();
+        if (ghostMovement != null)
+        {
+            m_referenceBaseSpeed = ghostMovement.m_walkSpeed;
+            return;
+        }
+
+        var childMovement = GetComponent<ChildSimulateMovement>();
+        if (childMovement != null)
+        {
+            m_referenceBaseSpeed = childMovement.m_speed;
+            return;
+        }
+
+        // Fallback if neither script is found
+        m_referenceBaseSpeed = 5.0f; // Should never happen but who knows
+    }
+
+    /*
+     * @brief Calculates the dynamic position error threshold based on current player speed
+     * @details Higher speeds allow for higher tolerances to avoid excessive rollbacks
+     * @details Formula: threshold = base * (1 + speedRatio), allowing smooth scaling with any speed
+     * @return float The computed threshold
+     */
+    private float GetDynamicErrorThreshold()
+    {
+        var rb = GetComponent<Rigidbody>();
+        if (rb == null) return m_basePositionErrorThreshold;
+
+        float horizontalSpeed = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z).magnitude;
+        
+        // Account for dash state by checking if the ghost controller is dashing
+        float speedModifier = 1f;
+        var ghostController = GetComponent<GhostController>();
+        if (ghostController != null && ghostController.m_isDashing)
+        {
+            speedModifier = 2f; // m_dashAmplitude from GhostSimulateMovement
+        }
+        
+        // Scale threshold based on current speed relative to the reference base speed
+        // At reference base speed: threshold = base * 1
+        // At 2x speed (dash): threshold = base * 3 (accounting for higher expected velocity)
+        // Scale linearly: more speed = more tolerance needed
+        float speedRatio = (horizontalSpeed * speedModifier) / m_referenceBaseSpeed;
+        float dynamicThreshold = m_basePositionErrorThreshold * (1f + speedRatio);
+        
+        return dynamicThreshold;
     }
 
     /*
@@ -241,9 +299,12 @@ public class PredictiveMovement : NetworkBehaviour
             HistoricalState pastState = m_stateHistory[stateIndex];
             float positionError = Vector3.Distance(pastState.position, _serverPos);
 
-            if (m_debugging) print($"Position Error: {positionError}");
+            // Get dynamic threshold based on current speed
+            float threshold = GetDynamicErrorThreshold();
 
-            if (positionError < m_positionErrorThreshold)
+            if (m_debugging) print($"Position Error: {positionError} | Threshold: {threshold}");
+
+            if (positionError < threshold)
             {
                 shouldRollback = false;
 

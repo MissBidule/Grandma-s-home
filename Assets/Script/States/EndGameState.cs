@@ -5,6 +5,7 @@ using PurrNet.StateMachine;
 using Script.Audio;
 using Script.UI.Views;
 using System;
+using System.Threading.Tasks;
 using UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -41,8 +42,6 @@ namespace Script.States
             IsGameOver = true;
             base.Enter(_asServer);
 
-            HidePause();
-
             foreach (StateNode state in machine.states)
             {
                 if (state is PlayerSpawningState playerSpawningState)
@@ -53,6 +52,8 @@ namespace Script.States
             
             if (!_asServer)
                 return;
+
+            HidePause();
             
             SetupEndGameUI(_childWin);
             InteractPromptUI.m_Instance.Hide();
@@ -72,7 +73,7 @@ namespace Script.States
         }
         
         [ObserversRpc]
-        public void BackToLobby()
+        public void BackToLobby(string newLobbyId = "")
         {
             // Prevent duplicate scene switches
             if (_hasAlreadySwitched)
@@ -89,15 +90,20 @@ namespace Script.States
                 return;
             }
 
+            if (!string.IsNullOrEmpty(newLobbyId))
+            {
+                FindAnyObjectByType<LobbyDataHolder>().SetNewID(newLobbyId);
+            }
+
             PurrLogger.Log($"Switching to scene: {m_lobbyScene}", this);
             
             // Load game scene - ConnectionStarter in new scene will handle network initialization
             SceneManager.LoadSceneAsync(m_lobbyScene);
         }
 
-        public void StopGame() {
+        public void StopGame(string newLobbyId = "") {
             Destroy(FindAnyObjectByType<LobbyManager>().gameObject);
-            BackToLobby();
+            BackToLobby(newLobbyId);
         }
 
         public void BackToMenu()

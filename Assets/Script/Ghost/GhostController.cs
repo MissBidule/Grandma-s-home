@@ -41,8 +41,8 @@ public class GhostController : PlayerControllerCore, IInteractable
     public bool m_canScareChild = true;
 
     [Header("Revive")]
-    public float m_baseReviveTime = 5f;
-    public float m_maxReviveTime = 30f;
+    public float m_baseReviveTime = 3f;
+    public float m_maxReviveTime = 20f;
     private int m_deathCount = 0;
     private GhostController m_reviver = null;
     private float m_reviveTimer = 0f;
@@ -62,6 +62,8 @@ public class GhostController : PlayerControllerCore, IInteractable
 
     [Header("Abilities Parameters")]
     [SerializeField] [Tooltip("In seconds")] private float m_dashDuration = 2.5f;
+    [SerializeField] [Tooltip("In seconds")] private float m_dashCooldown = 20f;
+    private float m_currentDashCooldown = 0f;
 
     private Rigidbody m_rigidbody;
 
@@ -150,6 +152,16 @@ public class GhostController : PlayerControllerCore, IInteractable
             {
                 RemoveSlowToAll();
                 m_animator.SetBool("GotShot", false);
+            }
+        }
+        
+        if (!m_canDash && m_currentDashCooldown > 0f)
+        {
+            m_currentDashCooldown -= Time.deltaTime;
+            if (m_currentDashCooldown <= 0f)
+            {
+                m_currentDashCooldown = 0f;
+                ApplyDashToAll(false, true);
             }
         }
     }
@@ -338,6 +350,19 @@ public class GhostController : PlayerControllerCore, IInteractable
     {
         m_isDashing = _isDashing;
         m_canDash = _canDash;
+        if (_canDash)
+        {
+            m_currentDashCooldown = 0f;
+        }
+    }
+    
+    /**
+    @brief      Reset the dash cooldown when sabotaging (morphing)
+    */
+    public void ResetDashCooldown()
+    {
+        ApplyDashToAll(false, true);
+        m_currentDashCooldown = 0f;
     }
 
     public void OnInteract(Interact _who)
@@ -395,6 +420,7 @@ public class GhostController : PlayerControllerCore, IInteractable
         m_soundEffects.PlayDashAudio();
         
         ApplyDashToAll(true, false);
+        m_currentDashCooldown = m_dashCooldown;
         
         StartCoroutine(DashDuration(m_dashDuration));
     }

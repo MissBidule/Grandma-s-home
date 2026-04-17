@@ -9,10 +9,10 @@ using UnityEngine;
 public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
 {
     [Header("Movement")]
-    [SerializeField] private float m_walkSpeed = 4f;
+    [SerializeField] public float m_walkSpeed = 4f;
     [SerializeField] private float m_acceleration = 25f;
     [SerializeField] private float m_slowAmplitude = 0.5f;
-    [SerializeField] private float m_dashAmplitude = 1.5f;
+    [SerializeField] private float m_dashAmplitude = 2f;
     [SerializeField] private float m_sneakAmplitude = 0.5f;
     [SerializeField] private float m_jumpImpulse = 6.0f;
 
@@ -152,7 +152,7 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
         Vector3 rayOrigin = transform.position + Vector3.up * m_raycastHeightOffset;
         Vector3 rayDirection = transform.forward;
 
-        if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, m_climbCheckDistance, m_climbableLayerMask))
+        if (Physics.SphereCast(rayOrigin, 0.2f, rayDirection, out RaycastHit hit, m_climbCheckDistance, m_climbableLayerMask))
         {
             if (hit.normal.y <= m_wallNormalMaxY || hit.transform.gameObject.layer == LayerMask.NameToLayer("Stairs"))
             {

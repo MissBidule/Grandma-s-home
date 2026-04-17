@@ -205,6 +205,7 @@ public class ChildClientController : NetworkBehaviour
     public void OnAttack()
     {
         if (!isOwner) return;
+        if (m_qteCircle != null && m_qteCircle.m_isRunning) return;
         m_attackPressed = true;
         m_childController.callAnimationTrigger("OnAttack");
     }

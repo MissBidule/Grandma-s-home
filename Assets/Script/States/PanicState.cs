@@ -159,6 +159,8 @@ namespace Script.States
         private void SetupPanicMode()
         {
             // TODO Add all the light and gong stuff
+            SabotageManager sabotageManager = FindAnyObjectByType<SabotageManager>();
+            sabotageManager?.EnablePanicMode();
         }
 
         private void OnGhostDeathChange(bool _deathOrRevive, PlayerID _playerID)
