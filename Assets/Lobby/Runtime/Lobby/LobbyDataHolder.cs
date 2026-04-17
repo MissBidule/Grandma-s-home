@@ -6,19 +6,26 @@ namespace PurrLobby
     public class LobbyDataHolder : MonoBehaviour
     {
         [SerializeField] private Lobby serializedLobby;
-        public Lobby CurrentLobby { get; private set; }
+        public Lobby CurrentLobby
+        { get { return serializedLobby; }
+          private set {} 
+        }
 
         private int number_of_player_in_lobby =-1;
 
         public void SetCurrentLobby(Lobby _newLobby)
         {
-            CurrentLobby = _newLobby;
             serializedLobby = _newLobby;
         }
         
         public void SetName(string _name)
         {
             serializedLobby.Name = _name;
+        }
+
+        public void SetNewID(string _newId)
+        {
+            serializedLobby.LobbyId = _newId;
         }
 
         public void SetMaxPlayer(int _max_players)

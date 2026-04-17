@@ -5,6 +5,8 @@ public class DiegeticButton : MonoBehaviour
 {
     public UnityEvent OnClick; //event Unity pour assigner des actions dans l'inspector
     private Outline[] outlineEffects; //stock les composants Outline pour les activer/desactiver au hover
+    public bool outlineAlwaysOn = false; //permet de garder les outlines actifs même sans hover 
+    public Animator animator; //reference à l'animator pour jouer les animations du bouton
 
     private void Start()
     {
@@ -15,10 +17,18 @@ public class DiegeticButton : MonoBehaviour
         {
             outline.enabled = false;
         }
+        animator = GetComponentInChildren<Animator>();
     }
     //active les outlines 
     private void OnMouseEnter()
     {
+        if (animator != null)
+        {
+            animator.speed = 1f;
+            animator.SetBool("Hover", true);
+        }
+        if (outlineAlwaysOn)
+            return;
         foreach (Outline outline in outlineEffects)
         {
             outline.enabled = true;
@@ -27,6 +37,12 @@ public class DiegeticButton : MonoBehaviour
     //desactive les outlines
     private void OnMouseExit()
     {
+        if (animator != null)
+        {
+            animator.SetBool("Hover", false);
+        }
+        if (outlineAlwaysOn)
+            return;
         foreach (Outline outline in outlineEffects)
         {
             outline.enabled = false;

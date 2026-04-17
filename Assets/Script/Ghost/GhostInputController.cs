@@ -20,6 +20,7 @@ public class GhostInputController : MonoBehaviour
     private GhostMorph m_ghostMorph;
     private GhostMorphPreview m_ghostMorphPreview;
     private Interact m_ghostInteract;
+    private TutoInstructions m_tutoChildInstructions;
     public QteCircle m_qteCircle;
 
     private bool isOwner => m_ghostClientController != null && m_ghostClientController.isOwner;
@@ -37,6 +38,7 @@ public class GhostInputController : MonoBehaviour
         m_ghostMorph = GetComponent<GhostMorph>();
         m_ghostMorphPreview = GetComponentInChildren<GhostMorphPreview>();
         m_ghostInteract = GetComponentInChildren<Interact>();
+        m_tutoChildInstructions = GetComponentInChildren<TutoInstructions>();
     }
 
     /*
@@ -49,6 +51,35 @@ public class GhostInputController : MonoBehaviour
     {
         if (!isOwner) return;
         m_movementInputVector = _context.ReadValue<Vector2>();
+    }
+
+    /*
+     * @brief OnJump is called by the Input System when jump input is detected
+     * @param _context: The context of the input action.
+     * @return void
+     * [SERVER]
+     */
+    public void OnJump(InputAction.CallbackContext _context)
+    {
+        if (!isOwner) return;
+        if(m_tutoChildInstructions == null)
+        {
+            if (_context.performed)
+            {
+                m_ghostClientController.OnJump();
+            }
+        }
+        else
+        {
+            if (!m_tutoChildInstructions.m_hasStarted)
+            {
+                m_ghostClientController.OnJump();
+            }
+            else
+            {
+                return;
+            }
+        }
     }
 
     /*

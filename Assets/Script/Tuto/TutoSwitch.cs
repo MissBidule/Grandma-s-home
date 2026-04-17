@@ -28,6 +28,11 @@ public class SwitchTuto : MonoBehaviour
             {
                 cinemachineCamera.enabled = false;
             }
+            AudioListener audioListener = GetComponentInChildren<AudioListener>();
+            if(audioListener != null)
+            {
+                audioListener.enabled = false;
+            }
 
             PlayerInput otherplayerInput = otherPlayer.GetComponent<PlayerInput>();
             if (otherplayerInput != null)
@@ -38,6 +43,29 @@ public class SwitchTuto : MonoBehaviour
             if(othercinemachineCamera != null)
             {
                 othercinemachineCamera.enabled = true;
+            }
+            AudioListener otheraudioListener = otherPlayer.GetComponentInChildren<AudioListener>();
+            if(otheraudioListener != null)
+            {
+                otheraudioListener.enabled = true;
+            }
+
+            foreach(GameObject obj in FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                if(obj.layer == LayerMask.NameToLayer("UI"))
+                {
+                    if((obj.name == "GhostUIHolder(Clone)")||(obj.name == "ChildUIHolder(Clone)"))
+                    {
+                        if(obj.activeInHierarchy)
+                        {
+                            obj.SetActive(false);
+                        }
+                        else
+                        {
+                            obj.SetActive(true);
+                        }
+                    }  
+                }
             }
         }
     }

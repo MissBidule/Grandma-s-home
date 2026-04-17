@@ -1,81 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &857712685218003285
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1584093925655289327}
-  - component: {fileID: 1664869247931316040}
-  - component: {fileID: 8024772833362321127}
-  m_Layer: 10
-  m_Name: GhostInteract
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1584093925655289327
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 857712685218003285}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.22, z: 0.989}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 8240797406063706427}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &1664869247931316040
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 857712685218003285}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1.9238707, y: 1.1864486, z: 1.5290223}
-  m_Center: {x: 0.009093702, y: 0.09322429, z: -0.26451117}
---- !u!114 &8024772833362321127
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 857712685218003285}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9e3702c3e2f382d4bbe96170f351c660, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GhostInteract
-  _isSetup: 0
-  _prefabId: -2147483648
-  _componentIndex: -2147483648
-  _shouldBePooled: 0
-  _parent: {fileID: 0}
-  _invertedPathToNearestParent: 
-  _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
-  m_isGhost: 1
 --- !u!1 &1734638775358860393
 GameObject:
   m_ObjectHideFlags: 0
@@ -103,7 +27,7 @@ GameObject:
   - component: {fileID: 1053912558784888777}
   - component: {fileID: -1708406524407734791}
   - component: {fileID: 3708811602893915025}
-  - component: {fileID: 5063558228492500971}
+  - component: {fileID: 2720147927517717862}
   m_Layer: 9
   m_Name: TutoGhost
   m_TagString: Ghost
@@ -126,7 +50,6 @@ Transform:
   m_Children:
   - {fileID: 3831614500408168732}
   - {fileID: 4673045851684565348}
-  - {fileID: 1584093925655289327}
   - {fileID: 5809631350492126148}
   - {fileID: 2006095374527097124}
   - {fileID: 4846395593593131539}
@@ -211,6 +134,7 @@ MonoBehaviour:
   m_minIntensity: 0.2
   m_maxIntensity: 1
   m_dashDuration: 2.5
+  m_dashCooldown: 20
   m_animator: {fileID: 6470790388057966885}
 --- !u!114 &4420112834733810732
 MonoBehaviour:
@@ -627,6 +551,26 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: d88c83f4-8b4b-485a-a2f9-0bbb920b086c
     m_ActionName: Ghost/Leaderboard
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 72fdd004-b407-4dca-9f7e-17eb8c445dba
+    m_ActionName: 'Player/NextStep[/Keyboard/space,/Mouse/leftButton]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 8778548429194373776}
+        m_TargetAssemblyTypeName: GhostInputController, Assembly-CSharp
+        m_MethodName: OnJump
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: a2fa8b84-2db5-4865-aed7-f67dc01c57a5
+    m_ActionName: 'Ghost/Jump[/Keyboard/space]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Ghost
@@ -940,6 +884,7 @@ MonoBehaviour:
   m_slowAmplitude: 0.5
   m_dashAmplitude: 1.5
   m_sneakAmplitude: 0.5
+  m_jumpImpulse: 6
   m_rotationSpeed: 12
   m_climbSpeed: 3.5
   m_climbCheckDistance: 0.9
@@ -966,56 +911,63 @@ MonoBehaviour:
     waitForAction: 0
     actionName: 
     duration: 5
-  - message: Click F to sabotage a highlighted object.
+  - message: Click {Ghost.Interact} to sabotage a highlighted object.
     waitForAction: 0
     actionName: 
-    duration: 7
-  - message: Click on SPACE at the right time to confirm.
+    duration: 15
+  - message: Click on {Ghost.Validate} at the right time to confirm.
     waitForAction: 0
     actionName: 
-    duration: 7
+    duration: 15
   - message: When a Ghost sabotages, the Sabotage score increases over time.
     waitForAction: 0
     actionName: 
-    duration: 5
-  - message: Approach an object and click on T to preview it.
+    duration: 15
+  - message: Approach an object and click on {Ghost.Scan} to preview it.
     waitForAction: 0
     actionName: 
-    duration: 7
-  - message: You can move around in preview mode and use A and E to position yourself
-      better.
+    duration: 15
+  - message: You can move around in preview mode and use {Ghost.RotatePreviewLeft}
+      and {Ghost.RotatePreviewRight} to position yourself better.
     waitForAction: 0
     actionName: 
-    duration: 10
-  - message: Click on F to confirm the preview and thus hide when a child arrives.
+    duration: 15
+  - message: Click on {Ghost.Interact} to confirm the preview and thus hide when
+      a child arrives.
     waitForAction: 0
     actionName: 
-    duration: 10
+    duration: 15
   - message: Once transformed, if you move, you revert to your Ghost state.
     waitForAction: 0
     actionName: 
-    duration: 7
+    duration: 15
+  - message: You can find the objects you transformed into  {Ghost.OpenProps} and
+      select it by hovering over it.
+    waitForAction: 0
+    actionName: 
+    duration: 15
   - message: You can climb on objects by moving straight ahead.
     waitForAction: 0
     actionName: 
-    duration: 7
+    duration: 15
   - message: When the Ghosts fill the sabotage gauge, the panic phase begins, and
       at that point the Ghosts can do nothing but flee.
     waitForAction: 0
     actionName: 
-    duration: 10
+    duration: 15
   - message: 'You can win the game if:'
     waitForAction: 0
     actionName: 
-    duration: 7
+    duration: 15
   - message: The children are exceeding the limit for breaking objects.
     waitForAction: 0
     actionName: 
-    duration: 10
+    duration: 15
   - message: At least one Ghost remains alive after the panic phase.
     waitForAction: 0
     actionName: 
     duration: 10
+  m_nextStepAction: {fileID: 7560140506530672950, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_hasStarted: 0
 --- !u!114 &3708811602893915025
 MonoBehaviour:
@@ -1029,7 +981,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d7358f2c35665740b840d25b0738715, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SwitchTuto
---- !u!114 &5063558228492500971
+--- !u!114 &2720147927517717862
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1038,9 +990,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 1734638775358860393}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ef162a84c63c4f640b43ee37e65a8360, type: 3}
+  m_Script: {fileID: 11500000, guid: 9e3702c3e2f382d4bbe96170f351c660, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TutoManager
+  m_EditorClassIdentifier: Assembly-CSharp::Interact
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  m_isGhost: 1
+  m_interactRange: 7
 --- !u!1 &3407796363210345922
 GameObject:
   m_ObjectHideFlags: 0
@@ -1899,6 +1862,7 @@ MonoBehaviour:
   m_pulseSpeed: 3
   m_minIntensity: 0.2
   m_maxIntensity: 0.6
+  m_ghostTransparentMaterial: {fileID: 0}
   m_promptLabelSCAN: SCAN
   m_promptLabelValid: Valid
   m_rotateSpeed: 120

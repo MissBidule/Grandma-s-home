@@ -39,6 +39,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     public bool m_isSabotable { get; private set; }
     private bool m_isQteRunning;
     private bool m_isFocused;
+    private bool m_isPanicMode;
 
     [SerializeField] public List<Interact> m_saboteurs = new List<Interact>();
     private Coroutine m_pulseCoroutine;
@@ -84,18 +85,21 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     public void OnFocus(Interact _player)
     {
         m_isFocused = true;
-        if (!m_isSabotaged)
+        if (!m_isPanicMode)
         {
-            bool canSabotage = _player.m_isGhost && m_isSabotable;
-            if (canSabotage) InteractPromptUI.m_Instance.ShowDynamic(() => InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelSABOTAGE));
-            else InteractPromptUI.m_Instance.Hide();
-            SetHighlight(canSabotage);
-        }
-        if (m_isSabotaged)
-        {
-            if (_player.m_isGhost) InteractPromptUI.m_Instance.Hide();
-            else InteractPromptUI.m_Instance.ShowDynamic(() => InputBindingHelper.BuildPrompt("Child", "Interact", m_promptLabelREPAIR));
-            SetHighlight(!_player.m_isGhost);
+            if (!m_isSabotaged)
+            {
+                GhostMorph ghostMorph = _player.GetComponentInParent<GhostMorph>();
+                bool isMorphed = ghostMorph != null && ghostMorph.m_isMorphed;
+                bool canSabotage = _player.m_isGhost && m_isSabotable && !isMorphed;
+                if (canSabotage) InteractPromptUI.m_Instance.ShowDynamic(() => InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelSABOTAGE));
+                SetHighlight(canSabotage);
+            }
+            if (m_isSabotaged && !_player.m_isGhost)
+            {
+                InteractPromptUI.m_Instance.ShowDynamic(() => InputBindingHelper.BuildPrompt("Child", "Interact", m_promptLabelREPAIR));
+                SetHighlight(true);
+            }
         }
         m_saboteurs.Add(_player);
     }
@@ -110,8 +114,6 @@ public class SabotageObject : NetworkBehaviour, IInteractable
 
         m_saboteurs.Remove(_player);
         InteractPromptUI.m_Instance.Hide();
-        
-    
         SetHighlight(false);
     }
     /*
@@ -122,6 +124,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
      */
     public void OnInteract(Interact _player)
     {
+        if (m_isPanicMode) return;
         if (_player.m_isGhost && !m_isSabotable) return;
         if (m_isQteRunning && _player.m_isGhost)
         {
@@ -156,20 +159,18 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     }
 
     [ServerRpc(requireOwnership:false)]
-    private void StartVfxForAll(RPCInfo info = default)
-    {
-        m_interactPrefab.SetActive(true);
-    }
+    private void StartVfxForAll(RPCInfo info = default) => StartVfxForAllObservers();
 
-    public void OnStopInteract(Interact _player)
-    {
-    }
+    [ObserversRpc(runLocally:true, requireServer:true)]
+    private void StartVfxForAllObservers() => m_interactPrefab.SetActive(true);
+
+    public void OnStopInteract(Interact _player) { }
 
     [ServerRpc(requireOwnership:false)]
-    private void StopVfxForAll(RPCInfo info = default)
-    {
-        m_interactPrefab.SetActive(false);
-    }
+    private void StopVfxForAll(RPCInfo info = default) => StopVfxForAllObservers();
+
+    [ObserversRpc(runLocally:true, requireServer:true)]
+    private void StopVfxForAllObservers() => m_interactPrefab.SetActive(false);
 
     private IEnumerator ShowTempPrompt(string _message, float _duration)
     {
@@ -199,7 +200,6 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     public void StartQte(Interact _sabo)
     {
         m_interactPrefab.SetActive(true);
-        Debug.Log(_sabo.transform.parent.name + " started sabotage");
         m_isQteRunning = true;
         SetHighlight(false);
 
@@ -251,7 +251,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
             m_saboteur = null;
             return;
         }
-        else
+        else if (!m_isPanicMode)
         {
             bool isGhost = m_saboteur.m_isGhost;
             InteractPromptUI.m_Instance.ShowDynamic(() => isGhost
@@ -262,7 +262,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         m_saboteur = null;
         SetQteRunningServer(false);
 
-        if (m_isFocused)
+        if (m_isFocused && !m_isPanicMode)
         {
             SetHighlight(true);
         }
@@ -286,6 +286,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     {
         m_isSabotaged = true;
         m_repairEnabled = false;
+        m_interactPrefab.SetActive(false);
         ApplyState();
         SetHighlight(false);
         StartCoroutine(EnableRepairAfterDelay());
@@ -334,11 +335,31 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         ApplyState();
     }
 
+    public void SetPanicMode()
+    {
+        if (!isServer) return;
+        SetPanicModeForAll();
+    }
+
+    [ObserversRpc(runLocally:true, requireServer:true)]
+    private void SetPanicModeForAll()
+    {
+        m_isPanicMode = true;
+        SetHighlight(false);
+        ApplyRenderingLayer();
+        if (m_isQteRunning)
+        {
+            QteCircle qte = FindAnyObjectByType<QteCircle>();
+            qte?.CancelQte();
+        }
+    }
+
     [ObserversRpc(runLocally:true, requireServer:true)]
     private void UnsabotageForAll()
     {
         m_isSabotaged = false;
         m_repairEnabled = false;
+        m_interactPrefab.SetActive(false);
         ApplyState();
         SetHighlight(false);
     }
@@ -359,7 +380,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         foreach (Renderer renderer in m_highlightRenderers)
         {
             renderer.renderingLayerMask = 0;
-            RenderingLayerMask activeLayer = (m_isSabotaged && m_repairEnabled) ? m_sabotagedLayer : (m_isSabotable && !m_isSabotaged ? m_notSabotagedLayer : default);
+            RenderingLayerMask activeLayer = m_isPanicMode ? default : ((m_isSabotaged && m_repairEnabled) ? m_sabotagedLayer : (m_isSabotable && !m_isSabotaged ? m_notSabotagedLayer : default));
             renderer.renderingLayerMask |= activeLayer + (uint)RenderingLayerMask.defaultRenderingLayerMask;
         }
         if (m_vfx != null)

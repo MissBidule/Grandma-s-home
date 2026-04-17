@@ -10,15 +10,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 054d23204be6bfa4daf7e879656877a2, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.77
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 054d23204be6bfa4daf7e879656877a2, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.00086982443
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 054d23204be6bfa4daf7e879656877a2, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 30.482582
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 054d23204be6bfa4daf7e879656877a2, type: 3}
       propertyPath: m_LocalRotation.w
@@ -83,6 +83,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5acd96b0ff59994d8438732e92270fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BrokeDecor
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -90,8 +92,6 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   m_brokenMesh: {fileID: 0}
   m_additionalMeshes: []
   m_brokenPrefab: {fileID: 4988350463373006251, guid: 463f7b98104d34bafa70e5f6f426de99, type: 3}
@@ -110,6 +110,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8397364f11af50243bf70bb96ef6da4b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScannableObject
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -117,8 +119,6 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   m_icon: {fileID: 21300000, guid: 339b74dbb9f333f40be3debc1cb8b83d, type: 3}
 --- !u!64 &-7567008072072891878
 MeshCollider:
@@ -139,6 +139,6 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 2534964839176971238, guid: 054d23204be6bfa4daf7e879656877a2, type: 3}
