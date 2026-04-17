@@ -25,8 +25,8 @@ public class LightTimer : MonoBehaviour
         InstanceHandler.UnregisterInstance<LightOnSystem>();
     }
 
-    public void StartLightSystem(float _serverGameTime)
+    public void StartLightSystem(float _serverGameTime, int _seed)
     {
-        m_dayNightSystem.UpdateSky(_serverGameTime);
+        m_dayNightSystem.UpdateSky(_serverGameTime, _seed);
     }
 }

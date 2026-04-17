@@ -10,12 +10,7 @@ public class LightOnSystem : MonoBehaviour
     private bool running = true;
 
     void Start() {
-        lights = new List<LightData>();
-        //trouve tout les pointlight avec le script LightData pour les ajouter à la liste
-        LightData[] allLights = FindObjectsByType<LightData>(FindObjectsSortMode.None);
-        foreach (var ld in allLights) {
-            lights.Add(ld);
-        }
+        
 
         //print les éléments de la liste pour vérification
         // foreach (var ld in lights) {
@@ -25,6 +20,12 @@ public class LightOnSystem : MonoBehaviour
 
     public void TurnOnLights() {
         if (!running) return;
+        lights = new List<LightData>();
+        //trouve tout les pointlight avec le script LightData pour les ajouter à la liste
+        LightData[] allLights = FindObjectsByType<LightData>(FindObjectsSortMode.None);
+        foreach (var ld in allLights) {
+            lights.Add(ld);
+        }
         StartCoroutine(LightsOn());
     }
 

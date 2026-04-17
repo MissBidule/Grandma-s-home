@@ -23,6 +23,7 @@ public class CustomConnectedText : MonoBehaviour
     private Coroutine m_typewriterEffect0;
     private Coroutine m_typewriterEffect1;
     private Coroutine m_typewriterEffect2;
+    public bool tuto = false;
     
     private void Awake()
     {
@@ -102,7 +103,18 @@ public class CustomConnectedText : MonoBehaviour
             PurrLogger.LogError($"Failed to get {nameof(StateMachine)} component.", this);
             return;
         }
-        else ((PlayerSpawningState)stateMachine.states[1]).StartMachine();
+        else 
+        {
+            if(tuto)
+            {
+                ((TutoPlayerSpawningState)stateMachine.states[1]).StartMachine();
+            }
+            else
+            {
+                ((PlayerSpawningState)stateMachine.states[1]).StartMachine();
+            }
+
+        }
     }
 
     private WaitForSeconds m_wait = new(0.005f);

@@ -25,7 +25,7 @@ namespace PurrLobby
         private static readonly string KeyColorblind          = "Settings_Colorblind";
         private static readonly string KeyColorblindIntensity = "Settings_ColorblindIntensity";
         private static readonly string KeySensitivity         = "Settings_MouseSensitivity";
-        public  static readonly float  DefaultSensitivity     = 120f;
+        public  static readonly float  DefaultSensitivity     = 45f;
 
         public static event System.Action<float> OnSensitivityChanged;
 
