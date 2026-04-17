@@ -16,10 +16,14 @@ namespace PurrLobby
         private bool m_isSomeoneInGame = false;
         private RoleKeeper m_roleKeeper;
         private bool m_lastInGameState = false;
+        // ? FIX BUG #2: Cache LobbyManager reference instead of calling FindAnyObjectByType in loop
+        private LobbyManager m_lobbyManager;
 
         void Start()
         {
-            m_roleKeeper = FindAnyObjectByType<RoleKeeper>();  
+            m_roleKeeper = FindAnyObjectByType<RoleKeeper>();
+            // ? FIX BUG #2: Get LobbyManager once at start
+            m_lobbyManager = FindAnyObjectByType<LobbyManager>();
         }
 
         public void LobbyDataUpdate(Lobby room)
@@ -28,7 +32,11 @@ namespace PurrLobby
                 return;
 
             if (m_roleKeeper == null)
-                m_roleKeeper = FindAnyObjectByType<RoleKeeper>();            
+                m_roleKeeper = FindAnyObjectByType<RoleKeeper>();
+            
+            // ? FIX BUG #2: Cache if not already cached
+            if (m_lobbyManager == null)
+                m_lobbyManager = FindAnyObjectByType<LobbyManager>();
 
             HandleExistingMembers(room);
             HandleNewMembers(room);
@@ -96,8 +104,17 @@ namespace PurrLobby
                 var entry = Instantiate(memberEntryPrefab, content);
                 entry.readyButton = readyButton;
                 entry.roleButton = roleButton;
-                entry._lobbyManager = FindAnyObjectByType<LobbyManager>();
-                entry._ownId = await entry._lobbyManager.GetPlayer();
+                // ? FIX BUG #2: Use cached reference instead of FindAnyObjectByType
+                entry._lobbyManager = m_lobbyManager;
+                
+                try {
+                    entry._ownId = await entry._lobbyManager.GetPlayer();
+                }
+                catch (Exception ex) {
+                    PurrLogger.LogError($"Failed to get player for member {member.Id}: {ex.Message}", this);
+                    continue;
+                }
+                
                 entry.Init(member);
                 m_roleKeeper.AddRole(member.Id, member.DisplayName, member.IsGhost, member.Skin, entry._ownId == member.Id);
                 entry.SetRole(member.IsGhost, member.Skin);

@@ -264,9 +264,39 @@ namespace PurrLobby
 
         private IEnumerator StartClient()
         {
-            // Brief delay to ensure server is fully listening before client connects
-            yield return new WaitForSeconds(1f);
-            _networkManager.StartClient();
+            PurrLogger.Log("Waiting for server to be ready...", this);
+            
+            // ? FIX BUG #5: Wait for server to be ready instead of fixed delay
+            float timeoutTime = Time.time + 10f;
+            while (Time.time < timeoutTime)
+            {
+                // Check if the server is running
+                if (_networkManager && _networkManager.isActiveAndEnabled)
+                {
+                    PurrLogger.Log("Server is ready, starting client...", this);
+                    break;
+                }
+                
+                yield return new WaitForSeconds(0.1f);
+            }
+            
+            if (Time.time >= timeoutTime)
+            {
+                PurrLogger.LogWarning("Server didn't respond within 10 seconds, connecting anyway", this);
+            }
+            
+            // Minimum delay to ensure server is fully initialized
+            yield return new WaitForSeconds(0.5f);
+            
+            if (_networkManager)
+            {
+                PurrLogger.Log("Starting client connection...", this);
+                _networkManager.StartClient();
+            }
+            else
+            {
+                PurrLogger.LogError("NetworkManager not available when trying to start client!", this);
+            }
         }
     }
 }

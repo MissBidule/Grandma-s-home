@@ -39,12 +39,23 @@ namespace PurrLobby
         public UnityEvent onInitialized = new UnityEvent();
         public UnityEvent onShutdown = new UnityEvent();
 
-        public ILobbyProvider CurrentProvider => currentProvider as ILobbyProvider;
+    public ILobbyProvider CurrentProvider => currentProvider as ILobbyProvider;
 
-        private bool _restartGame = false;
-        private bool _restartAsked = false;
+    private bool _restartGame = false;
+    private bool _restartAsked = false;
 
-        private Lobby _currentLobby
+    // ? FIX BUG #1: Store named event handlers to properly unsubscribe
+    private UnityAction<Lobby> _onLobbyUpdatedHandler1;
+    private UnityAction<Lobby> _onLobbyUpdatedHandler2;
+    private UnityAction<string> _onLobbyJoinFailedHandler;
+    private UnityAction _onLobbyLeftHandler;
+    private UnityAction<List<LobbyUser>> _onLobbyPlayerListUpdatedHandler;
+    private UnityAction<string> _onErrorHandler;
+
+    // ? FIX BUG #3: Store reconnect coroutine to prevent duplicates
+    private Coroutine _reconnectCoroutine;
+
+    private Lobby _currentLobby
         {
             get
             {
@@ -190,6 +201,64 @@ namespace PurrLobby
             _restartGame = false;
         }
 
+        // ? FIX BUG #3: New unified reconnect coroutine (replaces async method issue)
+        private IEnumerator ReconnectCoroutine()
+        {
+            PurrLogger.Log("Starting lobby reconnect...", this);
+            
+            // Small pause to ensure everything is ready
+            yield return new WaitForSeconds(0.1f);
+            
+            FindAnyObjectByType<RoleKeeper>().DeleteList();
+            EnsureProviderSet();
+            
+            if (_lobbyDataHolder.CurrentLobby.IsOwner)
+            {
+                PurrLogger.Log("Reconnecting as host...", this);
+                yield return StartCoroutine(ReconnectAsHostCoroutine());
+            }
+            else
+            {
+                PurrLogger.Log("Reconnecting as client...", this);
+                yield return StartCoroutine(ReconnectAsClientCoroutine());
+            }
+            
+            _reconnectCoroutine = null;
+        }
+
+        private IEnumerator ReconnectAsHostCoroutine()
+        {
+            yield return _currentProvider.OnLobbyUpdateData(_currentLobby.LobbyId);
+            m_loadingCanvas.gameObject.SetActive(false);
+            _viewManager.BackToLobby();
+            UpdateLobbyOnScreen();
+            _elapsedTime = _refreshRate;
+            _restartGame = false;
+        }
+
+        private IEnumerator ReconnectAsClientCoroutine()
+        {
+            yield return _currentProvider.JoinLobbyAsync(_currentLobby.LobbyId);
+            
+            var room = _currentLobby;
+            if (room.IsValid)
+            {
+                _viewManager.BackToLobby();
+                UpdateLobbyOnScreen();
+                m_loading = true;
+                _currentLobby = room;
+                OnRoomJoined?.Invoke(room);
+            }
+            else
+            {
+                m_loading = false;
+                OnRoomJoinFailed?.Invoke($"Failed to join room {_currentLobby.LobbyId}");
+            }
+            
+            _elapsedTime = _refreshRate;
+            _restartGame = false;
+        }
+
         public void UpdateLobbyOnScreen()
         {
             if (IsStarting) return;
@@ -205,9 +274,53 @@ namespace PurrLobby
                 }
             }
 
-            m_serverName.transform.GetChild(0).GetComponentInChildren<TextMeshProUGUI>().text = _currentLobby.Name.ToUpper();
-            m_serverType.GetComponentInChildren<TextMeshProUGUI>().text = _currentLobby.IsPrivate ? "Private" : "Public";     
-            m_playerCount.transform.GetChild(0).GetComponentInChildren<TextMeshProUGUI>().text = "Max players (" + _currentLobby.MaxPlayers + ")";
+            // ? FIX BUG #7: Add validation before UI access
+            if (!_currentLobby.IsValid)
+            {
+                PurrLogger.LogError("Cannot update lobby screen: lobby is invalid", this);
+                return;
+            }
+
+            if (m_serverName == null)
+            {
+                PurrLogger.LogError("m_serverName is null", this);
+                return;
+            }
+
+            // Safe UI access with null checks
+            var serverNameChild = m_serverName.transform.GetChild(0);
+            if (serverNameChild == null)
+            {
+                PurrLogger.LogError("m_serverName doesn't have a child", this);
+                return;
+            }
+
+            var serverNameText = serverNameChild.GetComponentInChildren<TextMeshProUGUI>();
+            if (serverNameText == null)
+            {
+                PurrLogger.LogError("No TextMeshProUGUI found in m_serverName's child", this);
+                return;
+            }
+
+            serverNameText.text = _currentLobby.Name.ToUpper();
+
+            if (m_serverType != null)
+            {
+                var serverTypeText = m_serverType.GetComponentInChildren<TextMeshProUGUI>();
+                if (serverTypeText != null)
+                {
+                    serverTypeText.text = _currentLobby.IsPrivate ? "Private" : "Public";
+                }
+            }
+
+            if (m_playerCount != null && m_playerCount.transform.childCount > 0)
+            {
+                var playerCountText = m_playerCount.transform.GetChild(0).GetComponentInChildren<TextMeshProUGUI>();
+                if (playerCountText != null)
+                {
+                    playerCountText.text = "Max players (" + _currentLobby.MaxPlayers + ")";
+                }
+            }
         }
 
         private void Update()
@@ -215,14 +328,17 @@ namespace PurrLobby
             if (_restartAsked)
             {
                 m_loadingCanvas.gameObject.SetActive(true);
-                if (_lobbyDataHolder.CurrentLobby.IsOwner) 
-                { 
-                    _ = ReconnectToLobbyAsync();
-                }
-                else
+                
+                // ? FIX BUG #3: Cancel any previous reconnect coroutine
+                if (_reconnectCoroutine != null)
                 {
-                    Invoke("ReconnectToLobbyAsync", .5f);
+                    StopCoroutine(_reconnectCoroutine);
+                    _reconnectCoroutine = null;
                 }
+                
+                // ? FIX BUG #3: Use coroutine for both host and client (unified approach)
+                _reconnectCoroutine = StartCoroutine(ReconnectCoroutine());
+                
                 _restartAsked = false;
                 _restartGame = true;
             }
@@ -286,15 +402,16 @@ namespace PurrLobby
         // Subscribe to provider events
         private void SubscribeToProviderEvents()
         {
-            _currentProvider.OnLobbyJoinFailed += message => InvokeDelayed(() => OnRoomJoinFailed.Invoke(message));
-            _currentProvider.OnLobbyLeft += () => InvokeDelayed(() =>
+            // ? FIX BUG #1: Create named handlers instead of anonymous lambdas
+            _onLobbyJoinFailedHandler = message => InvokeDelayed(() => OnRoomJoinFailed.Invoke(message));
+            _onLobbyLeftHandler = () => InvokeDelayed(() =>
             {
                 _lastKnownState = default;
                 _currentLobby = default;
                 OnRoomLeft?.Invoke();
             });
             
-            _currentProvider.OnLobbyUpdated += room => InvokeDelayed(() =>
+            _onLobbyUpdatedHandler1 = room => InvokeDelayed(() =>
             {
                 if(!_lastKnownState.HasChanged(room) || room.Members.Count <= 0 || !room.IsValid) return;
 
@@ -316,39 +433,44 @@ namespace PurrLobby
                     m_loadingCanvas.gameObject.SetActive(true);
                     CallOnAllReady();
                 }
-            });
-
-            _currentProvider.OnLobbyPlayerListUpdated += players => InvokeDelayed(() => OnPlayerListUpdated.Invoke(players));
-            _currentProvider.OnError += error => InvokeDelayed(() => OnError.Invoke(error));
-            
-            _currentProvider.OnLobbyUpdated += room =>
-            {
+                
+                // ? FIX BUG #6: Combine with second OnLobbyUpdated logic (removed duplicate handler)
                 if (room.IsValid && m_loading)
                 {
                     m_loading = false;
                     InvokeDelayed(() => OnRoomJoined?.Invoke(room));
                 }
-            };
+            });
+
+            _onLobbyPlayerListUpdatedHandler = players => InvokeDelayed(() => OnPlayerListUpdated.Invoke(players));
+            _onErrorHandler = error => InvokeDelayed(() => OnError.Invoke(error));
+            
+            // Subscribe with named handlers
+            _currentProvider.OnLobbyJoinFailed += _onLobbyJoinFailedHandler;
+            _currentProvider.OnLobbyLeft += _onLobbyLeftHandler;
+            _currentProvider.OnLobbyUpdated += _onLobbyUpdatedHandler1;
+            _currentProvider.OnLobbyPlayerListUpdated += _onLobbyPlayerListUpdatedHandler;
+            _currentProvider.OnError += _onErrorHandler;
         }
 
         // Unsubscribe from provider events
         private void UnsubscribeFromProviderEvents()
         {
-            _currentProvider.OnLobbyJoinFailed -= message => InvokeDelayed(() => OnRoomJoinFailed.Invoke(message));
-            _currentProvider.OnLobbyLeft -= () => InvokeDelayed(() => OnRoomLeft.Invoke());
-            _currentProvider.OnLobbyUpdated -= room => InvokeDelayed(() => OnRoomUpdated.Invoke(room));
-            _currentProvider.OnLobbyPlayerListUpdated -= players => InvokeDelayed(() => OnPlayerListUpdated.Invoke(players));
-            _currentProvider.OnError -= error => InvokeDelayed(() => OnError.Invoke(error));
-
-            // ReSharper disable once EventUnsubscriptionViaAnonymousDelegate
-            _currentProvider.OnLobbyUpdated -= room =>
-            {
-                if (room.IsValid && m_loading)
-                {
-                    m_loading = false;
-                    InvokeDelayed(() => OnRoomJoined?.Invoke(room));
-                }
-            };
+            if (_currentProvider == null) return;
+            
+            // ? FIX BUG #1: Unsubscribe with the SAME named handlers
+            _currentProvider.OnLobbyJoinFailed -= _onLobbyJoinFailedHandler;
+            _currentProvider.OnLobbyLeft -= _onLobbyLeftHandler;
+            _currentProvider.OnLobbyUpdated -= _onLobbyUpdatedHandler1;
+            _currentProvider.OnLobbyPlayerListUpdated -= _onLobbyPlayerListUpdatedHandler;
+            _currentProvider.OnError -= _onErrorHandler;
+            
+            // Clean up references
+            _onLobbyJoinFailedHandler = null;
+            _onLobbyUpdatedHandler1 = null;
+            _onLobbyLeftHandler = null;
+            _onLobbyPlayerListUpdatedHandler = null;
+            _onErrorHandler = null;
         }
 
         /// <summary>
@@ -747,7 +869,18 @@ namespace PurrLobby
 
         public void SetLobbyStarted()
         {
-            _currentProvider.SetLobbyStartedAsync();
+            // ? FIX BUG #8: Use proper RunTask instead of fire-and-forget
+            RunTask(async () => {
+                EnsureProviderSet();
+                try {
+                    await _currentProvider.SetLobbyStartedAsync();
+                    PurrLogger.Log("Lobby marked as started", this);
+                }
+                catch (Exception ex) {
+                    PurrLogger.LogError($"Failed to mark lobby as started: {ex.Message}", this);
+                    OnError?.Invoke($"Failed to start lobby: {ex.Message}");
+                }
+            });
         }
 
         [System.Serializable]
