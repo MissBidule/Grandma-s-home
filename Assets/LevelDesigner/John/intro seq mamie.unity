@@ -14,8 +14,8 @@ OcclusionCullingSettings:
 RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 10
-  m_Fog: 0
-  m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  m_Fog: 1
+  m_FogColor: {r: 0.7509433, g: 0.50932866, b: 0.28195786, a: 1}
   m_FogMode: 3
   m_FogDensity: 0.01
   m_LinearFogStart: 0
@@ -32263,15 +32263,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5968734593309141945, guid: 0b912e9003fba894faa88cf964a6fb8a, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.38
+      value: 3.07
       objectReference: {fileID: 0}
     - target: {fileID: 5968734593309141945, guid: 0b912e9003fba894faa88cf964a6fb8a, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 15.08
+      value: 15.11
       objectReference: {fileID: 0}
     - target: {fileID: 5968734593309141945, guid: 0b912e9003fba894faa88cf964a6fb8a, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 92.29
+      value: 92.43
       objectReference: {fileID: 0}
     - target: {fileID: 5968734593309141945, guid: 0b912e9003fba894faa88cf964a6fb8a, type: 3}
       propertyPath: m_LocalRotation.w
@@ -67633,6 +67633,18 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 1d3805d5430245c48a735151dea79f64, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8441776943928729041, guid: 1d3805d5430245c48a735151dea79f64, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -3196511607817033700, guid: 1d3805d5430245c48a735151dea79f64, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -3169693613644141310, guid: 1d3805d5430245c48a735151dea79f64, type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -3169693613644141310, guid: 1d3805d5430245c48a735151dea79f64, type: 3}
       propertyPath: 'm_Materials.Array.data[6]'
@@ -237793,7 +237805,12 @@ Animator:
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_AnimatePhysics: 0
-  m_WarningMessage: 
+  m_WarningMessage: "\nBinding warning: Some generic clip(s) animate transforms that
+    are already bound by a Humanoid avatar. These transforms can only be changed
+    by Humanoid clips.\n\tTransform 'DEF_arm_01.l'\n\tTransform 'DEF_leg_01.l'\n\tTransform
+    'DEF_clavicle.r'\n\tTransform 'DEF_arm_02.l'\n\tTransform 'DEF_spine_01'\n\tTransform
+    'DEF_arm_01.r'\n\tTransform 'DEF_foot_r'\n\tTransform 'DEF_foot_l'\n\tTransform
+    'DEF_arm_02.r'\n\tTransform 'DEF_hand.r'\n\tand more ..."
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
