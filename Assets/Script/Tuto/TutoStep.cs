@@ -8,10 +8,5 @@ using UnityEngine;
 public class TutorialStep
 {
     [TextArea] public string message;
-
-    public bool waitForAction; //a retirer
-
-    public string actionName;
-
     public float duration = 3f;
 }

@@ -77,15 +77,12 @@ public class TutoInstructions : MonoBehaviour
 
         var step = m_steps[m_currentStep];
 
-        if (!step.waitForAction) // a retirer
-        {
             m_timer += Time.deltaTime;
 
             if (m_timer >= step.duration)
             {
                 NextStep();
             }
-        }
     }
 
     void ShowStep()
