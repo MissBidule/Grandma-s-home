@@ -56,6 +56,11 @@ namespace Script.States
         {
             List<PlayerControllerCore> spawnedPlayers = new List<PlayerControllerCore>();
             RoleKeeper roleKeeper = FindAnyObjectByType<RoleKeeper>();
+            if (roleKeeper == null)
+            {
+                PurrLogger.LogError("RoleKeeper not found during player spawn!", this);
+                return spawnedPlayers;
+            }
 
             int currentSpawnChildIndex = 0;
             int currentSpawnGhostIndex = 0;
@@ -65,25 +70,27 @@ namespace Script.States
                     continue;
 
                 //CONNECTION
-                networkManager.GetModule<PlayersManager>(m_isServer).TryGetConnection(player, out Connection conn);
+                if (!networkManager.GetModule<PlayersManager>(m_isServer).TryGetConnection(player, out Connection conn))
+                    continue;
 
                 bool isGhost = roleKeeper.IsGhost(conn.connectionId);
 
-                Transform spawnPoint,spawnPoint2;
-                PlayerControllerCore newPlayer, newPlayer2;
+                Transform spawnPoint;
+                PlayerControllerCore newPlayer;
 
-                spawnPoint = m_ghostSpawnPoints[0];
-                newPlayer = UnityProxy.Instantiate(m_ghostPrefab, spawnPoint.position, spawnPoint.rotation);
+                if (isGhost)
+                {
+                    spawnPoint = m_ghostSpawnPoints[currentSpawnGhostIndex++ % m_ghostSpawnPoints.Count];
+                    newPlayer = UnityProxy.Instantiate(m_ghostPrefab, spawnPoint.position, spawnPoint.rotation);
+                }
+                else
+                {
+                    spawnPoint = m_childSpawnPoints[currentSpawnChildIndex++ % m_childSpawnPoints.Count];
+                    newPlayer = UnityProxy.Instantiate(m_childPrefab, spawnPoint.position, spawnPoint.rotation);
+                }
 
-                spawnPoint2 = m_childSpawnPoints[0];
-                newPlayer2 = UnityProxy.Instantiate(m_childPrefab, spawnPoint2.position, spawnPoint2.rotation);
-
-                
                 newPlayer.GiveOwnership(player);
-                newPlayer2.GiveOwnership(player);
-
                 spawnedPlayers.Add(newPlayer);
-                spawnedPlayers.Add(newPlayer2);
             }
 
             return spawnedPlayers;

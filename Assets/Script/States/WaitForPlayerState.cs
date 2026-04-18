@@ -13,7 +13,7 @@ namespace Script.States
     {
         // Need to be updated to wait for the number of player in the lobby
         [SerializeField] private int m_minPlayers = 1;
-        [SerializeField] private int m_numPlayers = -1;
+        [SerializeField] private int m_numPlayers = 0;
 
         public void set_numPlayers(int _numPlayers)
         {
@@ -33,8 +33,11 @@ namespace Script.States
 
         private IEnumerator WaitForPlayers()
         {
-            if (m_minPlayers == -1)
-                yield return null;
+            if (m_minPlayers <= 0)
+            {
+                machine.Next();
+                yield break;
+            }
 
             while (m_numPlayers < m_minPlayers)
                 yield return null;

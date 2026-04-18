@@ -77,6 +77,12 @@ namespace PurrLobby
         private bool m_loading = false;
         SceneSwitcher m_sceneSwitcher;
 
+        private Action<string> _onLobbyJoinFailedHandler;
+        private Action _onLobbyLeftHandler;
+        private Action<Lobby> _onLobbyUpdatedHandler;
+        private Action<List<LobbyUser>> _onPlayerListUpdatedHandler;
+        private Action<string> _onErrorHandler;
+
         private void Awake()
         {
             DontDestroyOnLoad(gameObject);
@@ -157,7 +163,7 @@ namespace PurrLobby
 
         private async Task ReconnectToLobbyAsync()
         {
-            FindAnyObjectByType<RoleKeeper>().DeleteList();
+            FindAnyObjectByType<RoleKeeper>()?.DeleteList();
             EnsureProviderSet(); 
             
             if (_lobbyDataHolder.CurrentLobby.IsOwner) 
@@ -215,14 +221,7 @@ namespace PurrLobby
             if (_restartAsked)
             {
                 m_loadingCanvas.gameObject.SetActive(true);
-                if (_lobbyDataHolder.CurrentLobby.IsOwner) 
-                { 
-                    _ = ReconnectToLobbyAsync();
-                }
-                else
-                {
-                    Invoke("ReconnectToLobbyAsync", .5f);
-                }
+                _ = ReconnectToLobbyAsync();
                 _restartAsked = false;
                 _restartGame = true;
             }
@@ -286,69 +285,61 @@ namespace PurrLobby
         // Subscribe to provider events
         private void SubscribeToProviderEvents()
         {
-            _currentProvider.OnLobbyJoinFailed += message => InvokeDelayed(() => OnRoomJoinFailed.Invoke(message));
-            _currentProvider.OnLobbyLeft += () => InvokeDelayed(() =>
+            _onLobbyJoinFailedHandler = message => InvokeDelayed(() => OnRoomJoinFailed.Invoke(message));
+            _onLobbyLeftHandler = () => InvokeDelayed(() =>
             {
                 _lastKnownState = default;
                 _currentLobby = default;
                 OnRoomLeft?.Invoke();
             });
-            
-            _currentProvider.OnLobbyUpdated += room => InvokeDelayed(() =>
-            {
-                if(!_lastKnownState.HasChanged(room) || room.Members.Count <= 0 || !room.IsValid) return;
-
-                _lastKnownState = room;
-                _currentLobby = room;
-                
-                // Update LobbyDataHolder with player count
-                if (_lobbyDataHolder != null && _viewManager != null)
-                {
-                    PurrLogger.Log($"Updating player count: {room.Members.Count}", this);
-                    _lobbyDataHolder.setNumber_of_player_in_lobby(room.Members.Count);
-                }
-                
-                OnRoomUpdated?.Invoke(room);
-
-                if (!IsStarting && room.Members.TrueForAll(x => x.IsReady))
-                {
-                    IsStarting = true; //Prevent calling ready again if lobby is updated after all ready
-                    m_loadingCanvas.gameObject.SetActive(true);
-                    CallOnAllReady();
-                }
-            });
-
-            _currentProvider.OnLobbyPlayerListUpdated += players => InvokeDelayed(() => OnPlayerListUpdated.Invoke(players));
-            _currentProvider.OnError += error => InvokeDelayed(() => OnError.Invoke(error));
-            
-            _currentProvider.OnLobbyUpdated += room =>
+            _onLobbyUpdatedHandler = room =>
             {
                 if (room.IsValid && m_loading)
                 {
                     m_loading = false;
                     InvokeDelayed(() => OnRoomJoined?.Invoke(room));
                 }
+                InvokeDelayed(() =>
+                {
+                    if (!_lastKnownState.HasChanged(room) || room.Members.Count <= 0 || !room.IsValid) return;
+
+                    _lastKnownState = room;
+                    _currentLobby = room;
+
+                    if (_lobbyDataHolder != null && _viewManager != null)
+                    {
+                        PurrLogger.Log($"Updating player count: {room.Members.Count}", this);
+                        _lobbyDataHolder.setNumber_of_player_in_lobby(room.Members.Count);
+                    }
+
+                    OnRoomUpdated?.Invoke(room);
+
+                    if (!IsStarting && room.Members.TrueForAll(x => x.IsReady))
+                    {
+                        IsStarting = true;
+                        m_loadingCanvas.gameObject.SetActive(true);
+                        CallOnAllReady();
+                    }
+                });
             };
+            _onPlayerListUpdatedHandler = players => InvokeDelayed(() => OnPlayerListUpdated.Invoke(players));
+            _onErrorHandler = error => InvokeDelayed(() => OnError.Invoke(error));
+
+            _currentProvider.OnLobbyJoinFailed += _onLobbyJoinFailedHandler;
+            _currentProvider.OnLobbyLeft += _onLobbyLeftHandler;
+            _currentProvider.OnLobbyUpdated += _onLobbyUpdatedHandler;
+            _currentProvider.OnLobbyPlayerListUpdated += _onPlayerListUpdatedHandler;
+            _currentProvider.OnError += _onErrorHandler;
         }
 
         // Unsubscribe from provider events
         private void UnsubscribeFromProviderEvents()
         {
-            _currentProvider.OnLobbyJoinFailed -= message => InvokeDelayed(() => OnRoomJoinFailed.Invoke(message));
-            _currentProvider.OnLobbyLeft -= () => InvokeDelayed(() => OnRoomLeft.Invoke());
-            _currentProvider.OnLobbyUpdated -= room => InvokeDelayed(() => OnRoomUpdated.Invoke(room));
-            _currentProvider.OnLobbyPlayerListUpdated -= players => InvokeDelayed(() => OnPlayerListUpdated.Invoke(players));
-            _currentProvider.OnError -= error => InvokeDelayed(() => OnError.Invoke(error));
-
-            // ReSharper disable once EventUnsubscriptionViaAnonymousDelegate
-            _currentProvider.OnLobbyUpdated -= room =>
-            {
-                if (room.IsValid && m_loading)
-                {
-                    m_loading = false;
-                    InvokeDelayed(() => OnRoomJoined?.Invoke(room));
-                }
-            };
+            _currentProvider.OnLobbyJoinFailed -= _onLobbyJoinFailedHandler;
+            _currentProvider.OnLobbyLeft -= _onLobbyLeftHandler;
+            _currentProvider.OnLobbyUpdated -= _onLobbyUpdatedHandler;
+            _currentProvider.OnLobbyPlayerListUpdated -= _onPlayerListUpdatedHandler;
+            _currentProvider.OnError -= _onErrorHandler;
         }
 
         /// <summary>

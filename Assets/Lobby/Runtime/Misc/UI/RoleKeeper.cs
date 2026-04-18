@@ -34,13 +34,7 @@ namespace PurrLobby
         
         public void RemoveRole(string _roleId)
         {
-            foreach (Role role in m_roles)
-            {
-                if (role.m_roleId == _roleId) {
-                    m_roles.Remove(role);
-                    return;
-                }
-            }
+            m_roles.RemoveAll(role => role.m_roleId == _roleId);
         }
 
         public void SwitchRole(string _roleId, bool _isGhost, int _skin)

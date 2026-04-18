@@ -56,6 +56,11 @@ namespace Script.States
         {
             List<PlayerControllerCore> spawnedPlayers = new List<PlayerControllerCore>();
             RoleKeeper roleKeeper = FindAnyObjectByType<RoleKeeper>();
+            if (roleKeeper == null)
+            {
+                PurrLogger.LogError("RoleKeeper not found during player spawn!", this);
+                return spawnedPlayers;
+            }
 
             int currentSpawnChildIndex = 0;
             int currentSpawnGhostIndex = 0;
@@ -65,7 +70,8 @@ namespace Script.States
                     continue;
 
                 //CONNECTION
-                networkManager.GetModule<PlayersManager>(m_isServer).TryGetConnection(player, out Connection conn);
+                if (!networkManager.GetModule<PlayersManager>(m_isServer).TryGetConnection(player, out Connection conn))
+                    continue;
 
                 bool isGhost = roleKeeper.IsGhost(conn.connectionId);
 
