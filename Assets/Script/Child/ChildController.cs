@@ -98,7 +98,7 @@ public class ChildController : PlayerControllerCore
         //if (m_isScared) return; // Return if the player is scared
         if (m_switchingTime < m_cdSwitch) return;
         callAnimationSetBool("Cac",!m_isRanged);
-        changeFaceMat(new Vector2(0,0.33f));
+        changeFaceMat(new Vector2(0,0.66f));
         if (m_isRanged)
         {
             if (m_lastShot >= m_cdGun)
@@ -163,7 +163,7 @@ public class ChildController : PlayerControllerCore
         //PurrLogger.Log("Ghost Touch", this);
         UpdateScaredToAll(m_isScared);
         StartCoroutine(ScaredTimer(m_scaredDuration));
-        changeFaceMat(new Vector2(0.33f,0.33f));
+        changeFaceMat(new Vector2(0f,0.33f));
     }
     
     [ObserversRpc(runLocally:true)]
