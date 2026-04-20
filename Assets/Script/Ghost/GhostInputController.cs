@@ -22,6 +22,7 @@ public class GhostInputController : MonoBehaviour
     private Interact m_ghostInteract;
     private TutoInstructions m_tutoChildInstructions;
     public QteCircle m_qteCircle;
+    private int m_lastInteractFrame = -1;
 
     private bool isOwner => m_ghostClientController != null && m_ghostClientController.isOwner;
 
@@ -109,7 +110,7 @@ public class GhostInputController : MonoBehaviour
             m_ghostClientController.OnScan();
             var wheel = m_ghostClientController.m_wheel;
             if (wheel == null || !wheel.m_isWaitingForSlotSelection)
-                InteractPromptUI.m_Instance.ShowDynamic(() => InputBindingHelper.BuildPrompt("Ghost", "TransformConfirm", m_promptLabelValid));
+                InteractPromptUI.m_Instance.ShowDynamic(() => InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelValid));
         }
     }
 
@@ -154,16 +155,38 @@ public class GhostInputController : MonoBehaviour
         if (_context.performed)
         {
             if (m_ghostClientController.m_wheel != null && m_ghostClientController.m_wheel.IsWheelOpen()) return;
-            if (m_ghostMorphPreview.m_currentPrefab != null)
+            bool canMorphNow = m_ghostMorphPreview.m_currentPrefab != null
+                               && m_ghostMorphPreview.m_canMorph
+                               && !GetComponent<GhostMorph>().m_isMorphed;
+            if (canMorphNow)
             {
+                m_lastInteractFrame = Time.frameCount;
                 m_ghostClientController.OnMorph();
                 return;
             }
+            m_lastInteractFrame = Time.frameCount;
             m_ghostInteract.OnInteract(m_ghostInteract.m_onFocus);
         }
         else if (_context.canceled)
         {
             m_ghostInteract.StopInteract(m_ghostInteract.m_onFocus);
+        }
+    }
+
+    /*
+     * @brief OnCancel is called by the Input System when cancel input is detected
+     * @param _context: The context of the input action
+     * @return void
+     */
+    public void OnCancel(InputAction.CallbackContext _context)
+    {
+        if (!isOwner) return;
+        if (_context.performed)
+        {
+            // Prevent double-dispatch when Cancel shares a binding with Interact
+            if (m_lastInteractFrame == Time.frameCount) return;
+            if (!m_qteCircle) m_qteCircle = FindAnyObjectByType<QteCircle>();
+            if (m_qteCircle != null && m_qteCircle.m_isRunning) m_qteCircle.CancelQte();
         }
     }
     

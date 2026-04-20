@@ -479,13 +479,59 @@ public class SettingsCanvasController : MonoBehaviour
 
     // ── CONTROLS ─────────────────────────────────────────────────────────
 
-    private static readonly (string map, string action, string label)[] ChildBinds = {
-        ("Child","Attack","Attack"), ("Child","Interact","Interact"), ("Child","Jump","Jump"),
-        ("Child","Sneak","Sneak"), ("Child","Change_weapon","Change Weapon"), ("Child","Hint","Show Hint"),
+    // (map, action, compositePart or null for simple, label)
+    private static readonly (string map, string action, string part, string label)[] ChildBinds = {
+        ("Child","Attack",            null, "Attack"),
+        ("Child","Interact",          null, "Interact"),
+        ("Child","Jump",              null, "Jump"),
+        ("Child","Sneak",             null, "Sneak"),
+        ("Child","Change_weapon",     null, "Change Weapon"),
+        ("Child","Cancel",            null, "Cancel"),
+        ("Child","Leaderboard",       null, "Leaderboard"),
+        ("Child","PushToTalk",        null, "Push to Talk"),
+        ("Child","Move",              "up",    "Forward"),
+        ("Child","Move",              "down",  "Backward"),
+        ("Child","Move",              "left",  "Left"),
+        ("Child","Move",              "right", "Right"),
     };
-    private static readonly (string map, string action, string label)[] GhostBinds = {
-        ("Ghost","Interact","Interact"), ("Ghost","Scan","Scan"), ("Ghost","Dash","Dash"),
-        ("Ghost","Sneak","Sneak"), ("Ghost","RotatePreviewLeft","Rotate Left"), ("Ghost","RotatePreviewRight","Rotate Right"),
+    private static readonly (string map, string action, string part, string label)[] GhostBinds = {
+        ("Ghost","Interact",            null, "Interact"),
+        ("Ghost","Scan",                null, "Scan"),
+        ("Ghost","Dash",                null, "Dash"),
+        ("Ghost","Sneak",               null, "Sneak"),
+        ("Ghost","RotatePreviewLeft",   null, "Rotate Left"),
+        ("Ghost","RotatePreviewRight",  null, "Rotate Right"),
+        ("Ghost","Cancel",              null, "Cancel"),
+        ("Ghost","Leaderboard",         null, "Leaderboard"),
+        ("Ghost","PushToTalk",          null, "Push to Talk"),
+        ("Ghost","Move",                "up",    "Forward"),
+        ("Ghost","Move",                "down",  "Backward"),
+        ("Ghost","Move",                "left",  "Left"),
+        ("Ghost","Move",                "right", "Right"),
+    };
+
+    // Maps gamepad binding paths to Xbox icon sprite names in Resources/GamepadIconsAsset (TMP sprite asset).
+    private static readonly Dictionary<string, string> s_GamepadSprites = new Dictionary<string, string>
+    {
+        { "<Gamepad>/buttonSouth",     "xbox_button_color_a_outline" },
+        { "<Gamepad>/buttonEast",      "xbox_button_color_b_outline" },
+        { "<Gamepad>/buttonWest",      "xbox_button_color_x_outline" },
+        { "<Gamepad>/buttonNorth",     "xbox_button_color_y_outline" },
+        { "<Gamepad>/leftTrigger",     "xbox_lt" },
+        { "<Gamepad>/rightTrigger",    "xbox_rt" },
+        { "<Gamepad>/leftShoulder",    "xbox_lb" },
+        { "<Gamepad>/rightShoulder",   "xbox_rb" },
+        { "<Gamepad>/leftStick",       "xbox_stick_l_up" },
+        { "<Gamepad>/rightStick",      "xbox_stick_r" },
+        { "<Gamepad>/leftStickPress",  "xbox_stick_l_press" },
+        { "<Gamepad>/rightStickPress", "xbox_stick_r_press" },
+        { "<Gamepad>/startButton",     "xbox_button_menu" },
+        { "<Gamepad>/selectButton",    "xbox_button_view" },
+        { "<Gamepad>/dpad",            "xbox_dpad_round_all" },
+        { "<Gamepad>/dpad/up",         "xbox_dpad_round_all" },
+        { "<Gamepad>/dpad/down",       "xbox_dpad_round_all" },
+        { "<Gamepad>/dpad/left",       "xbox_dpad_round_all" },
+        { "<Gamepad>/dpad/right",      "xbox_dpad_round_all" },
     };
 
     private InputActionRebindingExtensions.RebindingOperation m_rebindOp;
@@ -504,7 +550,7 @@ public class SettingsCanvasController : MonoBehaviour
         if (!string.IsNullOrEmpty(json)) m_inputActions.LoadBindingOverridesFromJson(json);
     }
 
-    private void BindColumn(Transform column, string header, (string map,string action,string label)[] binds)
+    private void BindColumn(Transform column, string header, (string map,string action,string part,string label)[] binds)
     {
         if (column == null) return;
         // Optional header: first Row_Banner/Columns_Banner child with TMP text
@@ -514,21 +560,83 @@ public class SettingsCanvasController : MonoBehaviour
             var bt = banner.GetComponentInChildren<TMP_Text>(true);
             if (bt != null) bt.text = header;
         }
-        int i = 0;
-        foreach (Transform row in column)
+
+        // Collect existing Row_Keybind children in order; first is the template for cloning.
+        var existing = new List<Transform>();
+        foreach (Transform child in column)
+            if (child.name.StartsWith("Row_Keybind"))
+                existing.Add(child);
+        if (existing.Count == 0) return;
+        var template = existing[0];
+
+        for (int i = 0; i < binds.Length; i++)
         {
-            if (row.name.StartsWith("Row_Keybind") == false) continue;
-            if (i >= binds.Length) break;
-            var b = binds[i]; i++;
+            var b = binds[i];
+            Transform row = i < existing.Count
+                ? existing[i]
+                : Instantiate(template, column, false).transform;
+            if (i >= existing.Count) row.name = $"Row_Keybind_dyn_{i}";
+            row.gameObject.SetActive(true);
+
+            var action = m_inputActions.FindActionMap(b.map)?.FindAction(b.action);
+            if (action == null) { row.gameObject.SetActive(false); continue; }
+
+            int bindingIndex = b.part == null
+                ? FindKeyboardBindingIndex(action)
+                : FindCompositePartIndex(action, b.part);
+            if (bindingIndex < 0) { row.gameObject.SetActive(false); continue; }
+
             SetRowLabel(row, b.label);
             var btn = row.GetComponentInChildren<Button>(true);
             var btnLbl = btn?.GetComponentInChildren<TMP_Text>(true);
-            var action = m_inputActions.FindActionMap(b.map)?.FindAction(b.action);
-            if (action == null) continue;
-            UpdateKeyLabel(btnLbl, action, 0);
+            UpdateKeyLabel(btnLbl, action, bindingIndex);
             btn.onClick.RemoveAllListeners();
-            btn.onClick.AddListener(() => StartRebind(action, 0, btnLbl));
+            int idx = bindingIndex;
+            btn.onClick.AddListener(() => StartRebind(action, idx, btnLbl));
+            AttachGamepadIcon(btn, action);
         }
+
+        // Hide any leftover rows that aren't used.
+        for (int i = binds.Length; i < existing.Count; i++)
+            existing[i].gameObject.SetActive(false);
+    }
+
+    private static int FindKeyboardBindingIndex(InputAction action)
+    {
+        for (int i = 0; i < action.bindings.Count; i++)
+        {
+            var b = action.bindings[i];
+            if (b.isComposite || b.isPartOfComposite) continue;
+            if (b.path != null && b.path.StartsWith("<Keyboard>")) return i;
+            if (b.path != null && b.path.StartsWith("<Mouse>") &&
+                !b.path.Contains("delta") && !b.path.Contains("position") && !b.path.Contains("scroll"))
+                return i;
+        }
+        return -1;
+    }
+
+    private static int FindCompositePartIndex(InputAction action, string partName)
+    {
+        for (int i = 0; i < action.bindings.Count; i++)
+        {
+            var b = action.bindings[i];
+            if (!b.isPartOfComposite) continue;
+            if (b.name != partName) continue;
+            if (b.path == null || !b.path.StartsWith("<Keyboard>")) continue;
+            return i;
+        }
+        return -1;
+    }
+
+    private static string FindGamepadBindingPath(InputAction action)
+    {
+        for (int i = 0; i < action.bindings.Count; i++)
+        {
+            var b = action.bindings[i];
+            if (b.isComposite || b.isPartOfComposite) continue;
+            if (!string.IsNullOrEmpty(b.path) && b.path.StartsWith("<Gamepad>")) return b.path;
+        }
+        return null;
     }
 
     private void StartRebind(InputAction action, int bindingIndex, TMP_Text label)
@@ -557,6 +665,55 @@ public class SettingsCanvasController : MonoBehaviour
     {
         if (label == null) return;
         label.text = action.GetBindingDisplayString(idx);
+    }
+
+    private static readonly Dictionary<string, Sprite> s_SpriteCache = new Dictionary<string, Sprite>();
+    private const float c_gamepadIconSize = 80f;
+
+    private static Sprite LoadGamepadSprite(string spriteName)
+    {
+        if (s_SpriteCache.TryGetValue(spriteName, out var cached)) return cached;
+        var sprite = Resources.Load<Sprite>($"XboxIcons/{spriteName}");
+        if (sprite != null) s_SpriteCache[spriteName] = sprite;
+        return sprite;
+    }
+
+    private static void AttachGamepadIcon(Button button, InputAction action)
+    {
+        if (button == null) return;
+        string path = FindGamepadBindingPath(action);
+        s_GamepadSprites.TryGetValue(path ?? "", out string spriteName);
+        var sprite = spriteName != null ? LoadGamepadSprite(spriteName) : null;
+
+        var btnRT = button.transform as RectTransform;
+        var existing = button.transform.Find("GamepadIcon");
+        RectTransform iconRT;
+        Image img;
+        if (existing != null)
+        {
+            iconRT = (RectTransform)existing;
+            img = existing.GetComponent<Image>() ?? existing.gameObject.AddComponent<Image>();
+        }
+        else
+        {
+            if (sprite == null) return;
+            var go = new GameObject("GamepadIcon", typeof(RectTransform));
+            go.transform.SetParent(button.transform, false);
+            iconRT = (RectTransform)go.transform;
+            img = go.AddComponent<Image>();
+        }
+
+        iconRT.anchorMin = new Vector2(0f, 0.5f);
+        iconRT.anchorMax = new Vector2(0f, 0.5f);
+        iconRT.pivot = new Vector2(1f, 0.5f);
+        iconRT.anchoredPosition = new Vector2(-15f, 0f);
+        iconRT.sizeDelta = new Vector2(c_gamepadIconSize, c_gamepadIconSize);
+
+        img.sprite = sprite;
+        img.preserveAspect = true;
+        img.raycastTarget = false;
+        img.enabled = sprite != null;
+        iconRT.gameObject.SetActive(sprite != null);
     }
 
     // ── Apply / Volumes ──────────────────────────────────────────────────
