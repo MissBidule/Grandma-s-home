@@ -6,7 +6,7 @@ using PurrLobby;
 using PurrNet;
 using PurrNet.Logging;
 using PurrNet.StateMachine;
-using Script.Audio;
+using Script.Music;
 using UnityEngine;
 
 namespace Script.States
@@ -80,8 +80,6 @@ namespace Script.States
         [ObserversRpc(bufferLast: true)]
         public void StartGameMusic()
         {
-            if (MusicLooper.Instance == null)
-                return;
             MusicLooper.Instance.PlayMusic(MusicTrack.Game);
         }
 

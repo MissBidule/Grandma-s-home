@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using PurrNet;
 using UnityEngine;
 using System.Collections;
-using PurrNet.Logging;
 using UnityEngine.Rendering;
 using UnityEngine.SocialPlatforms.Impl;
 
@@ -15,7 +14,6 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     [Header("Sabotaged VFX")]
     [SerializeField] private GameObject m_vfxPrefab;
     [SerializeField] private GameObject m_interactPrefab;
-    [SerializeField] private NetworkAudioSource m_sfxAudioSource;
     private GameObject m_vfx;
 
     [Header("Score")]
@@ -147,20 +145,11 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         if (childClientController = _player.GetComponentInParent<ChildClientController>())
         {
             childClientController.RepairAnimation(true);
-            if (childClientController.m_childSoundEffects!=null)
-                childClientController.m_childSoundEffects.PlayRepairAudio();
-            else
-                PurrLogger.LogError("Child Client Controller SFX not found", this);
         }
         else
         {
             GhostClientController ghostClientController = _player.GetComponentInParent<GhostClientController>();
             ghostClientController.SabotageAnimation(true);
-            
-            if (ghostClientController.m_soundEffects!=null)
-                ghostClientController.m_soundEffects.PlaySabotageAudio();
-            else
-                PurrLogger.LogError("Ghost Client Controller SFX not found", this);
         }
             Rigidbody rb = _player.GetComponentInParent<Rigidbody>();
         rb.constraints = (RigidbodyConstraints)(RigidbodyConstraints.FreezeAll - RigidbodyConstraints.FreezePositionY);
@@ -235,24 +224,15 @@ public class SabotageObject : NetworkBehaviour, IInteractable
 
         m_saboteur.OnSabotageOver(_success);
 
-        ChildController childController = m_saboteur.GetComponentInParent<ChildController>();
         ChildClientController childClientController = m_saboteur.GetComponentInParent<ChildClientController>();
         if (childClientController != null)
         {
             childClientController.RepairAnimation(false);
-            if (childClientController.m_childSoundEffects!=null)
-                childClientController.m_childSoundEffects.StopRepairAudio();
-            else
-                PurrLogger.LogError("Child Client Controller SFX not found", this);
         }
         else
         {
             GhostClientController ghostClientController = m_saboteur.GetComponentInParent<GhostClientController>();
             ghostClientController.SabotageAnimation(false);
-            if (ghostClientController.m_soundEffects!=null)
-                ghostClientController.m_soundEffects.StopSabotageAudio();
-            else
-                PurrLogger.LogError("Ghost Client Controller SFX not found", this);
         }
         if (_success)
         {
@@ -294,11 +274,6 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     {
         if (m_isSabotaged) return;
         SabotageForAll();
-        if (m_sfxAudioSource != null && m_sfxAudioSource.clip != null)
-        {
-            m_sfxAudioSource.loop = true;
-            m_sfxAudioSource.Play();
-        }
         if(InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
         {
             scoreManager.AddPointSabotage(info.sender);
@@ -339,13 +314,6 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     private void UnsabotageRPC(RPCInfo info = default)
     {
         UnsabotageForAll();
-        
-        
-        if (m_sfxAudioSource != null && m_sfxAudioSource.clip != null)
-        {
-            m_sfxAudioSource.loop = true;
-            m_sfxAudioSource.Stop();
-        }
 
         if(InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
             scoreManager.SubPointSabotage(info.sender);

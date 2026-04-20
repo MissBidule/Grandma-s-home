@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using PurrNet;
 using PurrNet.Logging;
 using PurrNet.StateMachine;
-using Script.Audio;
+using Script.Music;
 using Script.UI.Views;
 using UnityEngine;
 

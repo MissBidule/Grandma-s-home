@@ -2,7 +2,7 @@ using PurrLobby;
 using PurrNet;
 using PurrNet.Logging;
 using PurrNet.StateMachine;
-using Script.Audio;
+using Script.Music;
 using Script.UI.Views;
 using System;
 using System.Threading.Tasks;

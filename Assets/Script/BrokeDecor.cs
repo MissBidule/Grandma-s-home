@@ -14,16 +14,12 @@ public class BrokeDecor : NetworkBehaviour
 
     [Header("Score")]
     [SerializeField] private int m_scoreValue = 50;
-    
-    [Header("Sound")]
-    [SerializeField] private NetworkAudioSource m_breakAudioSource;
 
     public bool m_isBroken;
     public bool m_alreadyBroken=false;
 
     public void Start()
     {
-        m_breakAudioSource = gameObject.GetComponent<NetworkAudioSource>();
     }
 
     [ObserversRpc(runLocally:true)]
@@ -32,8 +28,6 @@ public class BrokeDecor : NetworkBehaviour
         if (!m_isBroken)
             FloatingDamageText.Spawn(transform.position, m_scoreValue);
         m_isBroken = true;
-        if (m_breakAudioSource != null && m_breakAudioSource.clip != null)
-            m_breakAudioSource.Play();
         ApplyState();
     }
 
