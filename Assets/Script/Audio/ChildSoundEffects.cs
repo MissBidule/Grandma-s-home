@@ -89,7 +89,7 @@ public class ChildSoundEffects : MonoBehaviour
         if (!m_isOwner)
             return;
         //print(_speed);
-        if (_speed < 0.1f)
+        if (_speed < 3f)
         {
             m_movementAudioSource.Stop();
             return;
