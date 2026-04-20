@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using PurrNet;
 using UnityEngine;
 using System.Collections;
+using PurrNet.Logging;
 using UnityEngine.Rendering;
 using UnityEngine.SocialPlatforms.Impl;
 
@@ -146,13 +147,20 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         if (childClientController = _player.GetComponentInParent<ChildClientController>())
         {
             childClientController.RepairAnimation(true);
-            childClientController.m_childSoundEffects.PlayRepairAudio();
+            if (childClientController.m_childSoundEffects!=null)
+                childClientController.m_childSoundEffects.PlayRepairAudio();
+            else
+                PurrLogger.LogError("Child Client Controller SFX not found", this);
         }
         else
         {
             GhostClientController ghostClientController = _player.GetComponentInParent<GhostClientController>();
             ghostClientController.SabotageAnimation(true);
-            ghostClientController.m_soundEffects.PlaySabotageAudio();
+            
+            if (ghostClientController.m_soundEffects!=null)
+                ghostClientController.m_soundEffects.PlaySabotageAudio();
+            else
+                PurrLogger.LogError("Ghost Client Controller SFX not found", this);
         }
             Rigidbody rb = _player.GetComponentInParent<Rigidbody>();
         rb.constraints = (RigidbodyConstraints)(RigidbodyConstraints.FreezeAll - RigidbodyConstraints.FreezePositionY);
@@ -232,13 +240,19 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         if (childClientController != null)
         {
             childClientController.RepairAnimation(false);
-            childClientController.m_childSoundEffects.StopRepairAudio();
+            if (childClientController.m_childSoundEffects!=null)
+                childClientController.m_childSoundEffects.StopRepairAudio();
+            else
+                PurrLogger.LogError("Child Client Controller SFX not found", this);
         }
         else
         {
             GhostClientController ghostClientController = m_saboteur.GetComponentInParent<GhostClientController>();
             ghostClientController.SabotageAnimation(false);
-            ghostClientController.m_soundEffects.StopSabotageAudio();
+            if (ghostClientController.m_soundEffects!=null)
+                ghostClientController.m_soundEffects.StopSabotageAudio();
+            else
+                PurrLogger.LogError("Ghost Client Controller SFX not found", this);
         }
         if (_success)
         {

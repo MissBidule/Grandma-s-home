@@ -111,14 +111,13 @@ public class ChildController : PlayerControllerCore
                     aimTarget = m_cameraPosition + m_cameraForward * 50f;
                 Vector3 shootDir = (aimTarget - m_bulletSpawnTransform.position).normalized;
                 
-                m_soundEffects.PlayGunAudio();
+                m_soundEffects?.PlayGunAudio();
                 
                 ShootForAll(Quaternion.LookRotation(shootDir));
             }
         }
         else
         {
-            m_soundEffects.PlayCacAudio();
             Cac();
             Debug.Log("cac");
         }
@@ -159,7 +158,7 @@ public class ChildController : PlayerControllerCore
     {
         if (!isServer) return;
         m_isScared = true;
-        m_soundEffects.PlayScarredAudio();
+        m_soundEffects?.PlayScarredAudio();
         //PurrLogger.Log("Ghost Touch", this);
         UpdateScaredToAll(m_isScared);
         StartCoroutine(ScaredTimer(m_scaredDuration));
@@ -200,6 +199,8 @@ public class ChildController : PlayerControllerCore
     {
         Vector3 CacPosition = m_cacTransform.position + m_cameraForward.normalized * 1.5f;
         Collider[] hits = Physics.OverlapSphere(CacPosition, m_attackRange);
+        
+        m_soundEffects?.PlayCacAudio();
 
         foreach (Collider col in hits)
         {
