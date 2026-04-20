@@ -2,8 +2,10 @@ using PurrLobby;
 using PurrNet;
 using PurrNet.Logging;
 using PurrNet.StateMachine;
+using Script.Music;
 using Script.UI.Views;
 using System;
+using System.Threading.Tasks;
 using UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -14,12 +16,17 @@ namespace Script.States
     {
         [PurrScene, SerializeField] private string m_lobbyScene;
         
+        public bool IsGameOver { get; private set; }
+
         private PlayerSpawningState m_spawnState;
-        private static bool _hasAlreadySwitched = false;
-        
+        private bool _hasAlreadySwitched = false;
+
+        [SerializeField] private GameObject pauseMenu;
+
         private void Awake()
         {
             InstanceHandler.RegisterInstance(this);
+            IsGameOver = false;
             
             _hasAlreadySwitched = false; // Reset flag on start to allow scene switching in new lobby sessions
         }
@@ -32,6 +39,7 @@ namespace Script.States
 
         public override void Enter(bool _childWin, bool _asServer)
         {
+            IsGameOver = true;
             base.Enter(_asServer);
 
             foreach (StateNode state in machine.states)
@@ -44,16 +52,28 @@ namespace Script.States
             
             if (!_asServer)
                 return;
+
+            HidePause();
             
             SetupEndGameUI(_childWin);
+            InteractPromptUI.m_Instance.Hide();
             
             if (!InstanceHandler.TryGetInstance(out EndGameView endGameView))
                 return;
             endGameView.EnableHostTools();
         }
+
+        [ObserversRpc]
+        public void HidePause()
+        {
+            Destroy(pauseMenu);
+            Cursor.lockState = CursorLockMode.None;
+            
+            MusicLooper.Instance.StopMusic();
+        }
         
         [ObserversRpc]
-        public void BackToLobby()
+        public void BackToLobby(string newLobbyId = "")
         {
             // Prevent duplicate scene switches
             if (_hasAlreadySwitched)
@@ -70,6 +90,35 @@ namespace Script.States
                 return;
             }
 
+            if (!string.IsNullOrEmpty(newLobbyId))
+            {
+                FindAnyObjectByType<LobbyDataHolder>().SetNewID(newLobbyId);
+            }
+
+            PurrLogger.Log($"Switching to scene: {m_lobbyScene}", this);
+            
+            // Load game scene - ConnectionStarter in new scene will handle network initialization
+            SceneManager.LoadSceneAsync(m_lobbyScene);
+        }
+
+        public void StopGame(string newLobbyId = "") {
+            Destroy(FindAnyObjectByType<LobbyManager>().gameObject);
+            BackToLobby(newLobbyId);
+        }
+
+        public void BackToMenu()
+        {
+            StartCoroutine(FindAnyObjectByType<LobbyManager>().RemovePlayerAndDestroy());
+            
+            PurrLogger.Log("Returning to menu.", this);
+            FindAnyObjectByType<LobbyDataHolder>().SetCurrentLobby(default);
+
+            if (string.IsNullOrEmpty(m_lobbyScene))
+            {
+                PurrLogger.LogError("Next scene name is not set!", this);
+                return;
+            }
+
             PurrLogger.Log($"Switching to scene: {m_lobbyScene}", this);
             
             // Load game scene - ConnectionStarter in new scene will handle network initialization
@@ -78,9 +127,9 @@ namespace Script.States
 
         public void ServerLost()
         {
-            PurrLogger.LogWarning("Server is not accessible. Returning to lobby.", this);
+            PurrLogger.LogWarning("Server is not accessible. Returning to menu.", this);
             FindAnyObjectByType<LobbyDataHolder>().SetCurrentLobby(default);
-            SceneManager.LoadSceneAsync(m_lobbyScene);
+            StopGame();
         }
 
         [ObserversRpc]
@@ -99,6 +148,7 @@ namespace Script.States
             
             uisManager.ShowView<EndGameView>();
             uisManager.ToggleUIVision();
+
         }
     }
 }

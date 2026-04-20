@@ -12,12 +12,18 @@ public class InteractPromptUI : MonoBehaviour
 
     //[SerializeField] private TMP_Text m_promptText;
 
+    [SerializeField] private GameObject m_infoPrefab;
     [SerializeField] private GameObject m_canvasPrefab;
+    private InfoPromptUI m_currentInfo;
     private GameObject m_currentCanvas;
     private TMP_Text m_promptText;
     private void Awake()
     {
         m_Instance = this;
+        if (m_currentInfo == null)
+        {
+            m_currentInfo = Instantiate(m_infoPrefab).GetComponent<InfoPromptUI>();
+        }
     }
 
     /**
@@ -45,7 +51,26 @@ public class InteractPromptUI : MonoBehaviour
     {
         if (m_currentCanvas == null) return;
 
-        Destroy(m_currentCanvas);
-        m_currentCanvas = null;
+       m_promptText.text = "";
+    }
+
+    public void ShowSabotage(string _ghostName)
+    {
+        m_currentInfo.GhostSabotage(_ghostName);
+    }
+
+    public void ShowRepair(string _childName)
+    {
+        m_currentInfo.ChildRepair(_childName);
+    }
+
+    public void ShowKill(string _childName, string _ghostName)
+    {
+        m_currentInfo.ChildCaughtGhost(_childName, _ghostName);
+    }
+
+    public void ShowRes(string _ghostSavior, string _ghostSaved)
+    {
+        m_currentInfo.GhostResGhost(_ghostSavior, _ghostSaved);
     }
 }

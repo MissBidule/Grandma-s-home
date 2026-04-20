@@ -11,6 +11,7 @@ public class ChildClientController : NetworkBehaviour
     [SerializeField] private GameObject m_uiHolder_prefab;
     public GameObject m_uiHolder;
     private CinemachineCamera m_playerCamera;
+    private ChildCameraController m_cameraOptions;
     private ChildInputController m_childInputController;
     private ChildController m_childController;
     private QteCircle m_qteCircle;
@@ -20,7 +21,8 @@ public class ChildClientController : NetworkBehaviour
     private bool m_attackPressed = false;
 
     //Animations
-    [SerializeField]private NetworkAnimator m_animator;
+    [SerializeField] private GameObject m_racket;
+    [SerializeField] private GameObject m_gun;
     private bool m_isMovingForward;
     private bool m_isMovingBackward;
     private bool m_isMovingLeft;
@@ -28,27 +30,23 @@ public class ChildClientController : NetworkBehaviour
     private bool m_isAttacking;
     private bool m_isSneaking;
     private float m_attackTime;
-    AnimatorStateInfo animStateInfo;
-    private bool m_isSwitchingWeapon;
-    [SerializeField]private GameObject m_racket;
-    [SerializeField]private GameObject m_gun;
-    private bool m_startedAnimation = false;
-    private float m_oldAnimHash;
-
 
     private bool m_sneakPressed = false;
-    
-    protected override void OnSpawned()
-    {
-        base.OnSpawned();
-        m_childController = GetComponent<ChildController>();
 
-        if (isOwner) InitOwner();
+    private PredictiveMovement m_predictiveMovement;
+
+    private bool m_gotOwner = false;
+
+    void Start()
+    {
+        m_childController = GetComponent<ChildController>();
+        m_predictiveMovement = GetComponent<PredictiveMovement>();
     }
 
     protected override void OnOwnerChanged(PurrNet.PlayerID? oldOwner, PurrNet.PlayerID? newOwner, bool asServer)
     {
         if (isOwner) InitOwner();
+        m_gotOwner = true;
     }
 
     private void InitOwner()
@@ -60,72 +58,69 @@ public class ChildClientController : NetworkBehaviour
             audioManager.MuteGhostByChild();
         }
         if (m_uiHolder == null)
+        {
             m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
-            m_qteCircle = m_uiHolder.GetComponentInChildren<QteCircle>();
+        }
+
+
+        m_qteCircle = m_uiHolder.GetComponentInChildren<QteCircle>();
         // Use PlayerControllerCore.m_playerCamera (Inspector-assigned, always valid)
         // instead of GetComponentInChildren which can fail in multi-instance scenarios
         var core = GetComponent<PlayerControllerCore>();
-        if (core != null) m_playerCamera = core.m_playerCamera;
+        if (core != null) {
+            m_playerCamera = core.m_playerCamera;
+            m_cameraOptions = m_playerCamera.GetComponent<ChildCameraController>();
+        }
         Debug.Log($"[ChildClientController] InitOwner - m_playerCamera: {m_playerCamera}, m_childInputController: {m_childInputController}");
 
-        if (InstanceHandler.TryGetInstance(out UIsManager  uisManager))
+        if (InstanceHandler.TryGetInstance(out UIsManager uisManager))
             uisManager.ShowView<ChildHUDView>();
     }
 
     void Update()
     {
         if (!isOwner) return;
+        if (!m_gotOwner) return;
 
         m_childController.PingClient();
 
-        if (m_childInputController != null)
+        if (!m_childInputController) return;
+
+        UpdateHUD();
+
+        // DebugPrintTrafic();
+
+        //if (m_childController.m_isScared && m_qteCircle.m_isRunning)
+        //    m_qteCircle.CancelQte();
+
+        var moveVec = m_childInputController.m_movementInputVector;
+        var wishDir = GetDirectionIntention(moveVec);
+
+        //print(m_predictiveMovement);
+
+        var inputData = new PredictiveInputData
         {
+            tick = m_predictiveMovement.GetTick(),
+            wishDirection = wishDir,
+            cameraYaw = m_cameraOptions.m_yaw,
+            cameraPosition = m_playerCamera.transform.position,
+            cameraForward = GetCameraForward(),
+            jumpPressed = m_jumpPressed,
+            switchPressed = m_switchWeaponPressed,
+            attackPressed = m_attackPressed,
+            sneakPressed = m_sneakPressed,
+            dashPressed = false,
+            position = transform.position,
+        };
 
-            UpdateHUD();
+        m_predictiveMovement.NewInput(inputData);
+        SendChildRPC(
+            inputData
+        );
 
-            // DebugPrintTrafic();
-
-            if (m_qteCircle.m_isRunning) return;
-            var moveVec = m_childInputController.m_movementInputVector;
-            var wishDir = GetDirectionIntention(moveVec);
-            var cameraYaw = m_playerCamera.transform.eulerAngles.y;
-
-
-            SendChildRPC(
-                wishDir,
-                m_playerCamera.transform.eulerAngles.y,
-                m_playerCamera.transform.position,
-                m_playerCamera.transform.forward,
-                m_jumpPressed,
-                m_switchWeaponPressed,
-                m_attackPressed,
-                m_sneakPressed
-            );
-
-            m_jumpPressed = false;
-            m_switchWeaponPressed = false;
-            m_attackPressed = false;
-            if (m_isSwitchingWeapon)
-            {
-                animStateInfo = m_animator.GetCurrentAnimatorStateInfo(0);
-                print(animStateInfo.normalizedTime);
-                if (animStateInfo.normalizedTime > 0.3f)
-                {
-                    if (!m_startedAnimation)
-                    {
-                        m_startedAnimation = true;
-                        m_oldAnimHash = animStateInfo.shortNameHash;
-                    }
-                    else if (m_oldAnimHash != animStateInfo.shortNameHash)
-                    {
-                        m_racket.SetActive(!m_racket.activeInHierarchy);
-                        m_gun.SetActive(!m_gun.activeInHierarchy);
-                        m_isSwitchingWeapon = false;
-                        m_startedAnimation = false;
-                    }
-                }
-            }
-        }
+        m_jumpPressed = false;
+        m_switchWeaponPressed = false;
+        m_attackPressed = false;
     }
 
     public void DebugPrintTrafic()
@@ -143,45 +138,75 @@ public class ChildClientController : NetworkBehaviour
     {
         if (!InstanceHandler.TryGetInstance(out ChildHUDView childHUDView))
             return;
-        
-        if (m_childController.m_isScared)
-            childHUDView.StartScared(m_childController.GetScaredDuration());
+
+        //if (m_childController.m_isScared)
+        //    childHUDView.StartScared(m_childController.GetScaredDuration());
         else childHUDView.m_isScared = false;
     }
 
     public void OnJump()
     {
         if (!isOwner) return;
-        if (m_qteCircle.m_isRunning) return;
+        if (m_qteCircle != null && m_qteCircle.m_isRunning) return;
         m_jumpPressed = true;
     }
 
     public void OnValidation()
     {
         if (!isOwner) return;
+        if (m_qteCircle == null) return;
         if (!m_qteCircle.m_isRunning) return;
-        m_qteCircle.CheckSuccess();
+        if (m_qteCircle.CheckSuccess())
+        {
+            //QTE finished
+            RepairNotification();
+        }
+    }
+
+    [ObserversRpc (requireServer: false)]
+    public void RepairNotification()
+    {
+        InteractPromptUI.m_Instance.ShowRepair(m_childController.m_username);
+    }
+
+    public void OnEscape()
+    {
+        if (!isOwner) return;
+        if (m_qteCircle != null && m_qteCircle.m_isRunning)
+            m_qteCircle.CancelQte();
     }
 
     public void OnSwitchWeapon()
     {
         if (!isOwner) return;
-        m_switchWeaponPressed = true;
-        if(m_childController.m_switchingTime > m_childController.m_cdSwitch)
+        if(!m_childController.m_shootAnimRunning)
         {
-            m_animator.SetTrigger("OnSwitch");
-            m_animator.SetBool("Cac", m_childController.m_isRanged);
-            m_isSwitchingWeapon = true;
+            m_switchWeaponPressed = true;
         }
     }
+
+
+
+    /*
+     * @brief  This function allows you to change the visible weapon in the player's hand.
+     * @return void
+     */
+
+    public void ChangeVisibleWeapon()
+    {
+        m_racket.SetActive(!m_racket.activeInHierarchy);
+        m_gun.SetActive(!m_gun.activeInHierarchy);
+    }
+
 
     public void OnAttack()
     {
         if (!isOwner) return;
+        if (m_qteCircle != null && m_qteCircle.m_isRunning) return;
         m_attackPressed = true;
-        m_animator.SetTrigger("OnAttack");
+        m_childController.callAnimationTrigger("OnAttack");
     }
-    
+
     /*
      * @brief call the server to sneak
      */
@@ -210,12 +235,13 @@ public class ChildClientController : NetworkBehaviour
                 m_isMovingRight = false;
                 if (m_childController.m_isRanged)
                 {
-                    m_animator.CrossFadeInFixedTime("gun_idle", 0.2f, 0);
+                    m_childController.callAnimationCrossFade("gun_idle", 0.2f);
                 }
                 else
                 {
-                    m_animator.CrossFadeInFixedTime("cac_idle", 0.2f, 0);
+                    m_childController.callAnimationCrossFade("cac_idle", 0.2f);
                 }
+                m_childController.callChangeFace(new Vector2(0,0));
             }
             return Vector3.zero;
         }
@@ -231,23 +257,25 @@ public class ChildClientController : NetworkBehaviour
                 {
                     if (m_childController.m_isRanged)
                     {
-                        m_animator.CrossFadeInFixedTime("gun_sideWalk_R", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("gun_sideWalk_R", 0.2f);
                     }
                     else
                     {
-                        m_animator.CrossFadeInFixedTime("cac_sideWalk_R", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("cac_sideWalk_R", 0.2f);
                     }
+                    m_childController.callChangeFace(new Vector2(.33f, 0));
                 }
                 else
                 {
                     if (m_childController.m_isRanged)
                     {
-                        m_animator.CrossFadeInFixedTime("gun_sideRun_R", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("gun_sideRun_R", 0.2f);
                     }
                     else
                     {
-                        m_animator.CrossFadeInFixedTime("cac_sideRun_R", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("cac_sideRun_R", 0.2f);
                     }
+                    m_childController.callChangeFace(new Vector2(.33f, .33f));
                 }
             }
             else if(m_isMovingLeft == false && _movement.x < 0)
@@ -260,23 +288,25 @@ public class ChildClientController : NetworkBehaviour
                 {
                     if (m_childController.m_isRanged)
                     {
-                        m_animator.CrossFadeInFixedTime("gun_sideWalk_L", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("gun_sideWalk_L", 0.2f);
                     }
                     else
                     {
-                        m_animator.CrossFadeInFixedTime("cac_sideWalk_L", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("cac_sideWalk_L", 0.2f);
                     }
+                    m_childController.callChangeFace(new Vector2(.66f, 0));
                 }
                 else
                 {
                     if (m_childController.m_isRanged)
                     {
-                        m_animator.CrossFadeInFixedTime("gun_sideWalk_L", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("gun_sideRun_L", 0.2f);
                     }
                     else
                     {
-                        m_animator.CrossFadeInFixedTime("cac_sideWalk_L", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("cac_sideRun_L", 0.2f);
                     }
+                    m_childController.callChangeFace(new Vector2(.33f, .33f));
                 }
             }
         }
@@ -292,23 +322,25 @@ public class ChildClientController : NetworkBehaviour
                 {
                     if (m_childController.m_isRanged)
                     {
-                        m_animator.CrossFadeInFixedTime("gun_walk", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("gun_walk", 0.2f);
                     }
                     else
                     {
-                        m_animator.CrossFadeInFixedTime("cac_walk", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("cac_walk", 0.2f);
                     }
+                    m_childController.callChangeFace(new Vector2(.66f, 0));
                 }
                 else
                 {
                     if (m_childController.m_isRanged)
                     {
-                        m_animator.CrossFadeInFixedTime("gun_run", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("gun_run", 0.2f);
                     }
                     else
                     {
-                        m_animator.CrossFadeInFixedTime("cac_run", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("cac_run", 0.2f);
                     }
+                    m_childController.callChangeFace(new Vector2(.33f, .33f));
                 }
             }
             else if (m_isMovingBackward == false && _movement.y < 0)
@@ -321,23 +353,25 @@ public class ChildClientController : NetworkBehaviour
                 {
                     if (m_childController.m_isRanged)
                     {
-                        m_animator.CrossFadeInFixedTime("gun_bwalk", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("gun_bwalk", 0.2f);
                     }
                     else
                     {
-                        m_animator.CrossFadeInFixedTime("cac_bwalk", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("cac_bwalk", 0.2f);
                     }
+                    m_childController.callChangeFace(new Vector2(.33f, 0));
                 }
                 else
                 {
                     if (m_childController.m_isRanged)
                     {
-                        m_animator.CrossFadeInFixedTime("gun_brun", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("gun_brun", 0.2f);
                     }
                     else
                     {
-                        m_animator.CrossFadeInFixedTime("cac_brun", 0.2f, 0);
+                        m_childController.callAnimationCrossFade("cac_brun", 0.2f);
                     }
+                    m_childController.callChangeFace(new Vector2(.33f, .33f));
                 }
             }
         }
@@ -362,23 +396,22 @@ public class ChildClientController : NetworkBehaviour
         return wishDir;
     }
 
-    private Vector3 GetCameraForward(){
-        Transform cameraTransform = m_playerCamera.transform;
-        Vector3 forward = cameraTransform.forward;
-        forward.y = 0f;
-        return forward.normalized;
+    private Vector3 GetCameraForward() {
+        return m_playerCamera.transform.forward;
     }
 
     [ServerRpc]
-    private void SendChildRPC(Vector3 _wishDirection, float _cameraYaw, Vector3 _cameraPosition, Vector3 _cameraForward,  bool _jumpPressed, bool _switchPressed, bool _attackPressed, bool _sneakPressed)
+    private void SendChildRPC(PredictiveInputData _data)
     {
-        m_childController.m_wishDir = _wishDirection;
-        m_childController.m_cameraYaw = _cameraYaw;
-        m_childController.m_cameraPosition = _cameraPosition;
-        m_childController.m_cameraForward = _cameraForward;
-        if (_jumpPressed) m_childController.Jump();
-        if (_switchPressed) m_childController.SwitchAttackType();
-        if (_attackPressed) m_childController.Attack();
-        m_childController.m_isSneaking = _sneakPressed;
+        m_predictiveMovement.ServerReceiveInput(_data);
+        m_childController.m_cameraPosition = _data.cameraPosition;
+        m_childController.m_cameraForward = _data.cameraForward;
+        if (_data.switchPressed) m_childController.SwitchAttackType();
+        if (_data.attackPressed) m_childController.Attack();
+    }
+
+    public void RepairAnimation(bool _value)
+    {
+        m_childController.callAnimationSetBool("IsRepairing", _value);
     }
 }

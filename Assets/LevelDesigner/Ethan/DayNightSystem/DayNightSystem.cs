@@ -1,6 +1,8 @@
+using System;
 using UnityEngine;
 using System.Collections;
 using System.Diagnostics;
+using Random = UnityEngine.Random;
 
 public class DayNightSystem : MonoBehaviour
 {
@@ -12,7 +14,8 @@ public class DayNightSystem : MonoBehaviour
     private LightOnSystem lightOnSystem; // référence au script d'allumage des lumières
     private bool lightsActivated = false; //si le script d'allumage des lumières a été activé
 
-    private float gameTime = 30f; // 480 - 8 minutes de jeu, prendre la valeur du serveur
+    public float gameTime = 30f; // 480 - 8 minutes de jeu, prendre la valeur du serveur
+    public bool StillRunningAfterGameTime = false; // permet que les éléments tel que la rotation du ciel continue après la fin du temps de jeu nottament pour le menu principal
     private float currentTime = 0f; // temps actuel dans le cycle jour/nuit
     
     // positions des axes du soleil par défaut
@@ -20,6 +23,7 @@ public class DayNightSystem : MonoBehaviour
     public float sunInitialY = 0f;
     public bool isRandomSunY = true; // randomiser l'angle y pour différent direction de coucher de soleil
     public float sunIntensity = 3f; // intensité maximale du soleil
+    public float ambientIntensityNight = 0.4f; //intensité de la lumière ambiante la nuit
 
     //température du soleil entre le jour et la nuit
     public float temperatureDay = 6000f; 
@@ -37,6 +41,8 @@ public class DayNightSystem : MonoBehaviour
     private float sunRotationAngle; // valeur ajouté à l'angle du soleil à chaque mise à jour
     public Color sunDayColor;// FFE499
     public Color sunNightColor;// 123E41
+
+    [SerializeField] private bool m_autoStart = false;
 
     //Démarrer avec un angle assez élevé 150, pour la monter à 180 sur 40% du temps de jeu total, faire un changement entre les 2 HDRI blend avec les paramètre de luminosité et allumages progressifs de toutes sources de lumière sur 20% du temps de jeu total, sur les 40% restant de jeu le soleil aura un éclairage d'une couleur plus froide et une intensité plus faible en remontant vers 150 comme une monté de lune.
 
@@ -62,11 +68,6 @@ public class DayNightSystem : MonoBehaviour
         //temps de jeu actuel
         currentTime = 0f;
 
-        //random de l'angle y
-        if (isRandomSunY){
-            sunInitialY = Random.Range(0f, 360f);
-        }
-
         //rotation du soleil au début
         sun.transform.rotation = Quaternion.Euler(sunInitialX, sunInitialY, 0f);
         // UnityEngine.Debug.LogFormat("Sun initial rotation set to: {0}", sun.transform.rotation.eulerAngles);
@@ -89,17 +90,25 @@ public class DayNightSystem : MonoBehaviour
 
         lightOnSystem = GetComponentInParent<LightOnSystem>();//récupère le script d'allumage des lumières dans le parent
 
-        UpdateSky(gameTime);
+        if (m_autoStart)
+            UpdateSky(gameTime, DateTime.Now.Millisecond);
     }
 
     //toutes les actualisations a prendre en compte en fonction de l'état du jeu
-    void UpdateSky(float serverGameTime)
+    public void UpdateSky(float _serverGameTime, int _seed)
     {
-        gameTime = serverGameTime;
+        gameTime = _serverGameTime;
 
         if (skyCoroutine != null)
         {
             StopCoroutine(skyCoroutine);
+        }
+        
+        //random de l'angle y
+        if (isRandomSunY)
+        {
+            Random.InitState(_seed);
+            sunInitialY = Random.Range(0f, 360f);
         }
 
         skyCoroutine = StartCoroutine(UpdateSkyCoroutine());
@@ -109,7 +118,7 @@ public class DayNightSystem : MonoBehaviour
     {
         float updateInterval = timeBetweenUpdates / Mathf.Max(refreshMultiplier, 0.01f);
 
-        while (currentTime < gameTime)
+        while (currentTime < gameTime || StillRunningAfterGameTime)
         {
             // UnityEngine.Debug.LogFormat("Game time: {0}", gameTime);
             // UnityEngine.Debug.LogFormat("Updating sky at time: {0}", currentTime);
@@ -186,7 +195,7 @@ public class DayNightSystem : MonoBehaviour
         sun.GetComponent<Light>().color = color;
 
         //changement progressif de RenderSettings.ambientIntensity de 1 à 0.4
-        RenderSettings.ambientIntensity = Mathf.Lerp(1f, 0.4f, transitionT);
+        RenderSettings.ambientIntensity = Mathf.Lerp(1f, ambientIntensityNight, transitionT);
     }
 
     // levé de lune

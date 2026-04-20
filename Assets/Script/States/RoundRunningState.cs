@@ -1,9 +1,12 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using PurrLobby;
 using PurrNet;
 using PurrNet.Logging;
 using PurrNet.StateMachine;
+using Script.Music;
 using UnityEngine;
 
 namespace Script.States
@@ -16,7 +19,10 @@ namespace Script.States
     {
         [Header("Round Settings")]
         [SerializeField] [Tooltip("Duration of the round in minutes")] private float m_roundDuration;
-        [SerializeField] [Tooltip("Number of time the sky will move in the round.")] private int m_sunIncrementNumber = 12;
+        [SerializeField] [Tooltip("Start duration")] private float m_startDelay = 10f;
+
+        [Header("Door")]
+        [SerializeField] [Tooltip("The DOOR")] private StartingDoor m_startingDoor;
         // TODO Skybox & directional light reference.
         
         // State Reference
@@ -31,9 +37,14 @@ namespace Script.States
         private List<PlayerID> m_aliveGhosts = new();
         private List<PlayerID> m_deadGhosts = new();
         
+        // Sabotage Info
+        private List<SabotageObject> m_sabotageObjects;
+        
         // Coroutine
         private Coroutine m_roundTimer;
-        
+
+        private RoleKeeper m_roleKeeper;
+
         public override void Enter(List<PlayerControllerCore> _players, bool _asServer)
         {
             base.Enter(_players, _asServer);
@@ -53,12 +64,23 @@ namespace Script.States
                         break;
                 }
             }
+            
+            // Play Music
+            StartGameMusic();
 
             ClearLists();
             
             RegisteringListener(_players);
 
             m_roundTimer = StartCoroutine(RoundTimer(m_roundDuration*60));
+
+            m_roleKeeper = FindAnyObjectByType<RoleKeeper>();
+        }
+        
+        [ObserversRpc(bufferLast: true)]
+        public void StartGameMusic()
+        {
+            MusicLooper.Instance.PlayMusic(MusicTrack.Game);
         }
 
         protected override void OnDestroy()
@@ -104,7 +126,12 @@ namespace Script.States
             
             m_aliveGhosts.Clear();
             m_deadGhosts.Clear();
-        } 
+        }
+
+        public void SetSabotageObjects(List<SabotageObject> _sabotageObjects)
+        {
+            m_sabotageObjects = _sabotageObjects;
+        }
 
         private void RegisteringListener(List<PlayerControllerCore> _players)
         {
@@ -148,18 +175,32 @@ namespace Script.States
          */
         private IEnumerator RoundTimer(float _roundDuration)
         {
-            for (int i = 0; i < m_sunIncrementNumber; i++)
-            {
-                yield return new WaitForSeconds(_roundDuration/m_sunIncrementNumber);
-                // TODO move the sun to reflect time change
-            }
+            // Call Ethan day/night cycle
+            StartDayNight(_roundDuration + m_startDelay, DateTime.Now.Millisecond);
+            
+            // Wait for players to settle in the starting room before opening the doors
+            yield return new WaitForSeconds(m_startDelay);
+
+            m_startingDoor.OpenDoors();
+
+            SabotageManager sabotageManager = FindAnyObjectByType<SabotageManager>();
+            sabotageManager?.Initialize();
+            
+            PurrLogger.Log($"Round Duration {_roundDuration}s");
+            yield return new WaitForSeconds(_roundDuration);
             // Time ended
             PurrLogger.Log("Round Timer Ended", this);
             MoveToEnd(true);
         }
 
+        [ObserversRpc(bufferLast:true)]
+        public void StartDayNight(float _roundDuration, int _seed)
+        {
+            if (InstanceHandler.TryGetInstance(out LightTimer lightTimer))
+                lightTimer.StartLightSystem(_roundDuration, _seed);
+        }
+        
         // Action Reactions
-
         private void OnGhostDeathChange(bool _deathOrRevive, PlayerID _playerID)
         {
             PurrLogger.Log($"Ghost death: {_deathOrRevive}, PlayerID: {_playerID}");
@@ -172,7 +213,7 @@ namespace Script.States
                     m_deadGhosts.Add(_playerID);
                 }
 
-                if (m_deadGhosts.Count >= m_ghosts.Count)
+                if (m_deadGhosts.Count + m_roleKeeper.GetDisconnectedPlayers().Count >= m_ghosts.Count)
                 {
                     MoveToEnd(true);
                 }

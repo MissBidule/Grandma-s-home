@@ -11,22 +11,23 @@ using UnityEngine.Rendering;
  * @brief Contains class declaration for TransformPreviewGhost
  * @details The TransformPreviewGhost class handles the preview of transformations, checking for collisions and updating materials accordingly.
  */
-public class GhostMorphPreview : NetworkBehaviour
+public class GhostMorphPreview : MonoBehaviour
 {
     [SerializeField] private float m_scanRange = 10f;
     [SerializeField] private LayerMask m_scanLayerMask;
     [SerializeField] private GameObject m_mesh;
+    [SerializeField] private Shader m_shader;
 
     private HashSet<Collider> m_colliders = new HashSet<Collider>();
     private MeshRenderer m_meshRenderer;
-    private Collider m_previewCollider;
+    public Collider m_previewCollider;
     public WheelController m_wheel;
     public bool m_canMorph => m_colliders.Count == 0;
 
     [NonSerialized] public GameObject m_currentPrefab = null;
 
-    [SerializeField] private Color m_validColor = new Color(1f, 1f, 1f, 0f);
-    [SerializeField] private Color m_invalidColor = new Color(1f, 0f, 0f, 0f);
+    [SerializeField] private Color m_validColor = new Color(1f, 1f, 1f, 1f);
+    [SerializeField] private Color m_invalidColor = new Color(1f, 0f, 0f, 1f);
 
     [SerializeField] private Color m_highlightColor = Color.yellow;
     [SerializeField] private float m_pulseSpeed = 3f;
@@ -37,10 +38,18 @@ public class GhostMorphPreview : NetworkBehaviour
     private Coroutine m_pulseCoroutine = null;
     private MaterialPropertyBlock m_propertyBlock;
 
-    private Transform m_cameraTransform;
+    [SerializeField] private Material m_ghostTransparentMaterial;
 
-    [SerializeField] private string m_promptMessageSCAN = "T : SCAN";
-    [SerializeField] private string m_promptMessageValid = "F : Valid";
+    private Transform m_cameraTransform;
+    private PlayerControllerCore m_core;
+    private Interact m_interact;
+    private Material[] m_ghostOriginalMaterials;
+    private Renderer m_ghostBodyRenderer;
+    private bool m_rotateLeft = false;
+    private bool m_rotateRight = false;
+
+    [SerializeField] private string m_promptLabelSCAN = "SCAN";
+    [SerializeField] private string m_promptLabelValid = "Confirm transform";
     [SerializeField] private float m_rotateSpeed = 120f;
 
     [SerializeField] private bool m_GhostPreviewOn;
@@ -51,38 +60,29 @@ public class GhostMorphPreview : NetworkBehaviour
      */
     void Start()
     {
-        if (!isOwner) return;
-        InitOwner();
-    }
-
-    protected override void OnOwnerChanged(PurrNet.PlayerID? oldOwner, PurrNet.PlayerID? newOwner, bool asServer)
-    {
-        if (isOwner && m_cameraTransform == null) InitOwner();
-    }
-
-    private void InitOwner()
-    {
         m_meshRenderer = GetComponent<MeshRenderer>();
         m_previewCollider = GetComponent<Collider>();
         m_meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
         m_propertyBlock = new MaterialPropertyBlock();
         // Use PlayerControllerCore.m_playerCamera (Inspector-assigned, always valid)
         // instead of GhostClientController.m_playerCamera (lazy-initialized, may be null)
-        var core = transform.parent.GetComponent<PlayerControllerCore>();
-        if (core != null && core.m_playerCamera != null)
-            m_cameraTransform = core.m_playerCamera.transform;
+        m_core = transform.parent.GetComponent<PlayerControllerCore>();
+        if (m_core != null && m_core.m_playerCamera != null)
+            m_cameraTransform = m_core.m_playerCamera.transform;
+        m_interact = transform.parent.GetComponentInChildren<Interact>();
     }
+
 
     private void Update()
     {
-        if (!isOwner) return;
+        if (m_core == null || !m_core.isOwner) return;
         CheckForScannableObject();
 
         if (m_currentPrefab != null)
         {
             float rotDir = 0f;
-            if (Keyboard.current.qKey.isPressed) rotDir -= 1f;
-            if (Keyboard.current.eKey.isPressed) rotDir += 1f;
+            if (m_rotateLeft) rotDir -= 1f;
+            if (m_rotateRight) rotDir += 1f;
             if (rotDir != 0f)
             {
                 transform.Rotate(0f, rotDir * m_rotateSpeed * Time.deltaTime, 0f, Space.World);
@@ -98,7 +98,6 @@ public class GhostMorphPreview : NetworkBehaviour
      */
     public void ScanForPrefab()
     {
-        
         Debug.Log("Scan");
 
         Vector3 rayOrigin = m_cameraTransform.transform.position;
@@ -148,17 +147,21 @@ public class GhostMorphPreview : NetworkBehaviour
         m_currentPrefab = _prefab;
 
         MeshFilter meshFilter = _prefab.GetComponentInChildren<MeshFilter>();
-        BoxCollider collider = _prefab.GetComponentInChildren<BoxCollider>();
+        MeshCollider collider = _prefab.GetComponentInChildren<MeshCollider>();
         MeshRenderer prefabRenderer = _prefab.GetComponentInChildren<MeshRenderer>();
 
         m_meshRenderer.enabled = true;
         GetComponent<MeshFilter>().mesh = meshFilter.sharedMesh;
 
+        SwapGhostMaterial(true);
+
         if (prefabRenderer != null)
         {
             m_meshRenderer.sharedMaterials = prefabRenderer.sharedMaterials;
+            //This one prevents unwanted visuals
+            UpdateMaterial();
 
-            InteractPromptUI.m_Instance.Show(m_promptMessageValid);
+            InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelValid));
             m_GhostPreviewOn =true;
         }
         m_colliders.Clear();
@@ -182,7 +185,7 @@ public class GhostMorphPreview : NetworkBehaviour
 
         float offsetY = playerBounds.min.y - previewBounds.min.y;
 
-        transform.localPosition = new Vector3(0f, offsetY+0.02f, 0f);
+        transform.localPosition = new Vector3(0f, offsetY+0.1f, 0f);
 
         UpdateMaterial();
     }
@@ -190,8 +193,10 @@ public class GhostMorphPreview : NetworkBehaviour
     public void HidePreview()
     {
         m_meshRenderer.enabled = false;
-        m_GhostPreviewOn=false;//
+        m_GhostPreviewOn = false;
         m_currentPrefab = null;
+
+        SwapGhostMaterial(false);
     }
 
     /*
@@ -199,16 +204,16 @@ public class GhostMorphPreview : NetworkBehaviour
      * @param _target: The target Collider to copy from.
      * @return void
      */
-    void ReplaceCollider(BoxCollider _target)
+    void ReplaceCollider(MeshCollider _target)
     {
         if (m_previewCollider != null)
         {
             Destroy(m_previewCollider);
         }
 
-        BoxCollider box = gameObject.AddComponent<BoxCollider>();
-        box.center = _target.center;
-        box.size = _target.size;
+        MeshCollider box = gameObject.AddComponent<MeshCollider>();
+        box.sharedMesh = _target.sharedMesh;
+        box.convex = true;
         box.isTrigger = true;
         m_previewCollider = box;
     }
@@ -256,19 +261,13 @@ public class GhostMorphPreview : NetworkBehaviour
      */
     void UpdateMaterial()
     {
-        if (!isOwner) return;
+        if (m_meshRenderer == null) return;
         Material[] mats = m_meshRenderer.materials;
         Color targetColor = m_canMorph ? m_validColor : m_invalidColor;
         foreach (Material mat in mats)
         {
+            mat.shader = m_shader;
             mat.color = targetColor;
-
-            mat.SetFloat("_Surface", 1);
-            mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-            mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-            mat.SetInt("_ZWrite", 0);
-            mat.renderQueue = 3000;
-            mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
         }
     }
 
@@ -278,13 +277,13 @@ public class GhostMorphPreview : NetworkBehaviour
      */
     private void CheckForScannableObject()
     {
-        if (!isOwner) return;
         if (m_cameraTransform == null || GetComponentInParent<GhostMorph>().m_isMorphed)
         {
             ClearHighlight();
-            
             return;
         }
+        if (m_interact != null && m_interact.m_onFocus != null) return;
+        if (m_wheel != null && m_wheel.IsWheelOpen()) return;
 
         Vector3 rayOrigin = m_cameraTransform.transform.position;
         Vector3 rayDirection = m_cameraTransform.transform.forward;
@@ -310,7 +309,7 @@ public class GhostMorphPreview : NetworkBehaviour
                     if(!GetComponentInParent<GhostMorph>().m_isMorphed)
                     {
                        // There is a clone for few seconds...
-                    InteractPromptUI.m_Instance.Show(m_promptMessageSCAN);
+                    InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "Scan", m_promptLabelSCAN));
                     }
                     ClearHighlight();
                     HighlightObject(hitObject);
@@ -319,6 +318,7 @@ public class GhostMorphPreview : NetworkBehaviour
             else
             {
                 ClearHighlight();
+                InteractPromptUI.m_Instance.Hide();
             }
         }
         else
@@ -328,7 +328,7 @@ public class GhostMorphPreview : NetworkBehaviour
             InteractPromptUI.m_Instance.Hide();
 
             if(m_GhostPreviewOn == true){
-            InteractPromptUI.m_Instance.Show(m_promptMessageValid);
+            InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelValid));
             
             } 
         }
@@ -341,7 +341,7 @@ public class GhostMorphPreview : NetworkBehaviour
      */
     private bool IsPartOfPlayer(GameObject _obj)
     {
-        return _obj.transform.IsChildOf(transform.root);
+        return _obj.GetComponentInParent<PlayerControllerCore>() != null;
     }
 
     /*
@@ -422,6 +422,28 @@ public class GhostMorphPreview : NetworkBehaviour
             }
 
             m_currentHighlightedObject = null;
+        }
+    }
+
+    public void SetRotateLeft(bool active) => m_rotateLeft = active;
+    public void SetRotateRight(bool active) => m_rotateRight = active;
+
+    private void SwapGhostMaterial(bool _transparent)
+    {
+        if (_transparent)
+        {
+            m_ghostBodyRenderer = m_mesh.GetComponentInChildren<Renderer>();
+            if (m_ghostOriginalMaterials == null)
+                m_ghostOriginalMaterials = m_ghostBodyRenderer.sharedMaterials;
+            var mats = m_ghostBodyRenderer.sharedMaterials;
+            mats[0] = m_ghostTransparentMaterial;
+            m_ghostBodyRenderer.sharedMaterials = mats;
+        }
+        else if (m_ghostBodyRenderer != null && m_ghostOriginalMaterials != null)
+        {
+            m_ghostBodyRenderer.sharedMaterials = m_ghostOriginalMaterials;
+            m_ghostBodyRenderer = null;
+            m_ghostOriginalMaterials = null;
         }
     }
 }

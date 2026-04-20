@@ -4,12 +4,13 @@
  */
 using UnityEngine;
 using PurrNet;
+using System.Collections.Generic;
 
 public class BrokeDecor : NetworkBehaviour
 {
     [Header("State Meshes")]
-    [SerializeField] private GameObject m_normalMesh;
-    [SerializeField] private GameObject m_brokenMesh;
+    [SerializeField] private List<GameObject> m_additionalMeshes = new();
+    [SerializeField] private GameObject m_brokenPrefab;
 
     [Header("Score")]
     [SerializeField] private int m_scoreValue = 50;
@@ -17,9 +18,15 @@ public class BrokeDecor : NetworkBehaviour
     public bool m_isBroken;
     public bool m_alreadyBroken=false;
 
+    public void Start()
+    {
+    }
+
     [ObserversRpc(runLocally:true)]
     public void Broke()
     {
+        if (!m_isBroken)
+            FloatingDamageText.Spawn(transform.position, m_scoreValue);
         m_isBroken = true;
         ApplyState();
     }
@@ -27,25 +34,35 @@ public class BrokeDecor : NetworkBehaviour
 
     private void ApplyState(RPCInfo info = default)
     {
-        if (m_normalMesh != null)
-        {
-            var r = m_normalMesh.GetComponent<Renderer>();
-            if (r != null)
-                r.enabled = !m_isBroken;
+        var r = GetComponent<Renderer>();
+        if (r != null)
+            r.enabled = !m_isBroken;
 
-            var c = m_normalMesh.GetComponent<Collider>();
-            if (c != null)
-                c.enabled = !m_isBroken;
+        var c = GetComponent<Collider>();
+        if (c != null)
+            c.enabled = !m_isBroken;
+
+        if (m_additionalMeshes.Count > 0)
+        {
+            foreach (var m in m_additionalMeshes)
+            {
+                r = m.GetComponent<Renderer>();
+                if (r != null)
+                    r.enabled = !m_isBroken;
+                
+                c = m.GetComponent<Collider>();
+                if (c != null)
+                    c.enabled = !m_isBroken;
+            }
         }
-        
 
-        if (m_brokenMesh != null)
+        if (m_brokenPrefab != null)
         {
-            var r = m_brokenMesh.GetComponent<Renderer>();
+            r = m_brokenPrefab.GetComponent<Renderer>();
             if (r != null)
                 r.enabled = m_isBroken;
                 
-            var c = m_brokenMesh.GetComponent<Collider>();
+            c = m_brokenPrefab.GetComponent<Collider>();
             if (c != null)
                 c.enabled = m_isBroken;
         }

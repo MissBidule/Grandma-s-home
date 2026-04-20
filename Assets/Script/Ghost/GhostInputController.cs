@@ -20,11 +20,12 @@ public class GhostInputController : MonoBehaviour
     private GhostMorph m_ghostMorph;
     private GhostMorphPreview m_ghostMorphPreview;
     private Interact m_ghostInteract;
+    private TutoInstructions m_tutoChildInstructions;
     public QteCircle m_qteCircle;
 
     private bool isOwner => m_ghostClientController != null && m_ghostClientController.isOwner;
 
-    [SerializeField] private string m_promptMessageValid = "F : Valid";
+    [SerializeField] private string m_promptLabelValid = "Confirm transform";
 
     /*
      * @brief Awake is called when the script instance is being loaded
@@ -37,6 +38,7 @@ public class GhostInputController : MonoBehaviour
         m_ghostMorph = GetComponent<GhostMorph>();
         m_ghostMorphPreview = GetComponentInChildren<GhostMorphPreview>();
         m_ghostInteract = GetComponentInChildren<Interact>();
+        m_tutoChildInstructions = GetComponentInChildren<TutoInstructions>();
     }
 
     /*
@@ -49,6 +51,35 @@ public class GhostInputController : MonoBehaviour
     {
         if (!isOwner) return;
         m_movementInputVector = _context.ReadValue<Vector2>();
+    }
+
+    /*
+     * @brief OnJump is called by the Input System when jump input is detected
+     * @param _context: The context of the input action.
+     * @return void
+     * [SERVER]
+     */
+    public void OnJump(InputAction.CallbackContext _context)
+    {
+        if (!isOwner) return;
+        if(m_tutoChildInstructions == null)
+        {
+            if (_context.performed)
+            {
+                m_ghostClientController.OnJump();
+            }
+        }
+        else
+        {
+            if (!m_tutoChildInstructions.m_hasStarted)
+            {
+                m_ghostClientController.OnJump();
+            }
+            else
+            {
+                return;
+            }
+        }
     }
 
     /*
@@ -76,7 +107,9 @@ public class GhostInputController : MonoBehaviour
         if (_context.performed)
         {
             m_ghostClientController.OnScan();
-            InteractPromptUI.m_Instance.Show(m_promptMessageValid);
+            var wheel = m_ghostClientController.m_wheel;
+            if (wheel == null || !wheel.m_isWaitingForSlotSelection)
+                InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelValid));
         }
     }
 
@@ -88,31 +121,27 @@ public class GhostInputController : MonoBehaviour
     public void OnOpenWheel(InputAction.CallbackContext _context)
     {
         if (!isOwner) return;
-        if (_context.performed)
+        if (_context.started)
         {
             m_ghostClientController.OnOpenWheel();
         }
-    }
-
-    /*
-     * @brief OnScan is called by the Input System when scan input is detected 
-     * @param _context: The context of the input action
-     * @return void
-     */
-    public void OnTransformConfirm(InputAction.CallbackContext _context)
-    {
-        if (!isOwner) return;
-        if (_context.performed)
+        else if (_context.canceled)
         {
-            
-            
-            m_ghostClientController.OnMorph();
-
+            m_ghostClientController.OnCloseWheel();
         }
     }
 
-    public void OnRotatePreviewLeft(InputAction.CallbackContext _context) { }
-    public void OnRotatePreviewRight(InputAction.CallbackContext _context) { }
+    public void OnRotatePreviewLeft(InputAction.CallbackContext _context)
+    {
+        if (!isOwner) return;
+        m_ghostMorphPreview.SetRotateLeft(!_context.canceled);
+    }
+
+    public void OnRotatePreviewRight(InputAction.CallbackContext _context)
+    {
+        if (!isOwner) return;
+        m_ghostMorphPreview.SetRotateRight(!_context.canceled);
+    }
 
     /*
      * @brief OnInteract is called by the Input System when interact input is detected
@@ -124,6 +153,12 @@ public class GhostInputController : MonoBehaviour
         if (!isOwner) return;
         if (_context.performed)
         {
+            if (m_ghostClientController.m_wheel != null && m_ghostClientController.m_wheel.IsWheelOpen()) return;
+            if (m_ghostMorphPreview.m_currentPrefab != null)
+            {
+                m_ghostClientController.OnMorph();
+                return;
+            }
             m_ghostInteract.OnInteract(m_ghostInteract.m_onFocus);
         }
         else if (_context.canceled)
@@ -168,22 +203,24 @@ public class GhostInputController : MonoBehaviour
     }
     
     /*
-     * @brief OnHint is called by the Input System when hint input is detected used to display the controls hint
+     * @brief OnLeaderboard is called by the Input System when the leaderboard input is held used to display the controls hint
      * @param _context: The context of the input action
      * @return void
      */
-    public void OnHint(InputAction.CallbackContext _context)
+    public void OnLeaderboard(InputAction.CallbackContext _context)
     {
         if (!isOwner) return;
+        if (!InstanceHandler.TryGetInstance(out UIsManager uisManager))
+            return;
         if (_context.performed)
         {
-            if (!InstanceHandler.TryGetInstance(out UIsManager uisManager))
-                return;
-            
-            uisManager.ToggleView<InstructionsView>();
+            uisManager.ToggleView<LeaderboardUI>();
+        }
+        else if (_context.canceled)
+        {
+            uisManager.ToggleView<LeaderboardUI>();
         }
     }
-
 
     /*
      * @brief OnValidate is called by the Input System when validate input is detected
@@ -203,7 +240,11 @@ public class GhostInputController : MonoBehaviour
 
             if(m_qteCircle.m_isRunning)
             {
-                m_qteCircle.CheckSuccess();
+                if (m_qteCircle.CheckSuccess())
+                {
+                    //QTE finished
+                    m_ghostClientController.SabotageNotification();
+                }
             }
         }
     }
@@ -222,7 +263,7 @@ public class GhostInputController : MonoBehaviour
                 return;
             }
 
-            // TODO: ouvrir le menu pause (lucas askip)
+            PauseMenuView.Instance?.OnEscapePressed();
         }   
     }
 

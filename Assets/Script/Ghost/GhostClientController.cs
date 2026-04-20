@@ -11,12 +11,14 @@ public class GhostClientController : NetworkBehaviour
     private GhostController m_ghostController;
     private GhostMorph m_ghostMorph;
     private GhostMorphPreview m_ghostMorphPreview;
+    private PredictiveMovement m_predictiveMovement;
 
     public CinemachineCamera m_playerCamera;
     public DeathEffect m_cameraEffect;
 
     private bool last_stopped = false;
     private bool last_slowed = false;
+    private bool m_isMoving = false;
 
 
     [Header("Canva")]
@@ -25,25 +27,26 @@ public class GhostClientController : NetworkBehaviour
     public WheelController m_wheel;
 
     private GhostHUDView m_ghostHUDView;
+    private QteCircle m_qteCircle;
 
-    private bool morphPressed = false;
-    private bool dashPressed = false;
-    private bool sneakPressed = false;
+    private bool m_jumpPressed = false;
+    private bool m_morphPressed = false;
+    private bool m_dashPressed = false;
+    private bool m_sneakPressed = false;
+    private bool m_waitingForInputRelease = false;
 
     private bool m_reviveUIActive = false;
     private ReviveBarUI m_reviveBarUI;
     private float m_reviveTimer = 0f;
     private float m_reviveDuration = 0f;
 
-    protected override void OnSpawned()
+    void Start()
     {
-        base.OnSpawned();
-
         m_ghostController = GetComponent<GhostController>();
         m_ghostMorph = GetComponent<GhostMorph>();
         m_ghostMorphPreview = GetComponentInChildren<GhostMorphPreview>();
-
-        if (isOwner) InitOwner();
+        m_predictiveMovement = GetComponent<PredictiveMovement>();
+        InstanceHandler.TryGetInstance(out m_ghostHUDView);
     }
 
     protected override void OnOwnerChanged(PurrNet.PlayerID? oldOwner, PurrNet.PlayerID? newOwner, bool asServer)
@@ -104,23 +107,41 @@ public class GhostClientController : NetworkBehaviour
             last_slowed = m_ghostController.m_isSlowed;
         }
 
-        // DebugPrintTrafic();
+        var wishDir = GetDirectionIntention(m_ghostInputController.m_movementInputVector);
+
+        // Client-side freeze: wait for player to fully release movement after morphing
+        if (m_waitingForInputRelease)
+        {
+            if (wishDir == Vector3.zero)
+                m_waitingForInputRelease = false;
+            else
+                wishDir = Vector3.zero;
+        }
+
+        var inputData = new PredictiveInputData
+        {
+            tick = m_predictiveMovement.GetTick(),
+            wishDirection = wishDir,
+            dashPressed = m_dashPressed,
+            sneakPressed = m_sneakPressed,
+            position = transform.position,
+            jumpPressed = m_jumpPressed
+        };
+
+        m_predictiveMovement.NewInput(inputData);
 
         SendGhostRPC(
-            GetDirectionIntention(m_ghostInputController.m_movementInputVector),
-            morphPressed ? m_ghostMorphPreview.m_currentPrefab : null,                  // Morph Parameters
+            inputData,
+            m_morphPressed ? m_ghostMorphPreview.m_currentPrefab : null,                  // Morph Parameters
             m_ghostMorphPreview.transform.localPosition,                                 // Morph Parameters
-            dashPressed,
-            sneakPressed,
             m_ghostMorphPreview.transform.localRotation
         );
 
         // Reset values after sending to server
-        if (morphPressed) m_ghostMorphPreview.HidePreview();
-        morphPressed = false;
-        
-        // Dash 
-        dashPressed = false;
+        if (m_morphPressed) { m_ghostMorphPreview.HidePreview(); m_waitingForInputRelease = true; }
+        m_morphPressed = false;
+        m_jumpPressed = false;
+        m_dashPressed = false;
         
         if (m_reviveUIActive)
         {
@@ -142,8 +163,9 @@ public class GhostClientController : NetworkBehaviour
         print("sended");
         print(m_ghostInputController.m_movementInputVector);
         print(GetDirectionIntention(m_ghostInputController.m_movementInputVector));
-        print(morphPressed);
-        print(morphPressed ? m_ghostMorphPreview.m_currentPrefab : null);
+        print(m_jumpPressed);
+        print(m_morphPressed);
+        print(m_morphPressed ? m_ghostMorphPreview.m_currentPrefab : null);
         print(m_ghostMorphPreview.transform.localPosition);
     }
 
@@ -204,21 +226,39 @@ public class GhostClientController : NetworkBehaviour
         m_ghostMorphPreview.ScanForPrefab();
     }
 
+    public void OnJump()
+    {
+        if (!isOwner) return;
+        if (!m_qteCircle) m_qteCircle = FindAnyObjectByType<QteCircle>();
+        if (m_qteCircle != null && m_qteCircle.m_isRunning) return;
+        m_jumpPressed = true;
+    }
+
     public void OnOpenWheel()
     {
         if (!isOwner) return;
         if (m_ghostController.m_isStopped) return;
-        m_wheel.Toggle();
+        if (!m_qteCircle) m_qteCircle = FindAnyObjectByType<QteCircle>();
+        if (m_qteCircle != null && m_qteCircle.m_isRunning) return;
+        m_wheel.Open();
+    }
+
+    public void OnCloseWheel()
+    {
+        if (!isOwner) return;
+        m_wheel.Close();
     }
     public void OnMorph()
     {
         if (!isOwner) return;
         if (m_ghostController.m_isStopped) return;
+        if (!m_qteCircle) m_qteCircle = FindAnyObjectByType<QteCircle>();
+        if (m_qteCircle != null && m_qteCircle.m_isRunning) return;
         if (!m_ghostMorphPreview.m_canMorph || !m_ghostMorphPreview.m_currentPrefab || m_ghostMorph.m_isMorphed) return;
         if (m_wheel.IsWheelOpen()) m_wheel.Toggle();
         
         m_wheel.ClearSelection();
-        morphPressed = true;
+        m_morphPressed = true;
         InteractPromptUI.m_Instance.Hide();
     }
 
@@ -227,7 +267,7 @@ public class GhostClientController : NetworkBehaviour
      */
     public void OnDash()
     {
-        dashPressed = true;
+        m_dashPressed = true;
     }
     
     /*
@@ -235,7 +275,7 @@ public class GhostClientController : NetworkBehaviour
      */
     public void Sneak(bool _sneakStatus)
     {
-        sneakPressed = _sneakStatus;
+        m_sneakPressed = _sneakStatus;
     }
 
     /**
@@ -243,6 +283,21 @@ public class GhostClientController : NetworkBehaviour
      */
     private Vector3 GetDirectionIntention(Vector2 _movement)
     {
+        if(_movement == Vector2.zero)
+        {
+            if (m_isMoving)
+            {
+                m_ghostController.callAnimationCrossFade("ghost_idle", 0.2f);
+                m_isMoving = false;
+            }
+        } else
+        {
+            if (!m_isMoving)
+            {
+                m_ghostController.callAnimationCrossFade("ghost_walk", 0.2f);
+                m_isMoving = true;
+            }
+        }
         Transform cam = m_playerCamera.transform;
 
         Vector3 forward = cam.forward;
@@ -261,30 +316,45 @@ public class GhostClientController : NetworkBehaviour
         return wishDir;
     }
 
+    [ObserversRpc (requireServer: false)]
+    public void SabotageNotification()
+    {
+        InteractPromptUI.m_Instance.ShowSabotage(m_ghostController.m_username);
+    }
+
     [ServerRpc]
-    private void SendGhostRPC(Vector3 _movement, GameObject _prefab, Vector3 _pos, bool _dashPressed, bool _sneakPressed, Quaternion _rotation)
+    private void SendGhostRPC(PredictiveInputData _input, GameObject _prefab, Vector3 _pos, Quaternion _rotation)
     {
         if (_prefab)
         {
-            // On morph: freeze movement and require input release before allowing revert
+            // On morph: freeze movement server-side before passing to PredictiveMovement
+            _input.wishDirection = Vector3.zero;
+            m_predictiveMovement.ServerReceiveInput(_input);
             m_ghostController.m_wishDir = Vector3.zero;
             m_ghostController.m_morphInputReleased = false;
             m_ghostMorph.Morphing(_prefab, _pos, _rotation);
         }
         else if (!m_ghostController.m_morphInputReleased)
         {
-            // Keep frozen until player actually releases all movement input
-            if ((Vector2)_movement == Vector2.zero)
+            // Keep frozen until player releases all movement input
+            if (_input.wishDirection == Vector3.zero)
                 m_ghostController.m_morphInputReleased = true;
+            _input.wishDirection = Vector3.zero;
+            m_predictiveMovement.ServerReceiveInput(_input);
             m_ghostController.m_wishDir = Vector3.zero;
         }
         else
         {
-            m_ghostController.m_wishDir = _movement;
-        if (_dashPressed)
-            m_ghostController.StartDash();
-        
-        m_ghostController.m_isSneaking = _sneakPressed;
+            m_predictiveMovement.ServerReceiveInput(_input);
+            m_ghostController.m_wishDir = _input.wishDirection;
+            if (_input.dashPressed)
+                m_ghostController.StartDash();
+            m_ghostController.m_isSneaking = _input.sneakPressed;
         }
+    }
+
+    public void SabotageAnimation(bool _value)
+    {
+        m_ghostController.callAnimationSetBool("IsSabotaging", _value);
     }
 }
