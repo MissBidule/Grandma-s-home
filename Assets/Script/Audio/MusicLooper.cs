@@ -39,7 +39,7 @@ namespace Script.Audio
         [SerializeField] private float m_panicLoopEndTime = 30;
         
         // Volume settings
-        private float m_musicVolume = 1; // 0 - 1 the volume of the music
+        public float m_musicVolume = 0.5f; // 0 - 1 the volume of the music
 
         // Transition Running Parameters
         private MusicTrack m_currentMusicTrack;

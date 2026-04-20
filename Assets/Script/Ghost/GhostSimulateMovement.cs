@@ -102,7 +102,7 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
         
         Vector3 targetVel = speedModifier * m_walkSpeed * wishDir;
         
-        m_ghostController.m_soundEffects?.SetWalkingSpeed((_input.wishDirection * (m_walkSpeed * speedModifier)).magnitude);
+        m_ghostController.m_soundEffects?.SetWalkingSpeed(_input.sneakPressed ? 0 : (_input.wishDirection * (m_walkSpeed * speedModifier)).magnitude);
 
         Vector3 currentVel = m_rigidbody.linearVelocity;
         Vector3 currentHorizontal = new Vector3(currentVel.x, 0f, currentVel.z);

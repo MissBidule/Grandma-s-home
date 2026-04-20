@@ -53,8 +53,11 @@ public class ChildSimulateMovement : NetworkBehaviour, ISimulateMovement
         Vector3 movement = _input.wishDirection * (m_speed * Time.fixedDeltaTime * speedModifier);
 
         m_rigidbody.position += movement;
-        
-        m_childController.m_soundEffects?.SetWalkingSpeed((_input.wishDirection * (m_speed * speedModifier)).magnitude);
+
+        if (!_input.sneakPressed)
+            m_childController.m_soundEffects?.SetWalkingSpeed((_input.wishDirection * (m_speed * speedModifier)).magnitude);
+        else
+            m_childController.m_soundEffects?.SetWalkingSpeed(0);
 
         m_jumpAppliedThisFrame = false;
         if (_input.jumpPressed) 
