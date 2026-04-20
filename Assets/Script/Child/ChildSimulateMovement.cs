@@ -8,6 +8,7 @@ using UnityEngine;
 public class ChildSimulateMovement : NetworkBehaviour, ISimulateMovement
 {
     [SerializeField] public float m_speed = 5f;
+    [SerializeField] private float m_acceleration = 25f;
     [SerializeField] private float m_jumpImpulse = 6.0f;
     public bool m_isScared = false;
     [SerializeField] private float m_scaredAmplitude = 0.5f;
@@ -43,16 +44,23 @@ public class ChildSimulateMovement : NetworkBehaviour, ISimulateMovement
      */
     public void SimulateMovement(PredictiveInputData _input)
     {
-
         // Rotation
         if (_input.cameraYaw != -1000)  // -1000 is the default value, meaning no input received
             transform.rotation = Quaternion.Euler(0, _input.cameraYaw, 0);
 
-        // Movement
+        // Movement with acceleration
         var speedModifier = GetSpeedModifier(_input.sneakPressed);
-        Vector3 movement = _input.wishDirection * (m_speed * Time.fixedDeltaTime * speedModifier);
+        Vector3 wishDir = _input.wishDirection;
 
-        m_rigidbody.position += movement;
+        Vector3 targetVel = speedModifier * m_speed * wishDir;
+
+        Vector3 currentVel = m_rigidbody.linearVelocity;
+        Vector3 currentHorizontal = new Vector3(currentVel.x, 0f, currentVel.z);
+
+        Vector3 delta = targetVel - currentHorizontal;
+        Vector3 accel = Vector3.ClampMagnitude(delta * (m_acceleration * speedModifier), m_acceleration);
+
+        m_rigidbody.linearVelocity += new Vector3(accel.x, 0f, accel.z) * Time.fixedDeltaTime;
 
         m_jumpAppliedThisFrame = false;
         if (_input.jumpPressed) 
