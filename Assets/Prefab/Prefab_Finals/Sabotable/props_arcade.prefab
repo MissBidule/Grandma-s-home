@@ -119,8 +119,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97340a60afd4ec841aef86574611c237, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SabotageObject
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -128,9 +126,11 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   m_vfxPrefab: {fileID: 5429107090083859355}
   m_interactPrefab: {fileID: 712198313424324349}
-  m_vfxAudioSource: {fileID: 5450744683708297593}
+  m_sfxAudioSource: {fileID: 5450744683708297593}
   m_scoreValue: 1
   m_highlightRenderers: []
   m_highlightColor: {r: 0, g: 1, b: 1, a: 1}
@@ -207,7 +207,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -259,8 +259,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1f137a33c6343d44852c91b96225750, type: 3}
   m_Name: 
   m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkAudioSource
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -268,8 +266,10 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _audioSource: {fileID: 2657267315348954286}
-  _ownerAuth: 0
+  _ownerAuth: 1
 --- !u!1001 &5332766199219385488
 PrefabInstance:
   m_ObjectHideFlags: 0

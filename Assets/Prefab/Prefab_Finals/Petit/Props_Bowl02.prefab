@@ -67,10 +67,10 @@ PrefabInstance:
       addedObject: {fileID: 4562228173977110514}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1706ce986f445514ba8d0b926ac0576d, type: 3}
       insertIndex: -1
-      addedObject: {fileID: -8736303667687758542}
+      addedObject: {fileID: 8706383273919612683}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1706ce986f445514ba8d0b926ac0576d, type: 3}
       insertIndex: -1
-      addedObject: {fileID: -5469043918362442079}
+      addedObject: {fileID: -2650631332330939108}
   m_SourcePrefab: {fileID: 100100000, guid: 1706ce986f445514ba8d0b926ac0576d, type: 3}
 --- !u!1 &1329169531260419689 stripped
 GameObject:
@@ -111,8 +111,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5acd96b0ff59994d8438732e92270fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BrokeDecor
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -120,6 +118,8 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   m_additionalMeshes: []
   m_brokenPrefab: {fileID: 4988350463373006251, guid: 463f7b98104d34bafa70e5f6f426de99, type: 3}
   m_scoreValue: 50
@@ -138,8 +138,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8397364f11af50243bf70bb96ef6da4b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScannableObject
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -147,8 +145,10 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   m_icon: {fileID: 21300000, guid: c2eaadd7af9d9e347a1ebf4106da113f, type: 3}
---- !u!82 &-8736303667687758542
+--- !u!82 &8706383273919612683
 AudioSource:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -205,7 +205,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -245,7 +245,7 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &-5469043918362442079
+--- !u!114 &-2650631332330939108
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -257,8 +257,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1f137a33c6343d44852c91b96225750, type: 3}
   m_Name: 
   m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkAudioSource
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -266,5 +264,7 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _audioSource: {fileID: -8736303667687758542}
-  _ownerAuth: 0
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  _audioSource: {fileID: 8706383273919612683}
+  _ownerAuth: 1
