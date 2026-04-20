@@ -162,60 +162,6 @@ MonoBehaviour:
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
   m_propPrefab: {fileID: 5924737024031072118, guid: 0b136d7e93bfa5a42a21cb4eacfcefa0, type: 3}
---- !u!1 &435478077970540318
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 7376190275966909829}
-  - component: {fileID: 8497873565708375247}
-  m_Layer: 0
-  m_Name: props_soda_can
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &7376190275966909829
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 435478077970540318}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -72.06, y: 6.528, z: 23.45}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 1
-  m_Children: []
-  m_Father: {fileID: 6026808229459424311}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8497873565708375247
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 435478077970540318}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2a6b8a39f1b47bf6ea7edb611e079933, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.PropAnchor
-  _isSetup: 0
-  _prefabId: -2147483648
-  _componentIndex: -2147483648
-  _shouldBePooled: 0
-  _parent: {fileID: 0}
-  _invertedPathToNearestParent: 
-  _directChildren: []
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
-  m_propPrefab: {fileID: 241091661168063044, guid: 79bdd0c647254da4ba6a303a30d1f068, type: 3}
 --- !u!1 &644622120513946223
 GameObject:
   m_ObjectHideFlags: 0
@@ -545,7 +491,7 @@ Transform:
   - {fileID: 991420751115261097}
   - {fileID: 6927842556935775344}
   - {fileID: 6429947928074219803}
-  - {fileID: 7376190275966909829}
+  - {fileID: 1769520741185619110}
   - {fileID: 2825489843531228003}
   - {fileID: 8686911057014936931}
   - {fileID: 6846651060290233106}
@@ -1226,7 +1172,7 @@ MonoBehaviour:
   _directChildren: []
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
-  m_sabotageObject: {fileID: 0}
+  m_sabotageObject: {fileID: 1262885173633442451}
   m_trapdoorEntry: {fileID: 0}
   m_trapdoorExit: {fileID: 0}
   m_trapdoorExitRoomType: 0
@@ -1261,7 +1207,7 @@ MonoBehaviour:
   - {fileID: 2421723863797171425}
   - {fileID: 8589417326310673723}
   - {fileID: 1712905178907381922}
-  - {fileID: 8497873565708375247}
+  - {fileID: 8663797086463444035}
   - {fileID: 4070870477234096716}
   - {fileID: 7996639850633879671}
   - {fileID: 51101181351107940}
@@ -3759,6 +3705,60 @@ MonoBehaviour:
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
   m_propPrefab: {fileID: 957770713537100917, guid: 43d4f6f9de264424cba9090db6246639, type: 3}
+--- !u!1 &9215703058498036410
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1769520741185619110}
+  - component: {fileID: 8663797086463444035}
+  m_Layer: 0
+  m_Name: props_soda_can
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1769520741185619110
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9215703058498036410}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -72.06, y: 6.528, z: 23.45}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 6026808229459424311}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8663797086463444035
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9215703058498036410}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a6b8a39f1b47bf6ea7edb611e079933, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Script.HouseBuilding.PropAnchor
+  _isSetup: 0
+  _prefabId: -2147483648
+  _componentIndex: -2147483648
+  _shouldBePooled: 0
+  _parent: {fileID: 0}
+  _invertedPathToNearestParent: 
+  _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
+  m_propPrefab: {fileID: 241091661168063044, guid: 79bdd0c647254da4ba6a303a30d1f068, type: 3}
 --- !u!1001 &200287388359666738
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4782,6 +4782,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 84c8b20274eca5a4aa16fc5536c27c2d, type: 3}
+--- !u!114 &1262885173633442451 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: -3677061320237056459, guid: 84c8b20274eca5a4aa16fc5536c27c2d, type: 3}
+  m_PrefabInstance: {fileID: 6737067738339450022}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97340a60afd4ec841aef86574611c237, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SabotageObject
 --- !u!4 &7420537616017666914 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4289068195972624324, guid: 84c8b20274eca5a4aa16fc5536c27c2d, type: 3}
