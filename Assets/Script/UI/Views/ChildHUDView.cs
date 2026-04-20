@@ -42,7 +42,6 @@ public class ChildHUDView : GameView
     
     public void ShowMessage(string _message)
     {
-        if (!gameObject.activeSelf) return;
         m_hudMessagePanel.SetActive(true);
         m_hudMessage.text = _message;
         StartCoroutine(DisappearMessage(3));
@@ -89,10 +88,10 @@ public class ChildHUDView : GameView
     {
         m_sabotageScoreSlider.value = _sabotageScore;
         m_sabotageScoreSlider.maxValue = _maxScoreSabotage;
-        m_scoreSabotage.text = _sabotageScore.ToString("F2");
+        m_scoreSabotage.text = _sabotageScore+"$";
             
         m_brokenScoreSlider.value = _brokenScore;
         m_brokenScoreSlider.maxValue = _maxScoreBroken;
-        m_scoreBroken.text = _brokenScore.ToString("F2")+"$";
+        m_scoreBroken.text = _brokenScore+"$";
     }
 }

@@ -13,48 +13,64 @@ public class Interact : NetworkBehaviour
     [Header("Detection")]
     [SerializeField] public bool m_isGhost = true;
     public IInteractable m_onFocus; // Can be either GhostStatus or SabotageObject
-    [SerializeField] private float m_interactRange = 3f;
+    private List<IInteractable> m_interactable = new List<IInteractable>();
 
-    private Transform m_cameraTransform;
-    private PlayerControllerCore m_core;
-
-    private void Start()
-    {
-        m_core = GetComponentInParent<PlayerControllerCore>();
-        if (m_core != null && m_core.m_playerCamera != null)
-            m_cameraTransform = m_core.m_playerCamera.transform;
-    }
 
     private void Update()
     {
         if (!isOwner) return;
 
-        IInteractable hit = RaycastForInteractable();
-
-        if (hit != m_onFocus)
-        {
-            hit?.OnFocus(this);
-            m_onFocus?.OnUnfocus(this);
-            m_onFocus = hit;
+        if (m_interactable.Count <= 0) { 
+            
+            if (m_onFocus != null)
+            {
+                m_onFocus.OnUnfocus(this);
+                m_onFocus = null;
+            }
+            return;
         }
+                
+        IInteractable closest = CheckClosest();
+
+        if (closest != m_onFocus)
+        {
+            closest?.OnFocus(this);
+            m_onFocus?.OnUnfocus(this);
+            m_onFocus = closest;
+        }
+        print(m_onFocus);
     }
 
-    private IInteractable RaycastForInteractable()
+    private float SqDistanceTo(Transform _transform)
     {
-        if (m_cameraTransform == null) return null;
+        return (_transform.position - transform.position).sqrMagnitude;
+    }
 
-        if (!Physics.Raycast(m_cameraTransform.position, m_cameraTransform.forward, out RaycastHit hit, m_interactRange))
-            return null;
+    /*
+    @brief      Check closest interactable object
+    */
+    private IInteractable CheckClosest()
+    {
+        IInteractable best = null;
+        float bestSqrDistance = float.MaxValue;
 
-        IInteractable interactable = hit.collider.GetComponentInParent<IInteractable>();
-        if (interactable == null) return null;
-
-        if (interactable is GhostController ghost)
+        foreach (IInteractable interactable in m_interactable)
         {
-            if (!m_isGhost || !ghost.m_isStopped) return null;
-        }
+            var ghost = interactable as GhostController;
+            if (ghost != null)
+            {
+                if (!m_isGhost || !ghost.m_isStopped) continue; // Only interact with downed ghosts
+            }
 
-        return interactable;
+            MonoBehaviour mono = interactable as MonoBehaviour;
+            float sqrDistance = SqDistanceTo(mono.transform);
+            if (sqrDistance < bestSqrDistance)
+            {
+                bestSqrDistance = sqrDistance;
+                best = interactable;
+            }
+        }
+        return best;
     }
 
     /*
@@ -65,7 +81,7 @@ public class Interact : NetworkBehaviour
     public void OnInteract(IInteractable _currentFocus)
     {
         if (_currentFocus == null) return;
-        if (_currentFocus is GhostController)
+        if (_currentFocus is GhostController ghost)
         {
             OnRevive(_currentFocus);
             return;
@@ -84,11 +100,7 @@ public class Interact : NetworkBehaviour
     {
         if (m_isGhost)
         {
-            GhostController ghostController = GetComponentInParent<GhostController>();
-            if (ghostController != null)
-            {
-                ghostController.ResetDashCooldown();
-            }
+            GetComponentInParent<GhostController>().ApplyDashToAll(false, true);
         }
         else
         {
@@ -100,19 +112,49 @@ public class Interact : NetworkBehaviour
     /**
     @brief      Called when the interact button is released
     */
-    [ServerRpc]
     public void StopInteract(IInteractable _currentFocus)
     {
         if (_currentFocus == null) return;
         _currentFocus?.OnStopInteract(this);
     }
 
+
+
     public void OnSabotageOver(bool success)
     {
         Rigidbody rb = GetComponentInParent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
         if (success)
+        {
+            m_interactable.Remove(m_onFocus);
             m_onFocus = null;
+        }
+    }
+
+    /*
+     * @brief OnTriggerEnter is called when another collider enters the trigger
+     * @param _other: The other Collider that entered.
+     * @return void
+     */
+    void OnTriggerEnter(Collider _other)
+    {
+        if (!isOwner) return;
+        if (_other.GetComponentInParent<IInteractable>() is IInteractable interactable)
+        {
+            m_interactable.Add(interactable);
+        }
+    }
+    /*
+     * @brief OnTriggerExit is called when another collider exits the trigger
+     * @param _other: The other Collider that exited.
+     * @return void
+     */
+    void OnTriggerExit(Collider _other)
+    {
+        if (!isOwner) return;
+        if (_other.GetComponentInParent<IInteractable>() is IInteractable interactable)
+        {
+            m_interactable.Remove(interactable);
+        }
     }
 }
-

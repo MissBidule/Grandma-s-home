@@ -13,16 +13,12 @@ public class ChildCameraController : MonoBehaviour
     public float m_minPitch = -40f;
     public float m_maxPitch = 70f;
     public float m_collisionOffset = 0.2f;
-    public float m_collisionRadius = 0.2f;
-    public float m_cameraSnapSpeed = 15f;
-    public float m_cameraReturnSpeed = 4f;
     public LayerMask m_collisionMask;
     public Vector3 m_pivotOffset = new Vector3(0f, 1.6f, 0f); // approx head height
 
-    public float m_yaw;
+    private float m_yaw;
     private float m_pitch;
-    private float m_currentDistance;
-    [SerializeField] private float m_xOffset;
+    private float m_xOffset;
 
     private ChildInputController m_childInputController;
     private Transform m_target;
@@ -38,15 +34,10 @@ public class ChildCameraController : MonoBehaviour
         m_childInputController = GetComponentInParent<ChildInputController>();
         m_target = transform.parent;
         m_rigidbody = GetComponentInParent<Rigidbody>();
+        m_xOffset = transform.position.x;
 
-        m_sensitivity = PlayerPrefs.GetFloat("Settings_MouseSensitivity", PurrLobby.AccessibilitySettingsPanel.DefaultSensitivity);
-        m_currentDistance = m_distance;
         UnityEngine.Cursor.lockState = CursorLockMode.Locked;
     }
-
-    private void OnEnable()  => PurrLobby.AccessibilitySettingsPanel.OnSensitivityChanged += OnSensitivityChanged;
-    private void OnDisable() => PurrLobby.AccessibilitySettingsPanel.OnSensitivityChanged -= OnSensitivityChanged;
-    private void OnSensitivityChanged(float v) => m_sensitivity = v;
 
     /*
      * @brief   Updates camera rotation and position after player movement
@@ -67,22 +58,17 @@ public class ChildCameraController : MonoBehaviour
         desiredOffset = rotation * Vector3.back * m_distance;
         float finalDistance = m_distance;
 
-        if (Physics.SphereCast(
+        if (Physics.Raycast(
             pivot,
-            m_collisionRadius,
             desiredOffset.normalized,
             out RaycastHit hit,
             m_distance,
             m_collisionMask))
         {
-            finalDistance = Mathf.Max(0f, hit.distance - m_collisionOffset);
+            finalDistance = hit.distance - m_collisionOffset;
         }
-
-        float speed = finalDistance < m_currentDistance ? m_cameraSnapSpeed : m_cameraReturnSpeed;
-        m_currentDistance = Mathf.Lerp(m_currentDistance, finalDistance, speed * Time.deltaTime);
-
-        Vector3 finalOffset = rotation * Vector3.back * m_currentDistance;
-        transform.position = pivot + finalOffset;
+        Vector3 finalOffset2 = rotation * Vector3.back * finalDistance;
+        transform.position = pivot + finalOffset2;
         transform.LookAt(pivot);
     }
 }

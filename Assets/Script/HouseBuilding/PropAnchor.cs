@@ -1,7 +1,4 @@
-using PurrNet;
-using PurrNet.Logging;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Script.HouseBuilding
 {
@@ -12,17 +9,10 @@ namespace Script.HouseBuilding
      * population, some of these anchors will be randomly selected to instantiate
      * their assigned prop prefab.
      */
-    public class PropAnchor : NetworkBehaviour
+    public class PropAnchor : MonoBehaviour
     {
         [SerializeField] [Tooltip("Prefab that will be instantiated at this anchor during room generation.")] private GameObject m_propPrefab;
 
-        protected override void OnSpawned()
-        {
-            base.OnSpawned();
-            if (m_propPrefab == null)
-                PurrLogger.LogWarning($"PropAnchor {name} (prefab is null)", this);
-        }
-        
         /*
          * @brief Instantiates the prop assigned to this anchor.
          * @description
@@ -31,22 +21,7 @@ namespace Script.HouseBuilding
          */
         public void Initialize()
         {
-            if (m_propPrefab == null)
-            {
-                PurrLogger.LogWarning($"PropAnchor {name} Network initialization failed (prefab is null)", this);
-                return;
-            }
             Instantiate(m_propPrefab, transform);
-        }
-
-        public void NetworkInitialize(Transform _parent)
-        {
-            if (m_propPrefab == null)
-            {
-                PurrLogger.LogWarning($"PropAnchor {name} Network initialization failed (prefab is null)", this);
-                return;
-            }
-            UnityProxy.Instantiate(m_propPrefab, _parent);
         }
     }
 }

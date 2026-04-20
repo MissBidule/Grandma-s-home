@@ -1,11 +1,10 @@
-#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
 
-namespace Script.HouseBuilding.Editor
+namespace Script.HouseBuilding
 {
     [CustomEditor(typeof(HouseBuilder))]
-    public class HouseBuilderEditor : UnityEditor.Editor
+    public class HouseBuilderEditor : Editor
     {
         public override void OnInspectorGUI()
         {
@@ -40,4 +39,3 @@ namespace Script.HouseBuilding.Editor
         }
     }
 }
-#endif

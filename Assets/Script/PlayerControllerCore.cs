@@ -7,8 +7,6 @@ using UI;
 using Script.UI.Views;
 using Script.States;
 using PurrLobby;
-using PurrNet.Modules;
-using PurrNet.Transports;
 
 /*
  * @brief Player Core class inherited by Child & phantom
@@ -21,17 +19,15 @@ public class PlayerControllerCore : NetworkBehaviour
     public CinemachineCamera m_playerCamera;
     [SerializeField] private GameObject m_localRenderCamera;
     [SerializeField] private NetworkAnimator m_playerAnimator;
+    [SerializeField] private List<Renderer> m_renderers = new();
 
     [Header("ServerResponse")]
-    private LatencyDisplay m_latencyDisplay;
     public float m_PingCooldown = 5f;
     public float m_elapsedTimeSincePing = 0f;
     public bool m_isServerAccessible = true;
     public bool m_isClientAccessible = true;
 
-    public string m_memberID = "";
-    public string m_username = "";
-    private bool m_tutoOn;
+    private string m_memberID = "";
 
     protected virtual void Awake()
     {
@@ -39,11 +35,6 @@ public class PlayerControllerCore : NetworkBehaviour
         // OnSpawned() will re-enable it for the local owner only.
         var playerInput = GetComponent<PlayerInput>();
         if (playerInput != null) playerInput.enabled = false;
-
-        foreach(SceneSwitcher sceneSwitcher in FindObjectsByType<SceneSwitcher>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
-        {
-            m_tutoOn=sceneSwitcher._isTuto;
-        }
     }
 
     /**
@@ -80,7 +71,7 @@ public class PlayerControllerCore : NetworkBehaviour
             m_isClientAccessible = false;
             Debug.LogWarning("Client is not accessible. Last ping was " + m_elapsedTimeSincePing + " seconds ago.");
             DisconnectPlayer();
-            UnityProxy.Destroy(gameObject, 2f);
+            Destroy(gameObject, 2f);
         }
     }
 
@@ -99,8 +90,7 @@ public class PlayerControllerCore : NetworkBehaviour
     [ObserversRpc]
     private void DisconnectPlayer()
     {
-        FindAnyObjectByType<RoleKeeper>()?.SetMemberDisconnected(m_memberID);
-        FindAnyObjectByType<LeaderboardUI>()?.UpdateDisconnected();
+        FindAnyObjectByType<RoleKeeper>().setMemberDisconnected(m_memberID);
     }
 
     /*
@@ -113,6 +103,15 @@ public class PlayerControllerCore : NetworkBehaviour
         Debug.Log($"[{gameObject.name}] OnSpawned - isOwner: {isOwner}, localPlayer: {localPlayer}, owner: {owner}");
 
         ApplyOwnership();
+
+        if (!isOwner)
+        {
+            // Change color of non-owned players for better visibility
+            foreach (var renderer in m_renderers)
+            {
+                renderer.material.color = Color.HSVToRGB(Random.Range(0f, 1f), 0.8f, 0.9f);
+            }
+        }
     }
 
     /*
@@ -127,23 +126,15 @@ public class PlayerControllerCore : NetworkBehaviour
     {
         if (!InstanceHandler.TryGetInstance(out UIsManager uisManager))
             return;
+        uisManager.HideView<WaitForPlayerView>();
         uisManager.ToggleUIVision();
-        Cursor.lockState = CursorLockMode.Locked;
     }
 
     private void ApplyOwnership()
     {
+
         var playerInput = GetComponent<PlayerInput>();
-        if (playerInput != null)
-        {
-            playerInput.enabled = isOwner;
-            if (isOwner)
-            {
-                string saved = PlayerPrefs.GetString("Settings_Keybindings", "");
-                if (!string.IsNullOrEmpty(saved))
-                    playerInput.actions.LoadBindingOverridesFromJson(saved);
-            }
-        }
+        if (playerInput != null) playerInput.enabled = isOwner;
 
         if (!m_playerCamera) m_playerCamera = GetComponentInChildren<CinemachineCamera>();
         if (m_playerCamera != null)
@@ -154,69 +145,21 @@ public class PlayerControllerCore : NetworkBehaviour
         if (m_localRenderCamera != null)
             m_localRenderCamera.SetActive(isOwner);
 
-        if (isOwner)
-        {
+        if (isOwner) {
             DisableWaitUIObserverRPC();
-            RoleKeeper roleKeeper = FindAnyObjectByType<RoleKeeper>();
-            ApplyUserData(roleKeeper.GetLocalMemberID(), roleKeeper.GetLocalUsername());
-            m_latencyDisplay = FindAnyObjectByType<LatencyDisplay>();
-            m_latencyDisplay.m_localPlayer = this;
+            ApplyMemberID(FindAnyObjectByType<RoleKeeper>().getLocalMemberID());
         }
     }
 
-
-    /*
-     FOR LATENCY PING NOT HEARTBEAT
-     */
     [ServerRpc]
-    public void PingServer(float sentTime, RPCInfo info = default)
+    private void ApplyMemberID(string _memberID)
     {
-        // info.sender = le client qui a envoye
-        PongClient(info.sender, sentTime);
-    }
-
-    /*
-     FOR LATENCY PING NOT HEARTBEAT
-     */
-    [TargetRpc]
-    void PongClient(PlayerID target, float _sentTime)
-    {
-        m_latencyDisplay.ReceivePong(_sentTime);
-    }
-
-    [ObserversRpc (runLocally: true, requireServer: false, bufferLast: true)]
-    private void ApplyUserData(string _memberId, string _username)
-    {
-        m_memberID = _memberId;
-        m_username = _username;
+        m_memberID = _memberID;
     }
     
-    private void OnEnable()
-    {
-        PauseMenuView.OnPauseChanged += OnPauseChanged;
-    }
-
     private void OnDisable()
     {
-        PauseMenuView.OnPauseChanged -= OnPauseChanged;
         Cursor.lockState = CursorLockMode.None;
-    }
-
-    private void OnPauseChanged(bool paused)
-    {
-        if (!isOwner) return;
-        var playerInput = GetComponent<PlayerInput>();
-        if (playerInput == null) return;
-        if(!m_tutoOn)
-        {
-            playerInput.enabled = !paused;
-        }
-        if (!paused)
-        {
-            string saved = PlayerPrefs.GetString("Settings_Keybindings", "");
-            if (!string.IsNullOrEmpty(saved))
-                playerInput.actions.LoadBindingOverridesFromJson(saved);
-        }
     }
 
     private void Start()

@@ -51,10 +51,9 @@ public class GhostMorph : NetworkBehaviour
     {
         m_playerCollider.enabled = false;
         m_mesh.SetActive(false);
-        if (isOwner) InteractPromptUI.m_Instance.Hide();
+        InteractPromptUI.m_Instance.Hide();
 
         m_currentPrefab = UnityProxy.InstantiateDirectly(_prefab, transform);
-        m_currentPrefab.GetComponent<MeshCollider>().convex = true;
         m_currentPrefab.transform.localPosition = _position;
         m_currentPrefab.transform.localRotation = _rotation;
     }
@@ -70,7 +69,7 @@ public class GhostMorph : NetworkBehaviour
         {
             return;
         }
-        if (isOwner) InteractPromptUI.m_Instance.Hide();
+        InteractPromptUI.m_Instance.Hide();
         m_isMorphed = false;
         DestroyForAll();
     }

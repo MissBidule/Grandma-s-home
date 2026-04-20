@@ -45,7 +45,6 @@ namespace Script.UI.Views
 
         public void ShowMessage(string _message)
         {
-            if (!gameObject.activeSelf) return;
             m_hudMessagePanel.SetActive(true);
             m_hudMessage.text = _message;
             StartCoroutine(DisappearMessage(3));
