@@ -3,12 +3,11 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Script.Music.Editor
+namespace Script.Audio.Editor
 {
     [CustomEditor(typeof(MusicLooper))]
     public class MusicLooperEditor : UnityEditor.Editor
     {
-        private float m_musicVolume = 1f;
         
         public override void OnInspectorGUI()
         {
@@ -45,10 +44,10 @@ namespace Script.Music.Editor
             GUILayout.Label("Music Volume");
 
             EditorGUI.BeginChangeCheck();
-            m_musicVolume = GUILayout.HorizontalSlider(m_musicVolume, 0f, 1f);
+            float musicVolume = GUILayout.HorizontalSlider(looper.m_musicVolume, 0f, 1f);
             if (EditorGUI.EndChangeCheck())
             {
-                looper.SetMusicVolume(m_musicVolume);
+                looper.SetMusicVolume(musicVolume);
             }
             GUILayout.Space(10);
         }
