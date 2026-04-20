@@ -9,21 +9,29 @@ public class SkinItem : MonoBehaviour
 
     [Header("Le Matériau Fantôme")]
     public Material materialFantome; //ref mat transparent Mat_Blackout
-
-    private Renderer[] tousLesRenderers; //recup les renderers
-    private Material[] materiauxOriginaux; //stock les mat originaux pour les remettre quand on switch de camp
+    private Renderer[] skinRenderers; //stock les renderers des skins pour changer les matériaux
+    private Material[][] materiauxOriginaux; //stock les mat originaux pour les remettre quand on switch de camp
+    private Material[][] materiauxRemplaces; //stock les mat originaux pour les remettre quand on switch de camp
 
     private void Awake()
     {
         //recup les renderers et stock les mat originaux
-        tousLesRenderers = GetComponentsInChildren<Renderer>(true);
-        materiauxOriginaux = new Material[tousLesRenderers.Length];
+        skinRenderers = GetComponentsInChildren<Renderer>();
+        materiauxOriginaux = new Material[skinRenderers.Length][];
+        materiauxRemplaces = new Material[skinRenderers.Length][];
 
-        for (int i = 0; i < tousLesRenderers.Length; i++)
+        for (int i = 0; i < skinRenderers.Length; i++)
         {
-            if (tousLesRenderers[i] != null)
+            materiauxOriginaux[i] = new Material[skinRenderers[i].materials.Length];
+            materiauxRemplaces[i] = new Material[skinRenderers[i].materials.Length];
+
+            for (int j = 0; j < skinRenderers[i].materials.Length; j++)
             {
-                materiauxOriginaux[i] = tousLesRenderers[i].material;
+                if (skinRenderers[i].materials[j] != null)
+                {
+                    materiauxOriginaux[i][j] = skinRenderers[i].materials[j];
+                    materiauxRemplaces[i][j] = materialFantome;
+                }
             }
         }
     }
@@ -45,18 +53,18 @@ public class SkinItem : MonoBehaviour
             }
         }
         //changement de matériau pour rendre transparent
-        for (int i = 0; i < tousLesRenderers.Length; i++)
+        if (estMonCamp)
         {
-            if (tousLesRenderers[i] != null)
+            for (int i = 0; i < skinRenderers.Length; i++)
             {
-                if (estMonCamp)
-                {
-                    tousLesRenderers[i].material = materiauxOriginaux[i];
-                }
-                else if (materialFantome != null)
-                {
-                    tousLesRenderers[i].material = materialFantome;
-                }
+                skinRenderers[i].sharedMaterials = materiauxOriginaux[i];
+            }
+        }
+        else if (materialFantome != null)
+        {
+            for (int i = 0; i < skinRenderers.Length; i++)
+            {
+                skinRenderers[i].sharedMaterials = materiauxRemplaces[i];
             }
         }
     }
