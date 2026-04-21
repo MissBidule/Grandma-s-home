@@ -13,7 +13,7 @@ public class WheelController : MonoBehaviour
     [SerializeField] private Animator m_anim;
     [NonSerialized] private GhostMorph m_ghostMorph;
     [NonSerialized] private GhostMorphPreview m_ghostMorphPreview;
-    [SerializeField] private List<WheelButtonController> m_wheelButtons;
+    [SerializeField] public List<WheelButtonController> m_wheelButtons;
     [SerializeField] private float m_angleOffset = 114f;
     [SerializeField] private float m_minSelectDistance = 5f;
 

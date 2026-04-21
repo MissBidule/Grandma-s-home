@@ -108,7 +108,7 @@ public class GhostInputController : MonoBehaviour
         {
             m_ghostClientController.OnScan();
             var wheel = m_ghostClientController.m_wheel;
-            if (wheel == null || !wheel.m_isWaitingForSlotSelection)
+            if ((wheel == null || !wheel.m_isWaitingForSlotSelection) && !m_ghostClientController.m_morphBlocked)
                 InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelValid));
         }
     }

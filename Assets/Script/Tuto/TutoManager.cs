@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -134,7 +135,7 @@ public class TutoManager : MonoBehaviour
         bool movedForward = false, movedBack = false, movedLeft = false, movedRight = false;
         m_steps.Add(new TutoStep
         {
-            message = "Déplace-toi avec Z Q S D dans la pièce.",
+            message = "Déplace-toi avec Z Q S D dans la pièce",
             condition = () =>
             {
                 Vector3 d = m_ghost.m_wishDir;
@@ -148,16 +149,36 @@ public class TutoManager : MonoBehaviour
 
         m_steps.Add(new TutoStep
         {
-            message = "Sabote l'objet devant toi avec {Ghost.Interact}",
+            message = "Sabote l'objet en surbrillance avec {Ghost.Interact}",
             onEnter = () => m_sabotageObject?.SetSabotable(true),
             condition = () => m_sabotageObject != null && m_sabotageObject.m_isSabotaged
         });
 
         m_steps.Add(new TutoStep
         {
-            message = "Scanne un objet à proximité avec {Ghost.Scan}",
+            message = "Scanne 5 objets en surbrillance avec {Ghost.Scan}",
             onEnter = () => { SetScanObjectsEnabled(true); SetScanOutline(true); },
-            condition = () => m_ghostMorphPreview != null && m_ghostMorphPreview.m_currentPrefab != null
+            condition = () =>
+            {
+                var wheel = m_ghost.GetComponent<GhostClientController>()?.m_wheel;
+                if (wheel == null) return false;
+                return wheel.m_wheelButtons.Count(b => !b.IsEmpty()) >= 5;
+            }
+        });
+
+        m_steps.Add(new TutoStep
+        {
+            message = "Ouvre la roue en restant appuié sur {Ghost.OpenProps} et sélectionne une transformation en relachant la touche",
+            onEnter = () =>
+            {
+                var wheel = m_ghost.GetComponent<GhostClientController>()?.m_wheel;
+                if (wheel != null) wheel.m_selectedPrefab = null;
+            },
+            condition = () =>
+            {
+                var wheel = m_ghost.GetComponent<GhostClientController>()?.m_wheel;
+                return wheel != null && wheel.m_selectedPrefab != null;
+            }
         });
 
         bool pressedLeft = false, pressedRight = false;
@@ -166,7 +187,6 @@ public class TutoManager : MonoBehaviour
             message = "Tourne la prévisualisation avec {Ghost.RotatePreviewLeft} / {Ghost.RotatePreviewRight}",
             onEnter = () =>
             {
-                pressedLeft = false; pressedRight = false;
                 var gc = m_ghost.GetComponent<GhostClientController>();
                 if (gc != null) gc.m_morphBlocked = true;
             },
@@ -199,6 +219,12 @@ public class TutoManager : MonoBehaviour
         m_steps.Add(new TutoStep
         {
             message = "Répare le sabotage avec {Child.Interact}",
+            onEnter = () =>
+            {
+                if (m_repairObject != null)
+                    foreach (Outline o in m_repairObject.GetComponentsInChildren<Outline>())
+                        o.enabled = true;
+            },
             condition = () => m_repairObject != null && !m_repairObject.m_isSabotaged
         });
 
