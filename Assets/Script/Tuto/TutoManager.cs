@@ -21,8 +21,6 @@ public class TutoManager : MonoBehaviour
 
     [Header("Tutorial Objects")]
     [SerializeField] private SabotageObject m_sabotageObject;
-    [SerializeField] private SabotageObject m_repairObject;
-    [SerializeField] private BrokeDecor m_brokeDecor;
     [SerializeField] private GameObject[] m_scanObjects;
     [SerializeField] private Transform m_ghostTransformForChildTuto;
     [SerializeField] private Transform m_ownerGhostTutoTransform;
@@ -45,7 +43,6 @@ public class TutoManager : MonoBehaviour
     private GhostMorphPreview m_ghostMorphPreview;
     private Dictionary<ScannableObject, Sprite> m_savedScanIcons = new();
     private int m_childPhaseStart;
-    BrokeDecor brokeDecor;
 
     // Called by TutoPlayerSpawningState after spawn
     public void Init(GhostController _ghost, ChildController _child, GhostController _ghostTuto)
@@ -54,17 +51,16 @@ public class TutoManager : MonoBehaviour
         m_child = _child;
         m_ghostTuto = _ghostTuto;
         m_ghostTuto.transform.position = m_ownerGhostTutoTransform.position;
-        m_ghostTuto.m_isStopped=true;
+        m_ghostTuto.m_isStopped = true;
 
         m_ghostMorph = m_ghost.GetComponent<GhostMorph>();
         m_ghostMorphPreview = m_ghost.GetComponentInChildren<GhostMorphPreview>();
-        brokeDecor =m_brokeDecor.GetComponent<BrokeDecor>();
 
         m_sabotageObject ??= FindAnyObjectByType<SabotageObject>();
-        m_brokeDecor ??= FindAnyObjectByType<BrokeDecor>();
 
         m_sabotageObject?.SetSabotable(false);
         SetScanObjectsEnabled(false);
+        SetBrokeDecorEnabled(false);
         SetScanOutline(false);
 
         BuildSteps();
@@ -84,9 +80,15 @@ public class TutoManager : MonoBehaviour
 
         SetPlayerActive(m_ghost.gameObject, true);
         SetPlayerActive(m_child.gameObject, false);
-
         if (ghostClient?.m_uiHolder != null) ghostClient.m_uiHolder.SetActive(true);
         if (childClient?.m_uiHolder != null) childClient.m_uiHolder.SetActive(false);
+
+        var ghostTutoClient = m_ghostTuto?.GetComponent<GhostClientController>();
+        if (ghostTutoClient?.m_playerCamera != null)
+        {
+            var vol = ghostTutoClient.m_playerCamera.GetComponent<UnityEngine.Rendering.Volume>();
+            if (vol != null) vol.enabled = false;
+        }
 
         EnterStep(0);
     }
@@ -154,20 +156,20 @@ public class TutoManager : MonoBehaviour
 
         m_steps.Add(new TutoStep
         {
-            message = "Sabote l'objet en surbrillance avec {Ghost.Interact}",
+            message = "Sabote l'objet en surbrillance avec {Ghost.Interact}, cela augmentera la jauge de sabotage au fil du temps",
             onEnter = () => m_sabotageObject?.SetSabotable(true),
             condition = () => m_sabotageObject != null && m_sabotageObject.m_isSabotaged
         });
 
         m_steps.Add(new TutoStep
         {
-            message = "Scanne 5 objets en surbrillance avec {Ghost.Scan}",
+            message = "Scanne 3 objets en surbrillance avec {Ghost.Scan}",
             onEnter = () => { SetScanObjectsEnabled(true); SetScanOutline(true); },
             condition = () =>
             {
                 var wheel = m_ghost.GetComponent<GhostClientController>()?.m_wheel;
                 if (wheel == null) return false;
-                return wheel.m_wheelButtons.Count(b => !b.IsEmpty()) >= 5;
+                return wheel.m_wheelButtons.Count(b => !b.IsEmpty()) >= 3;
             }
         });
 
@@ -176,6 +178,8 @@ public class TutoManager : MonoBehaviour
             message = "Ouvre la roue en restant appuié sur {Ghost.OpenProps} et sélectionne une transformation en relachant la touche",
             onEnter = () =>
             {
+                SetScanObjectsEnabled(false);
+                SetScanOutline(false);
                 var wheel = m_ghost.GetComponent<GhostClientController>()?.m_wheel;
                 if (wheel != null) wheel.m_selectedPrefab = null;
             },
@@ -207,7 +211,7 @@ public class TutoManager : MonoBehaviour
 
         m_steps.Add(new TutoStep
         {
-            message = "Transforme-toi avec {Ghost.TransformConfirm}",
+            message = "Confirme la transformation avec {Ghost.TransformConfirm} pour te cacher",
             onEnter = () =>
             {
                 SetScanOutline(false);
@@ -218,6 +222,17 @@ public class TutoManager : MonoBehaviour
         });
 
 
+        m_steps.Add(new TutoStep
+        {
+            message = "Réanime le fantôme à terre avec {Ghost.Interact}",
+            onEnter = () =>
+            {
+                foreach (Outline o in m_ghostTuto.GetComponentsInChildren<Outline>())
+                    o.enabled = true;
+            },
+            condition = () => m_ghostTuto != null && !m_ghostTuto.m_isStopped
+        });
+
         // CHILD PHASE
         m_childPhaseStart = m_steps.Count;
 
@@ -226,21 +241,27 @@ public class TutoManager : MonoBehaviour
             message = "Répare le sabotage avec {Child.Interact}",
             onEnter = () =>
             {
-                if (m_repairObject != null)
-                    foreach (Outline o in m_repairObject.GetComponentsInChildren<Outline>())
+                if (m_sabotageObject != null)
+                    foreach (Outline o in m_sabotageObject.GetComponentsInChildren<Outline>())
                         o.enabled = true;
             },
-            condition = () => m_repairObject != null && !m_repairObject.m_isSabotaged
+            condition = () => m_sabotageObject != null && !m_sabotageObject.m_isSabotaged
         });
 
         m_steps.Add(new TutoStep
         {
-            message = "Frappe cet objet avec {Child.Attack}\nAttention : ça coûte de l'argent !",
+            message = "Tape sur des objet avec {Child.Attack} \n Attention : ça coûte de l'argent !",
             onEnter = () =>
             {
-                brokeDecor.enabled=true;
+                SetBrokeDecorEnabled(true);
+                SetScanOutline(true);
             },
-            condition = () => m_brokeDecor != null && m_brokeDecor.m_isBroken
+            condition = () => m_scanObjects != null && m_scanObjects.Any(obj =>
+            {
+                if (obj == null) return false;
+                BrokeDecor bd = obj.GetComponentInChildren<BrokeDecor>();
+                return bd != null && bd.m_isBroken;
+            })
         });
 
         bool m_initialRanged = false;
@@ -257,12 +278,6 @@ public class TutoManager : MonoBehaviour
             condition = () => m_ghost.m_isSlowed
         });
 
-       /* m_steps.Add(new TutoStep
-        {
-            message = "Réveille le fantôme à terre avec {Child.Interact}",
-            onEnter = () => m_ghost.ApplyStopToAll(),
-            condition = () => !m_ghost.m_isStopped
-        });*/
     }
 
     // POV switch
@@ -275,6 +290,7 @@ public class TutoManager : MonoBehaviour
 
         SetUIHolderActive("GhostUIHolder(Clone)", false);
         SetUIHolderActive("ChildUIHolder(Clone)", true);
+
     }
 
     private void SetUIHolderActive(string _name, bool _active)
@@ -298,30 +314,23 @@ public class TutoManager : MonoBehaviour
         if (audio != null) audio.enabled = _active;
     }
 
-    // scan helpers
+    // scan object helpers
 
-    private void SetScanObjectsEnabled(bool _active)
+    private void ForEachScanObject(Action<GameObject> _action)
     {
         if (m_scanObjects == null) return;
         foreach (GameObject obj in m_scanObjects)
-        {
-            if (obj == null) continue;
-            ScannableObject s = obj.GetComponentInChildren<ScannableObject>();
-            if (s == null) continue;
-            s.m_isScannable = _active;
-        }
+            if (obj != null) _action(obj);
     }
 
-    private void SetScanOutline(bool _active)
-    {
-        if (m_scanObjects == null) return;
-        foreach (GameObject obj in m_scanObjects)
-        {
-            if (obj == null) continue;
-            foreach (Outline outline in obj.GetComponentsInChildren<Outline>())
-                outline.enabled = _active;
-        }
-    }
+    private void SetScanObjectsEnabled(bool _active) =>
+        ForEachScanObject(obj => { var s = obj.GetComponentInChildren<ScannableObject>(); if (s) s.m_isScannable = _active; });
+
+    private void SetScanOutline(bool _active) =>
+        ForEachScanObject(obj => { foreach (Outline o in obj.GetComponentsInChildren<Outline>()) o.enabled = _active; });
+
+    private void SetBrokeDecorEnabled(bool _active) =>
+        ForEachScanObject(obj => { var bd = obj.GetComponentInChildren<BrokeDecor>(); if (bd) bd.enabled = _active; });
 
     //input binding helper
 
