@@ -50,11 +50,6 @@ public class TutoInitialisation : MonoBehaviour
                     }
                 }
 
-                Outline outline = obj.GetComponent<Outline>();
-                if(outline != null)
-                {
-                    outline.enabled = true;
-                }
             }
         }
     }

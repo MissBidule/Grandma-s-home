@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using PurrNet;
 using Script.UI.Views;
@@ -248,9 +249,12 @@ public class GhostClientController : NetworkBehaviour
         if (!isOwner) return;
         m_wheel.Close();
     }
+    [NonSerialized] public bool m_morphBlocked = false;
+
     public void OnMorph()
     {
         if (!isOwner) return;
+        if (m_morphBlocked) return;
         if (m_ghostController.m_isStopped) return;
         if (!m_qteCircle) m_qteCircle = FindAnyObjectByType<QteCircle>();
         if (m_qteCircle != null && m_qteCircle.m_isRunning) return;
