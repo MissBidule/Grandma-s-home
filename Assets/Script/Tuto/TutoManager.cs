@@ -22,6 +22,7 @@ public class TutoManager : MonoBehaviour
     [SerializeField] private SabotageObject m_repairObject;
     [SerializeField] private BrokeDecor m_brokeDecor;
     [SerializeField] private GameObject[] m_scanObjects;
+    [SerializeField] private Transform m_ghostTransformForChildTuto;
 
     [Header("UI")]
     [SerializeField] private TutoUIController m_ui;
@@ -110,7 +111,7 @@ public class TutoManager : MonoBehaviour
             m_ui.HideText();
             m_ui.FadeAndSwitch(
                 _onBlack: SwitchToChild,
-                _onDone: () => { m_waitingForFade = false; EnterStep(next); }
+                _onDone: () => { m_waitingForFade = false; EnterStep(next); m_ghost.transform.position = m_ghostTransformForChildTuto.position; }
             );
             return;
         }
@@ -191,22 +192,23 @@ public class TutoManager : MonoBehaviour
             condition = () => m_ghostMorph != null && m_ghostMorph.m_isMorphed
         });
 
+
         // CHILD PHASE
         m_childPhaseStart = m_steps.Count;
 
         m_steps.Add(new TutoStep
         {
             message = "Répare le sabotage avec {Child.Interact}",
-            onEnter = () =>
-            {
-                brokeDecor.enabled=true;
-            },
             condition = () => m_repairObject != null && !m_repairObject.m_isSabotaged
         });
 
         m_steps.Add(new TutoStep
         {
             message = "Frappe cet objet avec {Child.Attack}\nAttention : ça coûte de l'argent !",
+            onEnter = () =>
+            {
+                brokeDecor.enabled=true;
+            },
             condition = () => m_brokeDecor != null && m_brokeDecor.m_isBroken
         });
 
@@ -224,12 +226,12 @@ public class TutoManager : MonoBehaviour
             condition = () => m_ghost.m_isSlowed
         });
 
-        m_steps.Add(new TutoStep
+       /* m_steps.Add(new TutoStep
         {
             message = "Réveille le fantôme à terre avec {Child.Interact}",
             onEnter = () => m_ghost.ApplyStopToAll(),
             condition = () => !m_ghost.m_isStopped
-        });
+        });*/
     }
 
     // POV switch
