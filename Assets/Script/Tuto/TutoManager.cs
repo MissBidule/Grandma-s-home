@@ -16,6 +16,7 @@ public class TutoManager : MonoBehaviour
 {
     [Header("Players")]
     [SerializeField] private GhostController m_ghost;
+    [SerializeField] private GhostController m_ghostTuto;
     [SerializeField] private ChildController m_child;
 
     [Header("Tutorial Objects")]
@@ -24,6 +25,7 @@ public class TutoManager : MonoBehaviour
     [SerializeField] private BrokeDecor m_brokeDecor;
     [SerializeField] private GameObject[] m_scanObjects;
     [SerializeField] private Transform m_ghostTransformForChildTuto;
+    [SerializeField] private Transform m_ownerGhostTutoTransform;
 
     [Header("UI")]
     [SerializeField] private TutoUIController m_ui;
@@ -46,10 +48,13 @@ public class TutoManager : MonoBehaviour
     BrokeDecor brokeDecor;
 
     // Called by TutoPlayerSpawningState after spawn
-    public void Init(GhostController _ghost, ChildController _child)
+    public void Init(GhostController _ghost, ChildController _child, GhostController _ghostTuto)
     {
         m_ghost = _ghost;
         m_child = _child;
+        m_ghostTuto = _ghostTuto;
+        m_ghostTuto.transform.position = m_ownerGhostTutoTransform.position;
+        m_ghostTuto.m_isStopped=true;
 
         m_ghostMorph = m_ghost.GetComponent<GhostMorph>();
         m_ghostMorphPreview = m_ghost.GetComponentInChildren<GhostMorphPreview>();

@@ -23,6 +23,7 @@ namespace Script.States
         [SerializeField] private GhostController m_ghostPrefab;
         [Tooltip("Even if rules are to not despawn on disconnect, this will ignore that and always spawn a player.")]
         [SerializeField] private List<Transform> m_ghostSpawnPoints = new List<Transform>();
+        GhostController m_ghostTuto;
         private bool m_isServer = false;
         private bool m_hasStarted = false;
 
@@ -53,7 +54,7 @@ namespace Script.States
                 GhostController ghost = spawnedPlayers.Find(p => p is GhostController) as GhostController;
                 ChildController child = spawnedPlayers.Find(p => p is ChildController) as ChildController;
                 if (ghost != null && child != null)
-                    tutoManager.Init(ghost, child);
+                    tutoManager.Init(ghost, child, m_ghostTuto);
             }
 
             machine.Next(spawnedPlayers);
@@ -69,15 +70,19 @@ namespace Script.States
                     continue;
                 //CONNECTION
                 GhostController ghost = UnityProxy.Instantiate(m_ghostPrefab, m_ghostSpawnPoints[0].position, m_ghostSpawnPoints[0].rotation);
+                m_ghostTuto = UnityProxy.Instantiate(m_ghostPrefab, m_ghostSpawnPoints[0].position, m_ghostSpawnPoints[0].rotation);
                 ChildController child = UnityProxy.Instantiate(m_childPrefab, m_childSpawnPoints[0].position, m_childSpawnPoints[0].rotation);
 
                 ghost.GiveOwnership(player);
+                m_ghostTuto.GiveOwnership(player);
                 child.GiveOwnership(player);
 
                 SetPlayerInputActive(ghost.gameObject, true);
+                SetPlayerInputActive(m_ghostTuto.gameObject, false);
                 child.gameObject.SetActive(false);
 
                 spawnedPlayers.Add(ghost);
+                spawnedPlayers.Add(m_ghostTuto);
                 spawnedPlayers.Add(child);
             }
 
