@@ -19,6 +19,7 @@ public class TutoManager : MonoBehaviour
 
     [Header("Tutorial Objects")]
     [SerializeField] private SabotageObject m_sabotageObject;
+    [SerializeField] private SabotageObject m_repairObject;
     [SerializeField] private BrokeDecor m_brokeDecor;
     [SerializeField] private GameObject[] m_scanObjects;
 
@@ -40,6 +41,7 @@ public class TutoManager : MonoBehaviour
     private GhostMorphPreview m_ghostMorphPreview;
     private Dictionary<ScannableObject, Sprite> m_savedScanIcons = new();
     private int m_childPhaseStart;
+    BrokeDecor brokeDecor;
 
     // Called by TutoPlayerSpawningState after spawn
     public void Init(GhostController _ghost, ChildController _child)
@@ -49,6 +51,7 @@ public class TutoManager : MonoBehaviour
 
         m_ghostMorph = m_ghost.GetComponent<GhostMorph>();
         m_ghostMorphPreview = m_ghost.GetComponentInChildren<GhostMorphPreview>();
+        brokeDecor =m_brokeDecor.GetComponent<BrokeDecor>();
 
         m_sabotageObject ??= FindAnyObjectByType<SabotageObject>();
         m_brokeDecor ??= FindAnyObjectByType<BrokeDecor>();
@@ -193,6 +196,16 @@ public class TutoManager : MonoBehaviour
 
         m_steps.Add(new TutoStep
         {
+            message = "Répare le sabotage avec {Child.Interact}",
+            onEnter = () =>
+            {
+                brokeDecor.enabled=true;
+            },
+            condition = () => m_repairObject != null && !m_repairObject.m_isSabotaged
+        });
+
+        m_steps.Add(new TutoStep
+        {
             message = "Frappe cet objet avec {Child.Attack}\nAttention : ça coûte de l'argent !",
             condition = () => m_brokeDecor != null && m_brokeDecor.m_isBroken
         });
@@ -200,7 +213,7 @@ public class TutoManager : MonoBehaviour
         bool m_initialRanged = false;
         m_steps.Add(new TutoStep
         {
-            message = "Change d'arme avec {Child.SwitchWeapon}",
+            message = "Change d'arme avec {Child.Change_weapon}",
             onEnter = () => m_initialRanged = m_child.m_isRanged,
             condition = () => m_child.m_isRanged != m_initialRanged
         });
@@ -209,12 +222,6 @@ public class TutoManager : MonoBehaviour
         {
             message = "Tire sur le fantôme pour le ralentir avec {Child.Attack}",
             condition = () => m_ghost.m_isSlowed
-        });
-
-        m_steps.Add(new TutoStep
-        {
-            message = "Répare le sabotage avec {Child.Interact}",
-            condition = () => m_sabotageObject != null && !m_sabotageObject.m_isSabotaged
         });
 
         m_steps.Add(new TutoStep
