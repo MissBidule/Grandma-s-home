@@ -22,8 +22,6 @@ public class TutoManager : MonoBehaviour
     [Header("Tutorial Objects")]
     [SerializeField] private SabotageObject m_sabotageObject;
     [SerializeField] private GameObject[] m_scanObjects;
-    [SerializeField] private Transform m_ghostTransformForChildTuto;
-    [SerializeField] private Transform m_ownerGhostTutoTransform;
 
     [Header("UI")]
     [SerializeField] private TutoUIController m_ui;
@@ -50,8 +48,7 @@ public class TutoManager : MonoBehaviour
         m_ghost = _ghost;
         m_child = _child;
         m_ghostTuto = _ghostTuto;
-        m_ghostTuto.transform.position = m_ownerGhostTutoTransform.position;
-        m_ghostTuto.m_isStopped = true;
+        m_ghostTuto.m_isStopped = false;
 
         m_ghostMorph = m_ghost.GetComponent<GhostMorph>();
         m_ghostMorphPreview = m_ghost.GetComponentInChildren<GhostMorphPreview>();
@@ -119,7 +116,7 @@ public class TutoManager : MonoBehaviour
             m_ui.HideText();
             m_ui.FadeAndSwitch(
                 _onBlack: SwitchToChild,
-                _onDone: () => { m_waitingForFade = false; EnterStep(next); m_ghost.transform.position = m_ghostTransformForChildTuto.position; }
+                _onDone: () => { m_waitingForFade = false; EnterStep(next); }
             );
             return;
         }
@@ -227,8 +224,8 @@ public class TutoManager : MonoBehaviour
             message = "Réanime le fantôme à terre avec {Ghost.Interact}",
             onEnter = () =>
             {
-                foreach (Outline o in m_ghostTuto.GetComponentsInChildren<Outline>())
-                    o.enabled = true;
+                m_ghostTuto.m_isStopped = true;
+                SetRenderingOutline(m_ghostTuto.gameObject, "Outline_1", true);
             },
             condition = () => m_ghostTuto != null && !m_ghostTuto.m_isStopped
         });
@@ -272,10 +269,24 @@ public class TutoManager : MonoBehaviour
             condition = () => m_child.m_isRanged != m_initialRanged
         });
 
+        bool m_initialRanged2 = false;
         m_steps.Add(new TutoStep
         {
             message = "Tire sur le fantôme pour le ralentir avec {Child.Attack}",
-            condition = () => m_ghost.m_isSlowed
+            onEnter = () => { m_ghostTuto.gameObject.SetActive(true); SetRenderingOutline(m_ghostTuto.gameObject, "Outline_1", true); m_initialRanged2 = m_child.m_isRanged; },
+            condition = () => m_ghostTuto.m_isSlowed
+        });
+
+        m_steps.Add(new TutoStep
+        {
+            message = "Repasse en arme au corps à corps avec {Child.Change_weapon}",
+            condition = () => m_child.m_isRanged != m_initialRanged2
+        });
+
+        m_steps.Add(new TutoStep
+        {
+            message = "Assomme le fantôme avec {Child.Attack}",
+            condition = () => m_ghostTuto != null && m_ghostTuto.m_isStopped
         });
 
     }
@@ -284,8 +295,9 @@ public class TutoManager : MonoBehaviour
 
     private void SwitchToChild()
     {
+        m_ghost.gameObject.SetActive(false);
+        m_ghostTuto.gameObject.SetActive(false);
         m_child.gameObject.SetActive(true);
-        SetPlayerActive(m_ghost.gameObject, false);
         SetPlayerActive(m_child.gameObject, true);
 
         SetUIHolderActive("GhostUIHolder(Clone)", false);
@@ -331,6 +343,16 @@ public class TutoManager : MonoBehaviour
 
     private void SetBrokeDecorEnabled(bool _active) =>
         ForEachScanObject(obj => { var bd = obj.GetComponentInChildren<BrokeDecor>(); if (bd) bd.enabled = _active; });
+
+    private void SetRenderingOutline(GameObject _target, string _layerName, bool _active)
+    {
+        uint layer = RenderingLayerMask.GetMask(_layerName);
+        foreach (Renderer r in _target.GetComponentsInChildren<Renderer>())
+        {
+            if (_active) r.renderingLayerMask |= layer;
+            else r.renderingLayerMask &= ~layer;
+        }
+    }
 
     //input binding helper
 
