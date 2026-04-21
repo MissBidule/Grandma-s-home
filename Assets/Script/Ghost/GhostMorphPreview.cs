@@ -106,6 +106,7 @@ public class GhostMorphPreview : MonoBehaviour
         if (!Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, m_scanRange, m_scanLayerMask))
         {
             Debug.Log("No objects detected by the raycast");
+            if (m_GhostPreviewOn) { HidePreview(); InteractPromptUI.m_Instance.Hide(); }
             return;
         }
 
@@ -122,6 +123,7 @@ public class GhostMorphPreview : MonoBehaviour
         if (scannableComponent == null)
         {
             Debug.Log($"Object detected but not scannable: {scannedObject.name}");
+            if (m_GhostPreviewOn) { HidePreview(); InteractPromptUI.m_Instance.Hide(); }
             return;
         }
 
@@ -427,6 +429,16 @@ public class GhostMorphPreview : MonoBehaviour
 
     public void SetRotateLeft(bool active) => m_rotateLeft = active;
     public void SetRotateRight(bool active) => m_rotateRight = active;
+
+    public bool IsLookingAtScannable()
+    {
+        if (m_cameraTransform == null) return false;
+        if (!Physics.Raycast(m_cameraTransform.position, m_cameraTransform.forward, out RaycastHit hit, m_scanRange, m_scanLayerMask))
+            return false;
+        if (IsPartOfPlayer(hit.collider.gameObject)) return false;
+        ScannableObject s = hit.collider.GetComponent<ScannableObject>();
+        return s != null && s.m_icon != null;
+    }
 
     private void SwapGhostMaterial(bool _transparent)
     {

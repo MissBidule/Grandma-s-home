@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TMPro;
+using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
@@ -19,8 +20,16 @@ public class SettingsCanvasController : MonoBehaviour
 
     [SerializeField] private InputActionAsset m_inputActions;
 
+    [Header("Main-menu integration (leave null for pause menu)")]
+    [SerializeField] private SceneMenuNavigator m_navigator;
+    [SerializeField] private CinemachineVirtualCameraBase m_vcamVideo;
+    [SerializeField] private CinemachineVirtualCameraBase m_vcamAudio;
+    [SerializeField] private CinemachineVirtualCameraBase m_vcamAccessibility;
+    [SerializeField] private CinemachineVirtualCameraBase m_vcamControls;
+    [SerializeField] private CinemachineVirtualCameraBase m_vcamBack;
+
     private GameObject m_panelVideo, m_panelAudio, m_panelAccessibility, m_panelControls;
-    private Toggle m_tabVideo;
+    private Toggle m_tabVideo, m_tabAudio, m_tabAccessibility, m_tabControls;
     private readonly List<(Toggle tog, Graphic g, Color normal, Color selected)> m_tabTints = new();
     private static Volume s_brightnessVolume;
     private static ColorAdjustments s_brightnessCA;
@@ -73,17 +82,53 @@ public class SettingsCanvasController : MonoBehaviour
         }
     }
 
+    public void OpenOnTabInt(int tab) => OpenOnTab((SettingsTab)tab);
+
+    // Opens the canvas on a specific tab without triggering the camera-switch
+    // listener (used when the diegetic button already drove the camera).
+    public void OpenOnTab(SettingsTab tab)
+    {
+        if (tab == SettingsTab.None) return;
+        var (tog, panel) = GetTab(tab);
+        if (tog == null || panel == null) return;
+        tog.SetIsOnWithoutNotify(true);
+        ShowTab(panel);
+        if (UnityEngine.EventSystems.EventSystem.current != null)
+            UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(tog.gameObject);
+    }
+
+    private (Toggle, GameObject) GetTab(SettingsTab tab) => tab switch
+    {
+        SettingsTab.Video         => (m_tabVideo,         m_panelVideo),
+        SettingsTab.Audio         => (m_tabAudio,         m_panelAudio),
+        SettingsTab.Accessibility => (m_tabAccessibility, m_panelAccessibility),
+        SettingsTab.Controls      => (m_tabControls,      m_panelControls),
+        _                         => (null, null),
+    };
+
+    private CinemachineVirtualCameraBase VCamFor(SettingsTab tab) => tab switch
+    {
+        SettingsTab.Video         => m_vcamVideo,
+        SettingsTab.Audio         => m_vcamAudio,
+        SettingsTab.Accessibility => m_vcamAccessibility,
+        SettingsTab.Controls      => m_vcamControls,
+        _                         => null,
+    };
+
     private void WireTabs(Transform bg)
     {
         var tabs = bg.Find("Tabs_Container");
-        m_tabVideo = tabs.Find("Tab_Video")?.GetComponent<Toggle>();
-        BindTab(tabs, "Tab_Video",         m_panelVideo);
-        BindTab(tabs, "Tab_Audio",         m_panelAudio);
-        BindTab(tabs, "Tab_Accessibility", m_panelAccessibility);
-        BindTab(tabs, "Tab_Controls",      m_panelControls);
+        m_tabVideo         = tabs.Find("Tab_Video")?.GetComponent<Toggle>();
+        m_tabAudio         = tabs.Find("Tab_Audio")?.GetComponent<Toggle>();
+        m_tabAccessibility = tabs.Find("Tab_Accessibility")?.GetComponent<Toggle>();
+        m_tabControls      = tabs.Find("Tab_Controls")?.GetComponent<Toggle>();
+        BindTab(tabs, "Tab_Video",         m_panelVideo,         SettingsTab.Video);
+        BindTab(tabs, "Tab_Audio",         m_panelAudio,         SettingsTab.Audio);
+        BindTab(tabs, "Tab_Accessibility", m_panelAccessibility, SettingsTab.Accessibility);
+        BindTab(tabs, "Tab_Controls",      m_panelControls,      SettingsTab.Controls);
     }
 
-    private void BindTab(Transform tabs, string name, GameObject panel)
+    private void BindTab(Transform tabs, string name, GameObject panel, SettingsTab tab)
     {
         var t = tabs.Find(name);
         if (t == null) return;
@@ -94,7 +139,16 @@ public class SettingsCanvasController : MonoBehaviour
         var normal = colors.normalColor;
         var selected = colors.selectedColor;
         if (graphic != null) m_tabTints.Add((tog, graphic, normal, selected));
-        tog.onValueChanged.AddListener(on => { if (on) ShowTab(panel); });
+        tog.onValueChanged.AddListener(on =>
+        {
+            if (!on) return;
+            ShowTab(panel);
+            if (m_navigator != null)
+            {
+                var cam = VCamFor(tab);
+                if (cam != null) m_navigator.SwitchToCamera(cam);
+            }
+        });
     }
 
     private void LateUpdate()
@@ -121,7 +175,18 @@ public class SettingsCanvasController : MonoBehaviour
     private void WireBackReset(Transform bg)
     {
         var back = bg.Find("Back Button")?.GetComponent<Button>();
-        if (back != null) back.onClick.AddListener(() => OnBack?.Invoke());
+        if (back != null)
+        {
+            back.onClick.AddListener(() =>
+            {
+                if (m_navigator != null && m_vcamBack != null)
+                {
+                    gameObject.SetActive(false);
+                    m_navigator.SwitchToCamera(m_vcamBack);
+                }
+                OnBack?.Invoke();
+            });
+        }
 
         var reset = bg.Find("Reset Button")?.GetComponent<Button>();
         if (reset != null) reset.onClick.AddListener(ResetAll);
@@ -133,6 +198,7 @@ public class SettingsCanvasController : MonoBehaviour
             "Settings_DisplayMode","Settings_Resolution","Settings_TextureQuality","Settings_VSync",
             "Settings_FpsCounter","Settings_FPSLimit","Settings_Gamma","Settings_RenderScale",
             "Settings_VolMaster","Settings_VolMusic","Settings_VolSFX","Settings_InputDevice","Settings_VoiceMode",
+            "Settings_VoiceChatEnabled",
             "Settings_MouseSensitivity","Settings_Colorblind","Settings_ColorblindIntensity",
             "Settings_Keybindings"
         }) PlayerPrefs.DeleteKey(k);
@@ -363,16 +429,30 @@ public class SettingsCanvasController : MonoBehaviour
         var p = m_panelAudio.transform;
         var sliders = new List<Transform>();
         var dropdowns = new List<Transform>();
+        var toggles = new List<Transform>();
         foreach (Transform c in p)
         {
             if (SliderOf(c) != null) sliders.Add(c);
             else if (DropdownOf(c) != null) dropdowns.Add(c);
+            else if (ToggleOf(c) != null) toggles.Add(c);
         }
         string[] labels = { "Master Volume", "Music", "Sound Effects" };
         string[] keys   = { "Settings_VolMaster", "Settings_VolMusic", "Settings_VolSFX" };
         for (int i = 0; i < sliders.Count && i < 3; i++) BindVolumeSlider(sliders[i], labels[i], keys[i]);
         if (dropdowns.Count >= 1) BindInputDevice(dropdowns[0]);
         if (dropdowns.Count >= 2) BindVoiceMode(dropdowns[1]);
+        if (toggles.Count   >= 1) BindVoiceChatEnabled(toggles[0]);
+    }
+
+    private void BindVoiceChatEnabled(Transform row)
+    {
+        SetRowLabel(row, "Enable Voice Chat");
+        var tog = ToggleOf(row);
+        tog.SetIsOnWithoutNotify(PlayerPrefs.GetInt("Settings_VoiceChatEnabled", 1) == 1);
+        tog.onValueChanged.AddListener(v => {
+            PlayerPrefs.SetInt("Settings_VoiceChatEnabled", v ? 1 : 0);
+            // Kari
+        });
     }
 
     private void BindVolumeSlider(Transform row, string label, string key)
@@ -496,6 +576,7 @@ public class SettingsCanvasController : MonoBehaviour
     };
     private static readonly (string map, string action, string part, string label)[] GhostBinds = {
         ("Ghost","Interact",            null, "Interact"),
+        ("Ghost","Jump",                null, "Jump"),
         ("Ghost","Scan",                null, "Scan"),
         ("Ghost","Dash",                null, "Dash"),
         ("Ghost","Sneak",               null, "Sneak"),

@@ -152,18 +152,46 @@ public class GhostInputController : MonoBehaviour
     public void OnInteract(InputAction.CallbackContext _context)
     {
         if (!isOwner) return;
+        // During a QTE, the shared right-click binding must act as Cancel, not Interact.
+        if (!m_qteCircle) m_qteCircle = FindAnyObjectByType<QteCircle>();
+        if (m_qteCircle != null && m_qteCircle.m_isRunning) return;
         if (_context.performed)
         {
             if (m_ghostClientController.m_wheel != null && m_ghostClientController.m_wheel.IsWheelOpen()) return;
-            bool canMorphNow = m_ghostMorphPreview.m_currentPrefab != null
-                               && m_ghostMorphPreview.m_canMorph
-                               && !GetComponent<GhostMorph>().m_isMorphed;
-            if (canMorphNow)
+
+            bool inPreview = m_ghostMorphPreview.m_currentPrefab != null
+                             && !GetComponent<GhostMorph>().m_isMorphed;
+
+            if (inPreview)
             {
+                // Interact target (revive / sabotage) always wins
+                if (m_ghostInteract.m_onFocus != null)
+                {
+                    m_lastInteractFrame = Time.frameCount;
+                    m_ghostInteract.OnInteract(m_ghostInteract.m_onFocus);
+                    return;
+                }
+                // Looking at another scannable = replace preview
+                if (m_ghostMorphPreview.IsLookingAtScannable())
+                {
+                    m_lastInteractFrame = Time.frameCount;
+                    m_ghostClientController.OnScan();
+                    return;
+                }
+                // Empty valid spot = morph
+                if (m_ghostMorphPreview.m_canMorph)
+                {
+                    m_lastInteractFrame = Time.frameCount;
+                    m_ghostClientController.OnMorph();
+                    return;
+                }
+                // Nothing scannable and cannot morph = drop the preview
                 m_lastInteractFrame = Time.frameCount;
-                m_ghostClientController.OnMorph();
+                m_ghostMorphPreview.HidePreview();
+                InteractPromptUI.m_Instance.Hide();
                 return;
             }
+
             m_lastInteractFrame = Time.frameCount;
             m_ghostInteract.OnInteract(m_ghostInteract.m_onFocus);
         }

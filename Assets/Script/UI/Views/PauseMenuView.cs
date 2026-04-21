@@ -24,6 +24,7 @@ public class PauseMenuView : MonoBehaviour
     private CanvasGroup m_pauseCanvasGroup;
     private bool m_isPaused;
     private Button m_resumeButton;
+    private float m_escapeLockUntil;
     private readonly System.Collections.Generic.List<Canvas> m_hiddenCanvases = new();
 
     private void Awake()
@@ -50,6 +51,9 @@ public class PauseMenuView : MonoBehaviour
 
     private void Update()
     {
+        var kb = UnityEngine.InputSystem.Keyboard.current;
+        if (m_isPaused && kb != null && kb.escapeKey.wasPressedThisFrame) { OnEscapePressed(); return; }
+
         var gp = UnityEngine.InputSystem.Gamepad.current;
         if (gp == null) return;
         if (gp.startButton.wasPressedThisFrame) { OnEscapePressed(); return; }
@@ -60,6 +64,9 @@ public class PauseMenuView : MonoBehaviour
 
     public void OnEscapePressed()
     {
+        if (Time.unscaledTime < m_escapeLockUntil) return;
+        m_escapeLockUntil = Time.unscaledTime + 0.25f;
+
         if (m_settingsCanvas != null && m_settingsCanvas.activeSelf)
             CloseOptions();
         else if (m_isPaused)

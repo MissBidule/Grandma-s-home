@@ -12,6 +12,9 @@ public class TransitionVersUI : MonoBehaviour
     [Header("Reglages")]
     public float delaiAffichage = 1.5f; //delai avant d'afficher l'UI apres le switch de cam
 
+    [Header("Settings canvas (optional)")]
+    public SettingsTab tabToOpen = SettingsTab.None; //si set, ouvre l'onglet correspondant sur le SettingsCanvasController
+
     //zoom cam puis affichage UI
     public void LancerLaTransition()
     {
@@ -29,6 +32,8 @@ public class TransitionVersUI : MonoBehaviour
         if (canvasToLaunch != null)
         {
             canvasToLaunch.SetActive(true);
+            if (tabToOpen != SettingsTab.None)
+                canvasToLaunch.BroadcastMessage("OpenOnTabInt", (int)tabToOpen, SendMessageOptions.DontRequireReceiver);
         }
     }
 
