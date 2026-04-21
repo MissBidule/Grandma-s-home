@@ -28,6 +28,7 @@ public class GhostController : PlayerControllerCore, IInteractable
     [Header("Ghost references")]
     private GhostMorph m_ghostMorph;
     private GhostDeathIndicator m_deathIndicator;
+    [SerializeField] public GhostSoundEffects m_soundEffects;
 
     [Header("Status Timers")]
     [SerializeField] private float m_timerSlowed;
@@ -220,6 +221,7 @@ public class GhostController : PlayerControllerCore, IInteractable
             return;
         PurrLogger.LogWarning("Ghost Died", this);
         OnDeathChange?.Invoke(true, owner.Value); // True because he dies
+        m_soundEffects?.PlayDeathAudio();
         ApplyStopToAll();
         m_currentTimerStop = m_timerStop;
         m_animator.SetBool("GotShot", false);
@@ -272,6 +274,7 @@ public class GhostController : PlayerControllerCore, IInteractable
         m_beingRevived = true;
         m_reviver.RevivingBuddy(m_reviveDuration);
         m_reviver.FreezeReviverRpc();
+        m_soundEffects?.PlayRevivingAudio();
         if (_reviver.isOwner && InteractPromptUI.m_Instance != null) InteractPromptUI.m_Instance.Hide();
     }
 
@@ -291,6 +294,7 @@ public class GhostController : PlayerControllerCore, IInteractable
         m_reviveTimer = 0f;
         m_reviver.UnfreezeReviverRpc();
         m_reviver = null;
+        m_soundEffects?.StopRevivingAudio();
     }
 
     /**
@@ -322,6 +326,7 @@ public class GhostController : PlayerControllerCore, IInteractable
         PurrLogger.LogWarning("Ghost Revive", this);
         OnDeathChange?.Invoke(false, owner.Value); // False because he undies
         ForceRevive();
+        m_soundEffects?.PlayReviveAudio();
         if (!m_reviver.m_isStopped)
             m_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
     }
@@ -413,6 +418,8 @@ public class GhostController : PlayerControllerCore, IInteractable
             return;
         }
         
+        m_soundEffects?.PlayDashAudio();
+        
         ApplyDashToAll(true, false);
         m_currentDashCooldown = m_dashCooldown;
         
@@ -428,6 +435,7 @@ public class GhostController : PlayerControllerCore, IInteractable
     public void StartSpookyScary()
     {
         m_canScareChild = false;
+        m_soundEffects?.PlayScarringAudio();
         ApplyScaryToAll(m_canScareChild);
         StartCoroutine(ScaryCooldown(m_cdChildScare));
     }
