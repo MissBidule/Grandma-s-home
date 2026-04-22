@@ -41,7 +41,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2873181202271193540}
   - component: {fileID: 5277739470572466473}
-  - component: {fileID: 3521991110157396246}
+  - component: {fileID: 6563794753348627745}
   - component: {fileID: 7350850481470766736}
   - component: {fileID: 2404275679153068628}
   - component: {fileID: 6565872187536608583}
@@ -97,8 +97,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fdbbb83b997a8b04c978c5d9b4a6c699, type: 3}
   m_Name: 
   m_EditorClassIdentifier: PurrVoice.Runtime::PurrAudioReader
---- !u!65 &3521991110157396246
-BoxCollider:
+--- !u!136 &6563794753348627745
+CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -115,9 +115,11 @@ BoxCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.82027006, y: 1.9242082, z: 0.8850254}
-  m_Center: {x: -0.39, y: 0.632373, z: -0.05748731}
+  serializedVersion: 2
+  m_Radius: 0.56376237
+  m_Height: 2.2343428
+  m_Direction: 1
+  m_Center: {x: -0.40000004, y: 0.70332515, z: -0.05748731}
 --- !u!54 &7350850481470766736
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -183,7 +185,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChildInputController
   m_childClientController: {fileID: 2404275679153068628}
-  m_tutoChildCac: {fileID: 0}
 --- !u!114 &7371193213744557113
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -576,6 +577,10 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: a2fa8b84-2db5-4865-aed7-f67dc01c57a5
     m_ActionName: 'Ghost/Jump[/Keyboard/space]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 72fdd004-b407-4dca-9f7e-17eb8c445dba
+    m_ActionName: 'Player/NextStep[/Keyboard/space]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Child
@@ -845,6 +850,7 @@ MonoBehaviour:
   _networkRules: {fileID: 0}
   _visitiblityRules: {fileID: 0}
   m_speed: 6.2
+  m_acceleration: 25
   m_jumpImpulse: 6
   m_isScared: 0
   m_scaredAmplitude: 0.5
