@@ -1,3 +1,4 @@
+using System;
 using PurrNet;
 using TMPro;
 using UnityEngine;
@@ -17,6 +18,10 @@ public class InteractPromptUI : MonoBehaviour
     private InfoPromptUI m_currentInfo;
     private GameObject m_currentCanvas;
     private TMP_Text m_promptText;
+
+    // Stored factory to rebuild the prompt when the input device changes
+    private Func<string> m_promptFactory;
+
     private void Awake()
     {
         m_Instance = this;
@@ -26,21 +31,45 @@ public class InteractPromptUI : MonoBehaviour
         }
     }
 
+    private void OnEnable()  => InputDeviceTracker.OnDeviceChanged += RefreshPrompt;
+    private void OnDisable() => InputDeviceTracker.OnDeviceChanged -= RefreshPrompt;
+
+    private void RefreshPrompt()
+    {
+        if (m_promptFactory == null || m_promptText == null) return;
+        m_promptText.text = m_promptFactory();
+    }
+
     /**
-    @brief      Shows interaction message
+    @brief      Shows a static interaction message (not refreshed on device change).
     @param      _message: text to show
     @return     void
     */
     public void Show(string _message)
     {
-        if (m_currentCanvas == null)
-        {
-            m_currentCanvas = Instantiate(m_canvasPrefab);
-
-            m_promptText = m_currentCanvas.GetComponentInChildren<TMP_Text>();
-        }
-
+        EnsureCanvas();
+        m_promptFactory = null;
         m_promptText.text = _message;
+    }
+
+    /**
+    @brief      Shows a dynamic interaction message built from a factory.
+                Automatically refreshes when the input device changes.
+    @param      _factory: delegate that returns the prompt string
+    @return     void
+    */
+    public void ShowDynamic(Func<string> _factory)
+    {
+        EnsureCanvas();
+        m_promptFactory = _factory;
+        m_promptText.text = _factory();
+    }
+
+    private void EnsureCanvas()
+    {
+        if (m_currentCanvas != null) return;
+        m_currentCanvas = Instantiate(m_canvasPrefab);
+        m_promptText = m_currentCanvas.GetComponentInChildren<TMP_Text>();
     }
 
     /**
@@ -50,8 +79,8 @@ public class InteractPromptUI : MonoBehaviour
     public void Hide()
     {
         if (m_currentCanvas == null) return;
-
-       m_promptText.text = "";
+        m_promptFactory = null;
+        m_promptText.text = "";
     }
 
     public void ShowSabotage(string _ghostName)

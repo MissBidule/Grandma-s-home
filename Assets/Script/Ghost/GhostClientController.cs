@@ -19,8 +19,10 @@ public class GhostClientController : NetworkBehaviour
     private bool last_stopped = false;
     private bool last_slowed = false;
     private bool m_isMoving = false;
-
-
+    
+    [Header("References")]
+    [SerializeField] public GhostSoundEffects m_soundEffects;
+    
     [Header("Canva")]
     [SerializeField] private GameObject m_uiHolder_prefab;
     public GameObject m_uiHolder;
@@ -76,6 +78,8 @@ public class GhostClientController : NetworkBehaviour
         
         // Getting the HUD refference. (moved here as it could try to get it before it was instanced)
         InstanceHandler.TryGetInstance(out m_ghostHUDView);
+        
+        m_soundEffects.InitOwner();
     }
 
     private void DestroyUI()
@@ -186,6 +190,9 @@ public class GhostClientController : NetworkBehaviour
                 m_ghostHUDView.DashDisabled();
                 break;
             }
+            case false when m_ghostController.m_canDash && m_ghostHUDView.m_dash_disabled:
+                m_ghostHUDView.DashReady();
+                break;
         }
         
         if (!m_ghostController.m_canScareChild)
