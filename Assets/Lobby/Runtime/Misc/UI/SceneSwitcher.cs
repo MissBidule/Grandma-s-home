@@ -2,6 +2,7 @@ using PurrNet;
 using PurrNet.Logging;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 namespace PurrLobby
 {
@@ -62,6 +63,23 @@ namespace PurrLobby
             
             _hasAlreadySwitched = true;
             
+            // Start coroutine to allow network synchronization before scene switch
+            StartCoroutine(DelayedSceneSwitch());
+        }
+
+        private IEnumerator DelayedSceneSwitch()
+        {
+            // Wait for multiple frames to ensure all network messages are processed
+            for (int i = 0; i < 3; i++)
+            {
+                yield return null;
+            }
+            
+            ExecuteSceneSwitch();
+        }
+
+        private void ExecuteSceneSwitch()
+        {
             if(!_isTuto){
                 if (string.IsNullOrEmpty(nextScene))
                 {
