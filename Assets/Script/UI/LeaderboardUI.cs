@@ -25,6 +25,13 @@ public class LeaderboardUI : GameView
         InitLeaderboard();
     }
 
+    public void setLeaderboardCamera(Camera _camera)
+    {
+        Canvas leaderboardCanvas = m_canvasInstance.GetComponent<Canvas>();
+        leaderboardCanvas.worldCamera = _camera;
+        leaderboardCanvas.planeDistance = 0.58f;
+    }
+
     private void BuildFromJohnPrefab()
     {
         m_canvasInstance = Instantiate(m_leaderboardCanvasPrefab, transform);

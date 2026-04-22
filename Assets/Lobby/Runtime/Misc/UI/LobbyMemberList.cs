@@ -52,7 +52,6 @@ namespace PurrLobby
             MemberEntry hostEntry = null;
             foreach (Transform child in content)
             {
-                Debug.Log("foreach");
                 if (!child.TryGetComponent(out MemberEntry member))
                     continue;
 
