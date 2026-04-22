@@ -397,7 +397,8 @@ public class GhostController : PlayerControllerCore, IInteractable
     {
         print("Found dead ghost");
         m_isFocused = true;
-        InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelRevive));
+        InteractPromptUI.m_Instance.ShowDynamic(() =>
+            InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelRevive));
         SetHighlight(true);
     }
 

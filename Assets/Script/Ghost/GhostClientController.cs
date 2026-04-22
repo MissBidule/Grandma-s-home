@@ -190,6 +190,9 @@ public class GhostClientController : NetworkBehaviour
                 m_ghostHUDView.DashDisabled();
                 break;
             }
+            case false when m_ghostController.m_canDash && m_ghostHUDView.m_dash_disabled:
+                m_ghostHUDView.DashReady();
+                break;
         }
         
         if (!m_ghostController.m_canScareChild)
