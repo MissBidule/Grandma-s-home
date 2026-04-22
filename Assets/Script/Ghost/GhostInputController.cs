@@ -22,6 +22,7 @@ public class GhostInputController : MonoBehaviour
     private Interact m_ghostInteract;
     private TutoInstructions m_tutoChildInstructions;
     public QteCircle m_qteCircle;
+    private int m_lastInteractFrame = -1;
 
     private bool isOwner => m_ghostClientController != null && m_ghostClientController.isOwner;
 
@@ -109,7 +110,7 @@ public class GhostInputController : MonoBehaviour
             m_ghostClientController.OnScan();
             var wheel = m_ghostClientController.m_wheel;
             if (wheel == null || !wheel.m_isWaitingForSlotSelection)
-                InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelValid));
+                InteractPromptUI.m_Instance.ShowDynamic(() => InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelValid));
         }
     }
 
@@ -151,19 +152,69 @@ public class GhostInputController : MonoBehaviour
     public void OnInteract(InputAction.CallbackContext _context)
     {
         if (!isOwner) return;
+        // During a QTE, the shared right-click binding must act as Cancel, not Interact.
+        if (!m_qteCircle) m_qteCircle = FindAnyObjectByType<QteCircle>();
+        if (m_qteCircle != null && m_qteCircle.m_isRunning) return;
         if (_context.performed)
         {
             if (m_ghostClientController.m_wheel != null && m_ghostClientController.m_wheel.IsWheelOpen()) return;
-            if (m_ghostMorphPreview.m_currentPrefab != null)
+
+            bool inPreview = m_ghostMorphPreview.m_currentPrefab != null
+                             && !GetComponent<GhostMorph>().m_isMorphed;
+
+            if (inPreview)
             {
-                m_ghostClientController.OnMorph();
+                // Interact target (revive / sabotage) always wins
+                if (m_ghostInteract.m_onFocus != null)
+                {
+                    m_lastInteractFrame = Time.frameCount;
+                    m_ghostInteract.OnInteract(m_ghostInteract.m_onFocus);
+                    return;
+                }
+                // Looking at another scannable = replace preview
+                if (m_ghostMorphPreview.IsLookingAtScannable())
+                {
+                    m_lastInteractFrame = Time.frameCount;
+                    m_ghostClientController.OnScan();
+                    return;
+                }
+                // Empty valid spot = morph
+                if (m_ghostMorphPreview.m_canMorph)
+                {
+                    m_lastInteractFrame = Time.frameCount;
+                    m_ghostClientController.OnMorph();
+                    return;
+                }
+                // Nothing scannable and cannot morph = drop the preview
+                m_lastInteractFrame = Time.frameCount;
+                m_ghostMorphPreview.HidePreview();
+                InteractPromptUI.m_Instance.Hide();
                 return;
             }
+
+            m_lastInteractFrame = Time.frameCount;
             m_ghostInteract.OnInteract(m_ghostInteract.m_onFocus);
         }
         else if (_context.canceled)
         {
             m_ghostInteract.StopInteract(m_ghostInteract.m_onFocus);
+        }
+    }
+
+    /*
+     * @brief OnCancel is called by the Input System when cancel input is detected
+     * @param _context: The context of the input action
+     * @return void
+     */
+    public void OnCancel(InputAction.CallbackContext _context)
+    {
+        if (!isOwner) return;
+        if (_context.performed)
+        {
+            // Prevent double-dispatch when Cancel shares a binding with Interact
+            if (m_lastInteractFrame == Time.frameCount) return;
+            if (!m_qteCircle) m_qteCircle = FindAnyObjectByType<QteCircle>();
+            if (m_qteCircle != null && m_qteCircle.m_isRunning) m_qteCircle.CancelQte();
         }
     }
     

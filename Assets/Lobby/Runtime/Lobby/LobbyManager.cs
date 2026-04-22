@@ -625,16 +625,25 @@ namespace PurrLobby
                 PurrLogger.LogError($"Can't toggle role state, current lobby is invalid.");
                 return;
             }
-            
+
             var localUserId = _currentProvider.GetLocalUserIdAsync().Result;
             if (string.IsNullOrEmpty(localUserId))
             {
                 PurrLogger.LogError($"Can't toggle role state, local user ID is null or empty.");
                 return;
             }
-            
+
             var localLobbyUser = _currentLobby.Members.Find(x => x.Id == localUserId);
             SetIsGhost(isGhost);
+        }
+
+        public void CycleLocalRole()
+        {
+            if (!_currentLobby.IsValid) { PurrLogger.LogError("Can't cycle role, lobby invalid."); return; }
+            var localUserId = _currentProvider.GetLocalUserIdAsync().Result;
+            if (string.IsNullOrEmpty(localUserId)) return;
+            var me = _currentLobby.Members.Find(x => x.Id == localUserId);
+            ToggleLocalRole(!me.IsGhost);
         }
 
         /// <summary>

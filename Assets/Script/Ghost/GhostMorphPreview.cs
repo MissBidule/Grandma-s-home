@@ -106,6 +106,7 @@ public class GhostMorphPreview : MonoBehaviour
         if (!Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, m_scanRange, m_scanLayerMask))
         {
             Debug.Log("No objects detected by the raycast");
+            if (m_GhostPreviewOn) { HidePreview(); InteractPromptUI.m_Instance.Hide(); }
             return;
         }
 
@@ -122,6 +123,7 @@ public class GhostMorphPreview : MonoBehaviour
         if (scannableComponent == null)
         {
             Debug.Log($"Object detected but not scannable: {scannedObject.name}");
+            if (m_GhostPreviewOn) { HidePreview(); InteractPromptUI.m_Instance.Hide(); }
             return;
         }
 
@@ -161,7 +163,7 @@ public class GhostMorphPreview : MonoBehaviour
             //This one prevents unwanted visuals
             UpdateMaterial();
 
-            InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelValid));
+            InteractPromptUI.m_Instance.ShowDynamic(() => InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelValid));
             m_GhostPreviewOn =true;
         }
         m_colliders.Clear();
@@ -309,7 +311,7 @@ public class GhostMorphPreview : MonoBehaviour
                     if(!GetComponentInParent<GhostMorph>().m_isMorphed)
                     {
                        // There is a clone for few seconds...
-                    InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "Scan", m_promptLabelSCAN));
+                    InteractPromptUI.m_Instance.ShowDynamic(() => InputBindingHelper.BuildPrompt("Ghost", "Scan", m_promptLabelSCAN));
                     }
                     ClearHighlight();
                     HighlightObject(hitObject);
@@ -328,7 +330,7 @@ public class GhostMorphPreview : MonoBehaviour
             InteractPromptUI.m_Instance.Hide();
 
             if(m_GhostPreviewOn == true){
-            InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelValid));
+            InteractPromptUI.m_Instance.ShowDynamic(() => InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelValid));
             
             } 
         }
@@ -427,6 +429,16 @@ public class GhostMorphPreview : MonoBehaviour
 
     public void SetRotateLeft(bool active) => m_rotateLeft = active;
     public void SetRotateRight(bool active) => m_rotateRight = active;
+
+    public bool IsLookingAtScannable()
+    {
+        if (m_cameraTransform == null) return false;
+        if (!Physics.Raycast(m_cameraTransform.position, m_cameraTransform.forward, out RaycastHit hit, m_scanRange, m_scanLayerMask))
+            return false;
+        if (IsPartOfPlayer(hit.collider.gameObject)) return false;
+        ScannableObject s = hit.collider.GetComponent<ScannableObject>();
+        return s != null && s.m_icon != null;
+    }
 
     private void SwapGhostMaterial(bool _transparent)
     {
