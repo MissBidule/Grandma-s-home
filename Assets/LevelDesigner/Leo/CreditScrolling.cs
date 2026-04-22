@@ -24,7 +24,7 @@ public class NewMonoBehaviourScript : MonoBehaviour
 
     void Update()
     {
-        if (!isScrolling) return;
-        transform.position += new Vector3(0, 0, scrollSpeed + Time.deltaTime);
+        //if (!isScrolling) return;
+        //transform.position += new Vector3(0, 0, scrollSpeed + Time.deltaTime);
     }
 }
