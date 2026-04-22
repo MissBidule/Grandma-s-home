@@ -14,6 +14,7 @@ using UnityEngine.InputSystem;
  */
 public class TutoManager : MonoBehaviour
 {
+    GhostMorph m_ghostMorphTuto;
     [Header("Players")]
     [SerializeField] private GhostController m_ghost;
     [SerializeField] private GhostController m_ghostTuto;
@@ -22,6 +23,8 @@ public class TutoManager : MonoBehaviour
     [Header("Tutorial Objects")]
     [SerializeField] private SabotageObject m_sabotageObject;
     [SerializeField] private GameObject[] m_scanObjects;
+    [SerializeField] private GameObject m_untransformPropsTuto;
+    private GameObject m_instance;
 
     [Header("UI")]
     [SerializeField] private TutoUIController m_ui;
@@ -52,6 +55,7 @@ public class TutoManager : MonoBehaviour
 
         m_ghostMorph = m_ghost.GetComponent<GhostMorph>();
         m_ghostMorphPreview = m_ghost.GetComponentInChildren<GhostMorphPreview>();
+        m_ghostMorphTuto = m_ghostTuto.GetComponent<GhostMorph>();
 
         m_sabotageObject ??= FindAnyObjectByType<SabotageObject>();
 
@@ -105,7 +109,7 @@ public class TutoManager : MonoBehaviour
 
         if (next >= m_steps.Count)
         {
-            m_ui.ShowText("Tuto terminé ! Appuie sur Échap pour quitter.");
+            m_ui.ShowText("Tutorial complete! Press Esc to exit.");
             m_currentStep = m_steps.Count;
             return;
         }
@@ -132,14 +136,39 @@ public class TutoManager : MonoBehaviour
         m_ui.ShowText(ProcessBindings(step.message));
     }
 
+    private void UntransformGhostTuto()
+    {
+        m_ghostTuto.gameObject.SetActive(true); SetRenderingOutline(m_ghostTuto.gameObject, "Outline_1", true);
 
+        m_ghostMorphTuto.m_isMorphed= true;
+        Transform m_corpsGhostTuto = m_ghostTuto.gameObject.transform.Find("ghost_tpose/corps_F");
+
+        Debug.Log(m_corpsGhostTuto);
+        if(m_corpsGhostTuto != null)
+        {
+            m_corpsGhostTuto.gameObject.SetActive(false);
+        }
+        if(m_untransformPropsTuto != null)
+        {
+            m_instance = Instantiate(m_untransformPropsTuto, m_ghostTuto.transform);
+            m_instance.transform.localPosition = Vector3.zero;
+        }
+        m_ghostTuto.m_isSlowed = false;
+    }
+
+    private bool VerifieUntransform()
+    {
+        GhostMorph ghostMorphTuto = m_ghostTuto.GetComponent<GhostMorph>();
+        Debug.Log("le m_isMorphed est a :"+ ghostMorphTuto.m_isMorphed);
+        return !ghostMorphTuto.m_isMorphed;
+    }
     private void BuildSteps()
     {
         // GHOST PHASE
         bool movedForward = false, movedBack = false, movedLeft = false, movedRight = false;
         m_steps.Add(new TutoStep
         {
-            message = "Déplace-toi avec Z Q S D dans la pièce",
+            message = "Move around the room using Z Q S D",
             condition = () =>
             {
                 Vector3 d = m_ghost.m_wishDir;
@@ -153,14 +182,14 @@ public class TutoManager : MonoBehaviour
 
         m_steps.Add(new TutoStep
         {
-            message = "Sabote l'objet en surbrillance avec {Ghost.Interact}, cela augmentera la jauge de sabotage au fil du temps",
+            message = "Sabotage the highlighted object with {Ghost.Interact}, use {Ghost.Validate} to validate.\nThis will increase the sabotage meter over time.",
             onEnter = () => m_sabotageObject?.SetSabotable(true),
             condition = () => m_sabotageObject != null && m_sabotageObject.m_isSabotaged
         });
 
         m_steps.Add(new TutoStep
         {
-            message = "Scanne 3 objets en surbrillance avec {Ghost.Scan}",
+            message = "Scan 3 highlighted objects with {Ghost.Scan}",
             onEnter = () => { SetScanObjectsEnabled(true); SetScanOutline(true); },
             condition = () =>
             {
@@ -172,7 +201,7 @@ public class TutoManager : MonoBehaviour
 
         m_steps.Add(new TutoStep
         {
-            message = "Ouvre la roue en restant appuié sur {Ghost.OpenProps} et sélectionne une transformation en relachant la touche",
+            message = "Open the wheel by pressing and holding {Ghost.OpenProps}, select a transformation by hovering over it and releasing the key.",
             onEnter = () =>
             {
                 SetScanObjectsEnabled(false);
@@ -190,7 +219,7 @@ public class TutoManager : MonoBehaviour
         bool pressedLeft = false, pressedRight = false;
         m_steps.Add(new TutoStep
         {
-            message = "Tourne la prévisualisation avec {Ghost.RotatePreviewLeft} / {Ghost.RotatePreviewRight}",
+            message = "Rotate the preview using {Ghost.RotatePreviewLeft} and {Ghost.RotatePreviewRight}.",
             onEnter = () =>
             {
                 var gc = m_ghost.GetComponent<GhostClientController>();
@@ -208,7 +237,7 @@ public class TutoManager : MonoBehaviour
 
         m_steps.Add(new TutoStep
         {
-            message = "Confirme la transformation avec {Ghost.TransformConfirm} pour te cacher",
+            message = "Confirm the transformation with {Ghost.TransformConfirm} to hide yourself.",
             onEnter = () =>
             {
                 SetScanOutline(false);
@@ -221,7 +250,7 @@ public class TutoManager : MonoBehaviour
 
         m_steps.Add(new TutoStep
         {
-            message = "Réanime le fantôme à terre avec {Ghost.Interact}",
+            message = "Revive the ghost on the ground by pressing and holding {Ghost.Interact}.",
             onEnter = () =>
             {
                 m_ghostTuto.m_isStopped = true;
@@ -235,7 +264,7 @@ public class TutoManager : MonoBehaviour
 
         m_steps.Add(new TutoStep
         {
-            message = "Répare le sabotage avec {Child.Interact}",
+            message = "Repair the sabotage with {Child.Interact}, use {Child.Validate} to validate.",
             onEnter = () =>
             {
                 if (m_sabotageObject != null)
@@ -247,7 +276,7 @@ public class TutoManager : MonoBehaviour
 
         m_steps.Add(new TutoStep
         {
-            message = "Tape sur des objet avec {Child.Attack} \n Attention : ça coûte de l'argent !",
+            message = "Hit objects with {Child.Attack}.\nWarning: it costs money!",
             onEnter = () =>
             {
                 SetBrokeDecorEnabled(true);
@@ -264,28 +293,36 @@ public class TutoManager : MonoBehaviour
         bool m_initialRanged = false;
         m_steps.Add(new TutoStep
         {
-            message = "Change d'arme avec {Child.Change_weapon}",
+            message = "Change weapon with {Child.Change_weapon}.",
             onEnter = () => m_initialRanged = m_child.m_isRanged,
             condition = () => m_child.m_isRanged != m_initialRanged
+        });
+
+        m_steps.Add(new TutoStep
+        {
+            message = "A ghost is hidden in a mop, shoot him to untransform him.",
+            onEnter = () => { UntransformGhostTuto();},
+            condition = () => VerifieUntransform()
         });
 
         bool m_initialRanged2 = false;
         m_steps.Add(new TutoStep
         {
-            message = "Tire sur le fantôme pour le ralentir avec {Child.Attack}",
-            onEnter = () => { m_ghostTuto.gameObject.SetActive(true); SetRenderingOutline(m_ghostTuto.gameObject, "Outline_1", true); m_initialRanged2 = m_child.m_isRanged; },
+            message = "Shoot the ghost to slow it down with {Child.Attack}.",
+            onEnter = () => {m_initialRanged2 = m_child.m_isRanged; },
             condition = () => m_ghostTuto.m_isSlowed
         });
 
         m_steps.Add(new TutoStep
         {
-            message = "Repasse en arme au corps à corps avec {Child.Change_weapon}",
+            message = "Switch back to melee weapon with {Child.Change_weapon}.",
+            onEnter = () => {m_instance.SetActive(false);},
             condition = () => m_child.m_isRanged != m_initialRanged2
         });
 
         m_steps.Add(new TutoStep
         {
-            message = "Assomme le fantôme avec {Child.Attack}",
+            message = "Knock out the ghost with {Child.Attack}.",
             condition = () => m_ghostTuto != null && m_ghostTuto.m_isStopped
         });
 
