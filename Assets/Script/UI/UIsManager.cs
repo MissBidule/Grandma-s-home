@@ -61,7 +61,6 @@ namespace UI
                 GetComponent<Canvas>().worldCamera = _cinemachineBrain.OutputCamera;
             m_UIAudioListener.enabled = !m_UIAudioListener.enabled;
             m_eventListener.SetActive(!m_eventListener.activeSelf);
-            GetComponentInChildren<LeaderboardUI>(true).setLeaderboardCamera(_cinemachineBrain.OutputCamera);
         }
 
         /*

@@ -16,6 +16,11 @@ public class CampSelector : MonoBehaviour
     {
         AppliquerFiltre(SkinItem.Camp.Ghost);
     }
+
+    public void SelectionnerNone()
+    {
+        AppliquerFiltre(SkinItem.Camp.none);
+    }
     //applique le filtre pour afficher les skins du camp choisi et rendre les autres transparents et non interactifs
     private void AppliquerFiltre(SkinItem.Camp campChoisi)
     {
@@ -23,7 +28,7 @@ public class CampSelector : MonoBehaviour
         {
             if (skin != null)
             {
-                skin.MettreAJourSelection(campChoisi); //appelle la méthode de chaque skin pour transparence et interaction
+                skin.MettreAJourSelection(campChoisi); //appelle la mï¿½thode de chaque skin pour transparence et interaction
             }
         }
     }

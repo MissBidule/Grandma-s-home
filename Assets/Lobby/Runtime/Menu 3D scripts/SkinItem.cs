@@ -2,7 +2,7 @@
 
 public class SkinItem : MonoBehaviour
 {
-    public enum Camp { Child, Ghost } //enum pour les camps sur les skins
+    public enum Camp { Child, Ghost, none } //enum pour les camps sur les skins
 
     [Header("Configuration")]
     public Camp monCamp; //depend du skin à mettre sur chaque skin
@@ -38,7 +38,8 @@ public class SkinItem : MonoBehaviour
     //met à jour la skin en fonction du camp sélectionné
     public void MettreAJourSelection(Camp campSelectionne)
     {
-        bool estMonCamp = (monCamp == campSelectionne);
+        bool estMonCamp = monCamp == campSelectionne;
+        if (campSelectionne == Camp.none) estMonCamp = true; //si la skin n'est pas rattachée à un camp elle est toujours visible et clickable
         //change le layer entre 0 default et 2 ignore raycast qui permet de plus pouvoir click sur les colliders
         int layerCible = estMonCamp ? 0 : 2;
 

@@ -11,6 +11,7 @@ using UnityEngine.UI;
 
 namespace PurrLobby
 {
+
     public class LobbyManager : MonoBehaviour
     {
         [SerializeField] private MonoBehaviour currentProvider;
@@ -506,6 +507,21 @@ namespace PurrLobby
             });
         }
 
+        public void SetSkinAndRoleAsync(int _skinAndRole)
+        {
+            //Ghost skins are between 0 and 4, childs skins are between 5 and 9, so we can determine the role by checking if the skin index is below 5 or not
+
+            bool isGhost = (int)_skinAndRole < 5 ? true : false;
+
+            int skin = (int)_skinAndRole % 5;
+            
+            RunTask(async () =>
+            {
+                EnsureProviderSet();
+                await _currentProvider.SetSkinAndRoleAsync(isGhost, skin);
+            });
+        }
+
         /// <summary>
         /// Set the given User to Ghost
         /// </summary>
@@ -656,15 +672,8 @@ namespace PurrLobby
                 PurrLogger.LogError($"Can't change skin, current lobby is invalid.");
                 return;
             }
-            
-            var localUserId = _currentProvider.GetLocalUserIdAsync().Result;
-            if (string.IsNullOrEmpty(localUserId))
-            {
-                PurrLogger.LogError($"Can't change skin, local user ID is null or empty.");
-                return;
-            }
-            
-            var localLobbyUser = _currentLobby.Members.Find(x => x.Id == localUserId);
+            Debug.Log($"Changing skin for local user to {skin}");
+
             SetSkin(skin);
         }
 
