@@ -109,7 +109,7 @@ public class TutoManager : MonoBehaviour
 
         if (next >= m_steps.Count)
         {
-            m_ui.ShowText("Tutorial complete! Press Esc to exit.");
+            m_ui.ShowText("Tutorial complete! If you are done press Esc to exit.");
             m_currentStep = m_steps.Count;
             return;
         }
@@ -177,6 +177,29 @@ public class TutoManager : MonoBehaviour
                 if (d.x < -0.1f) movedLeft    = true;
                 if (d.x > 0.1f)  movedRight   = true;
                 return movedForward && movedBack && movedLeft && movedRight;
+            }
+        });
+
+        bool hasClimbed = false;
+        m_steps.Add(new TutoStep
+        {
+            message = "Ghosts can climb walls. Try climbing a wall by walking into it.",
+            condition = () =>
+            {
+                var sim = m_ghost.GetComponent<GhostSimulateMovement>();
+                if (sim != null && sim.m_isClimbing) hasClimbed = true;
+                return hasClimbed;
+            }
+        });
+
+        bool hasDashed = false;
+        m_steps.Add(new TutoStep
+        {
+            message = "Dash with {Ghost.Dash} to move quickly.\nDash recharges after 20s or instantly on a successful sabotage.",
+            condition = () =>
+            {
+                if (m_ghost.m_isDashing) hasDashed = true;
+                return hasDashed;
             }
         });
 
@@ -265,13 +288,22 @@ public class TutoManager : MonoBehaviour
         m_steps.Add(new TutoStep
         {
             message = "Repair the sabotage with {Child.Interact}, use {Child.Validate} to validate.",
-            onEnter = () =>
-            {
-                if (m_sabotageObject != null)
-                    foreach (Outline o in m_sabotageObject.GetComponentsInChildren<Outline>())
-                        o.enabled = true;
-            },
             condition = () => m_sabotageObject != null && !m_sabotageObject.m_isSabotaged
+        });
+
+        bool hasSneaked = false;
+        m_steps.Add(new TutoStep
+        {
+            message = "Sneak with {Child.Sneak} to move silently.",
+            condition = () =>
+            {
+                if (!hasSneaked)
+                {
+                    PlayerInput input = m_child.GetComponent<PlayerInput>();
+                    if (input != null && input.actions["Sneak"].IsPressed()) hasSneaked = true;
+                }
+                return hasSneaked;
+            }
         });
 
         m_steps.Add(new TutoStep
@@ -294,7 +326,13 @@ public class TutoManager : MonoBehaviour
         m_steps.Add(new TutoStep
         {
             message = "Change weapon with {Child.Change_weapon}.",
-            onEnter = () => m_initialRanged = m_child.m_isRanged,
+            onEnter = () =>
+            {
+                SetScanOutline(false);
+                m_initialRanged = m_child.m_isRanged;
+                var cc = m_child.GetComponent<ChildClientController>();
+                if (cc != null) cc.m_weaponSwapBlocked = false;
+            },
             condition = () => m_child.m_isRanged != m_initialRanged
         });
 
@@ -309,20 +347,30 @@ public class TutoManager : MonoBehaviour
         m_steps.Add(new TutoStep
         {
             message = "Shoot the ghost to slow it down with {Child.Attack}.",
-            onEnter = () => {m_initialRanged2 = m_child.m_isRanged; },
+            onEnter = () =>
+            {
+                m_initialRanged2 = m_child.m_isRanged;
+                var cc = m_child.GetComponent<ChildClientController>();
+                if (cc != null) cc.m_weaponSwapBlocked = true;
+            },
             condition = () => m_ghostTuto.m_isSlowed
         });
 
         m_steps.Add(new TutoStep
         {
             message = "Switch back to melee weapon with {Child.Change_weapon}.",
-            onEnter = () => {m_instance.SetActive(false);},
+            onEnter = () =>
+            {
+                m_instance.SetActive(false);
+                var cc = m_child.GetComponent<ChildClientController>();
+                if (cc != null) cc.m_weaponSwapBlocked = false;
+            },
             condition = () => m_child.m_isRanged != m_initialRanged2
         });
 
         m_steps.Add(new TutoStep
         {
-            message = "Knock out the ghost with {Child.Attack}.",
+            message = "Knock out the ghost with {Child.Attack}.\nWarning: if the ghost touches you, you'll be scared and unable to attack!",
             condition = () => m_ghostTuto != null && m_ghostTuto.m_isStopped
         });
 
@@ -337,9 +385,11 @@ public class TutoManager : MonoBehaviour
         m_child.gameObject.SetActive(true);
         SetPlayerActive(m_child.gameObject, true);
 
+        var cc = m_child.GetComponent<ChildClientController>();
+        if (cc != null) cc.m_weaponSwapBlocked = true;
+
         SetUIHolderActive("GhostUIHolder(Clone)", false);
         SetUIHolderActive("ChildUIHolder(Clone)", true);
-
     }
 
     private void SetUIHolderActive(string _name, bool _active)

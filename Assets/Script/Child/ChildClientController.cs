@@ -32,6 +32,7 @@ public class ChildClientController : NetworkBehaviour
     private float m_attackTime;
 
     private bool m_sneakPressed = false;
+    public bool m_weaponSwapBlocked = false;
 
     private PredictiveMovement m_predictiveMovement;
 
@@ -179,6 +180,7 @@ public class ChildClientController : NetworkBehaviour
     public void OnSwitchWeapon()
     {
         if (!isOwner) return;
+        if (m_weaponSwapBlocked) return;
         if(!m_childController.m_shootAnimRunning)
         {
             m_switchWeaponPressed = true;

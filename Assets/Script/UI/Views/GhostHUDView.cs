@@ -87,6 +87,7 @@ namespace Script.UI.Views
         public void ScaredActivate(float _timer)
         {
             if (!m_canScare) return;
+            if (!gameObject.activeInHierarchy) return;
             m_canScare = false;
             m_scaryCooldownOverlay.fillAmount = 1f;
             StartCoroutine(IconCooldown(m_scaryCooldownOverlay, _timer, "You can scare again"));
