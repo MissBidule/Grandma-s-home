@@ -250,6 +250,7 @@ public class GhostClientController : NetworkBehaviour
         m_wheel.Close();
     }
     [NonSerialized] public bool m_morphBlocked = false;
+    [NonSerialized] public bool m_dashBlocked = false;
 
     public void OnMorph()
     {
@@ -351,7 +352,7 @@ public class GhostClientController : NetworkBehaviour
         {
             m_predictiveMovement.ServerReceiveInput(_input);
             m_ghostController.m_wishDir = _input.wishDirection;
-            if (_input.dashPressed)
+            if (_input.dashPressed && !m_dashBlocked)
                 m_ghostController.StartDash();
             m_ghostController.m_isSneaking = _input.sneakPressed;
         }

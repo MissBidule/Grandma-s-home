@@ -71,6 +71,7 @@ public class TutoManager : MonoBehaviour
         SetScanObjectsEnabled(false);
         SetScanOutline(false);
         SetBreakable(false);
+        if (m_ghostClient != null) m_ghostClient.m_dashBlocked = true;
 
         BuildSteps();
         StartCoroutine(StartAfterFrame());
@@ -202,6 +203,7 @@ public class TutoManager : MonoBehaviour
         m_steps.Add(new TutoStep
         {
             message = "<b><color=#5AB4FF>Dash</color></b> with [{Ghost.Dash}] to move quickly.\nDash recharges after <b><color=#5AB4FF>20s</color></b> or instantly on a successful <b><color=#5AB4FF>sabotage</color></b>.",
+            onEnter = () => { if (m_ghostClient != null) m_ghostClient.m_dashBlocked = false; },
             condition = () =>
             {
                 if (m_ghost.m_isDashing) hasDashed = true;
@@ -328,7 +330,8 @@ public class TutoManager : MonoBehaviour
             {
                 m_ghost.GetComponentInChildren<GhostMorphPreview>()?.HidePreview();
                 m_ghostClient?.m_wheel?.ClearSelection();
-                m_ghostTuto.m_isStopped = true;
+                m_ghostTuto.ApplyStopToAll();
+                m_ghostTuto.callAnimationTrigger("OnHit");
                 SetRenderingOutline(m_ghostTuto.gameObject, "Outline_1", true);
             },
             condition = () => m_ghostTuto != null && !m_ghostTuto.m_isStopped
@@ -390,7 +393,11 @@ public class TutoManager : MonoBehaviour
         m_steps.Add(new TutoStep
         {
             message = "A ghost is <b><color=#5AB4FF>hidden</color></b> in a mop, shoot him to <b><color=#5AB4FF>untransform</color></b> him.",
-            onEnter = UntransformGhostTuto,
+            onEnter = () =>
+            {
+                if (m_childClient != null) m_childClient.m_weaponSwapBlocked = true;
+                UntransformGhostTuto();
+            },
             condition = () => !m_ghostMorphTuto.m_isMorphed
         });
 
