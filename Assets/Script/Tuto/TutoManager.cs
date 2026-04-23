@@ -23,6 +23,7 @@ public class TutoManager : MonoBehaviour
     [Header("Tutorial Objects")]
     [SerializeField] private SabotageObject m_sabotageObject;
     [SerializeField] private GameObject[] m_scanObjects;
+    [SerializeField] private TransformOption[] m_wheelFillOptions;
     [SerializeField] private GameObject m_untransformPropsTuto;
     private GameObject m_instance;
 
@@ -41,8 +42,11 @@ public class TutoManager : MonoBehaviour
     private bool m_waitingForFade = false;
 
     private GhostMorph m_ghostMorph;
-    private GhostMorphPreview m_ghostMorphPreview;
-    private Dictionary<ScannableObject, Sprite> m_savedScanIcons = new();
+    private GhostClientController m_ghostClient;
+    private GhostSimulateMovement m_ghostSim;
+    private PlayerInput m_ghostInput;
+    private ChildClientController m_childClient;
+    private PlayerInput m_childInput;
     private int m_childPhaseStart;
 
     // Called by TutoPlayerSpawningState after spawn
@@ -54,8 +58,12 @@ public class TutoManager : MonoBehaviour
         m_ghostTuto.m_isStopped = false;
 
         m_ghostMorph = m_ghost.GetComponent<GhostMorph>();
-        m_ghostMorphPreview = m_ghost.GetComponentInChildren<GhostMorphPreview>();
         m_ghostMorphTuto = m_ghostTuto.GetComponent<GhostMorph>();
+        m_ghostClient = m_ghost.GetComponent<GhostClientController>();
+        m_ghostSim = m_ghost.GetComponent<GhostSimulateMovement>();
+        m_ghostInput = m_ghost.GetComponent<PlayerInput>();
+        m_childClient = m_child.GetComponent<ChildClientController>();
+        m_childInput = m_child.GetComponent<PlayerInput>();
 
         m_sabotageObject ??= FindAnyObjectByType<SabotageObject>();
 
@@ -72,17 +80,14 @@ public class TutoManager : MonoBehaviour
     {
         yield return null;
 
-        var ghostClient = m_ghost.GetComponent<GhostClientController>();
-        var childClient = m_child.GetComponent<ChildClientController>();
-
         yield return new WaitUntil(() =>
-            (ghostClient == null || ghostClient.m_uiHolder != null) &&
-            (childClient == null || childClient.m_uiHolder != null));
+            (m_ghostClient == null || m_ghostClient.m_uiHolder != null) &&
+            (m_childClient == null || m_childClient.m_uiHolder != null));
 
         SetPlayerActive(m_ghost.gameObject, true);
         SetPlayerActive(m_child.gameObject, false);
-        if (ghostClient?.m_uiHolder != null) ghostClient.m_uiHolder.SetActive(true);
-        if (childClient?.m_uiHolder != null) childClient.m_uiHolder.SetActive(false);
+        if (m_ghostClient?.m_uiHolder != null) m_ghostClient.m_uiHolder.SetActive(true);
+        if (m_childClient?.m_uiHolder != null) m_childClient.m_uiHolder.SetActive(false);
 
         var ghostTutoClient = m_ghostTuto?.GetComponent<GhostClientController>();
         if (ghostTutoClient?.m_playerCamera != null)
@@ -138,18 +143,18 @@ public class TutoManager : MonoBehaviour
 
     private void UntransformGhostTuto()
     {
-        m_ghostTuto.gameObject.SetActive(true); SetRenderingOutline(m_ghostTuto.gameObject, "Outline_1", true);
+        m_ghostTuto.gameObject.SetActive(true);
+        SetRenderingOutline(m_ghostTuto.gameObject, "Outline_1", true);
 
-        m_ghostMorphTuto.m_isMorphed= true;
-        Transform m_corpsGhostTuto = m_ghostTuto.gameObject.transform.Find("ghost_tpose/corps_F");
+        m_ghostMorphTuto.m_isMorphed = true;
+        Transform corpsGhostTuto = m_ghostTuto.gameObject.transform.Find("ghost_tpose/corps_F");
 
-        BoxCollider boxCollider =m_ghostTuto.gameObject.GetComponent<BoxCollider>();
-        boxCollider.enabled=false;
-        if(m_corpsGhostTuto != null)
-        {
-            m_corpsGhostTuto.gameObject.SetActive(false);
-        }
-        if(m_untransformPropsTuto != null)
+        BoxCollider boxCollider = m_ghostTuto.gameObject.GetComponent<BoxCollider>();
+        boxCollider.enabled = false;
+        if (corpsGhostTuto != null)
+            corpsGhostTuto.gameObject.SetActive(false);
+
+        if (m_untransformPropsTuto != null)
         {
             m_instance = Instantiate(m_untransformPropsTuto, m_ghostTuto.transform);
             m_instance.transform.localPosition = Vector3.zero;
@@ -157,45 +162,47 @@ public class TutoManager : MonoBehaviour
         m_ghostTuto.m_isSlowed = false;
     }
 
-    private bool VerifieUntransform()
-    {
-        GhostMorph ghostMorphTuto = m_ghostTuto.GetComponent<GhostMorph>();
-        return !ghostMorphTuto.m_isMorphed;
-    }
+    private bool VerifieUntransform() => !m_ghostMorphTuto.m_isMorphed;
+
     private void BuildSteps()
     {
         // GHOST PHASE
         bool movedForward = false, movedBack = false, movedLeft = false, movedRight = false;
+        float moveTimer = 0f;
         m_steps.Add(new TutoStep
         {
-            message = "Move around the room using Z Q S D",
+            message = "Move around the room using <b><color=#5AB4FF>Z Q S D</color></b>",
             condition = () =>
             {
-                Vector3 d = m_ghost.m_wishDir;
-                if (d.z > 0.1f)  movedForward = true;
-                if (d.z < -0.1f) movedBack    = true;
-                if (d.x < -0.1f) movedLeft    = true;
-                if (d.x > 0.1f)  movedRight   = true;
-                return movedForward && movedBack && movedLeft && movedRight;
+                Vector2 move = m_ghostInput.actions["Move"].ReadValue<Vector2>();
+                if (move.y > 0.1f)  movedForward = true;
+                if (move.y < -0.1f) movedBack    = true;
+                if (move.x < -0.1f) movedLeft    = true;
+                if (move.x > 0.1f)  movedRight   = true;
+                if (movedForward && movedBack && movedLeft && movedRight && move.sqrMagnitude > 0.01f)
+                    moveTimer += Time.deltaTime;
+                return moveTimer >= 1.2f;
             }
         });
 
-        bool hasClimbed = false;
+        float climbTimer = 0f;
         m_steps.Add(new TutoStep
         {
-            message = "Ghosts can climb walls. Try climbing a wall by walking into it.",
+            message = "Ghosts can <b><color=#5AB4FF>climb walls</color></b>. Try climbing a wall by walking into it.",
             condition = () =>
             {
-                var sim = m_ghost.GetComponent<GhostSimulateMovement>();
-                if (sim != null && sim.m_isClimbing) hasClimbed = true;
-                return hasClimbed;
+                if (m_ghostSim != null && m_ghostSim.m_isClimbing)
+                    climbTimer += Time.deltaTime;
+                else
+                    climbTimer = 0f;
+                return climbTimer >= 0.4f;
             }
         });
 
         bool hasDashed = false;
         m_steps.Add(new TutoStep
         {
-            message = "Dash with [{Ghost.Dash}] to move quickly.\nDash recharges after 20s or instantly on a successful sabotage.",
+            message = "<b><color=#5AB4FF>Dash</color></b> with [{Ghost.Dash}] to move quickly.\nDash recharges after <b><color=#5AB4FF>20s</color></b> or instantly on a successful <b><color=#5AB4FF>sabotage</color></b>.",
             condition = () =>
             {
                 if (m_ghost.m_isDashing) hasDashed = true;
@@ -205,36 +212,48 @@ public class TutoManager : MonoBehaviour
 
         m_steps.Add(new TutoStep
         {
-            message = "Sabotage the highlighted object with [{Ghost.Interact}], use [{Ghost.Validate}] to validate.\nThis will increase the sabotage bar over time.",
+            message = "<b><color=#5AB4FF>Sabotage</color></b> the highlighted object with [{Ghost.Interact}], use [{Ghost.Validate}] to validate.\nThis will increase the <b><color=#5AB4FF>sabotage bar</color></b> over time.",
             onEnter = () => m_sabotageObject?.SetSabotable(true),
             condition = () => m_sabotageObject != null && m_sabotageObject.m_isSabotaged
         });
 
         m_steps.Add(new TutoStep
         {
-            message = "Scan 3 highlighted objects with [{Ghost.Scan}]",
+            message = "<b><color=#5AB4FF>Scan 3</color></b> highlighted objects with [{Ghost.Scan}]",
             onEnter = () => { SetScanObjectsEnabled(true); SetScanOutline(true); },
             condition = () =>
             {
-                var wheel = m_ghost.GetComponent<GhostClientController>()?.m_wheel;
+                var wheel = m_ghostClient?.m_wheel;
                 if (wheel == null) return false;
                 return wheel.m_wheelButtons.Count(b => !b.IsEmpty()) >= 3;
             }
         });
+        
+        m_steps.Add(new TutoStep
+        {
+            message = "<b><color=#5AB4FF>Confirm</color></b> the transformation with [{Ghost.TransformConfirm}].",
+            condition = () => m_ghostMorph != null && m_ghostMorph.m_isMorphed
+        });
 
         m_steps.Add(new TutoStep
         {
-            message = "Open the wheel by pressing and holding [{Ghost.OpenProps}], select a transformation by hovering over it and releasing the key.",
+            message = "Move to <b><color=#5AB4FF>untransform</color></b>.",
+            condition = () => m_ghostMorph != null && !m_ghostMorph.m_isMorphed
+        });
+
+        m_steps.Add(new TutoStep
+        {
+            message = "Open the <b><color=#5AB4FF>wheel</color></b> by pressing and holding [{Ghost.OpenProps}], select a <b><color=#5AB4FF>transformation</color></b> by hovering over it and releasing the key.",
             onEnter = () =>
             {
                 SetScanObjectsEnabled(false);
                 SetScanOutline(false);
-                var wheel = m_ghost.GetComponent<GhostClientController>()?.m_wheel;
+                var wheel = m_ghostClient?.m_wheel;
                 if (wheel != null) wheel.m_selectedPrefab = null;
             },
             condition = () =>
             {
-                var wheel = m_ghost.GetComponent<GhostClientController>()?.m_wheel;
+                var wheel = m_ghostClient?.m_wheel;
                 return wheel != null && wheel.m_selectedPrefab != null;
             }
         });
@@ -242,40 +261,76 @@ public class TutoManager : MonoBehaviour
         bool pressedLeft = false, pressedRight = false;
         m_steps.Add(new TutoStep
         {
-            message = "Rotate the preview using [{Ghost.RotatePreviewLeft}] and [{Ghost.RotatePreviewRight}].",
+            message = "<b><color=#5AB4FF>Rotate</color></b> the preview using [{Ghost.RotatePreviewLeft}] and [{Ghost.RotatePreviewRight}].",
             onEnter = () =>
             {
-                var gc = m_ghost.GetComponent<GhostClientController>();
-                if (gc != null) gc.m_morphBlocked = true;
+                if (m_ghostClient != null) m_ghostClient.m_morphBlocked = true;
             },
             condition = () =>
             {
-                PlayerInput input = m_ghost.GetComponent<PlayerInput>();
-                if (input == null) return false;
-                if (input.actions["RotatePreviewLeft"].IsPressed())  pressedLeft  = true;
-                if (input.actions["RotatePreviewRight"].IsPressed()) pressedRight = true;
+                if (m_ghostInput == null) return false;
+                if (m_ghostInput.actions["RotatePreviewLeft"].IsPressed())  pressedLeft  = true;
+                if (m_ghostInput.actions["RotatePreviewRight"].IsPressed()) pressedRight = true;
                 return pressedLeft && pressedRight;
             }
         });
 
         m_steps.Add(new TutoStep
         {
-            message = "Confirm the transformation with [{Ghost.TransformConfirm}] to hide yourself.",
+            message = "<b><color=#5AB4FF>Confirm</color></b> the transformation with [{Ghost.TransformConfirm}] to <b><color=#5AB4FF>hide yourself</color></b>.",
             onEnter = () =>
             {
-                SetScanOutline(false);
-                var gc = m_ghost.GetComponent<GhostClientController>();
-                if (gc != null) gc.m_morphBlocked = false;
+                if (m_ghostClient != null) m_ghostClient.m_morphBlocked = false;
             },
             condition = () => m_ghostMorph != null && m_ghostMorph.m_isMorphed
         });
 
+        m_steps.Add(new TutoStep
+        {
+            message = "Move to <b><color=#5AB4FF>untransform</color></b>.",
+            condition = () => m_ghostMorph != null && !m_ghostMorph.m_isMorphed
+        });
 
         m_steps.Add(new TutoStep
         {
-            message = "Revive the ghost on the ground by pressing and holding [{Ghost.Interact}].",
+            message = "Your <b><color=#5AB4FF>wheel is full</color></b>! <b><color=#5AB4FF>Scan</color></b> another object with [{Ghost.Scan}], then select a slot to <b><color=#5AB4FF>replace</color></b> it by pressing [{Ghost.OpenProps}].",
             onEnter = () =>
             {
+                var wheel = m_ghostClient?.m_wheel;
+                if (wheel != null)
+                {
+                    wheel.m_selectedPrefab = null;
+                    if (m_wheelFillOptions != null)
+                    {
+                        for (int i = 0; i < wheel.m_wheelButtons.Count && i < m_wheelFillOptions.Length; i++)
+                            wheel.m_wheelButtons[i].UpdateTransformOption(m_wheelFillOptions[i]);
+                    }
+                }
+                SetScanObjectsEnabled(true);
+                SetScanOutline(true);
+            },
+            condition = () =>
+            {
+                var wheel = m_ghostClient?.m_wheel;
+                return wheel != null && wheel.m_selectedPrefab != null;
+            }
+        });
+
+        m_steps.Add(new TutoStep
+        {
+            message = "<b><color=#5AB4FF>Confirm</color></b> the transformation with [{Ghost.TransformConfirm}].",
+            condition = () => m_ghostMorph != null && m_ghostMorph.m_isMorphed
+        });
+
+        m_steps.Add(new TutoStep
+        {
+            message = "<b><color=#5AB4FF>Revive</color></b> the ghost on the ground by pressing and holding [{Ghost.Interact}].",
+            onEnter = () =>
+            {
+                m_ghost.GetComponentInChildren<GhostMorphPreview>()?.HidePreview();
+                m_ghostClient?.m_wheel?.ClearSelection();
+                SetScanObjectsEnabled(false);
+                SetScanOutline(false);
                 m_ghostTuto.m_isStopped = true;
                 SetRenderingOutline(m_ghostTuto.gameObject, "Outline_1", true);
             },
@@ -287,94 +342,89 @@ public class TutoManager : MonoBehaviour
 
         m_steps.Add(new TutoStep
         {
-            message = "Repair the sabotage with [{Child.Interact}], use [{Child.Validate}] to validate.",
+            message = "<b><color=#5AB4FF>Repair</color></b> the sabotage with [{Child.Interact}], use [{Child.Validate}] to validate.",
             condition = () => m_sabotageObject != null && !m_sabotageObject.m_isSabotaged
         });
 
-        bool hasSneaked = false;
+        float sneakTimer = 0f;
         m_steps.Add(new TutoStep
         {
-            message = "Sneak with [{Child.Sneak}] to move silently.",
+            message = "<b><color=#5AB4FF>Sneak</color></b> with [{Child.Sneak}] to move <b><color=#5AB4FF>silently</color></b>.",
             condition = () =>
             {
-                if (!hasSneaked)
-                {
-                    PlayerInput input = m_child.GetComponent<PlayerInput>();
-                    if (input != null && input.actions["Sneak"].IsPressed()) hasSneaked = true;
-                }
-                return hasSneaked;
+                if (m_childInput != null && m_childInput.actions["Sneak"].IsPressed())
+                    sneakTimer += Time.deltaTime;
+                else
+                    sneakTimer = 0f;
+                return sneakTimer >= 2f;
             }
         });
 
         m_steps.Add(new TutoStep
         {
-            message = "Hit objects with [{Child.Attack}].\nWarning: it costs money!",
+            message = "Hit <b><color=#5AB4FF>3 objects</color></b> with [{Child.Attack}].\n<b><color=#5AB4FF>Warning</color></b>: it costs <b><color=#5AB4FF>money</color></b>!",
             onEnter = () =>
             {
                 SetBrokeDecorEnabled(true);
                 SetScanOutline(true);
             },
-            condition = () => m_scanObjects != null && m_scanObjects.Any(obj =>
-            {
-                if (obj == null) return false;
-                BrokeDecor bd = obj.GetComponentInChildren<BrokeDecor>();
-                return bd != null && bd.m_isBroken;
-            })
+            condition = () => m_scanObjects != null &&
+                m_scanObjects.Count(obj =>
+                {
+                    if (obj == null) return false;
+                    BrokeDecor bd = obj.GetComponentInChildren<BrokeDecor>();
+                    return bd != null && bd.m_isBroken;
+                }) >= 3
         });
 
-        bool m_initialRanged = false;
+        bool initialRanged = false;
         m_steps.Add(new TutoStep
         {
-            message = "Change weapon with [{Child.Change_weapon}].",
+            message = "<b><color=#5AB4FF>Change weapon</color></b> with [{Child.Change_weapon}].",
             onEnter = () =>
             {
                 SetScanOutline(false);
-                m_initialRanged = m_child.m_isRanged;
-                var cc = m_child.GetComponent<ChildClientController>();
-                if (cc != null) cc.m_weaponSwapBlocked = false;
+                initialRanged = m_child.m_isRanged;
+                if (m_childClient != null) m_childClient.m_weaponSwapBlocked = false;
             },
-            condition = () => m_child.m_isRanged != m_initialRanged
+            condition = () => m_child.m_isRanged != initialRanged
         });
 
         m_steps.Add(new TutoStep
         {
-            message = "A ghost is hidden in a mop, shoot him to untransform him.",
-            onEnter = () => { UntransformGhostTuto();},
+            message = "A ghost is <b><color=#5AB4FF>hidden</color></b> in a mop, shoot him to <b><color=#5AB4FF>untransform</color></b> him.",
+            onEnter = UntransformGhostTuto,
             condition = () => VerifieUntransform()
         });
 
-        bool m_initialRanged2 = false;
+        bool initialRanged2 = false;
         m_steps.Add(new TutoStep
         {
-            message = "Shoot the ghost to slow it down with [{Child.Attack}].",
+            message = "Shoot the ghost to <b><color=#5AB4FF>slow</color></b> it down with [{Child.Attack}].",
             onEnter = () =>
             {
                 m_instance.SetActive(false);
-                m_initialRanged2 = m_child.m_isRanged;
-                var cc = m_child.GetComponent<ChildClientController>();
-                if (cc != null) cc.m_weaponSwapBlocked = true;
+                initialRanged2 = m_child.m_isRanged;
+                if (m_childClient != null) m_childClient.m_weaponSwapBlocked = true;
             },
             condition = () => m_ghostTuto.m_isSlowed
         });
 
         m_steps.Add(new TutoStep
         {
-            message = "Switch back to melee weapon with [{Child.Change_weapon}].",
+            message = "Switch back to <b><color=#5AB4FF>melee</color></b> weapon with [{Child.Change_weapon}].",
             onEnter = () =>
             {
-                m_instance.SetActive(false);
-                var cc = m_child.GetComponent<ChildClientController>();
-                if (cc != null) cc.m_weaponSwapBlocked = false;
+                if (m_childClient != null) m_childClient.m_weaponSwapBlocked = false;
             },
-            condition = () => m_child.m_isRanged != m_initialRanged2
+            condition = () => m_child.m_isRanged != initialRanged2
         });
 
         m_steps.Add(new TutoStep
         {
-            message = "Knock out the ghost with [{Child.Attack}].\nWarning: if the ghost touches you, you'll be scared and unable to attack!",
+            message = "<b><color=#5AB4FF>Knock out</color></b> the ghost with [{Child.Attack}].\n<b><color=#5AB4FF>Warning</color></b>: if the ghost touches you, you'll be <b><color=#5AB4FF>scared</color></b> slowed and unable to attack!",
             condition = () => m_ghostTuto != null && m_ghostTuto.m_isStopped
         });
-
     }
 
     // POV switch
@@ -386,8 +436,7 @@ public class TutoManager : MonoBehaviour
         m_child.gameObject.SetActive(true);
         SetPlayerActive(m_child.gameObject, true);
 
-        var cc = m_child.GetComponent<ChildClientController>();
-        if (cc != null) cc.m_weaponSwapBlocked = true;
+        if (m_childClient != null) m_childClient.m_weaponSwapBlocked = true;
 
         SetUIHolderActive("GhostUIHolder(Clone)", false);
         SetUIHolderActive("ChildUIHolder(Clone)", true);
@@ -442,15 +491,13 @@ public class TutoManager : MonoBehaviour
         }
     }
 
-    //input binding helper
-
     private string ProcessBindings(string _message)
     {
         return System.Text.RegularExpressions.Regex.Replace(_message, @"\{(.*?)\}", match =>
         {
             string[] parts = match.Groups[1].Value.Split('.');
             if (parts.Length != 2) return match.Value;
-            return InputBindingHelper.GetKey(parts[0], parts[1]);
+            return $"<b><color=#5AB4FF>{InputBindingHelper.GetKey(parts[0], parts[1])}</color></b>";
         });
     }
 }
