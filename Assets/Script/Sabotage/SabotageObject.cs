@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using PurrNet;
 using UnityEngine;
 using System.Collections;
+using PurrNet.Logging;
 using UnityEngine.Rendering;
 using UnityEngine.SocialPlatforms.Impl;
 
@@ -14,6 +15,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     [Header("Sabotaged VFX")]
     [SerializeField] private GameObject m_vfxPrefab;
     [SerializeField] private GameObject m_interactPrefab;
+    [SerializeField] private NetworkAudioSource m_sfxAudioSource;
     private GameObject m_vfx;
 
     [Header("Score")]
@@ -92,12 +94,12 @@ public class SabotageObject : NetworkBehaviour, IInteractable
                 GhostMorph ghostMorph = _player.GetComponentInParent<GhostMorph>();
                 bool isMorphed = ghostMorph != null && ghostMorph.m_isMorphed;
                 bool canSabotage = _player.m_isGhost && m_isSabotable && !isMorphed;
-                if (canSabotage) InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelSABOTAGE));
+                if (canSabotage) InteractPromptUI.m_Instance.ShowDynamic(() => InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelSABOTAGE));
                 SetHighlight(canSabotage);
             }
             if (m_isSabotaged && !_player.m_isGhost)
             {
-                InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt("Child", "Interact", m_promptLabelREPAIR));
+                InteractPromptUI.m_Instance.ShowDynamic(() => InputBindingHelper.BuildPrompt("Child", "Interact", m_promptLabelREPAIR));
                 SetHighlight(true);
             }
         }
@@ -145,11 +147,20 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         if (childClientController = _player.GetComponentInParent<ChildClientController>())
         {
             childClientController.RepairAnimation(true);
+            if (childClientController.m_childSoundEffects!=null)
+                childClientController.m_childSoundEffects.PlayRepairAudio();
+            else
+                PurrLogger.LogError("Child Client Controller SFX not found", this);
         }
         else
         {
             GhostClientController ghostClientController = _player.GetComponentInParent<GhostClientController>();
             ghostClientController.SabotageAnimation(true);
+            
+            if (ghostClientController.m_soundEffects!=null)
+                ghostClientController.m_soundEffects.PlaySabotageAudio();
+            else
+                PurrLogger.LogError("Ghost Client Controller SFX not found", this);
         }
             Rigidbody rb = _player.GetComponentInParent<Rigidbody>();
         rb.constraints = (RigidbodyConstraints)(RigidbodyConstraints.FreezeAll - RigidbodyConstraints.FreezePositionY);
@@ -204,7 +215,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         SetHighlight(false);
 
         string validMap = _sabo.m_isGhost ? "Ghost" : "Child";
-        InteractPromptUI.m_Instance.Show(InputBindingHelper.BuildPrompt(validMap, "Validate", m_promptLabelVALID));
+        InteractPromptUI.m_Instance.ShowDynamic(() => InputBindingHelper.BuildPrompt(validMap, "Validate", m_promptLabelVALID));
 
         m_saboteur = _sabo;
         QteCircle qte = FindAnyObjectByType<QteCircle>();
@@ -224,15 +235,24 @@ public class SabotageObject : NetworkBehaviour, IInteractable
 
         m_saboteur.OnSabotageOver(_success);
 
+        ChildController childController = m_saboteur.GetComponentInParent<ChildController>();
         ChildClientController childClientController = m_saboteur.GetComponentInParent<ChildClientController>();
         if (childClientController != null)
         {
             childClientController.RepairAnimation(false);
+            if (childClientController.m_childSoundEffects!=null)
+                childClientController.m_childSoundEffects.StopRepairAudio();
+            else
+                PurrLogger.LogError("Child Client Controller SFX not found", this);
         }
         else
         {
             GhostClientController ghostClientController = m_saboteur.GetComponentInParent<GhostClientController>();
             ghostClientController.SabotageAnimation(false);
+            if (ghostClientController.m_soundEffects!=null)
+                ghostClientController.m_soundEffects.StopSabotageAudio();
+            else
+                PurrLogger.LogError("Ghost Client Controller SFX not found", this);
         }
         if (_success)
         {
@@ -253,10 +273,10 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         }
         else if (!m_isPanicMode)
         {
-            string prompt = m_saboteur.m_isGhost
+            bool isGhost = m_saboteur.m_isGhost;
+            InteractPromptUI.m_Instance.ShowDynamic(() => isGhost
                 ? InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelSABOTAGE)
-                : InputBindingHelper.BuildPrompt("Child", "Interact", m_promptLabelREPAIR);
-            InteractPromptUI.m_Instance.Show(prompt);
+                : InputBindingHelper.BuildPrompt("Child", "Interact", m_promptLabelREPAIR));
         }
 
         m_saboteur = null;
@@ -274,6 +294,11 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     {
         if (m_isSabotaged) return;
         SabotageForAll();
+        if (m_sfxAudioSource != null && m_sfxAudioSource.clip != null)
+        {
+            m_sfxAudioSource.loop = true;
+            m_sfxAudioSource.Play();
+        }
         if(InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
         {
             scoreManager.AddPointSabotage(info.sender);
@@ -314,6 +339,13 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     private void UnsabotageRPC(RPCInfo info = default)
     {
         UnsabotageForAll();
+        
+        
+        if (m_sfxAudioSource != null && m_sfxAudioSource.clip != null)
+        {
+            m_sfxAudioSource.loop = true;
+            m_sfxAudioSource.Stop();
+        }
 
         if(InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
             scoreManager.SubPointSabotage(info.sender);

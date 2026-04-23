@@ -81,9 +81,9 @@ public class Outline : MonoBehaviour {
   private bool needsUpdate;
 
   void Awake() {
-
     // Cache renderers
     renderers = GetComponentsInChildren<Renderer>();
+    enabled = false;
 
     // Instantiate outline materials
     outlineMaskMaterial = Instantiate(Resources.Load<Material>(@"Materials/OutlineMask"));
@@ -94,9 +94,6 @@ public class Outline : MonoBehaviour {
 
     // Retrieve or generate smooth normals
     LoadSmoothNormals();
-
-    // Apply material properties immediately
-    enabled = false;
   }
 
   void OnEnable() {

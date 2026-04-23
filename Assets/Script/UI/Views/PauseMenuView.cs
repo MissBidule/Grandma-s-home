@@ -1,266 +1,257 @@
-using PurrLobby;
 using PurrNet;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 using Script.States;
 
 /*
- * @brief In-game pause menu built entirely at runtime (no prefab required).
+ * @brief In-game pause menu backed by prefab UI (Canvas_Pause_Menu + Canvas_Settings).
  * Pressing Escape toggles pause, locks/unlocks the cursor and fires OnPauseChanged.
- * Hosts an OptionsView sub-panel; pressing Escape while the options panel is open
- * closes it and returns to the main pause panel instead of resuming.
+ * Buttons are wired at runtime by matching their TMP label text.
  */
 public class PauseMenuView : MonoBehaviour
 {
     public static event System.Action<bool> OnPauseChanged;
-    [Header("Option Row Prefabs")]
-    [UnityEngine.Serialization.FormerlySerializedAs("dropdownRowPrefab")]
-    [SerializeField] private OptionRowDropdown m_dropdownRowPrefab;
-    [UnityEngine.Serialization.FormerlySerializedAs("toggleRowPrefab")]
-    [SerializeField] private OptionRowToggle m_toggleRowPrefab;
-    [UnityEngine.Serialization.FormerlySerializedAs("sliderRowPrefab")]
-    [SerializeField] private OptionRowSlider m_sliderRowPrefab;
-    [UnityEngine.Serialization.FormerlySerializedAs("buttonRowPrefab")]
-    [SerializeField] private OptionRowButton m_buttonRowPrefab;
-    [UnityEngine.Serialization.FormerlySerializedAs("keybindingRowPrefab")]
-    [SerializeField] private OptionRowKeybinding m_keybindingRowPrefab;
-    [UnityEngine.Serialization.FormerlySerializedAs("sectionTitlePrefab")]
-    [SerializeField] private OptionSectionTitle m_sectionTitlePrefab;
-
     public static PauseMenuView Instance { get; private set; }
 
-    private Canvas m_canvas;
-    private CanvasGroup m_canvasGroup;
-    private GameObject m_mainPanel;
-    private OptionsView m_optionsPanel;
+    [SerializeField] private GameObject m_pauseCanvasPrefab;
+    [SerializeField] private GameObject m_settingsCanvasPrefab;
+
+    private GameObject m_pauseCanvas;
+    private GameObject m_settingsCanvas;
+    private CanvasGroup m_pauseCanvasGroup;
     private bool m_isPaused;
+    private Button m_resumeButton;
+    private float m_escapeLockUntil;
+    private readonly System.Collections.Generic.List<Canvas> m_hiddenCanvases = new();
 
     private void Awake()
     {
         Instance = this;
-        BuildCanvas();
-        m_optionsPanel = CreateOptionsPanel();
-        BuildMainPanel();
-        SetVisible(false);
+
+        m_pauseCanvas = Instantiate(m_pauseCanvasPrefab, transform);
+        m_pauseCanvas.name = "Canvas_Pause_Menu";
+        m_pauseCanvasGroup = m_pauseCanvas.GetComponent<CanvasGroup>();
+        if (m_pauseCanvasGroup == null) m_pauseCanvasGroup = m_pauseCanvas.AddComponent<CanvasGroup>();
+
+        m_settingsCanvas = Instantiate(m_settingsCanvasPrefab, transform);
+        m_settingsCanvas.name = "Canvas_Settings";
+
+        WirePauseButtons();
+        var sc = m_settingsCanvas.GetComponent<SettingsCanvasController>();
+        if (sc != null) sc.OnBack = CloseOptions;
+        else WireSettingsButtons();
+        try { ApplyOutlineToLabels(m_pauseCanvas); } catch { }
+
+        SetPauseVisible(false);
+        m_settingsCanvas.SetActive(false);
     }
 
-    private void OnDestroy()
+    public void SetCameraForCanvases(Camera cam)
     {
-        if (Instance == this) Instance = null;
+        Canvas pauseCanvas = m_pauseCanvas.GetComponent<Canvas>();
+        pauseCanvas.worldCamera = cam;
+        pauseCanvas.planeDistance = 0.58f;
+        Canvas settingsCanvas = m_settingsCanvas.GetComponent<Canvas>();
+        settingsCanvas.worldCamera = cam;
+        settingsCanvas.planeDistance = 0.58f;
     }
+
+    private void Update()
+    {
+        var kb = UnityEngine.InputSystem.Keyboard.current;
+        if (m_isPaused && kb != null && kb.escapeKey.wasPressedThisFrame) { OnEscapePressed(); return; }
+
+        var gp = UnityEngine.InputSystem.Gamepad.current;
+        if (gp == null) return;
+        if (gp.startButton.wasPressedThisFrame) { OnEscapePressed(); return; }
+        if (m_isPaused && gp.buttonEast.wasPressedThisFrame) OnEscapePressed();
+    }
+
+    private void OnDestroy() { if (Instance == this) Instance = null; }
 
     public void OnEscapePressed()
     {
-        if (m_optionsPanel.gameObject.activeSelf)
+        if (Time.unscaledTime < m_escapeLockUntil) return;
+        m_escapeLockUntil = Time.unscaledTime + 0.25f;
+
+        if (m_settingsCanvas != null && m_settingsCanvas.activeSelf)
             CloseOptions();
         else if (m_isPaused)
             Resume();
-        else if (!InstanceHandler.TryGetInstance(out Script.States.EndGameState endGameState) || !endGameState.IsGameOver)
+        else if (!InstanceHandler.TryGetInstance(out EndGameState endGameState) || !endGameState.IsGameOver)
             OpenMenu();
     }
 
-    /*
-     * @brief Closes the pause menu, re-locks the cursor and resumes gameplay.
-     */
     public void Resume()
     {
         m_isPaused = false;
-        SetVisible(false);
-        m_optionsPanel.gameObject.SetActive(false);
-        m_mainPanel.SetActive(true);
+        SetPauseVisible(false);
+        m_settingsCanvas.SetActive(false);
+        RestoreOtherCanvases();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        EventSystem.current?.SetSelectedGameObject(null);
         OnPauseChanged?.Invoke(false);
     }
 
-    /*
-     * @brief Hides the main panel and shows the OptionsView sub-panel.
-     */
     public void OpenOptions()
     {
-        m_mainPanel.SetActive(false);
-        m_optionsPanel.gameObject.SetActive(true);
-    }
-
-    /*
-     * @brief Hides the OptionsView sub-panel and returns to the main pause panel.
-     */
-    public void CloseOptions()
-    {
-        m_optionsPanel.gameObject.SetActive(false);
-        m_mainPanel.SetActive(true);
-    }
-
-    /*
-     * @brief Back to the home screen.
-     */
-    public void BackToMenu()
-    {
-        if (InstanceHandler.TryGetInstance(out EndGameState endGameState))
+        m_pauseCanvas.SetActive(false);
+        m_settingsCanvas.SetActive(true);
+        if (InputDeviceTracker.IsGamepadActive)
         {
-            endGameState.BackToMenu();
+            var first = m_settingsCanvas.GetComponentInChildren<Selectable>(false);
+            EventSystem.current?.SetSelectedGameObject(first?.gameObject);
         }
     }
 
-    /*
-     * @brief Quits the application (no save prompt).
-     */
+    public void CloseOptions()
+    {
+        m_settingsCanvas.SetActive(false);
+        m_pauseCanvas.SetActive(true);
+        SetPauseVisible(true);
+        if (InputDeviceTracker.IsGamepadActive)
+            EventSystem.current?.SetSelectedGameObject(m_resumeButton?.gameObject);
+    }
+
+    public void BackToMenu()
+    {
+        if (InstanceHandler.TryGetInstance(out EndGameState endGameState))
+            endGameState.BackToMenu();
+    }
+
     public void QuitGame()
     {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
         Application.Quit();
+#endif
     }
 
     private void OpenMenu()
     {
         m_isPaused = true;
-        m_optionsPanel.gameObject.SetActive(false);
-        m_mainPanel.SetActive(true);
-        SetVisible(true);
+        HideOtherCanvases();
+        m_settingsCanvas.SetActive(false);
+        m_pauseCanvas.SetActive(true);
+        SetPauseVisible(true);
         Cursor.lockState = CursorLockMode.Confined;
-        Cursor.visible = true;
+        Cursor.visible = !InputDeviceTracker.IsGamepadActive;
+        EnsureEventSystem();
+        if (InputDeviceTracker.IsGamepadActive)
+            EventSystem.current?.SetSelectedGameObject(m_resumeButton?.gameObject);
         OnPauseChanged?.Invoke(true);
     }
 
-    private void SetVisible(bool _visible)
+    private void HideOtherCanvases()
     {
-        m_canvasGroup.alpha = _visible ? 1f : 0f;
-        m_canvasGroup.interactable = _visible;
-        m_canvasGroup.blocksRaycasts = _visible;
+        m_hiddenCanvases.Clear();
+        foreach (var c in GameObject.FindObjectsByType<Canvas>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+        {
+            if (c == null || !c.isRootCanvas) continue;
+            if (c.transform.IsChildOf(transform)) continue;
+            c.enabled = false;
+            m_hiddenCanvases.Add(c);
+        }
     }
 
-    /*
-     * @brief Creates the Canvas, CanvasScaler, GraphicRaycaster, CanvasGroup and semi-transparent overlay at runtime.
-     */
-    private void BuildCanvas()
+    private void RestoreOtherCanvases()
     {
-        m_canvas = gameObject.AddComponent<Canvas>();
-        m_canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        m_canvas.sortingOrder = 100;
-
-        var scaler = gameObject.AddComponent<CanvasScaler>();
-        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920f, 1080f);
-        scaler.matchWidthOrHeight = 0.5f;
-
-        gameObject.AddComponent<GraphicRaycaster>();
-        m_canvasGroup = gameObject.AddComponent<CanvasGroup>();
-
-        var overlay  = new GameObject("Overlay");
-        overlay.transform.SetParent(transform, false);
-        var overlayImg = overlay.AddComponent<Image>();
-        overlayImg.color = new Color(0f, 0f, 0f, 0.65f);
-        var overlayRect = overlay.GetComponent<RectTransform>();
-        overlayRect.anchorMin = Vector2.zero;
-        overlayRect.anchorMax = Vector2.one;
-        overlayRect.offsetMin = Vector2.zero;
-        overlayRect.offsetMax = Vector2.zero;
+        foreach (var c in m_hiddenCanvases) if (c != null) c.enabled = true;
+        m_hiddenCanvases.Clear();
     }
 
-    /*
-     * @brief Instantiates the OptionsView sub-panel as a child of this Canvas and injects prefab references.
-     * @return The OptionsView component added to the new panel GameObject.
-     */
-    private OptionsView CreateOptionsPanel()
+    private void EnsureEventSystem()
     {
-        var go = new GameObject("OptionsPanel", typeof(RectTransform));
-        go.transform.SetParent(transform, false);
-
-        var rt = (RectTransform)go.transform;
-        rt.anchorMin = Vector2.zero;
-        rt.anchorMax = Vector2.one;
-        rt.offsetMin = rt.offsetMax = Vector2.zero;
-
-        var panel = go.AddComponent<OptionsView>();
-        panel.Initialize(m_dropdownRowPrefab, m_toggleRowPrefab, m_sliderRowPrefab,
-                         m_buttonRowPrefab, m_keybindingRowPrefab, m_sectionTitlePrefab);
-        panel.OnBack = CloseOptions;
-        go.SetActive(false);
-        return panel;
+        if (EventSystem.current == null)
+        {
+            var go = new GameObject("EventSystem");
+            go.AddComponent<EventSystem>();
+            go.AddComponent<InputSystemUIInputModule>();
+            return;
+        }
+        if (EventSystem.current.GetComponent<InputSystemUIInputModule>() == null)
+            EventSystem.current.gameObject.AddComponent<InputSystemUIInputModule>();
     }
 
-    /*
-     * @brief Builds the main pause panel with a title and Resume / Options / Quit buttons at runtime.
-     */
-    private void BuildMainPanel()
+    private void SetPauseVisible(bool visible)
     {
-        m_mainPanel = new GameObject("MainPanel");
-        m_mainPanel.transform.SetParent(transform, false);
-
-        var bg = m_mainPanel.AddComponent<Image>();
-        bg.color = new Color(0.13f, 0.13f, 0.16f, 1f);
-
-        var rect = m_mainPanel.GetComponent<RectTransform>();
-        rect.anchorMin = new Vector2(0.5f, 0.5f);
-        rect.anchorMax = new Vector2(0.5f, 0.5f);
-        rect.pivot = new Vector2(0.5f, 0.5f);
-        rect.sizeDelta = new Vector2(340f, 300f);
-
-        CreateButton(m_mainPanel.transform, "Resume",   new Vector2(0f,  80f), Resume);
-        CreateButton(m_mainPanel.transform, "Options",  new Vector2(0f,  10f), OpenOptions);
-        CreateButton(m_mainPanel.transform, "Back to menu", new Vector2(0f, -60f), BackToMenu,
-             new Color(0.75f, 0.38f, 0.02f));
-        CreateButton(m_mainPanel.transform, "Quit",     new Vector2(0f, -130f), QuitGame,
-                     new Color(0.60f, 0.04f, 0.04f));
+        m_pauseCanvas.SetActive(visible);
+        if (m_pauseCanvasGroup != null)
+        {
+            m_pauseCanvasGroup.alpha = visible ? 1f : 0f;
+            m_pauseCanvasGroup.interactable = visible;
+            m_pauseCanvasGroup.blocksRaycasts = visible;
+        }
     }
 
-    /*
-     * @brief Creates a TextMeshProUGUI label as a child of the given transform.
-     * @param parent  Parent transform to attach the label to.
-     * @param text    String to display.
-     * @param size    Font size in points.
-     * @param style   Font style flags (bold, italic, etc.).
-     * @return The TMP_Text component of the newly created GameObject.
-     */
-    private TMP_Text CreateText(Transform parent, string text, int size,
-                                FontStyles style = FontStyles.Normal)
+    private void WirePauseButtons()
     {
-        var go  = new GameObject("Text_" + text);
-        go.transform.SetParent(parent, false);
-        var tmp = go.AddComponent<TextMeshProUGUI>();
-        tmp.text = text;
-        tmp.fontSize = size;
-        tmp.fontStyle = style;
-        tmp.alignment = TextAlignmentOptions.Center;
-        tmp.color = Color.white;
-        return tmp;
+        foreach (var btn in m_pauseCanvas.GetComponentsInChildren<Button>(true))
+        {
+            var label = GetLabel(btn);
+            switch (label)
+            {
+                case "resume":
+                    m_resumeButton = btn;
+                    AddClick(btn, Resume);
+                    break;
+                case "settings":
+                    AddClick(btn, OpenOptions);
+                    break;
+                case "back to menu":
+                    AddClick(btn, BackToMenu);
+                    break;
+                case "back":
+                    var lbl = btn.GetComponentInChildren<TMP_Text>(true);
+                    if (lbl != null) lbl.text = "QUIT";
+                    AddClick(btn, QuitGame);
+                    break;
+            }
+        }
     }
 
-    /*
-     * @brief Creates a styled UI button as a child of the given transform.
-     * @param parent        Parent transform to attach the button to.
-     * @param label         Text displayed on the button.
-     * @param anchoredPos   Anchored position relative to the parent's centre.
-     * @param onClick       Callback invoked when the button is clicked.
-     * @param bgColor       Optional background colour override; defaults to the standard grey.
-     */
-    private void CreateButton(Transform parent, string label, Vector2 anchoredPos,
-                              System.Action onClick, Color? bgColor = null)
+    private void WireSettingsButtons()
     {
-        var go  = new GameObject("Btn_" + label);
-        go.transform.SetParent(parent, false);
-        var img = go.AddComponent<Image>();
-        img.color = bgColor ?? new Color(0.25f, 0.25f, 0.30f, 1f);
+        foreach (var btn in m_settingsCanvas.GetComponentsInChildren<Button>(true))
+        {
+            if (GetLabel(btn) == "back") AddClick(btn, CloseOptions);
+        }
+    }
 
-        var rect = go.GetComponent<RectTransform>();
-        rect.anchorMin = new Vector2(0.5f, 0.5f);
-        rect.anchorMax = new Vector2(0.5f, 0.5f);
-        rect.pivot = new Vector2(0.5f, 0.5f);
-        rect.anchoredPosition = anchoredPos;
-        rect.sizeDelta = new Vector2(260f, 50f);
+    private static void ApplyOutlineToLabels(GameObject root)
+    {
+        foreach (var tmp in root.GetComponentsInChildren<TMP_Text>(true))
+        {
+            try
+            {
+                if (tmp == null || tmp.font == null) continue;
+                if (tmp.font.name.Contains("Outline")) continue;
+                var mat = tmp.fontMaterial;
+                if (mat == null) continue;
+                mat.EnableKeyword("OUTLINE_ON");
+                mat.SetColor(TMPro.ShaderUtilities.ID_OutlineColor, Color.black);
+                mat.SetFloat(TMPro.ShaderUtilities.ID_OutlineWidth, 0.2f);
+                tmp.UpdateMeshPadding();
+            }
+            catch { }
+        }
+    }
 
-        var btn    = go.AddComponent<Button>();
-        var colors = btn.colors;
-        colors.highlightedColor = new Color(0.35f, 0.35f, 0.40f, 1f);
-        colors.pressedColor = new Color(0.18f, 0.18f, 0.22f, 1f);
-        btn.colors = colors;
-        btn.onClick.AddListener(() => onClick?.Invoke());
+    private static string GetLabel(Button btn)
+    {
+        var tmp = btn.GetComponentInChildren<TMP_Text>(true);
+        if (tmp == null) return string.Empty;
+        return tmp.text.Replace("\n", " ").Replace("  ", " ").Trim().ToLowerInvariant();
+    }
 
-        var txt = CreateText(go.transform, label, 20);
-        var txtRect = txt.GetComponent<RectTransform>();
-        txtRect.anchorMin = Vector2.zero;
-        txtRect.anchorMax = Vector2.one;
-        txtRect.offsetMin = Vector2.zero;
-        txtRect.offsetMax = Vector2.zero;
+    private static void AddClick(Button btn, System.Action action)
+    {
+        btn.onClick.RemoveAllListeners();
+        btn.onClick.AddListener(() => action?.Invoke());
     }
 }

@@ -57,6 +57,7 @@ public class GhostMorph : NetworkBehaviour
         m_currentPrefab.GetComponent<MeshCollider>().convex = true;
         m_currentPrefab.transform.localPosition = _position;
         m_currentPrefab.transform.localRotation = _rotation;
+        m_isMorphed = true;
     }
 
     /*
@@ -78,6 +79,7 @@ public class GhostMorph : NetworkBehaviour
     [ObserversRpc(requireServer: true, runLocally: true)]
     public void DestroyForAll()
     {
+        m_isMorphed = false;
         m_playerCollider.enabled = true;
         m_mesh.SetActive(true);
         Destroy(m_currentPrefab);
@@ -88,6 +90,7 @@ public class GhostMorph : NetworkBehaviour
         }
         Rigidbody rb = GetComponent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        if (m_previewGhost != null) m_previewGhost.HidePreview();
     }
 
     /*
