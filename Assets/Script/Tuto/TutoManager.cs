@@ -69,8 +69,8 @@ public class TutoManager : MonoBehaviour
 
         m_sabotageObject?.SetSabotable(false);
         SetScanObjectsEnabled(false);
-        SetBrokeDecorEnabled(false);
         SetScanOutline(false);
+        SetBreakable(false);
 
         BuildSteps();
         StartCoroutine(StartAfterFrame());
@@ -114,7 +114,7 @@ public class TutoManager : MonoBehaviour
 
         if (next >= m_steps.Count)
         {
-            m_ui.ShowText("Tutorial complete! If you are done press Esc to exit.");
+            m_ui.ShowText("Tutorial <b><color=#5AB4FF>complete</color></b>! If you are done press <b><color=#5AB4FF>Esc</color></b> to <b><color=#5AB4FF>exit</color></b>.");
             m_currentStep = m_steps.Count;
             return;
         }
@@ -162,7 +162,6 @@ public class TutoManager : MonoBehaviour
         m_ghostTuto.m_isSlowed = false;
     }
 
-    private bool VerifieUntransform() => !m_ghostMorphTuto.m_isMorphed;
 
     private void BuildSteps()
     {
@@ -231,7 +230,8 @@ public class TutoManager : MonoBehaviour
         
         m_steps.Add(new TutoStep
         {
-            message = "<b><color=#5AB4FF>Confirm</color></b> the transformation with [{Ghost.TransformConfirm}].",
+            message = "<b><color=#5AB4FF>Confirm</color></b> the transformation with [{Ghost.TransformConfirm}] to <b><color=#5AB4FF>hide yourself</color></b>.",
+            onEnter = () => { SetScanObjectsEnabled(false); SetScanOutline(false); },
             condition = () => m_ghostMorph != null && m_ghostMorph.m_isMorphed
         });
 
@@ -246,8 +246,6 @@ public class TutoManager : MonoBehaviour
             message = "Open the <b><color=#5AB4FF>wheel</color></b> by pressing and holding [{Ghost.OpenProps}], select a <b><color=#5AB4FF>transformation</color></b> by hovering over it and releasing the key.",
             onEnter = () =>
             {
-                SetScanObjectsEnabled(false);
-                SetScanOutline(false);
                 var wheel = m_ghostClient?.m_wheel;
                 if (wheel != null) wheel.m_selectedPrefab = null;
             },
@@ -319,6 +317,7 @@ public class TutoManager : MonoBehaviour
         m_steps.Add(new TutoStep
         {
             message = "<b><color=#5AB4FF>Confirm</color></b> the transformation with [{Ghost.TransformConfirm}].",
+            onEnter = () => { SetScanObjectsEnabled(false); SetScanOutline(false); },
             condition = () => m_ghostMorph != null && m_ghostMorph.m_isMorphed
         });
 
@@ -329,8 +328,6 @@ public class TutoManager : MonoBehaviour
             {
                 m_ghost.GetComponentInChildren<GhostMorphPreview>()?.HidePreview();
                 m_ghostClient?.m_wheel?.ClearSelection();
-                SetScanObjectsEnabled(false);
-                SetScanOutline(false);
                 m_ghostTuto.m_isStopped = true;
                 SetRenderingOutline(m_ghostTuto.gameObject, "Outline_1", true);
             },
@@ -365,8 +362,8 @@ public class TutoManager : MonoBehaviour
             message = "Hit <b><color=#5AB4FF>3 objects</color></b> with [{Child.Attack}].\n<b><color=#5AB4FF>Warning</color></b>: it costs <b><color=#5AB4FF>money</color></b>!",
             onEnter = () =>
             {
-                SetBrokeDecorEnabled(true);
                 SetScanOutline(true);
+                SetBreakable(true);
             },
             condition = () => m_scanObjects != null &&
                 m_scanObjects.Count(obj =>
@@ -394,7 +391,7 @@ public class TutoManager : MonoBehaviour
         {
             message = "A ghost is <b><color=#5AB4FF>hidden</color></b> in a mop, shoot him to <b><color=#5AB4FF>untransform</color></b> him.",
             onEnter = UntransformGhostTuto,
-            condition = () => VerifieUntransform()
+            condition = () => !m_ghostMorphTuto.m_isMorphed
         });
 
         bool initialRanged2 = false;
@@ -478,8 +475,9 @@ public class TutoManager : MonoBehaviour
     private void SetScanOutline(bool _active) =>
         ForEachScanObject(obj => { foreach (Outline o in obj.GetComponentsInChildren<Outline>()) o.enabled = _active; });
 
-    private void SetBrokeDecorEnabled(bool _active) =>
-        ForEachScanObject(obj => { var bd = obj.GetComponentInChildren<BrokeDecor>(); if (bd) bd.enabled = _active; });
+    private void SetBreakable(bool _active) =>
+        ForEachScanObject(obj => { var bd = obj.GetComponentInChildren<BrokeDecor>(); if (bd) bd.m_isBreakable = _active; });
+
 
     private void SetRenderingOutline(GameObject _target, string _layerName, bool _active)
     {

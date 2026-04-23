@@ -17,6 +17,7 @@ public class BrokeDecor : NetworkBehaviour
 
     public bool m_isBroken;
     public bool m_alreadyBroken=false;
+    public bool m_isBreakable = true;
 
     public void Start()
     {
@@ -25,6 +26,7 @@ public class BrokeDecor : NetworkBehaviour
     [ObserversRpc(runLocally:true)]
     public void Broke()
     {
+        if (!m_isBreakable) return;
         if (!m_isBroken)
             FloatingDamageText.Spawn(transform.position, m_scoreValue);
         m_isBroken = true;
