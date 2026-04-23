@@ -8,6 +8,7 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 using PurrLobby;
+using System.Linq;
 
 /*
  * @brief Wires John's Canvas_Settings prefab (visual only) to the real settings logic.
@@ -16,6 +17,7 @@ using PurrLobby;
  */
 public class SettingsCanvasController : MonoBehaviour
 {
+    bool AwakeCalled = false;
     public Action OnBack;
 
     [SerializeField] private InputActionAsset m_inputActions;
@@ -42,8 +44,17 @@ public class SettingsCanvasController : MonoBehaviour
 
     public static event Action<float> OnSensitivityChanged;
 
-    private void Awake()
+    public void Awake()
     {
+        if (AwakeCalled) return;
+        ForceAwake();
+    }
+
+    //NO COMMENT.
+    public void ForceAwake()
+    {
+        AwakeCalled = true;
+
         var bg = transform.Find("Settings_Background");
         if (bg == null) { Debug.LogError("SettingsCanvasController: Settings_Background not found"); return; }
 
@@ -814,13 +825,22 @@ public class SettingsCanvasController : MonoBehaviour
         }
         if (s_colorblindVolume == null)
         {
-            var go = new GameObject("[ColorblindVolume]");
-            DontDestroyOnLoad(go);
-            s_colorblindVolume = go.AddComponent<Volume>();
-            s_colorblindVolume.isGlobal = true; s_colorblindVolume.priority = 1001f; s_colorblindVolume.weight = 0f;
-            var profile = ScriptableObject.CreateInstance<VolumeProfile>();
-            s_colorblindCM = profile.Add<ChannelMixer>(true);
-            s_colorblindVolume.profile = profile;
+            var existing = FindObjectsByType<Volume>(FindObjectsSortMode.None).FirstOrDefault(v => v.name == "[ColorblindVolume]");
+            if (existing != null)
+            {
+                s_colorblindVolume = existing;
+            }
+            else {
+                GameObject go = new GameObject("[ColorblindVolume]");
+                DontDestroyOnLoad(go);
+                s_colorblindVolume = go.AddComponent<Volume>();
+                var profile = ScriptableObject.CreateInstance<VolumeProfile>();
+                s_colorblindCM = profile.Add<ChannelMixer>(true);
+                s_colorblindVolume.profile = profile;
+            }
+            s_colorblindVolume.isGlobal = true; 
+            s_colorblindVolume.priority = 1001f; 
+            s_colorblindVolume.weight = 0f;
         }
     }
 
@@ -852,9 +872,15 @@ public class SettingsCanvasController : MonoBehaviour
                 s_colorblindCM.blueOutRedIn.Override(0);    s_colorblindCM.blueOutGreenIn.Override(25); s_colorblindCM.blueOutBlueIn.Override(75);
                 break;
             case 3: // Tritanopia
-                s_colorblindCM.redOutRedIn.Override(95);    s_colorblindCM.redOutGreenIn.Override(5);   s_colorblindCM.redOutBlueIn.Override(0);
-                s_colorblindCM.greenOutRedIn.Override(0);   s_colorblindCM.greenOutGreenIn.Override(43);s_colorblindCM.greenOutBlueIn.Override(57);
-                s_colorblindCM.blueOutRedIn.Override(0);    s_colorblindCM.blueOutGreenIn.Override(47); s_colorblindCM.blueOutBlueIn.Override(53);
+                s_colorblindCM.redOutRedIn.Override(95);    
+                s_colorblindCM.redOutGreenIn.Override(5);   
+                s_colorblindCM.redOutBlueIn.Override(0);
+                s_colorblindCM.greenOutRedIn.Override(0);   
+                s_colorblindCM.greenOutGreenIn.Override(43);
+                s_colorblindCM.greenOutBlueIn.Override(57);
+                s_colorblindCM.blueOutRedIn.Override(0);    
+                s_colorblindCM.blueOutGreenIn.Override(47); 
+                s_colorblindCM.blueOutBlueIn.Override(53);
                 break;
         }
     }

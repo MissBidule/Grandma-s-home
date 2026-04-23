@@ -49,6 +49,16 @@ public class PauseMenuView : MonoBehaviour
         m_settingsCanvas.SetActive(false);
     }
 
+    public void SetCameraForCanvases(Camera cam)
+    {
+        Canvas pauseCanvas = m_pauseCanvas.GetComponent<Canvas>();
+        pauseCanvas.worldCamera = cam;
+        pauseCanvas.planeDistance = 0.58f;
+        Canvas settingsCanvas = m_settingsCanvas.GetComponent<Canvas>();
+        settingsCanvas.worldCamera = cam;
+        settingsCanvas.planeDistance = 0.58f;
+    }
+
     private void Update()
     {
         var kb = UnityEngine.InputSystem.Keyboard.current;

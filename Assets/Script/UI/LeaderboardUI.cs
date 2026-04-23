@@ -29,9 +29,9 @@ public class LeaderboardUI : GameView
     {
         m_canvasInstance = Instantiate(m_leaderboardCanvasPrefab, transform);
         m_canvasInstance.name = "Canvas_Leaderboard";
+        if (m_canvasInstance.TryGetComponent<GraphicRaycaster>(out var gr)) 
         if (m_canvasInstance.TryGetComponent<Canvas>(out var c)) DestroyImmediate(c);
-        if (m_canvasInstance.TryGetComponent<CanvasScaler>(out var cs)) DestroyImmediate(cs);
-        if (m_canvasInstance.TryGetComponent<GraphicRaycaster>(out var gr)) DestroyImmediate(gr);
+        if (m_canvasInstance.TryGetComponent<CanvasScaler>(out var cs)) DestroyImmediate(cs);DestroyImmediate(gr);
         var rt = m_canvasInstance.GetComponent<RectTransform>();
         if (rt != null)
         {
@@ -50,11 +50,11 @@ public class LeaderboardUI : GameView
         var team0 = teams.GetChild(0);
         var team1 = teams.GetChild(1);
 
-        m_ghostCategory = team0.Find("Player_List_Bg");
-        m_childCategory = team1.Find("Player_List_Bg");
+        m_childCategory = team0.Find("Player_List_Bg");
+        m_ghostCategory = team1.Find("Player_List_Bg");
 
-        SetHeader(team0, "GHOST");
-        SetHeader(team1, "CHILD");
+        SetHeader(team0, "CHILDS");
+        SetHeader(team1, "GHOSTS");
 
         ClearChildren(m_ghostCategory);
         ClearChildren(m_childCategory);
