@@ -17,6 +17,7 @@ using System.Linq;
  */
 public class SettingsCanvasController : MonoBehaviour
 {
+    bool AwakeCalled = false;
     public Action OnBack;
 
     [SerializeField] private InputActionAsset m_inputActions;
@@ -43,9 +44,17 @@ public class SettingsCanvasController : MonoBehaviour
 
     public static event Action<float> OnSensitivityChanged;
 
+    public void Awake()
+    {
+        if (AwakeCalled) return;
+        ForceAwake();
+    }
+
     //NO COMMENT.
     public void ForceAwake()
     {
+        AwakeCalled = true;
+
         var bg = transform.Find("Settings_Background");
         if (bg == null) { Debug.LogError("SettingsCanvasController: Settings_Background not found"); return; }
 
