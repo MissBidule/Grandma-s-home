@@ -3,6 +3,7 @@ using PurrNet;
 using System.Collections;
 using UnityEngine.Serialization;
 using Script.UI.Views;
+using Unity.Cinemachine;
 
 namespace UI
 {
@@ -49,13 +50,15 @@ namespace UI
         /*
          * @brief Toggle the Camera and Audio listener setup for when there are no players instantiated
          */
-        public void ToggleUIVision()
+        public void ToggleUIVision(CinemachineBrain _cinemachineBrain = null)
         {
             if (m_UIAlreadyToggled) return;
             m_UIAlreadyToggled = true;
             HideView<WaitForPlayerView>();
             Debug.Log("Toggling UI Vision");
             m_UICamera.enabled = !m_UICamera.enabled;
+            if (_cinemachineBrain != null)
+                GetComponent<Canvas>().worldCamera = _cinemachineBrain.OutputCamera;
             m_UIAudioListener.enabled = !m_UIAudioListener.enabled;
             m_eventListener.SetActive(!m_eventListener.activeSelf);
         }

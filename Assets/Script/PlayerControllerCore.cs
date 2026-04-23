@@ -23,7 +23,7 @@ public class PlayerControllerCore : NetworkBehaviour
     [SerializeField] private NetworkAnimator m_playerAnimator;
 
     [Header("ServerResponse")]
-    private LatencyDisplay m_latencyDisplay;
+    public LatencyDisplay m_latencyDisplay;
     public float m_PingCooldown = 5f;
     public float m_elapsedTimeSincePing = 0f;
     public bool m_isServerAccessible = true;
@@ -127,7 +127,7 @@ public class PlayerControllerCore : NetworkBehaviour
     {
         if (!InstanceHandler.TryGetInstance(out UIsManager uisManager))
             return;
-        uisManager.ToggleUIVision();
+        uisManager.ToggleUIVision(GetComponentInChildren<CinemachineBrain>(true));
         Cursor.lockState = CursorLockMode.Locked;
     }
 
@@ -159,7 +159,6 @@ public class PlayerControllerCore : NetworkBehaviour
             DisableWaitUIObserverRPC();
             RoleKeeper roleKeeper = FindAnyObjectByType<RoleKeeper>();
             ApplyUserData(roleKeeper.GetLocalMemberID(), roleKeeper.GetLocalUsername());
-            m_latencyDisplay = FindAnyObjectByType<LatencyDisplay>();
             m_latencyDisplay.m_localPlayer = this;
         }
     }

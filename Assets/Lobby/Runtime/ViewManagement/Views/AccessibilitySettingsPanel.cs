@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -221,16 +222,22 @@ namespace PurrLobby
          */
         private static void EnsureColorblindVolume()
         {
-            if (_colorblindVolume != null) return;
-            var go = new GameObject("[ColorblindVolume]") { layer = 0 };
-            DontDestroyOnLoad(go);
-            _colorblindVolume          = go.AddComponent<Volume>();
+            var existing = FindObjectsByType<Volume>(FindObjectsSortMode.None).FirstOrDefault(v => v.name == "[ColorblindVolume]");
+            if (existing != null)
+            {
+                _colorblindVolume = existing;
+            }
+            else {
+                GameObject go = new GameObject("[ColorblindVolume]") { layer = 0 };
+                DontDestroyOnLoad(go);
+                _colorblindVolume = go.AddComponent<Volume>();
+                var profile = ScriptableObject.CreateInstance<VolumeProfile>();
+                _channelMixer = profile.Add<ChannelMixer>(true);
+                _colorblindVolume.profile = profile;
+            }
             _colorblindVolume.isGlobal = true;
             _colorblindVolume.priority = 998f;
             _colorblindVolume.weight   = 0f;
-            var profile = ScriptableObject.CreateInstance<VolumeProfile>();
-            _channelMixer = profile.Add<ChannelMixer>(true);
-            _colorblindVolume.profile = profile;
         }
 
         /*

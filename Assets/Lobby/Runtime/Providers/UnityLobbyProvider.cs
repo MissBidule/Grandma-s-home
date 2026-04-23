@@ -20,6 +20,7 @@ using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
 using PurrNet;
 using PurrNet.Transports;
+using System.Linq;
 #endif
 
 namespace PurrLobby.Providers {
@@ -301,7 +302,7 @@ namespace PurrLobby.Providers {
                         DisplayName = player.Data["Name"]?.Value,
                         IsReady = player.Data["IsReady"]?.Value == "True",
                         IsGhost = player.Data["IsGhost"]?.Value == "True",
-                        Skin = int.Parse(player.Data["Skin"]?.Value ?? "0"),
+                        Skin = int.Parse(player.Data["Skin"]?.Value),
                         IsInGame = player.Data["IsInGame"]?.Value == "True",
                     });
                 } catch { } //player dataobject can throw
@@ -717,6 +718,21 @@ namespace PurrLobby.Providers {
             if(!IsUnityServiceAvailable || CurrentLobby == null || LocalPlayer == null) { return; }
 
             await SetPlayerDataAsync("Skin", $"{skin}");
+        }
+
+        public async Task SetSkinAndRoleAsync(bool isGhost, int skin) {
+            if(!IsUnityServiceAvailable || CurrentLobby == null || LocalPlayer == null) { return; }
+
+            try {
+                LocalPlayer.Data["Skin"] = new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, $"{skin}");
+                LocalPlayer.Data["IsGhost"] = new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, $"{isGhost}");
+
+                await LobbyService.Instance.UpdatePlayerAsync(CurrentLobby.Id, LocalPlayerId, new UpdatePlayerOptions() {
+                    Data = LocalPlayer.Data
+                });
+            } catch(Exception ex) {
+                PurrLogger.LogError($"Failed to Add/Update skin and role DataObject for LocalPlayer: {ex.Message}");
+            }
         }
 
         public async Task SetIsInGameAsync(bool isInGame) {

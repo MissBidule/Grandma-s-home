@@ -11,6 +11,7 @@ public class BrokeDecor : NetworkBehaviour
     [Header("State Meshes")]
     [SerializeField] private List<GameObject> m_additionalMeshes = new();
     [SerializeField] private GameObject m_brokenPrefab;
+    private GameObject m_brokenInstance;
 
     [Header("Score")]
     [SerializeField] private int m_scoreValue = 50;
@@ -24,6 +25,11 @@ public class BrokeDecor : NetworkBehaviour
     public void Start()
     {
         m_breakAudioSource = gameObject.GetComponent<NetworkAudioSource>();
+        if (m_brokenPrefab != null) {
+            m_brokenInstance = Instantiate(m_brokenPrefab, transform.position, transform.rotation);
+            m_brokenInstance.GetComponent<Renderer>().enabled = false;
+            m_brokenInstance.GetComponent<Collider>().enabled = false;
+        }
     }
 
     [ObserversRpc(runLocally:true)]
@@ -62,13 +68,13 @@ public class BrokeDecor : NetworkBehaviour
             }
         }
 
-        if (m_brokenPrefab != null)
+        if (m_brokenInstance != null)
         {
-            r = m_brokenPrefab.GetComponent<Renderer>();
+            r = m_brokenInstance.GetComponent<Renderer>();
             if (r != null)
                 r.enabled = m_isBroken;
                 
-            c = m_brokenPrefab.GetComponent<Collider>();
+            c = m_brokenInstance.GetComponent<Collider>();
             if (c != null)
                 c.enabled = m_isBroken;
         }

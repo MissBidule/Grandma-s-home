@@ -62,7 +62,12 @@ public class ChildClientController : NetworkBehaviour
         if (m_uiHolder == null)
         {
             m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
+            Canvas canvas = m_uiHolder.GetComponent<Canvas>();
+            canvas.worldCamera = GetComponentInChildren<CinemachineBrain>(true).OutputCamera;
+            canvas.planeDistance = 2.48f;
         }
+
+        FindAnyObjectByType<PauseMenuView>().SetCameraForCanvases(GetComponentInChildren<CinemachineBrain>(true).OutputCamera);
         
         m_qteCircle = m_uiHolder.GetComponentInChildren<QteCircle>();
         // Use PlayerControllerCore.m_playerCamera (Inspector-assigned, always valid)
@@ -382,6 +387,8 @@ public class ChildClientController : NetworkBehaviour
         Vector3 wishDir = Vector3.zero;
 
         if (_movement.sqrMagnitude < 0.001f) return wishDir;
+
+        Cursor.lockState = CursorLockMode.Locked;
 
         Transform cameraTransform = m_playerCamera.transform;
 
