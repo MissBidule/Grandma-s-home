@@ -56,6 +56,7 @@ public class TutoManager : MonoBehaviour
         m_child = _child;
         m_ghostTuto = _ghostTuto;
         m_ghostTuto.m_isStopped = false;
+        Destroy(m_ghostTuto.GetComponentInChildren<CinemachineBrain>(true).gameObject);
 
         m_ghostMorph = m_ghost.GetComponent<GhostMorph>();
         m_ghostMorphTuto = m_ghostTuto.GetComponent<GhostMorph>();
@@ -86,7 +87,9 @@ public class TutoManager : MonoBehaviour
             (m_childClient == null || m_childClient.m_uiHolder != null));
 
         SetPlayerActive(m_ghost.gameObject, true);
+        m_ghostClient.showHUD(true);
         SetPlayerActive(m_child.gameObject, false);
+        m_childClient.showHUD(false);
         if (m_ghostClient?.m_uiHolder != null) m_ghostClient.m_uiHolder.SetActive(true);
         if (m_childClient?.m_uiHolder != null) m_childClient.m_uiHolder.SetActive(false);
 
@@ -439,6 +442,8 @@ public class TutoManager : MonoBehaviour
         m_ghostTuto.gameObject.SetActive(false);
         m_child.gameObject.SetActive(true);
         SetPlayerActive(m_child.gameObject, true);
+        m_childClient.showHUD(true);
+        m_ghostClient.showHUD(false);
 
         if (m_childClient != null) m_childClient.m_weaponSwapBlocked = true;
 
@@ -462,6 +467,17 @@ public class TutoManager : MonoBehaviour
 
         CinemachineCamera cam = _player.GetComponentInChildren<CinemachineCamera>();
         if (cam != null) cam.enabled = _active;
+
+        CinemachineBrain camBrain = _player.GetComponentInChildren<CinemachineBrain>();
+        if (camBrain != null) camBrain.enabled = _active;
+
+        if (_active && camBrain != null)
+        {
+            Canvas canvasTuto = m_ui.GetComponent<Canvas>();
+            canvasTuto.worldCamera = camBrain.OutputCamera;
+            canvasTuto.planeDistance = 0.31f;
+            FindAnyObjectByType<PauseMenuView>().SetCameraForCanvases(camBrain.OutputCamera);
+        }
 
         AudioListener audio = _player.GetComponentInChildren<AudioListener>();
         if (audio != null) audio.enabled = _active;

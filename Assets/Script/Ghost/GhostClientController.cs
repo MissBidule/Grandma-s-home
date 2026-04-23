@@ -64,15 +64,17 @@ public class GhostClientController : NetworkBehaviour
         // Use PlayerControllerCore.m_playerCamera (Inspector-assigned, always valid)
         // instead of GetComponentInChildren which can fail in multi-instance scenarios
         var core = GetComponent<PlayerControllerCore>();
+        CinemachineBrain brain = GetComponentInChildren<CinemachineBrain>(true);
         if (core != null) m_playerCamera = core.m_playerCamera;
         if (m_uiHolder == null) {
             m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
             Canvas canvas = m_uiHolder.GetComponent<Canvas>();
-            canvas.worldCamera = GetComponentInChildren<CinemachineBrain>(true).OutputCamera;
+            canvas.worldCamera = brain?.OutputCamera;
             canvas.planeDistance = 2.48f;
 
         }
-        FindAnyObjectByType<PauseMenuView>().SetCameraForCanvases(GetComponentInChildren<CinemachineBrain>(true).OutputCamera);
+        if (brain != null)
+            FindAnyObjectByType<PauseMenuView>().SetCameraForCanvases(brain.OutputCamera);
         m_reviveBarUI = m_uiHolder.GetComponentInChildren<ReviveBarUI>(true);
         m_wheel = m_uiHolder.GetComponentInChildren<WheelController>();
         if (m_playerCamera != null) m_cameraEffect = m_playerCamera.GetComponent<DeathEffect>();
@@ -86,7 +88,14 @@ public class GhostClientController : NetworkBehaviour
         // Getting the HUD refference. (moved here as it could try to get it before it was instanced)
         InstanceHandler.TryGetInstance(out m_ghostHUDView);
         
-        m_soundEffects.InitOwner();
+        if (m_soundEffects != null) m_soundEffects.InitOwner();
+    }
+
+    public void showHUD(bool _show)
+    {
+        if (m_ghostHUDView == null) return;
+        m_ghostHUDView.gameObject.SetActive(_show);
+        m_ghostHUDView.GetComponent<CanvasGroup>().alpha = _show ? 1 : 0;
     }
 
     private void DestroyUI()

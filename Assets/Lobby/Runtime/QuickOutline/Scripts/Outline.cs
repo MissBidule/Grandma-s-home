@@ -175,7 +175,7 @@ public class Outline : MonoBehaviour {
   }
 
   void LoadSmoothNormals() {
-
+    try {
     // Retrieve or generate smooth normals
     foreach (var meshFilter in GetComponentsInChildren<MeshFilter>()) {
 
@@ -213,10 +213,16 @@ public class Outline : MonoBehaviour {
       // Combine submeshes
       CombineSubmeshes(skinnedMeshRenderer.sharedMesh, skinnedMeshRenderer.sharedMaterials);
     }
+    }
+    catch (Exception ex)
+    {
+      Debug.LogWarning("Outline not working for some reason : " + ex.Message);
+    }
   }
 
   List<Vector3> SmoothNormals(Mesh mesh) {
 
+    try {
     // Group vertices by location
     var groups = mesh.vertices.Select((vertex, index) => new KeyValuePair<Vector3, int>(vertex, index)).GroupBy(pair => pair.Key);
 
@@ -247,6 +253,12 @@ public class Outline : MonoBehaviour {
     }
 
     return smoothNormals;
+    }
+    catch (Exception ex)
+    {
+      Debug.LogWarning("Outline not working for some reason : " + ex.Message);
+      return new List<Vector3>();
+    }
   }
 
   void CombineSubmeshes(Mesh mesh, Material[] materials) {

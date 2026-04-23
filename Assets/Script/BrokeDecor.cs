@@ -30,6 +30,7 @@ public class BrokeDecor : NetworkBehaviour
             m_brokenInstance = Instantiate(m_brokenPrefab, transform.position, transform.rotation);
             m_brokenInstance.GetComponent<Renderer>().enabled = false;
             m_brokenInstance.GetComponent<Collider>().enabled = false;
+            m_brokenInstance.transform.SetParent(transform, true);
         }
     }
 

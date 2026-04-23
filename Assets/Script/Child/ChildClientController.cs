@@ -153,6 +153,14 @@ public class ChildClientController : NetworkBehaviour
         else childHUDView.m_isScared = false;
     }
 
+    public void showHUD(bool _show)
+    {
+        if (!InstanceHandler.TryGetInstance(out ChildHUDView childHUDView))
+            return;
+        childHUDView.gameObject.SetActive(_show);
+        childHUDView.GetComponent<CanvasGroup>().alpha = _show ? 1 : 0;
+    }
+
     public void OnJump()
     {
         if (!isOwner) return;
