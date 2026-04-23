@@ -32,7 +32,7 @@ namespace Script.UI.Views
         public bool m_dash_disabled = false;
         
         public bool m_canScare = true;
-        
+
         private void Awake()
         {
             InstanceHandler.RegisterInstance(this);
@@ -72,6 +72,13 @@ namespace Script.UI.Views
             m_dash_disabled = true;
         }
 
+        public void DashReady()
+        {
+            if (m_dashCooldownOverlay != null)
+                m_dashCooldownOverlay.fillAmount = 0f;
+            m_dash_disabled = false;
+        }
+
         /*
          * @brief Start the cooldown effect of the dash thing
          * @param the time in seconds
@@ -79,7 +86,7 @@ namespace Script.UI.Views
         public void StartDashCooldown(float _time)
         {
             m_dashIcon.color = Color.white;
-            
+
             m_dashCooldownOverlay.fillAmount = 1f;
             StartCoroutine(IconCooldown(m_dashCooldownOverlay, _time, "Dash cooled-down"));
         }
@@ -112,13 +119,30 @@ namespace Script.UI.Views
 
         public void UpdateScore(float _sabotageScore, float _maxScoreSabotage, int _brokenScore, float _maxScoreBroken)
         {
-            m_sabotageScoreSlider.value = _sabotageScore;
-            m_sabotageScoreSlider.maxValue = _maxScoreSabotage;
-            m_scoreSabotage.text = _sabotageScore.ToString("F2"); // XXX.XX
-            
-            m_brokenScoreSlider.value = _brokenScore;
-            m_brokenScoreSlider.maxValue = _maxScoreBroken;
-            m_scoreBroken.text = _brokenScore.ToString("F2") + "$"; // XXXX.XX;
+            float sabotageRemaining = Mathf.Max(0f, _maxScoreSabotage - _sabotageScore);
+            if (m_sabotageScoreSlider != null)
+            {
+                m_sabotageScoreSlider.maxValue = _maxScoreSabotage;
+                m_sabotageScoreSlider.value = sabotageRemaining;
+                if (m_sabotageScoreSlider.fillRect != null)
+                {
+                    float ratio = _maxScoreSabotage > 0f ? sabotageRemaining / _maxScoreSabotage : 0f;
+                    var fillImg = m_sabotageScoreSlider.fillRect.GetComponent<Image>();
+                    if (fillImg != null && fillImg.type == Image.Type.Filled)
+                        fillImg.fillAmount = ratio;
+                }
+            }
+            if (m_scoreSabotage != null)
+                m_scoreSabotage.text = sabotageRemaining.ToString("F2");
+
+            float brokenRemaining = Mathf.Max(0f, _maxScoreBroken - _brokenScore);
+            if (m_brokenScoreSlider != null)
+            {
+                m_brokenScoreSlider.maxValue = _maxScoreBroken;
+                m_brokenScoreSlider.value = brokenRemaining;
+            }
+            if (m_scoreBroken != null)
+                m_scoreBroken.text = brokenRemaining.ToString("F2") + "$";
         }
     }
 }

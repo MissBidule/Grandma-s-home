@@ -2,12 +2,13 @@ using PurrLobby;
 using PurrNet;
 using PurrNet.Logging;
 using PurrNet.StateMachine;
-using Script.Music;
+using Script.Audio;
 using Script.UI.Views;
 using System;
 using System.Threading.Tasks;
 using UI;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 namespace Script.States
@@ -47,29 +48,47 @@ namespace Script.States
                 if (state is PlayerSpawningState playerSpawningState)
                     m_spawnState = playerSpawningState;
             }
-            
+
             PurrLogger.Log($"End Game childWin {_childWin} | Server asServer {_asServer}");
-            
+
+            ReleaseLocalPlayerControl();
+
             if (!_asServer)
                 return;
 
             HidePause();
-            
+
             SetupEndGameUI(_childWin);
-            InteractPromptUI.m_Instance.Hide();
-            
+            if (InteractPromptUI.m_Instance != null) InteractPromptUI.m_Instance.Hide();
+
             if (!InstanceHandler.TryGetInstance(out EndGameView endGameView))
                 return;
             endGameView.EnableHostTools();
         }
 
-        [ObserversRpc]
+        private static void ReleaseLocalPlayerControl()
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+
+            // Only disable PlayerInput on actual player avatars (have a PlayerControllerCore)
+            // to avoid breaking UI or tutorial PlayerInput setups.
+            foreach (var core in FindObjectsByType<PlayerControllerCore>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                if (core == null) continue;
+                var pi = core.GetComponent<PlayerInput>();
+                if (pi != null) pi.enabled = false;
+            }
+        }
+
+        [ObserversRpc(runLocally: true)]
         public void HidePause()
         {
-            Destroy(pauseMenu);
+            if (pauseMenu != null) Destroy(pauseMenu);
             Cursor.lockState = CursorLockMode.None;
-            
-            MusicLooper.Instance.StopMusic();
+            Cursor.visible = true;
+
+            if (MusicLooper.Instance != null) MusicLooper.Instance.StopMusic();
         }
         
         [ObserversRpc]
@@ -132,11 +151,13 @@ namespace Script.States
             StopGame();
         }
 
-        [ObserversRpc]
+        [ObserversRpc(runLocally: true)]
         private void SetupEndGameUI(bool _childWin)
         {
             // Free the cursor (it's way harder to click on the button without it)
             Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+            ReleaseLocalPlayerControl();
             PurrLogger.Log("Setting up EndGameUI", this);
             if (!InstanceHandler.TryGetInstance(out EndGameView endGameView))
                 return;

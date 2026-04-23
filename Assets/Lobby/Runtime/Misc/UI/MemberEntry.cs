@@ -36,7 +36,7 @@ namespace PurrLobby
             //role
             _isGhost = _user.IsGhost;
             _skin = _user.Skin;
-            //avatar.texture = _roleKeeper.GetSkinImage(_memberId);
+            avatar.texture = _roleKeeper.GetSkinImage(_memberId);
 
             //RoleButton
             _memberId = _user.Id;

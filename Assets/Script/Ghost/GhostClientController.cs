@@ -20,8 +20,10 @@ public class GhostClientController : NetworkBehaviour
     private bool last_stopped = false;
     private bool last_slowed = false;
     private bool m_isMoving = false;
-
-
+    
+    [Header("References")]
+    [SerializeField] public GhostSoundEffects m_soundEffects;
+    
     [Header("Canva")]
     [SerializeField] private GameObject m_uiHolder_prefab;
     public GameObject m_uiHolder;
@@ -63,8 +65,14 @@ public class GhostClientController : NetworkBehaviour
         // instead of GetComponentInChildren which can fail in multi-instance scenarios
         var core = GetComponent<PlayerControllerCore>();
         if (core != null) m_playerCamera = core.m_playerCamera;
-        if (m_uiHolder == null)
+        if (m_uiHolder == null) {
             m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
+            Canvas canvas = m_uiHolder.GetComponent<Canvas>();
+            canvas.worldCamera = GetComponentInChildren<CinemachineBrain>(true).OutputCamera;
+            canvas.planeDistance = 2.48f;
+
+        }
+        FindAnyObjectByType<PauseMenuView>().SetCameraForCanvases(GetComponentInChildren<CinemachineBrain>(true).OutputCamera);
         m_reviveBarUI = m_uiHolder.GetComponentInChildren<ReviveBarUI>(true);
         m_wheel = m_uiHolder.GetComponentInChildren<WheelController>();
         if (m_playerCamera != null) m_cameraEffect = m_playerCamera.GetComponent<DeathEffect>();
@@ -77,6 +85,8 @@ public class GhostClientController : NetworkBehaviour
         
         // Getting the HUD refference. (moved here as it could try to get it before it was instanced)
         InstanceHandler.TryGetInstance(out m_ghostHUDView);
+        
+        m_soundEffects.InitOwner();
     }
 
     private void DestroyUI()
@@ -187,6 +197,9 @@ public class GhostClientController : NetworkBehaviour
                 m_ghostHUDView.DashDisabled();
                 break;
             }
+            case false when m_ghostController.m_canDash && m_ghostHUDView.m_dash_disabled:
+                m_ghostHUDView.DashReady();
+                break;
         }
         
         if (!m_ghostController.m_canScareChild)
@@ -315,8 +328,10 @@ public class GhostClientController : NetworkBehaviour
         right.Normalize();
 
         Vector3 wishDir = Vector3.zero;
-        if (_movement.sqrMagnitude > 0.0001f)
+        if (_movement.sqrMagnitude > 0.0001f) {
             wishDir = (forward * _movement.y + right * _movement.x).normalized;
+            Cursor.lockState = CursorLockMode.Locked;
+        }
 
         return wishDir;
     }

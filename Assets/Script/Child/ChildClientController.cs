@@ -8,7 +8,9 @@ using UnityEngine.EventSystems;
 
 public class ChildClientController : NetworkBehaviour
 {
+    [SerializeField] private ChildSoundEffects m_soundEffects;
     [SerializeField] private GameObject m_uiHolder_prefab;
+    [SerializeField] public ChildSoundEffects m_childSoundEffects;
     public GameObject m_uiHolder;
     private CinemachineCamera m_playerCamera;
     private ChildCameraController m_cameraOptions;
@@ -61,13 +63,17 @@ public class ChildClientController : NetworkBehaviour
         if (m_uiHolder == null)
         {
             m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
+            Canvas canvas = m_uiHolder.GetComponent<Canvas>();
+            canvas.worldCamera = GetComponentInChildren<CinemachineBrain>(true).OutputCamera;
+            canvas.planeDistance = 2.48f;
         }
 
-
+        FindAnyObjectByType<PauseMenuView>().SetCameraForCanvases(GetComponentInChildren<CinemachineBrain>(true).OutputCamera);
+        
         m_qteCircle = m_uiHolder.GetComponentInChildren<QteCircle>();
         // Use PlayerControllerCore.m_playerCamera (Inspector-assigned, always valid)
         // instead of GetComponentInChildren which can fail in multi-instance scenarios
-        var core = GetComponent<PlayerControllerCore>();
+        PlayerControllerCore core = GetComponent<PlayerControllerCore>();
         if (core != null) {
             m_playerCamera = core.m_playerCamera;
             m_cameraOptions = m_playerCamera.GetComponent<ChildCameraController>();
@@ -76,6 +82,8 @@ public class ChildClientController : NetworkBehaviour
 
         if (InstanceHandler.TryGetInstance(out UIsManager uisManager))
             uisManager.ShowView<ChildHUDView>();
+        
+        m_soundEffects.InitOwner();
     }
 
     void Update()
@@ -378,9 +386,11 @@ public class ChildClientController : NetworkBehaviour
             }
         }
             
-        var wishDir = Vector3.zero;
+        Vector3 wishDir = Vector3.zero;
 
         if (_movement.sqrMagnitude < 0.001f) return wishDir;
+
+        Cursor.lockState = CursorLockMode.Locked;
 
         Transform cameraTransform = m_playerCamera.transform;
 

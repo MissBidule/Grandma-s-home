@@ -1,5 +1,6 @@
 using PurrNet;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
 /*
@@ -9,6 +10,7 @@ using UnityEngine.UIElements;
 public class ChildCameraController : MonoBehaviour
 {
     public float m_sensitivity = 120f;
+    public float m_gamepadSensitivity = 180f;
     public float m_distance = 4f;
     public float m_minPitch = -40f;
     public float m_maxPitch = 70f;
@@ -59,8 +61,9 @@ public class ChildCameraController : MonoBehaviour
         Vector3 desiredOffset;
 
         Vector2 lookInput = m_childInputController.m_lookInputVector;
-        m_yaw += lookInput.x * m_sensitivity * Time.deltaTime;
-        m_pitch -= lookInput.y * m_sensitivity * Time.deltaTime;
+        float activeSensitivity = Gamepad.current != null ? m_gamepadSensitivity : m_sensitivity;
+        m_yaw += lookInput.x * activeSensitivity * Time.deltaTime;
+        m_pitch -= lookInput.y * activeSensitivity * Time.deltaTime;
         m_pitch = Mathf.Clamp(m_pitch, m_minPitch, m_maxPitch);
 
         rotation = Quaternion.Euler(m_pitch, m_yaw, 0f);

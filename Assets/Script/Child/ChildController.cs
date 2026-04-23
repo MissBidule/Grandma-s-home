@@ -17,7 +17,8 @@ public class ChildController : PlayerControllerCore
     // Camera Parameters
     [NonSerialized] public Vector3 m_cameraPosition;
     [NonSerialized] public Vector3 m_cameraForward;
-
+    [SerializeField] public ChildSoundEffects m_soundEffects;
+    
     [Header("Weapon Switching")]
     public bool m_isRanged;
     public float m_lastShot;
@@ -45,8 +46,6 @@ public class ChildController : PlayerControllerCore
     private Rigidbody m_rigidbody;
 
 
-
-
     protected override void OnSpawned()
     {
         base.OnSpawned();
@@ -67,7 +66,7 @@ public class ChildController : PlayerControllerCore
         PingServer();
         UpdateTimers();
         
-        m_animator.SetFloat("VerticalSpeed", m_rigidbody.linearVelocity.y);
+        m_animator?.SetFloat("VerticalSpeed", m_rigidbody.linearVelocity.y);
         if(m_rigidbody.linearVelocity.y < -0.1f)
         {
             changeFaceMat(new Vector2(0.33f, 0.66f));
@@ -111,6 +110,9 @@ public class ChildController : PlayerControllerCore
                 else
                     aimTarget = m_cameraPosition + m_cameraForward * 50f;
                 Vector3 shootDir = (aimTarget - m_bulletSpawnTransform.position).normalized;
+                
+                m_soundEffects?.PlayGunAudio();
+                
                 ShootForAll(Quaternion.LookRotation(shootDir));
             }
         }
@@ -156,6 +158,7 @@ public class ChildController : PlayerControllerCore
     {
         if (!isServer) return;
         m_isScared = true;
+        m_soundEffects?.PlayScarredAudio();
         //PurrLogger.Log("Ghost Touch", this);
         UpdateScaredToAll(m_isScared);
         StartCoroutine(ScaredTimer(m_scaredDuration));
@@ -196,6 +199,8 @@ public class ChildController : PlayerControllerCore
     {
         Vector3 CacPosition = m_cacTransform.position + m_cameraForward.normalized * 1.5f;
         Collider[] hits = Physics.OverlapSphere(CacPosition, m_attackRange);
+        
+        m_soundEffects?.PlayCacAudio();
 
         foreach (Collider col in hits)
         {

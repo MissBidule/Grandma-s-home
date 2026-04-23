@@ -87,12 +87,37 @@ public class ChildHUDView : GameView
     
     public void UpdateScore(float _sabotageScore, float _maxScoreSabotage, int _brokenScore, float _maxScoreBroken)
     {
-        m_sabotageScoreSlider.value = _sabotageScore;
-        m_sabotageScoreSlider.maxValue = _maxScoreSabotage;
-        m_scoreSabotage.text = _sabotageScore.ToString("F2");
-            
-        m_brokenScoreSlider.value = _brokenScore;
-        m_brokenScoreSlider.maxValue = _maxScoreBroken;
-        m_scoreBroken.text = _brokenScore.ToString("F2")+"$";
+        float sabotageRemaining = Mathf.Max(0f, _maxScoreSabotage - _sabotageScore);
+        if (m_sabotageScoreSlider != null)
+        {
+            m_sabotageScoreSlider.maxValue = _maxScoreSabotage;
+            m_sabotageScoreSlider.value = sabotageRemaining;
+            if (m_sabotageScoreSlider.fillRect != null)
+            {
+                float ratio = _maxScoreSabotage > 0f ? sabotageRemaining / _maxScoreSabotage : 0f;
+                var fillImg = m_sabotageScoreSlider.fillRect.GetComponent<Image>();
+                if (fillImg != null)
+                {
+                    if (fillImg.type != Image.Type.Filled)
+                    {
+                        fillImg.type = Image.Type.Filled;
+                        fillImg.fillMethod = Image.FillMethod.Horizontal;
+                        fillImg.fillOrigin = (int)Image.OriginHorizontal.Left;
+                    }
+                    fillImg.fillAmount = ratio;
+                }
+            }
+        }
+        if (m_scoreSabotage != null)
+            m_scoreSabotage.text = sabotageRemaining.ToString("F2");
+
+        float brokenRemaining = Mathf.Max(0f, _maxScoreBroken - _brokenScore);
+        if (m_brokenScoreSlider != null)
+        {
+            m_brokenScoreSlider.maxValue = _maxScoreBroken;
+            m_brokenScoreSlider.value = brokenRemaining;
+        }
+        if (m_scoreBroken != null)
+            m_scoreBroken.text = brokenRemaining.ToString("F2") + "$";
     }
 }
