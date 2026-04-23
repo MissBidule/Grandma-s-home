@@ -25,6 +25,10 @@ namespace Script.States
         [SerializeField] private List<Transform> m_ghostSpawnPoints = new List<Transform>();
         [SerializeField] private GhostController m_ghostDeadPrefab;
         [SerializeField] private Transform m_ghostDeadSpawnPoint;
+
+        [Header("Misc")]
+        [SerializeField] private LatencyDisplay m_latencyDisplay;
+
         GhostController m_ghostTuto;
         private bool m_isServer = false;
         private bool m_hasStarted = false;
@@ -78,6 +82,9 @@ namespace Script.States
                 ghost.GiveOwnership(player);
                 m_ghostTuto.GiveOwnership(player);
                 child.GiveOwnership(player);
+
+                ghost.m_latencyDisplay = m_latencyDisplay;
+                child.m_latencyDisplay = m_latencyDisplay;
 
                 SetPlayerInputActive(ghost.gameObject, true);
                 SetPlayerInputActive(m_ghostTuto.gameObject, false);
