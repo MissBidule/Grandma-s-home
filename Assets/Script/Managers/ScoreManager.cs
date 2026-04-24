@@ -187,7 +187,7 @@ public class ScoreManager : NetworkBehaviour
             totalBroken += entry.Value.pointBroken;
         }
 
-        if(totalBroken > m_maxScoreBroken)
+        if(totalBroken >= m_maxScoreBroken)
         {
             m_noticeHouseDestroyed?.Invoke(true);
         }
