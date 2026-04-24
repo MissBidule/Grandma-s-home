@@ -26,6 +26,9 @@ namespace Script.States
         [SerializeField] private GhostController m_ghostPrefab;
         [Tooltip("Even if rules are to not despawn on disconnect, this will ignore that and always spawn a player.")]
         [SerializeField] private List<Transform> m_ghostSpawnPoints = new List<Transform>();
+
+        [Header("Misc")]
+        [SerializeField] private LatencyDisplay m_latencyDisplay;
         private bool m_isServer = false;
         private bool m_hasStarted = false;
 
@@ -83,6 +86,7 @@ namespace Script.States
                     newPlayer = UnityProxy.Instantiate(m_childPrefab, spawnPoint.position, spawnPoint.rotation);
                 }
                 newPlayer.GiveOwnership(player);
+                newPlayer.m_latencyDisplay = m_latencyDisplay;
                 spawnedPlayers.Add(newPlayer);
             }
 

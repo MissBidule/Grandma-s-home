@@ -30,9 +30,11 @@ namespace PurrLobby
                 if (Convert.ToInt32(m_lobbyMaxPlayers.text) < 2) m_lobbyMaxPlayers.text = "2";
                 m_lobbyManager.UpdateLobbyMaxPlayer(Convert.ToInt32(m_lobbyMaxPlayers.text));
                 m_lobbyMaxPlayers.placeholder.GetComponent<TextMeshProUGUI>().text = "Max players (" + m_lobbyMaxPlayers.text + ")";
+                m_lobbyMaxPlayers.text = "";
             }
             if (!m_lobbyName.text.IsNullOrEmpty()) {
                 m_lobbyManager.UpdateLobbyName(m_lobbyName.text);
+                m_lobbyName.text = "";
             }
         }
     }

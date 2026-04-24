@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using Unity.Cinemachine;
 using System.Collections;
@@ -44,7 +45,6 @@ public class SceneMenuNavigator : MonoBehaviour
     private void Awake()
     {
         InitialiserPriorites();
-        NettoyerTousLesTextes(); 
 
         if (sequencerCam != null && !AlreadyStarted) {
             SwitchToCamera(sequencerCam);
@@ -54,6 +54,11 @@ public class SceneMenuNavigator : MonoBehaviour
         {
             SwitchToCamera(PlayCam);
         }
+    }
+
+    private void Start()
+    {
+        NettoyerTousLesTextes(); 
     }
 
     //met les prio des cam à 10 pour que la cam du sequencer start soit prio au début 
@@ -69,19 +74,19 @@ public class SceneMenuNavigator : MonoBehaviour
     //desactive les TMPWriter de tous les menus pour éviter de les voir avant le switch de cam
     private void NettoyerTousLesTextes()
     {
-        foreach (var menu in configurationMenus)
+        foreach (MenuCamera menu in configurationMenus)
         {
-            if (menu.textesTMPWriters != null)
+            if (menu.textesTMPWriters == null)
+                continue;
+            
+            foreach (TMPWriter writer in menu.textesTMPWriters)
             {
-                foreach (var writer in menu.textesTMPWriters)
-                {
-                    if (writer != null && writer.enabled && writer.gameObject.activeSelf)
-                    {
-                        writer.StopWriter();  
-                        writer.ResetWriter(); 
-                        writer.gameObject.SetActive(false); 
-                    }
-                }
+                if (writer == null)
+                    continue;
+                
+                // Removed the call to ResetWriter() here to prevent it from resetting before the writer is activated
+                // Just useless and clutters the console with warnings about missing text components when the writer is disabled
+                writer.gameObject.SetActive(false);
             }
         }
     }

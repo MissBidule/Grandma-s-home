@@ -64,8 +64,14 @@ public class GhostClientController : NetworkBehaviour
         // instead of GetComponentInChildren which can fail in multi-instance scenarios
         var core = GetComponent<PlayerControllerCore>();
         if (core != null) m_playerCamera = core.m_playerCamera;
-        if (m_uiHolder == null)
+        if (m_uiHolder == null) {
             m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
+            Canvas canvas = m_uiHolder.GetComponent<Canvas>();
+            canvas.worldCamera = GetComponentInChildren<CinemachineBrain>(true).OutputCamera;
+            canvas.planeDistance = 2.48f;
+
+        }
+        FindAnyObjectByType<PauseMenuView>().SetCameraForCanvases(GetComponentInChildren<CinemachineBrain>(true).OutputCamera);
         m_reviveBarUI = m_uiHolder.GetComponentInChildren<ReviveBarUI>(true);
         m_wheel = m_uiHolder.GetComponentInChildren<WheelController>();
         if (m_playerCamera != null) m_cameraEffect = m_playerCamera.GetComponent<DeathEffect>();
@@ -317,8 +323,10 @@ public class GhostClientController : NetworkBehaviour
         right.Normalize();
 
         Vector3 wishDir = Vector3.zero;
-        if (_movement.sqrMagnitude > 0.0001f)
+        if (_movement.sqrMagnitude > 0.0001f) {
             wishDir = (forward * _movement.y + right * _movement.x).normalized;
+            Cursor.lockState = CursorLockMode.Locked;
+        }
 
         return wishDir;
     }

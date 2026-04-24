@@ -66,7 +66,7 @@ public class ChildController : PlayerControllerCore
         PingServer();
         UpdateTimers();
         
-        m_animator.SetFloat("VerticalSpeed", m_rigidbody.linearVelocity.y);
+        m_animator?.SetFloat("VerticalSpeed", m_rigidbody.linearVelocity.y);
         if(m_rigidbody.linearVelocity.y < -0.1f)
         {
             changeFaceMat(new Vector2(0.33f, 0.66f));
