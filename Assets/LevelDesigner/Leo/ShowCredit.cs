@@ -32,7 +32,11 @@ public class ShowCredit : MonoBehaviour
         creditRemerciement.SetActive(false);
         boutonBack.SetActive(false);
     }
+    public void seeOutlineGreen(GameObject boutonVert)
+    {
+        boutonVert.SetActive(true);
 
+    }
     public void seeButton()
     {
         // Affiche tout les boutons pour afficher les différents crédits
