@@ -10,6 +10,8 @@ using UnityEngine.InputSystem;
 public static class InputBindingHelper
 {
     private static InputActionAsset s_asset;
+    private static bool s_bindingsLoaded = false;
+    private const string k_SaveKey = "Settings_Keybindings";
 
     // Maps <Gamepad>/path → TMP sprite name (= filename without extension in Assets/Resources/XboxIcons/).
     private static readonly Dictionary<string, string> s_gamepadSprites = new()
@@ -42,8 +44,17 @@ public static class InputBindingHelper
             var all = Resources.FindObjectsOfTypeAll<InputActionAsset>();
             if (all.Length > 0) s_asset = all[0];
         }
+        if (s_asset != null && !s_bindingsLoaded)
+        {
+            s_bindingsLoaded = true;
+            string saved = UnityEngine.PlayerPrefs.GetString(k_SaveKey, "");
+            if (!string.IsNullOrEmpty(saved))
+                s_asset.LoadBindingOverridesFromJson(saved);
+        }
         return s_asset;
     }
+
+    public static void InvalidateBindingsCache() => s_bindingsLoaded = false;
 
     private static bool IsGamepadActive() =>
         InputDeviceTracker.Instance != null ? InputDeviceTracker.IsGamepadActive : Gamepad.current != null;
@@ -73,17 +84,15 @@ public static class InputBindingHelper
             {
                 if (s_gamepadSprites.TryGetValue(b.path, out var spriteName))
                     return $"<sprite name=\"{spriteName}\">";
-
-                // Fallback: plain display string for unmapped paths
                 return action.GetBindingDisplayString(i, InputBinding.DisplayStringOptions.DontIncludeInteractions);
             }
+        }
 
-            if (!useGamepad && (b.path.StartsWith("<Keyboard>") ||
-                (b.path.StartsWith("<Mouse>") &&
-                 !b.path.Contains("delta") &&
-                 !b.path.Contains("position") &&
-                 !b.path.Contains("scroll"))))
-                return action.GetBindingDisplayString(i, InputBinding.DisplayStringOptions.DontIncludeInteractions);
+        if (!useGamepad)
+        {
+            int idx = PurrLobby.ControlsSettingsPanel.FindKeyboardBindingIndex(action);
+            if (idx >= 0)
+                return action.GetBindingDisplayString(idx, InputBinding.DisplayStringOptions.DontIncludeInteractions);
         }
         return fallback;
     }

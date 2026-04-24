@@ -110,7 +110,8 @@ public class Interact : NetworkBehaviour
     public void OnSabotageOver(bool success)
     {
         Rigidbody rb = GetComponentInParent<Rigidbody>();
-        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        if (rb != null)
+            rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
         if (success)
             m_onFocus = null;
     }
