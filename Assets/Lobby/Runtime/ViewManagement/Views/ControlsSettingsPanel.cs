@@ -258,7 +258,7 @@ namespace PurrLobby
          * @param _action  The InputAction to inspect.
          * @return Binding index, or -1 if none was found.
          */
-        private int FindKeyboardBindingIndex(InputAction _action)
+        public static int FindKeyboardBindingIndex(InputAction _action)
         {
             for (int i = 0; i < _action.bindings.Count; i++)
             {

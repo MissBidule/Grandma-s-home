@@ -175,6 +175,7 @@ public class GhostInputController : MonoBehaviour
                     return;
                 }
                 // Nothing scannable and cannot morph = drop the preview
+                if (m_ghostClientController.m_cancelPreviewBlocked) return;
                 m_lastInteractFrame = Time.frameCount;
                 m_ghostMorphPreview.HidePreview();
                 InteractPromptUI.m_Instance.Hide();
