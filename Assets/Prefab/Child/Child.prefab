@@ -135,6 +135,7 @@ Transform:
   - {fileID: 4667881100763494844}
   - {fileID: 1929901715859594565}
   - {fileID: 7460083832034579237}
+  - {fileID: 3577522140610522476}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5277739470572466473
@@ -263,6 +264,7 @@ MonoBehaviour:
   m_playerCamera: {fileID: 3116613213369430143}
   m_localRenderCamera: {fileID: 2479407354322227593}
   m_playerAnimator: {fileID: 0}
+  m_latencyDisplay: {fileID: 0}
   m_PingCooldown: 5
   m_elapsedTimeSincePing: 0
   m_isServerAccessible: 1
@@ -627,7 +629,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument:
+          m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
     m_ActionId: 53bbe6f8-79e3-4ed5-9570-bffaf2c33e04
@@ -643,7 +645,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument:
+          m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
     m_ActionId: cd000000-0000-0000-0000-00000000cc01
@@ -664,6 +666,10 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 72fdd004-b407-4dca-9f7e-17eb8c445dba
     m_ActionName: 'Player/NextStep[/Keyboard/space]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: cd000000-0000-0000-0000-00000000cc02
+    m_ActionName: 'Ghost/Cancel[/Mouse/rightButton]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Child
@@ -1050,6 +1056,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChildCameraController
   m_sensitivity: 15
+  m_gamepadSensitivity: 180
   m_distance: 4.9
   m_minPitch: -40
   m_maxPitch: 70
@@ -1387,6 +1394,72 @@ MonoBehaviour:
   _visitiblityRules: {fileID: 0}
   _audioSource: {fileID: 8593258559467708661}
   _ownerAuth: 1
+--- !u!1 &3975913229166522787
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3577522140610522476}
+  - component: {fileID: 5067798170776946047}
+  - component: {fileID: 5027752016823714329}
+  m_Layer: 0
+  m_Name: scareTrigger
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3577522140610522476
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3975913229166522787}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0.29470745, z: 0, w: 0.95558757}
+  m_LocalPosition: {x: -0.36, y: -0.33, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2873181202271193540}
+  m_LocalEulerAnglesHint: {x: 0, y: 34.28, z: 0}
+--- !u!114 &5067798170776946047
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3975913229166522787}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0ef024ecbc86493498142928155214f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScareTrigger
+--- !u!65 &5027752016823714329
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3975913229166522787}
+  m_Material: {fileID: 13400000, guid: 55825a194630b124e8dcf06a5948a191, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.3, y: 1.9, z: 0.3}
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!1 &4166754575035913607
 GameObject:
   m_ObjectHideFlags: 0
@@ -3073,7 +3146,8 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 8190018073224396998, guid: e8d4aa88674465540ab232a074cdbaa3, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 8685562761722358154, guid: e8d4aa88674465540ab232a074cdbaa3, type: 3}
