@@ -523,6 +523,7 @@ public class GhostController : PlayerControllerCore, IInteractable
         }
     }
 
+    [ServerRpc]
     public void callAnimationTrigger(string _triggerName)
     {
         m_animator.SetTrigger(_triggerName);
