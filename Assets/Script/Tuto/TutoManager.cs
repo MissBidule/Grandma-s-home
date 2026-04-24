@@ -247,7 +247,7 @@ public class TutoManager : MonoBehaviour
         
         m_steps.Add(new TutoStep
         {
-            message = "<b><color=#5AB4FF>Confirm</color></b> the transformation with [{Ghost.TransformConfirm}] to <b><color=#5AB4FF>hide yourself</color></b>.",
+            message = "<b><color=#5AB4FF>Confirm</color></b> the transformation with [{Ghost.Interact}] to <b><color=#5AB4FF>hide yourself</color></b>.",
             onEnter = () => { SetScanObjectsEnabled(false); SetScanOutline(false); },
             condition = () => m_ghostMorph != null && m_ghostMorph.m_isMorphed
         });
@@ -292,7 +292,7 @@ public class TutoManager : MonoBehaviour
 
         m_steps.Add(new TutoStep
         {
-            message = "<b><color=#5AB4FF>Confirm</color></b> the transformation with [{Ghost.TransformConfirm}] to <b><color=#5AB4FF>hide yourself</color></b>.",
+            message = "<b><color=#5AB4FF>Confirm</color></b> the transformation with [{Ghost.Interact}] to <b><color=#5AB4FF>hide yourself</color></b>.",
             onEnter = () =>
             {
                 if (m_ghostClient != null) m_ghostClient.m_morphBlocked = false;
@@ -334,7 +334,7 @@ public class TutoManager : MonoBehaviour
 
         m_steps.Add(new TutoStep
         {
-            message = "<b><color=#5AB4FF>Cancel</color></b> the preview by pressing [{Ghost.Interact}].",
+            message = "<b><color=#5AB4FF>Cancel</color></b> the preview by pressing [{Ghost.Scan}].",
             onEnter = () =>
             {
                 SetScanObjectsEnabled(false);
