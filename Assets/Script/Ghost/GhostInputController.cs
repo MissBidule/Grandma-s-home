@@ -166,13 +166,7 @@ public class GhostInputController : MonoBehaviour
                     m_ghostInteract.OnInteract(m_ghostInteract.m_onFocus);
                     return;
                 }
-                // Looking at another scannable = replace preview
-                if (m_ghostMorphPreview.IsLookingAtScannable())
-                {
-                    m_lastInteractFrame = Time.frameCount;
-                    m_ghostClientController.OnScan();
-                    return;
-                }
+
                 // Empty valid spot = morph
                 if (m_ghostMorphPreview.m_canMorph)
                 {
