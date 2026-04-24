@@ -18,7 +18,8 @@ namespace Script.States
     public class RoundRunningState : StateNode<List<PlayerControllerCore>>
     {
         [Header("Round Settings")]
-        [SerializeField] [Tooltip("Duration of the round in minutes")] private float m_roundDuration;
+        [SerializeField] [Tooltip("Duration of the round in secondes")] private float m_roundDuration;
+        public float m_remainingTime { get; private set; } // Accessible by all, only modifiable in this class.
         [SerializeField] [Tooltip("Start duration")] private float m_startDelay = 10f;
 
         [Header("Door")]
@@ -72,7 +73,7 @@ namespace Script.States
             
             RegisteringListener(_players);
 
-            m_roundTimer = StartCoroutine(RoundTimer(m_roundDuration*60));
+            m_roundTimer = StartCoroutine(RoundTimer(m_roundDuration));
 
             m_roleKeeper = FindAnyObjectByType<RoleKeeper>();
         }
@@ -189,7 +190,15 @@ namespace Script.States
             sabotageManager?.Initialize();
             
             PurrLogger.Log($"Round Duration {_roundDuration}s");
-            yield return new WaitForSeconds(_roundDuration);
+
+            m_remainingTime = _roundDuration;
+
+            while (m_remainingTime > 0)
+            {
+                yield return new WaitForSeconds(1f);
+                m_remainingTime -= 1f;
+            }
+
             // Time ended
             PurrLogger.Log("Round Timer Ended", this);
             MoveToEnd(true);
