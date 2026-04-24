@@ -43,6 +43,7 @@ public class TutoManager : MonoBehaviour
     private string m_currentRawMessage = null;
 
     private GhostMorph m_ghostMorph;
+    private GhostMorphPreview m_ghostMorphPreview;
     private GhostClientController m_ghostClient;
     private GhostSimulateMovement m_ghostSim;
     private PlayerInput m_ghostInput;
@@ -58,9 +59,12 @@ public class TutoManager : MonoBehaviour
         m_ghostTuto = _ghostTuto;
         m_ghostTuto.m_isStopped = false;
         Destroy(m_ghostTuto.GetComponentInChildren<CinemachineBrain>(true).gameObject);
+        var ghostTutoClient = m_ghostTuto.GetComponent<GhostClientController>();
+        if (ghostTutoClient != null) ghostTutoClient.m_suppressHud = true;
 
         m_ghostMorph = m_ghost.GetComponent<GhostMorph>();
         m_ghostMorphTuto = m_ghostTuto.GetComponent<GhostMorph>();
+        m_ghostMorphPreview = m_ghost.GetComponentInChildren<GhostMorphPreview>();
         m_ghostClient = m_ghost.GetComponent<GhostClientController>();
         m_ghostSim = m_ghost.GetComponent<GhostSimulateMovement>();
         m_ghostInput = m_ghost.GetComponent<PlayerInput>();
@@ -74,6 +78,7 @@ public class TutoManager : MonoBehaviour
         SetScanOutline(false);
         SetBreakable(false);
         if (m_ghostClient != null) m_ghostClient.m_dashBlocked = true;
+        if (m_ghostClient != null) m_ghostClient.m_cancelPreviewBlocked = true;
 
         BuildSteps();
         StartCoroutine(StartAfterFrame());
@@ -317,6 +322,7 @@ public class TutoManager : MonoBehaviour
                 }
                 SetScanObjectsEnabled(true);
                 SetScanOutline(true);
+                if (m_ghostClient != null) m_ghostClient.m_cancelPreviewBlocked = true;
             },
             condition = () =>
             {
@@ -327,9 +333,15 @@ public class TutoManager : MonoBehaviour
 
         m_steps.Add(new TutoStep
         {
-            message = "<b><color=#5AB4FF>Confirm</color></b> the transformation with [{Ghost.TransformConfirm}].",
-            onEnter = () => { SetScanObjectsEnabled(false); SetScanOutline(false); },
-            condition = () => m_ghostMorph != null && m_ghostMorph.m_isMorphed
+            message = "<b><color=#5AB4FF>Cancel</color></b> the preview by pressing [{Ghost.Interact}].",
+            onEnter = () =>
+            {
+                SetScanObjectsEnabled(false);
+                SetScanOutline(false);
+                if (m_ghostClient != null) m_ghostClient.m_cancelPreviewBlocked = false;
+                if (m_ghostClient != null) m_ghostClient.m_morphBlocked = true;
+            },
+            condition = () => m_ghostMorphPreview != null && m_ghostMorphPreview.m_currentPrefab == null
         });
 
         m_steps.Add(new TutoStep
@@ -337,7 +349,6 @@ public class TutoManager : MonoBehaviour
             message = "<b><color=#5AB4FF>Revive</color></b> the ghost on the ground by pressing and holding [{Ghost.Interact}].",
             onEnter = () =>
             {
-                m_ghost.GetComponentInChildren<GhostMorphPreview>()?.HidePreview();
                 m_ghostClient?.m_wheel?.ClearSelection();
                 m_ghostTuto.ApplyStopToAll();
                 m_ghostTuto.callAnimationTrigger("OnHit");

@@ -30,8 +30,11 @@ namespace Script.UI.Views
         
         // TODO find way to unserielize
         public bool m_dash_disabled = false;
-        
+        private bool m_dash_active = false;
+
         public bool m_canScare = true;
+
+        private Coroutine m_messageCoroutine;
 
         private void Awake()
         {
@@ -43,12 +46,13 @@ namespace Script.UI.Views
             InstanceHandler.UnregisterInstance<GhostHUDView>();
         }
 
-        public void ShowMessage(string _message)
+        public void ShowMessage(string _message, float _duration = 3f)
         {
             if (!gameObject.activeSelf) return;
+            if (m_messageCoroutine != null) StopCoroutine(m_messageCoroutine);
             m_hudMessagePanel.SetActive(true);
             m_hudMessage.text = _message;
-            StartCoroutine(DisappearMessage(3));
+            m_messageCoroutine = StartCoroutine(DisappearMessage(_duration));
         }
 
         private IEnumerator DisappearMessage(float _timer)
@@ -60,20 +64,27 @@ namespace Script.UI.Views
 
         public void DashActivate()
         {
+            if (m_dash_active) return;
+            m_dash_active = true;
             m_dashIcon.color = Color.red;
             ShowMessage("Dash Start");
         }
-        
+
         public void DashDisabled()
         {
             m_dashIcon.color = Color.white;
-            ShowMessage("Dash End");
+            if (m_dash_active)
+            {
+                m_dash_active = false;
+                ShowMessage("Dash End", 1.5f);
+            }
             m_dashCooldownOverlay.fillAmount = 1f;
             m_dash_disabled = true;
         }
 
         public void DashReady()
         {
+            m_dash_active = false;
             if (m_dashCooldownOverlay != null)
                 m_dashCooldownOverlay.fillAmount = 0f;
             m_dash_disabled = false;

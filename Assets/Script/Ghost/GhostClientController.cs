@@ -115,7 +115,7 @@ public class GhostClientController : NetworkBehaviour
         if (last_stopped != m_ghostController.m_isStopped)
         {
             print("dead: " + m_ghostController.m_isStopped);
-            m_ghostHUDView.ShowMessage(m_ghostController.m_isStopped ? "You've been stopped!" : "You're no longer stopped.");
+            if (!m_suppressHud) m_ghostHUDView.ShowMessage(m_ghostController.m_isStopped ? "You've been stopped!" : "You're no longer stopped.");
             m_cameraEffect.SetDeathEffect(m_ghostController.m_isStopped);
             last_stopped = m_ghostController.m_isStopped;
         }
@@ -123,7 +123,7 @@ public class GhostClientController : NetworkBehaviour
         if (last_slowed != m_ghostController.m_isSlowed)
         {
             print("slowed: " + m_ghostController.m_isSlowed);
-            m_ghostHUDView.ShowMessage(m_ghostController.m_isSlowed ? "You've been slowed!" : "You're no longer slowed.");
+            if (!m_suppressHud) m_ghostHUDView.ShowMessage(m_ghostController.m_isSlowed ? "You've been slowed!" : "You're no longer slowed.");
             last_slowed = m_ghostController.m_isSlowed;
         }
 
@@ -273,6 +273,8 @@ public class GhostClientController : NetworkBehaviour
     }
     [NonSerialized] public bool m_morphBlocked = false;
     [NonSerialized] public bool m_dashBlocked = false;
+    [NonSerialized] public bool m_cancelPreviewBlocked = false;
+    [NonSerialized] public bool m_suppressHud = false;
 
     public void OnMorph()
     {
