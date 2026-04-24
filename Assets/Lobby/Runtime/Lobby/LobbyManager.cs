@@ -81,6 +81,9 @@ namespace PurrLobby
         private void Awake()
         {
             DontDestroyOnLoad(gameObject);
+            var LobbyManagerSecurity = FindObjectsByType<LobbyManager>(FindObjectsSortMode.InstanceID);
+            if (LobbyManagerSecurity.Length > 1) 
+                Destroy(LobbyManagerSecurity[0].gameObject);
             _lastKnownState = new Lobby { IsValid = false };
             _viewManager = FindAnyObjectByType<SceneMenuNavigator>();
 
@@ -209,6 +212,7 @@ namespace PurrLobby
             m_serverName.transform.GetChild(0).GetComponentInChildren<TextMeshProUGUI>().text = _currentLobby.Name.ToUpper();
             m_serverType.GetComponentInChildren<TextMeshProUGUI>().text = _currentLobby.IsPrivate ? "Private" : "Public";     
             m_playerCount.transform.GetChild(0).GetComponentInChildren<TextMeshProUGUI>().text = "Max players (" + _currentLobby.MaxPlayers + ")";
+            FindAnyObjectByType<CodeButton>()?.Init(_currentLobby.LobbyId);
         }
 
         private void Update()

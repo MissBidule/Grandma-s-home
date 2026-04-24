@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using K4os.Compression.LZ4.Internal;
 using PurrNet.Logging;
 using UnityEngine;
 using UnityEngine.UI;
