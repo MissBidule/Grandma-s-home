@@ -89,6 +89,11 @@ public class GhostMorphPreview : MonoBehaviour
                 UpdateMaterial();
             }
         }
+
+        if (m_GhostPreviewOn)
+        {
+            InteractPromptUI.m_Instance.ShowDynamic(() => InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelValid));
+        }
     }
 
     /*
@@ -163,7 +168,6 @@ public class GhostMorphPreview : MonoBehaviour
             //This one prevents unwanted visuals
             UpdateMaterial();
 
-            InteractPromptUI.m_Instance.ShowDynamic(() => InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelValid));
             m_GhostPreviewOn =true;
         }
         m_colliders.Clear();
@@ -328,11 +332,6 @@ public class GhostMorphPreview : MonoBehaviour
              
             ClearHighlight();
             InteractPromptUI.m_Instance.Hide();
-
-            if(m_GhostPreviewOn == true){
-            InteractPromptUI.m_Instance.ShowDynamic(() => InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelValid));
-            
-            } 
         }
     }
 
