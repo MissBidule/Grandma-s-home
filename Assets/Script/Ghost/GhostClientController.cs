@@ -150,12 +150,14 @@ public class GhostClientController : NetworkBehaviour
 
         m_predictiveMovement.NewInput(inputData);
 
-        SendGhostRPC(
-            inputData,
-            m_morphPressed ? m_ghostMorphPreview.m_currentPrefab : null,                  // Morph Parameters
-            m_ghostMorphPreview.transform.localPosition,                                 // Morph Parameters
-            m_ghostMorphPreview.transform.localRotation
-        );
+        if (m_ghostMorphPreview != null) {
+            SendGhostRPC(
+                inputData,
+                m_morphPressed ? m_ghostMorphPreview.m_currentPrefab : null,                  // Morph Parameters
+                m_ghostMorphPreview.transform.localPosition,                                 // Morph Parameters
+                m_ghostMorphPreview.transform.localRotation
+            );
+        }
 
         // Reset values after sending to server
         if (m_morphPressed) { m_ghostMorphPreview.HidePreview(); m_waitingForInputRelease = true; }

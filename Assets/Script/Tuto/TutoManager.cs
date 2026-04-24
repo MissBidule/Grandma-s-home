@@ -59,6 +59,7 @@ public class TutoManager : MonoBehaviour
         m_ghostTuto = _ghostTuto;
         m_ghostTuto.m_isStopped = false;
         Destroy(m_ghostTuto.GetComponentInChildren<CinemachineBrain>(true).gameObject);
+        Destroy(m_ghostTuto.GetComponentInChildren<GhostMorphPreview>(true).gameObject);
         var ghostTutoClient = m_ghostTuto.GetComponent<GhostClientController>();
         if (ghostTutoClient != null) ghostTutoClient.m_suppressHud = true;
 

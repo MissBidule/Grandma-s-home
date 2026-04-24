@@ -116,7 +116,7 @@ public class WheelController : MonoBehaviour
         m_ghostMorph = ghost.GetComponent<GhostMorph>();
         m_ghostMorphPreview = ghost.GetComponentInChildren<GhostMorphPreview>();
 
-        m_ghostMorphPreview.m_wheel = this;
+        if (m_ghostMorphPreview != null) m_ghostMorphPreview.m_wheel = this;
     }
 
     /*
