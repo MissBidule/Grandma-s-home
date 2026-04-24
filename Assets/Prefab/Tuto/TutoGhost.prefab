@@ -908,64 +908,36 @@ MonoBehaviour:
   m_canvasPrefab: {fileID: 492682312804705504, guid: f736cf1368213be44adf64056ea5d815, type: 3}
   m_steps:
   - message: Welcome to the Tutorial.
-    waitForAction: 0
-    actionName: 
     duration: 5
   - message: Click {Ghost.Interact} to sabotage a highlighted object.
-    waitForAction: 0
-    actionName: 
     duration: 15
   - message: Click on {Ghost.Validate} at the right time to confirm.
-    waitForAction: 0
-    actionName: 
     duration: 15
   - message: When a Ghost sabotages, the Sabotage score increases over time.
-    waitForAction: 0
-    actionName: 
     duration: 15
   - message: Approach an object and click on {Ghost.Scan} to preview it.
-    waitForAction: 0
-    actionName: 
     duration: 15
   - message: You can move around in preview mode and use {Ghost.RotatePreviewLeft}
       and {Ghost.RotatePreviewRight} to position yourself better.
-    waitForAction: 0
-    actionName: 
     duration: 15
   - message: Click on {Ghost.Interact} to confirm the preview and thus hide when
       a child arrives.
-    waitForAction: 0
-    actionName: 
     duration: 15
   - message: Once transformed, if you move, you revert to your Ghost state.
-    waitForAction: 0
-    actionName: 
     duration: 15
   - message: You can find the objects you transformed into  {Ghost.OpenProps} and
       select it by hovering over it.
-    waitForAction: 0
-    actionName: 
     duration: 15
   - message: You can climb on objects by moving straight ahead.
-    waitForAction: 0
-    actionName: 
     duration: 15
   - message: When the Ghosts fill the sabotage gauge, the panic phase begins, and
       at that point the Ghosts can do nothing but flee.
-    waitForAction: 0
-    actionName: 
     duration: 15
   - message: 'You can win the game if:'
-    waitForAction: 0
-    actionName: 
     duration: 15
   - message: The children are exceeding the limit for breaking objects.
-    waitForAction: 0
-    actionName: 
     duration: 15
   - message: At least one Ghost remains alive after the panic phase.
-    waitForAction: 0
-    actionName: 
     duration: 10
   m_nextStepAction: {fileID: 7560140506530672950, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_hasStarted: 0
@@ -981,6 +953,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d7358f2c35665740b840d25b0738715, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SwitchTuto
+  m_GhostTransform: {fileID: 0}
+  m_ChildTransform: {fileID: 0}
+  m_IsGhost: 1
 --- !u!114 &2720147927517717862
 MonoBehaviour:
   m_ObjectHideFlags: 0

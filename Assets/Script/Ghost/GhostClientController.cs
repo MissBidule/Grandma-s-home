@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using PurrNet;
 using Script.UI.Views;
@@ -63,15 +64,17 @@ public class GhostClientController : NetworkBehaviour
         // Use PlayerControllerCore.m_playerCamera (Inspector-assigned, always valid)
         // instead of GetComponentInChildren which can fail in multi-instance scenarios
         var core = GetComponent<PlayerControllerCore>();
+        CinemachineBrain brain = GetComponentInChildren<CinemachineBrain>(true);
         if (core != null) m_playerCamera = core.m_playerCamera;
         if (m_uiHolder == null) {
             m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
             Canvas canvas = m_uiHolder.GetComponent<Canvas>();
-            canvas.worldCamera = GetComponentInChildren<CinemachineBrain>(true).OutputCamera;
+            canvas.worldCamera = brain?.OutputCamera;
             canvas.planeDistance = 2.48f;
 
         }
-        FindAnyObjectByType<PauseMenuView>().SetCameraForCanvases(GetComponentInChildren<CinemachineBrain>(true).OutputCamera);
+        if (brain != null)
+            FindAnyObjectByType<PauseMenuView>().SetCameraForCanvases(brain.OutputCamera);
         m_reviveBarUI = m_uiHolder.GetComponentInChildren<ReviveBarUI>(true);
         m_wheel = m_uiHolder.GetComponentInChildren<WheelController>();
         if (m_playerCamera != null) m_cameraEffect = m_playerCamera.GetComponent<DeathEffect>();
@@ -85,7 +88,14 @@ public class GhostClientController : NetworkBehaviour
         // Getting the HUD refference. (moved here as it could try to get it before it was instanced)
         InstanceHandler.TryGetInstance(out m_ghostHUDView);
         
-        m_soundEffects.InitOwner();
+        if (m_soundEffects != null) m_soundEffects.InitOwner();
+    }
+
+    public void showHUD(bool _show)
+    {
+        if (m_ghostHUDView == null) return;
+        m_ghostHUDView.gameObject.SetActive(_show);
+        m_ghostHUDView.GetComponent<CanvasGroup>().alpha = _show ? 1 : 0;
     }
 
     private void DestroyUI()
@@ -105,7 +115,7 @@ public class GhostClientController : NetworkBehaviour
         if (last_stopped != m_ghostController.m_isStopped)
         {
             print("dead: " + m_ghostController.m_isStopped);
-            m_ghostHUDView.ShowMessage(m_ghostController.m_isStopped ? "You've been stopped!" : "You're no longer stopped.");
+            if (!m_suppressHud) m_ghostHUDView.ShowMessage(m_ghostController.m_isStopped ? "You've been stopped!" : "You're no longer stopped.");
             m_cameraEffect.SetDeathEffect(m_ghostController.m_isStopped);
             last_stopped = m_ghostController.m_isStopped;
         }
@@ -113,7 +123,7 @@ public class GhostClientController : NetworkBehaviour
         if (last_slowed != m_ghostController.m_isSlowed)
         {
             print("slowed: " + m_ghostController.m_isSlowed);
-            m_ghostHUDView.ShowMessage(m_ghostController.m_isSlowed ? "You've been slowed!" : "You're no longer slowed.");
+            if (!m_suppressHud) m_ghostHUDView.ShowMessage(m_ghostController.m_isSlowed ? "You've been slowed!" : "You're no longer slowed.");
             last_slowed = m_ghostController.m_isSlowed;
         }
 
@@ -140,12 +150,14 @@ public class GhostClientController : NetworkBehaviour
 
         m_predictiveMovement.NewInput(inputData);
 
-        SendGhostRPC(
-            inputData,
-            m_morphPressed ? m_ghostMorphPreview.m_currentPrefab : null,                  // Morph Parameters
-            m_ghostMorphPreview.transform.localPosition,                                 // Morph Parameters
-            m_ghostMorphPreview.transform.localRotation
-        );
+        if (m_ghostMorphPreview != null) {
+            SendGhostRPC(
+                inputData,
+                m_morphPressed ? m_ghostMorphPreview.m_currentPrefab : null,                  // Morph Parameters
+                m_ghostMorphPreview.transform.localPosition,                                 // Morph Parameters
+                m_ghostMorphPreview.transform.localRotation
+            );
+        }
 
         // Reset values after sending to server
         if (m_morphPressed) { m_ghostMorphPreview.HidePreview(); m_waitingForInputRelease = true; }
@@ -261,9 +273,15 @@ public class GhostClientController : NetworkBehaviour
         if (!isOwner) return;
         m_wheel.Close();
     }
+    [NonSerialized] public bool m_morphBlocked = false;
+    [NonSerialized] public bool m_dashBlocked = false;
+    [NonSerialized] public bool m_cancelPreviewBlocked = false;
+    [NonSerialized] public bool m_suppressHud = false;
+
     public void OnMorph()
     {
         if (!isOwner) return;
+        if (m_morphBlocked) return;
         if (m_ghostController.m_isStopped) return;
         if (!m_qteCircle) m_qteCircle = FindAnyObjectByType<QteCircle>();
         if (m_qteCircle != null && m_qteCircle.m_isRunning) return;
@@ -362,7 +380,7 @@ public class GhostClientController : NetworkBehaviour
         {
             m_predictiveMovement.ServerReceiveInput(_input);
             m_ghostController.m_wishDir = _input.wishDirection;
-            if (_input.dashPressed)
+            if (_input.dashPressed && !m_dashBlocked)
                 m_ghostController.StartDash();
             m_ghostController.m_isSneaking = _input.sneakPressed;
         }

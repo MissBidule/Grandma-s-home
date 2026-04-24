@@ -12,6 +12,7 @@ namespace PurrLobby
         [SerializeField] private RawImage avatar;
         [SerializeField] private RawImage hostIcon;
         [SerializeField] private Color readyColor;
+        [SerializeField] private Image UserBG;
         public Button roleButton;
         public Button readyButton;
 
@@ -46,6 +47,7 @@ namespace PurrLobby
                 readyButton.onClick.AddListener(delegate {
                     roleButton.interactable = !roleButton.interactable;
                 });
+                UserBG.color = new Color(0.824f, 0.302f, 0.78f, 1);
             }
         }
 

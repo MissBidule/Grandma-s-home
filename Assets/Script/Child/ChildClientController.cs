@@ -34,6 +34,7 @@ public class ChildClientController : NetworkBehaviour
     private float m_attackTime;
 
     private bool m_sneakPressed = false;
+    public bool m_weaponSwapBlocked = false;
 
     private PredictiveMovement m_predictiveMovement;
 
@@ -152,6 +153,14 @@ public class ChildClientController : NetworkBehaviour
         else childHUDView.m_isScared = false;
     }
 
+    public void showHUD(bool _show)
+    {
+        if (!InstanceHandler.TryGetInstance(out ChildHUDView childHUDView))
+            return;
+        childHUDView.gameObject.SetActive(_show);
+        childHUDView.GetComponent<CanvasGroup>().alpha = _show ? 1 : 0;
+    }
+
     public void OnJump()
     {
         if (!isOwner) return;
@@ -187,6 +196,7 @@ public class ChildClientController : NetworkBehaviour
     public void OnSwitchWeapon()
     {
         if (!isOwner) return;
+        if (m_weaponSwapBlocked) return;
         if(!m_childController.m_shootAnimRunning)
         {
             m_switchWeaponPressed = true;

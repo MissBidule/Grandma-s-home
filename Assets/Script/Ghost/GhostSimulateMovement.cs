@@ -31,6 +31,7 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
     private QteCircle m_qteCircle;
     
     private bool m_canClimbThisFrame;
+    public bool m_isClimbing { get; private set; }
     private Vector3 m_wallNormal;
 
     private JumpTriggerScript m_jumpTriggerScript;
@@ -96,10 +97,14 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
 
             m_rigidbody.linearVelocity = vel;
 
+            m_isClimbing = true;
             ResetClimbFlags();
             return;
         }
-        
+
+        m_isClimbing = false;
+
+
         Vector3 targetVel = speedModifier * m_walkSpeed * wishDir;
         
         m_ghostController.m_soundEffects?.SetWalkingSpeed(_input.sneakPressed ? 0 : (_input.wishDirection * (m_walkSpeed * speedModifier)).magnitude);

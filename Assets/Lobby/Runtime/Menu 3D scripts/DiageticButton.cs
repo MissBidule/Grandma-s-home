@@ -22,6 +22,7 @@ public class DiegeticButton : MonoBehaviour
     //active les outlines 
     private void OnMouseEnter()
     {
+        if (!enabled) return;
         if (animator != null)
         {
             animator.speed = 1f;
@@ -51,6 +52,7 @@ public class DiegeticButton : MonoBehaviour
     //invoke l'event OnClick quand le bouton est clique
     private void OnMouseDown()
     {
+        if (!enabled) return;
         if (OnClick != null)
         {
             OnClick.Invoke();

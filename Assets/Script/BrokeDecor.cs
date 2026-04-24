@@ -21,6 +21,7 @@ public class BrokeDecor : NetworkBehaviour
 
     public bool m_isBroken;
     public bool m_alreadyBroken=false;
+    public bool m_isBreakable = true;
 
     public void Start()
     {
@@ -29,12 +30,14 @@ public class BrokeDecor : NetworkBehaviour
             m_brokenInstance = Instantiate(m_brokenPrefab, transform.position, transform.rotation);
             m_brokenInstance.GetComponent<Renderer>().enabled = false;
             m_brokenInstance.GetComponent<Collider>().enabled = false;
+            m_brokenInstance.transform.SetParent(transform, true);
         }
     }
 
     [ObserversRpc(runLocally:true)]
     public void Broke()
     {
+        if (!m_isBreakable) return;
         if (!m_isBroken)
             FloatingDamageText.Spawn(transform.position, m_scoreValue);
         m_isBroken = true;

@@ -3,13 +3,10 @@ using System.Collections.Generic;
 using PurrNet.StateMachine;
 using UnityEngine;
 using PurrNet.Modules;
-using PurrLobby;
 using System;
-using PurrNet.Transports;
-using Script.UI.Views;
-using UI;
-using Antony;
-using System.Linq;
+using Unity.Cinemachine;
+using UnityEngine.InputSystem;
+
 namespace Script.States
 {
     /*
@@ -26,6 +23,13 @@ namespace Script.States
         [SerializeField] private GhostController m_ghostPrefab;
         [Tooltip("Even if rules are to not despawn on disconnect, this will ignore that and always spawn a player.")]
         [SerializeField] private List<Transform> m_ghostSpawnPoints = new List<Transform>();
+        [SerializeField] private GhostController m_ghostDeadPrefab;
+        [SerializeField] private Transform m_ghostDeadSpawnPoint;
+
+        [Header("Misc")]
+        [SerializeField] private LatencyDisplay m_latencyDisplay;
+
+        GhostController m_ghostTuto;
         private bool m_isServer = false;
         private bool m_hasStarted = false;
 
@@ -49,44 +53,60 @@ namespace Script.States
 
             // We still keep the player list in case for future implementation of round running state.
             Debug.Log($"{spawnedPlayers.Count} Player spawned moving to next state.");
+
+            TutoManager tutoManager = FindAnyObjectByType<TutoManager>();
+            if (tutoManager != null)
+            {
+                GhostController ghost = spawnedPlayers.Find(p => p is GhostController) as GhostController;
+                ChildController child = spawnedPlayers.Find(p => p is ChildController) as ChildController;
+                if (ghost != null && child != null)
+                    tutoManager.Init(ghost, child, m_ghostTuto);
+            }
+
             machine.Next(spawnedPlayers);
         }
 
         private List<PlayerControllerCore> SpawnPlayers()
         {
             List<PlayerControllerCore> spawnedPlayers = new List<PlayerControllerCore>();
-            RoleKeeper roleKeeper = FindAnyObjectByType<RoleKeeper>();
 
-            int currentSpawnChildIndex = 0;
-            int currentSpawnGhostIndex = 0;
             foreach (var player in networkManager.players)
             {
                 if (NetworkManager.main.TryGetModule(out GlobalOwnershipModule ownership, true) && ownership.PlayerOwnsSomething(player))
                     continue;
-
                 //CONNECTION
-                networkManager.GetModule<PlayersManager>(m_isServer).TryGetConnection(player, out Connection conn);
+                GhostController ghost = UnityProxy.Instantiate(m_ghostPrefab, m_ghostSpawnPoints[0].position, m_ghostSpawnPoints[0].rotation);
+                m_ghostTuto = UnityProxy.Instantiate(m_ghostDeadPrefab, m_ghostDeadSpawnPoint.position, m_ghostDeadSpawnPoint.rotation);
+                ChildController child = UnityProxy.Instantiate(m_childPrefab, m_childSpawnPoints[0].position, m_childSpawnPoints[0].rotation);
 
-                bool isGhost = roleKeeper.IsGhost(conn.connectionId);
+                ghost.GiveOwnership(player);
+                m_ghostTuto.GiveOwnership(player);
+                child.GiveOwnership(player);
 
-                Transform spawnPoint,spawnPoint2;
-                PlayerControllerCore newPlayer, newPlayer2;
+                ghost.m_latencyDisplay = m_latencyDisplay;
+                child.m_latencyDisplay = m_latencyDisplay;
 
-                spawnPoint = m_ghostSpawnPoints[0];
-                newPlayer = UnityProxy.Instantiate(m_ghostPrefab, spawnPoint.position, spawnPoint.rotation);
+                SetPlayerInputActive(ghost.gameObject, true);
+                SetPlayerInputActive(m_ghostTuto.gameObject, false);
+                child.gameObject.SetActive(false);
 
-                spawnPoint2 = m_childSpawnPoints[0];
-                newPlayer2 = UnityProxy.Instantiate(m_childPrefab, spawnPoint2.position, spawnPoint2.rotation);
-
-                
-                newPlayer.GiveOwnership(player);
-                newPlayer2.GiveOwnership(player);
-
-                spawnedPlayers.Add(newPlayer);
-                spawnedPlayers.Add(newPlayer2);
+                spawnedPlayers.Add(ghost);
+                spawnedPlayers.Add(child);
             }
 
             return spawnedPlayers;
+        }
+
+        private void SetPlayerInputActive(GameObject _player, bool _active)
+        {
+            PlayerInput input = _player.GetComponent<PlayerInput>();
+            if (input != null) input.enabled = _active;
+
+            CinemachineCamera cam = _player.GetComponentInChildren<CinemachineCamera>();
+            if (cam != null) cam.enabled = _active;
+
+            AudioListener audio = _player.GetComponentInChildren<AudioListener>();
+            if (audio != null) audio.enabled = _active;
         }
 
         private void DespawnPlayers()
@@ -98,6 +118,5 @@ namespace Script.States
                 Destroy(player.gameObject);
             }
         }
-
     }
 }
