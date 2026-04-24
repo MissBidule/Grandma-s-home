@@ -26,8 +26,6 @@ public class GhostInputController : MonoBehaviour
 
     private bool isOwner => m_ghostClientController != null && m_ghostClientController.isOwner;
 
-    [SerializeField] private string m_promptLabelValid = "Confirm transform";
-
     /*
      * @brief Awake is called when the script instance is being loaded
      * Gets the PlayerController component.
@@ -108,9 +106,6 @@ public class GhostInputController : MonoBehaviour
         if (_context.performed)
         {
             m_ghostClientController.OnScan();
-            var wheel = m_ghostClientController.m_wheel;
-            if (wheel == null || !wheel.m_isWaitingForSlotSelection)
-                InteractPromptUI.m_Instance.ShowDynamic(() => InputBindingHelper.BuildPrompt("Ghost", "Interact", m_promptLabelValid));
         }
     }
 
@@ -171,13 +166,7 @@ public class GhostInputController : MonoBehaviour
                     m_ghostInteract.OnInteract(m_ghostInteract.m_onFocus);
                     return;
                 }
-                // Looking at another scannable = replace preview
-                if (m_ghostMorphPreview.IsLookingAtScannable())
-                {
-                    m_lastInteractFrame = Time.frameCount;
-                    m_ghostClientController.OnScan();
-                    return;
-                }
+
                 // Empty valid spot = morph
                 if (m_ghostMorphPreview.m_canMorph)
                 {
@@ -186,6 +175,7 @@ public class GhostInputController : MonoBehaviour
                     return;
                 }
                 // Nothing scannable and cannot morph = drop the preview
+                if (m_ghostClientController.m_cancelPreviewBlocked) return;
                 m_lastInteractFrame = Time.frameCount;
                 m_ghostMorphPreview.HidePreview();
                 InteractPromptUI.m_Instance.Hide();

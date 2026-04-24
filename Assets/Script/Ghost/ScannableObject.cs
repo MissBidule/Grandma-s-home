@@ -1,5 +1,7 @@
+using System;
 using PurrNet;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 /*
  * @brief Contains class declaration for ScannableObject
@@ -7,6 +9,10 @@ using UnityEngine;
  */
 public class ScannableObject : NetworkBehaviour
 {
-    [Tooltip("Icon to display in the transformation wheel (optional)")]
-    public Sprite m_icon;
+    [FormerlySerializedAs("m_icon")]
+    [SerializeField] private Sprite m_iconAsset;
+
+    [NonSerialized] public bool m_isScannable = true;
+
+    public Sprite m_icon => m_isScannable ? m_iconAsset : null;
 }

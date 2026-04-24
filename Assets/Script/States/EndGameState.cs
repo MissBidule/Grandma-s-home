@@ -84,7 +84,10 @@ namespace Script.States
         [ObserversRpc(runLocally: true)]
         public void HidePause()
         {
-            if (pauseMenu != null) Destroy(pauseMenu);
+            if (pauseMenu != null) {
+                pauseMenu.GetComponent<PauseMenuView>().Resume();
+                //Destroy(pauseMenu);
+            }
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
 
@@ -121,7 +124,7 @@ namespace Script.States
         }
 
         public void StopGame(string newLobbyId = "") {
-            Destroy(FindAnyObjectByType<LobbyManager>().gameObject);
+            Destroy(FindAnyObjectByType<LobbyManager>(FindObjectsInactive.Include).gameObject);
             BackToLobby(newLobbyId);
         }
 
