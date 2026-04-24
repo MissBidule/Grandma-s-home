@@ -40,6 +40,7 @@ public class TutoManager : MonoBehaviour
     private List<TutoStep> m_steps = new();
     private int m_currentStep = -1;
     private bool m_waitingForFade = false;
+    private string m_currentRawMessage = null;
 
     private GhostMorph m_ghostMorph;
     private GhostClientController m_ghostClient;
@@ -108,6 +109,9 @@ public class TutoManager : MonoBehaviour
         if (m_waitingForFade) return;
         if (m_currentStep < 0 || m_currentStep >= m_steps.Count) return;
 
+        if (m_currentRawMessage != null)
+            m_ui.ShowText(ProcessBindings(m_currentRawMessage));
+
         if (m_steps[m_currentStep].condition())
             Advance();
     }
@@ -126,6 +130,7 @@ public class TutoManager : MonoBehaviour
         if (next == m_childPhaseStart)
         {
             m_waitingForFade = true;
+            m_currentRawMessage = null;
             m_ui.HideText();
             m_ui.FadeAndSwitch(
                 _onBlack: SwitchToChild,
@@ -142,6 +147,7 @@ public class TutoManager : MonoBehaviour
         m_currentStep = _index;
         TutoStep step = m_steps[_index];
         step.onEnter?.Invoke();
+        m_currentRawMessage = step.message;
         m_ui.ShowText(ProcessBindings(step.message));
     }
 
