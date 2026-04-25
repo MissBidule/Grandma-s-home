@@ -68,19 +68,18 @@ namespace Script.Audio
             }
             Instance = this;
             DontDestroyOnLoad(this);
-            AudioVolumeManager.OnMusicVolumeChanged += SetMusicVolume;
-            SetMusicVolume(PlayerPrefs.GetFloat("Settings_VolMusic", 1f));
-            
+
             AudioSource[] audioSources = GetComponents<AudioSource>();
-            
             if (audioSources.Length != 2)
             {
                 PurrLogger.LogError("No audio sources found", this);
                 return;
             }
-            
             m_mainAudioSource = audioSources[0];
             m_transitionAudioSource = audioSources[1];
+
+            AudioVolumeManager.OnMusicVolumeChanged += SetMusicVolume;
+            SetMusicVolume(PlayerPrefs.GetFloat("Settings_VolMusic", 1f));
         }
 
         private void OnDestroy()
