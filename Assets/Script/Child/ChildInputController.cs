@@ -15,6 +15,10 @@ public class ChildInputController : MonoBehaviour
     private Interact m_childInteract;
 
     public ChildClientController m_childClientController;
+    private TutoChildCAC m_tutoChildCac ; //a verifier
+    private TutoInstructions m_tutoChildInstructions;
+
+
     private QteCircle m_qteCircle;
 
 
@@ -29,6 +33,8 @@ public class ChildInputController : MonoBehaviour
     {
         m_childClientController = GetComponent<ChildClientController>();
         m_childInteract = GetComponentInChildren<Interact>();
+        m_tutoChildCac = GetComponentInChildren<TutoChildCAC>();
+        m_tutoChildInstructions = GetComponentInChildren<TutoInstructions>();
     }
 
     /*
@@ -80,6 +86,10 @@ public class ChildInputController : MonoBehaviour
         if (_context.performed)
         {
             m_childClientController.OnAttack();
+            if(m_tutoChildCac!=null)
+            {
+                m_tutoChildCac.Attack();
+            }
         }
     }
 
@@ -140,9 +150,23 @@ public class ChildInputController : MonoBehaviour
     public void OnJump(InputAction.CallbackContext _context)
     {
         if (!isOwner) return;
-        if (_context.performed)
+        if(m_tutoChildInstructions == null)
         {
-            m_childClientController.OnJump();
+        if (_context.performed)
+            {
+                m_childClientController.OnJump();
+            }
+        }
+        else
+        {
+            if (!m_tutoChildInstructions.m_hasStarted)
+            {
+                m_childClientController.OnJump();
+            }
+            else
+            {
+                return;
+            }
         }
     }
 
