@@ -1,5 +1,6 @@
 using PurrNet;
 using PurrNet.Logging;
+using PurrLobby;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -66,9 +67,9 @@ namespace Script.Audio
                 return;
             }
             Instance = this;
-            
-            // register Instance.
             DontDestroyOnLoad(this);
+            AudioVolumeManager.OnMusicVolumeChanged += SetMusicVolume;
+            SetMusicVolume(PlayerPrefs.GetFloat("Settings_VolMusic", 1f));
             
             AudioSource[] audioSources = GetComponents<AudioSource>();
             
@@ -80,6 +81,11 @@ namespace Script.Audio
             
             m_mainAudioSource = audioSources[0];
             m_transitionAudioSource = audioSources[1];
+        }
+
+        private void OnDestroy()
+        {
+            AudioVolumeManager.OnMusicVolumeChanged -= SetMusicVolume;
         }
 
         private void Start()
