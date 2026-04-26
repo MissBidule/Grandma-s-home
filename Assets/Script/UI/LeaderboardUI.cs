@@ -6,6 +6,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using static PurrLobby.RoleKeeper;
 
+/*
+ * @brief       Contains class declaration for LeaderboardUI
+ * @details     GameView that builds the in-game scoreboard from John's prefab and suppresses the X-ray outline while shown.
+ */
 public class LeaderboardUI : GameView
 {
     [SerializeField] private GameObject m_leaderboardCanvasPrefab;
@@ -17,6 +21,36 @@ public class LeaderboardUI : GameView
     private readonly List<GameObject> m_players = new();
     private readonly List<string> m_playersID = new();
     private RoleKeeper m_roleKeeper;
+    private OutlineSuppressor.Handle m_outlineHandle;
+
+    /*
+     * @brief Suppresses the sabotable-objects outline while the leaderboard is shown
+     * @return void
+    */
+    public override void OnShow()
+    {
+        base.OnShow();
+        m_outlineHandle = OutlineSuppressor.Acquire(m_outlineHandle);
+    }
+
+    /*
+     * @brief Restores the sabotable-objects outline when the leaderboard is hidden
+     * @return void
+    */
+    public override void OnHide()
+    {
+        base.OnHide();
+        OutlineSuppressor.Release(ref m_outlineHandle);
+    }
+
+    /*
+     * @brief  Safety net that releases the outline handle if the GameObject is disabled while still showing
+     * @return void
+    */
+    private void OnDisable()
+    {
+        OutlineSuppressor.Release(ref m_outlineHandle);
+    }
 
     void Start()
     {

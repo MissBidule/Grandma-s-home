@@ -3,8 +3,10 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 using Script.States;
+using UI;
 
 /*
  * @brief In-game pause menu backed by prefab UI (Canvas_Pause_Menu + Canvas_Settings).
@@ -26,6 +28,7 @@ public class PauseMenuView : MonoBehaviour
     private Button m_resumeButton;
     private float m_escapeLockUntil;
     private readonly System.Collections.Generic.List<Canvas> m_hiddenCanvases = new();
+    private OutlineSuppressor.Handle m_outlineHandle;
 
     private void Awake()
     {
@@ -44,19 +47,48 @@ public class PauseMenuView : MonoBehaviour
         if (sc != null) sc.OnBack = CloseOptions;
         else WireSettingsButtons();
         try { ApplyOutlineToLabels(m_pauseCanvas); } catch { }
+        ForceUIDepthAlways(m_pauseCanvas);
+        ForceUIDepthAlways(m_settingsCanvas);
 
         SetPauseVisible(false);
         m_settingsCanvas.SetActive(false);
     }
 
+    /*
+     * @brief Configures both pause canvases to render through the player camera (so post-process applies)
+     * @params Camera cam the player camera that will draw the pause UI
+     * @return void
+    */
     public void SetCameraForCanvases(Camera cam)
     {
         Canvas pauseCanvas = m_pauseCanvas.GetComponent<Canvas>();
+        pauseCanvas.renderMode = RenderMode.ScreenSpaceCamera;
         pauseCanvas.worldCamera = cam;
         pauseCanvas.planeDistance = 0.58f;
         Canvas settingsCanvas = m_settingsCanvas.GetComponent<Canvas>();
+        settingsCanvas.renderMode = RenderMode.ScreenSpaceCamera;
         settingsCanvas.worldCamera = cam;
         settingsCanvas.planeDistance = 0.58f;
+    }
+
+    /*
+     * @brief Forces every UI Graphic in the hierarchy to use ZTest Always so walls do not clip the pause UI
+     * @params GameObject root the canvas root whose Graphics will be patched
+     * @return void
+    */
+    private static void ForceUIDepthAlways(GameObject root)
+    {
+        if (root == null) return;
+        var graphics = root.GetComponentsInChildren<Graphic>(true);
+        foreach (var g in graphics)
+        {
+            if (g == null) continue;
+            var src = g.material != null ? g.material : g.defaultMaterial;
+            if (src == null) continue;
+            var inst = new Material(src);
+            inst.SetInt("unity_GUIZTestMode", (int)CompareFunction.Always);
+            g.material = inst;
+        }
     }
 
     private void Update()
@@ -91,6 +123,7 @@ public class PauseMenuView : MonoBehaviour
         SetPauseVisible(false);
         m_settingsCanvas.SetActive(false);
         RestoreOtherCanvases();
+        OutlineSuppressor.Release(ref m_outlineHandle);
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         EventSystem.current?.SetSelectedGameObject(null);
@@ -101,6 +134,7 @@ public class PauseMenuView : MonoBehaviour
     {
         m_pauseCanvas.SetActive(false);
         m_settingsCanvas.SetActive(true);
+        m_outlineHandle = OutlineSuppressor.Acquire(m_outlineHandle);
         if (InputDeviceTracker.IsGamepadActive)
         {
             var first = m_settingsCanvas.GetComponentInChildren<Selectable>(false);
@@ -113,6 +147,7 @@ public class PauseMenuView : MonoBehaviour
         m_settingsCanvas.SetActive(false);
         m_pauseCanvas.SetActive(true);
         SetPauseVisible(true);
+        OutlineSuppressor.Release(ref m_outlineHandle);
         if (InputDeviceTracker.IsGamepadActive)
             EventSystem.current?.SetSelectedGameObject(m_resumeButton?.gameObject);
     }

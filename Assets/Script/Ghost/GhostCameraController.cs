@@ -22,6 +22,7 @@ public class GhostCameraController : MonoBehaviour
     private float m_yaw;
     private float m_pitch;
     private float m_currentDistance;
+    private const float k_gamepadRatio = 7f;
 
     private GhostInputController m_ghostInputController;
     private GhostClientController m_ghostClientController;
@@ -40,13 +41,41 @@ public class GhostCameraController : MonoBehaviour
         m_target = transform.parent;
 
         m_sensitivity = PlayerPrefs.GetFloat("Settings_MouseSensitivity", PurrLobby.AccessibilitySettingsPanel.DefaultSensitivity);
+        m_gamepadSensitivity = m_sensitivity * k_gamepadRatio;
         m_currentDistance = m_distance;
         UnityEngine.Cursor.lockState = CursorLockMode.Locked;
     }
 
-    private void OnEnable()  => PurrLobby.AccessibilitySettingsPanel.OnSensitivityChanged += OnSensitivityChanged;
-    private void OnDisable() => PurrLobby.AccessibilitySettingsPanel.OnSensitivityChanged -= OnSensitivityChanged;
-    private void OnSensitivityChanged(float v) => m_sensitivity = v;
+    /*
+     * @brief Subscribes to sensitivity change events from both menu and pause settings
+     * @return void
+    */
+    private void OnEnable()
+    {
+        PurrLobby.AccessibilitySettingsPanel.OnSensitivityChanged += OnSensitivityChanged;
+        SettingsCanvasController.OnSensitivityChanged += OnSensitivityChanged;
+    }
+
+    /*
+     * @brief Unsubscribes from sensitivity change events
+     * @return void
+    */
+    private void OnDisable()
+    {
+        PurrLobby.AccessibilitySettingsPanel.OnSensitivityChanged -= OnSensitivityChanged;
+        SettingsCanvasController.OnSensitivityChanged -= OnSensitivityChanged;
+    }
+
+    /*
+     * @brief  Applies the new sensitivity to mouse and gamepad (gamepad scaled by k_gamepadRatio)
+     * @params float v the new mouse sensitivity value from the slider
+     * @return void
+    */
+    private void OnSensitivityChanged(float v)
+    {
+        m_sensitivity = v;
+        m_gamepadSensitivity = v * k_gamepadRatio;
+    }
 
     /*
      * @brief   Updates camera rotation and position after player movement
@@ -64,7 +93,7 @@ public class GhostCameraController : MonoBehaviour
         if (!blockLookInput)
         {
             Vector2 lookInput = m_ghostInputController.m_lookInputVector;
-            float activeSensitivity = Gamepad.current != null ? m_gamepadSensitivity : m_sensitivity;
+            float activeSensitivity = InputDeviceTracker.IsGamepadActive ? m_gamepadSensitivity : m_sensitivity;
             m_yaw += lookInput.x * activeSensitivity * Time.deltaTime;
             m_pitch -= lookInput.y * activeSensitivity * Time.deltaTime;
             m_pitch = Mathf.Clamp(m_pitch, m_minPitch, m_maxPitch);
