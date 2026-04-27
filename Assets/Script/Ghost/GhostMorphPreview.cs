@@ -43,6 +43,7 @@ public class GhostMorphPreview : MonoBehaviour
     private Transform m_cameraTransform;
     private PlayerControllerCore m_core;
     private Interact m_interact;
+    private GhostClientController m_ghostClientController;
     private Material[] m_ghostOriginalMaterials;
     private Renderer m_ghostBodyRenderer;
     private bool m_rotateLeft = false;
@@ -70,6 +71,7 @@ public class GhostMorphPreview : MonoBehaviour
         if (m_core != null && m_core.m_playerCamera != null)
             m_cameraTransform = m_core.m_playerCamera.transform;
         m_interact = transform.parent.GetComponentInChildren<Interact>();
+        m_ghostClientController = transform.parent.GetComponent<GhostClientController>();
     }
 
 
@@ -111,7 +113,7 @@ public class GhostMorphPreview : MonoBehaviour
         if (!Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, m_scanRange, m_scanLayerMask))
         {
             Debug.Log("No objects detected by the raycast");
-            if (m_GhostPreviewOn) { HidePreview(); InteractPromptUI.m_Instance.Hide(); }
+            if (m_GhostPreviewOn && !(m_ghostClientController?.m_cancelPreviewBlocked ?? false)) { HidePreview(); InteractPromptUI.m_Instance.Hide(); }
             return;
         }
 
@@ -128,7 +130,7 @@ public class GhostMorphPreview : MonoBehaviour
         if (scannableComponent == null)
         {
             Debug.Log($"Object detected but not scannable: {scannedObject.name}");
-            if (m_GhostPreviewOn) { HidePreview(); InteractPromptUI.m_Instance.Hide(); }
+            if (m_GhostPreviewOn && !(m_ghostClientController?.m_cancelPreviewBlocked ?? false)) { HidePreview(); InteractPromptUI.m_Instance.Hide(); }
             return;
         }
 
