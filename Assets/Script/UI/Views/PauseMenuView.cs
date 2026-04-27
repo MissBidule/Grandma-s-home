@@ -134,7 +134,6 @@ public class PauseMenuView : MonoBehaviour
     {
         m_pauseCanvas.SetActive(false);
         m_settingsCanvas.SetActive(true);
-        m_outlineHandle = OutlineSuppressor.Acquire(m_outlineHandle);
         if (InputDeviceTracker.IsGamepadActive)
         {
             var first = m_settingsCanvas.GetComponentInChildren<Selectable>(false);
@@ -147,7 +146,6 @@ public class PauseMenuView : MonoBehaviour
         m_settingsCanvas.SetActive(false);
         m_pauseCanvas.SetActive(true);
         SetPauseVisible(true);
-        OutlineSuppressor.Release(ref m_outlineHandle);
         if (InputDeviceTracker.IsGamepadActive)
             EventSystem.current?.SetSelectedGameObject(m_resumeButton?.gameObject);
     }
@@ -174,6 +172,7 @@ public class PauseMenuView : MonoBehaviour
         m_settingsCanvas.SetActive(false);
         m_pauseCanvas.SetActive(true);
         SetPauseVisible(true);
+        m_outlineHandle = OutlineSuppressor.Acquire(m_outlineHandle);
         Cursor.lockState = CursorLockMode.Confined;
         Cursor.visible = !InputDeviceTracker.IsGamepadActive;
         EnsureEventSystem();
