@@ -24,7 +24,7 @@ public class ChildCameraController : MonoBehaviour
     public float m_yaw;
     private float m_pitch;
     private float m_currentDistance;
-    private const float k_gamepadRatio = 7f;
+    private const float m_gamepadRatio = 7f;
     [SerializeField] private float m_xOffset;
 
     private ChildInputController m_childInputController;
@@ -43,7 +43,7 @@ public class ChildCameraController : MonoBehaviour
         m_rigidbody = GetComponentInParent<Rigidbody>();
 
         m_sensitivity = PlayerPrefs.GetFloat("Settings_MouseSensitivity", PurrLobby.AccessibilitySettingsPanel.DefaultSensitivity);
-        m_gamepadSensitivity = m_sensitivity * k_gamepadRatio;
+        m_gamepadSensitivity = m_sensitivity * m_gamepadRatio;
         m_currentDistance = m_distance;
         UnityEngine.Cursor.lockState = CursorLockMode.Locked;
     }
@@ -69,14 +69,14 @@ public class ChildCameraController : MonoBehaviour
     }
 
     /*
-     * @brief Applies the new sensitivity to mouse and gamepad (gamepad scaled by k_gamepadRatio)
+     * @brief Applies the new sensitivity to mouse and gamepad (gamepad scaled by m_gamepadRatio)
      * @params float v the new mouse sensitivity value from the slider
      * @return  void
     */
     private void OnSensitivityChanged(float v)
     {
         m_sensitivity = v;
-        m_gamepadSensitivity = v * k_gamepadRatio;
+        m_gamepadSensitivity = v * m_gamepadRatio;
     }
 
     /*
