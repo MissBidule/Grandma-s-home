@@ -28,7 +28,7 @@ namespace PurrLobby
                 return;
 
             if (m_roleKeeper == null)
-                m_roleKeeper = FindAnyObjectByType<RoleKeeper>();
+                m_roleKeeper = FindAnyObjectByType<RoleKeeper>();            
 
             HandleExistingMembers(room);
             HandleNewMembers(room);
@@ -52,6 +52,7 @@ namespace PurrLobby
             MemberEntry hostEntry = null;
             foreach (Transform child in content)
             {
+                Debug.Log("foreach");
                 if (!child.TryGetComponent(out MemberEntry member))
                     continue;
 
@@ -72,7 +73,6 @@ namespace PurrLobby
             {
                 _member._lobbyManager.showHostObjects(true);
                 int readyMembers = _room.Members.Count(x => x.IsReady);
-                Debug.Log(readyMembers);
                 if (readyMembers < _room.Members.Count - 1)
                 {
                     _member.LockReady(true);

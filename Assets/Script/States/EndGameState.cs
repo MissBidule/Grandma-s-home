@@ -2,6 +2,7 @@ using PurrLobby;
 using PurrNet;
 using PurrNet.Logging;
 using PurrNet.StateMachine;
+using Script.Music;
 using Script.UI.Views;
 using System;
 using System.Threading.Tasks;
@@ -41,8 +42,6 @@ namespace Script.States
             IsGameOver = true;
             base.Enter(_asServer);
 
-            HidePause();
-
             foreach (StateNode state in machine.states)
             {
                 if (state is PlayerSpawningState playerSpawningState)
@@ -53,6 +52,8 @@ namespace Script.States
             
             if (!_asServer)
                 return;
+
+            HidePause();
             
             SetupEndGameUI(_childWin);
             InteractPromptUI.m_Instance.Hide();
@@ -62,15 +63,17 @@ namespace Script.States
             endGameView.EnableHostTools();
         }
 
-        [ObserversRpc (requireServer: true)]
+        [ObserversRpc]
         public void HidePause()
         {
             Destroy(pauseMenu);
             Cursor.lockState = CursorLockMode.None;
+            
+            MusicLooper.Instance.StopMusic();
         }
         
         [ObserversRpc]
-        public void BackToLobby()
+        public void BackToLobby(string newLobbyId = "")
         {
             // Prevent duplicate scene switches
             if (_hasAlreadySwitched)
@@ -87,16 +90,20 @@ namespace Script.States
                 return;
             }
 
+            if (!string.IsNullOrEmpty(newLobbyId))
+            {
+                FindAnyObjectByType<LobbyDataHolder>().SetNewID(newLobbyId);
+            }
+
             PurrLogger.Log($"Switching to scene: {m_lobbyScene}", this);
             
             // Load game scene - ConnectionStarter in new scene will handle network initialization
             SceneManager.LoadSceneAsync(m_lobbyScene);
         }
 
-        public async Task StopGame() {
-            if (isServer) await FindAnyObjectByType<LobbyManager>().CleanLobby();
-            else Destroy(FindAnyObjectByType<LobbyManager>().gameObject);
-            BackToLobby();
+        public void StopGame(string newLobbyId = "") {
+            Destroy(FindAnyObjectByType<LobbyManager>().gameObject);
+            BackToLobby(newLobbyId);
         }
 
         public void BackToMenu()
@@ -122,7 +129,7 @@ namespace Script.States
         {
             PurrLogger.LogWarning("Server is not accessible. Returning to menu.", this);
             FindAnyObjectByType<LobbyDataHolder>().SetCurrentLobby(default);
-            _ = StopGame();
+            StopGame();
         }
 
         [ObserversRpc]

@@ -202,6 +202,7 @@ public class ChildClientController : NetworkBehaviour
     public void OnAttack()
     {
         if (!isOwner) return;
+        if (m_qteCircle != null && m_qteCircle.m_isRunning) return;
         m_attackPressed = true;
         m_childController.callAnimationTrigger("OnAttack");
     }
@@ -274,7 +275,7 @@ public class ChildClientController : NetworkBehaviour
                     {
                         m_childController.callAnimationCrossFade("cac_sideRun_R", 0.2f);
                     }
-                    m_childController.callChangeFace(new Vector2(.66f, 0));
+                    m_childController.callChangeFace(new Vector2(.33f, .33f));
                 }
             }
             else if(m_isMovingLeft == false && _movement.x < 0)
@@ -293,7 +294,7 @@ public class ChildClientController : NetworkBehaviour
                     {
                         m_childController.callAnimationCrossFade("cac_sideWalk_L", 0.2f);
                     }
-                    m_childController.callChangeFace(new Vector2(.33f, 0));
+                    m_childController.callChangeFace(new Vector2(.66f, 0));
                 }
                 else
                 {
@@ -305,7 +306,7 @@ public class ChildClientController : NetworkBehaviour
                     {
                         m_childController.callAnimationCrossFade("cac_sideRun_L", 0.2f);
                     }
-                    m_childController.callChangeFace(new Vector2(.66f, 0));
+                    m_childController.callChangeFace(new Vector2(.33f, .33f));
                 }
             }
         }
@@ -327,7 +328,7 @@ public class ChildClientController : NetworkBehaviour
                     {
                         m_childController.callAnimationCrossFade("cac_walk", 0.2f);
                     }
-                    m_childController.callChangeFace(new Vector2(.33f, 0));
+                    m_childController.callChangeFace(new Vector2(.66f, 0));
                 }
                 else
                 {
@@ -339,7 +340,7 @@ public class ChildClientController : NetworkBehaviour
                     {
                         m_childController.callAnimationCrossFade("cac_run", 0.2f);
                     }
-                    m_childController.callChangeFace(new Vector2(.66f, 0));
+                    m_childController.callChangeFace(new Vector2(.33f, .33f));
                 }
             }
             else if (m_isMovingBackward == false && _movement.y < 0)
@@ -370,7 +371,7 @@ public class ChildClientController : NetworkBehaviour
                     {
                         m_childController.callAnimationCrossFade("cac_brun", 0.2f);
                     }
-                    m_childController.callChangeFace(new Vector2(.66f, 0));
+                    m_childController.callChangeFace(new Vector2(.33f, .33f));
                 }
             }
         }

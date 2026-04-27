@@ -1,6 +1,8 @@
+using System;
 using UnityEngine;
 using System.Collections;
 using System.Diagnostics;
+using Random = UnityEngine.Random;
 
 public class DayNightSystem : MonoBehaviour
 {
@@ -15,7 +17,7 @@ public class DayNightSystem : MonoBehaviour
     public float gameTime = 30f; // 480 - 8 minutes de jeu, prendre la valeur du serveur
     public bool StillRunningAfterGameTime = false; // permet que les éléments tel que la rotation du ciel continue après la fin du temps de jeu nottament pour le menu principal
     private float currentTime = 0f; // temps actuel dans le cycle jour/nuit
-    
+
     // positions des axes du soleil par défaut
     public float sunInitialX = 150f;
     public float sunInitialY = 0f;
@@ -24,11 +26,11 @@ public class DayNightSystem : MonoBehaviour
     public float ambientIntensityNight = 0.4f; //intensité de la lumière ambiante la nuit
 
     //température du soleil entre le jour et la nuit
-    public float temperatureDay = 6000f; 
+    public float temperatureDay = 6000f;
     public float temperatureNight = 16000f;
 
     //rotation par actualisation
-    public float HdriRotationAngle = 0.1f; 
+    public float HdriRotationAngle = 0.1f;
 
     private float timeBetweenUpdates = 1f; // temps entre chaque mise à jour des corroutines progressives
     //refreshMultiplier pour que les mise a jour soit plus rapide ou pas sur la même durée de jeu total (plus de fluidité)
@@ -40,6 +42,12 @@ public class DayNightSystem : MonoBehaviour
     public Color sunDayColor;// FFE499
     public Color sunNightColor;// 123E41
 
+    // Brouillard / fog
+    // 3 couleurs jour, début de nuit, nuit
+    public Color fogDayColor = new Color32(166, 121, 85, 255);
+    public Color fogEarlyNightColor = new Color32(96, 164, 200, 255);
+    public Color fogNightColor = new Color32(191, 106, 215, 255);
+
     [SerializeField] private bool m_autoStart = false;
 
     //Démarrer avec un angle assez élevé 150, pour la monter à 180 sur 40% du temps de jeu total, faire un changement entre les 2 HDRI blend avec les paramètre de luminosité et allumages progressifs de toutes sources de lumière sur 20% du temps de jeu total, sur les 40% restant de jeu le soleil aura un éclairage d'une couleur plus froide et une intensité plus faible en remontant vers 150 comme une monté de lune.
@@ -49,12 +57,14 @@ public class DayNightSystem : MonoBehaviour
         UnityEngine.Debug.LogFormat("DayNightSystem started");
 
         //regarde si l'objet auquel il est attaché a Light
-        if (GetComponent<Light>() != null) {
+        if (GetComponent<Light>() != null)
+        {
             sun = gameObject;
 
             InitDayNight();
         }
-        else {
+        else
+        {
             UnityEngine.Debug.LogFormat("DayNightSystem doit être attaché à un objet avec un composant Light !");
         }
     }
@@ -82,18 +92,21 @@ public class DayNightSystem : MonoBehaviour
         skybox.SetFloat("_Rotation2", 0f);
         skybox.SetFloat("_Rotation3", 0f);
         skybox.SetFloat("_Blend", 0f);
-        
+
         //récupère la couleur du soleil au début de partie
         sunDayColor = sun.GetComponent<Light>().color;
+
+        //met le fog en jour
+        RenderSettings.fogColor = fogDayColor;
 
         lightOnSystem = GetComponentInParent<LightOnSystem>();//récupère le script d'allumage des lumières dans le parent
 
         if (m_autoStart)
-            UpdateSky(gameTime);
+            UpdateSky(gameTime, DateTime.Now.Millisecond);
     }
 
     //toutes les actualisations a prendre en compte en fonction de l'état du jeu
-    public void UpdateSky(float _serverGameTime)
+    public void UpdateSky(float _serverGameTime, int _seed)
     {
         gameTime = _serverGameTime;
 
@@ -101,11 +114,11 @@ public class DayNightSystem : MonoBehaviour
         {
             StopCoroutine(skyCoroutine);
         }
-        
+
         //random de l'angle y
         if (isRandomSunY)
         {
-            Random.InitState((int)_serverGameTime);
+            Random.InitState(_seed);
             sunInitialY = Random.Range(0f, 360f);
         }
 
@@ -143,7 +156,7 @@ public class DayNightSystem : MonoBehaviour
                     lightsActivated = true;
                 }
             }
-            
+
             // levé de lune
             else if (currentTime >= gameTime * 0.6f)
             {
@@ -168,6 +181,9 @@ public class DayNightSystem : MonoBehaviour
         // Changement progressif du blend de la skybox de 0 à 0.2
         float blend = Mathf.Lerp(0f, 0.2f, currentTime / (gameTime * 0.4f));
         skybox.SetFloat("_Blend", blend);
+
+        //changement progressif de la couleur du fog de fogDayColor à fogEarlyNightColor
+        RenderSettings.fogColor = Color.Lerp(fogDayColor, fogEarlyNightColor, currentTime / (gameTime * 0.4f));
     }
 
     //transition jour-nuit
@@ -194,6 +210,9 @@ public class DayNightSystem : MonoBehaviour
 
         //changement progressif de RenderSettings.ambientIntensity de 1 à 0.4
         RenderSettings.ambientIntensity = Mathf.Lerp(1f, ambientIntensityNight, transitionT);
+
+        
+        
     }
 
     // levé de lune
@@ -206,6 +225,9 @@ public class DayNightSystem : MonoBehaviour
         // Changement progressif du blend de la skybox de 0.6 à 1
         float blend = Mathf.Lerp(0.6f, 1f, (currentTime - gameTime * 0.6f) / (gameTime * 0.4f));
         skybox.SetFloat("_Blend", blend);
+
+        //changement progressif de la couleur du fog de fogEarlyNightColor à fogNightColor
+        RenderSettings.fogColor = Color.Lerp(fogEarlyNightColor, fogNightColor, (currentTime - gameTime * 0.6f) / (gameTime * 0.4f));
     }
 
     //vérifie si sa dépasse pas les 180 degrés ou le sunInitialX
