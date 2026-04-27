@@ -77,6 +77,7 @@ MonoBehaviour:
   _visitiblityRules: {fileID: 0}
   m_playerCamera: {fileID: 696320938370797279}
   m_cameraEffect: {fileID: 0}
+  m_soundEffects: {fileID: 0}
   m_uiHolder_prefab: {fileID: 8327913135893314490, guid: 62417d2e3b649440abf79d70a9cb310e, type: 3}
   m_uiHolder: {fileID: 0}
   m_wheel: {fileID: 0}
@@ -104,6 +105,7 @@ MonoBehaviour:
   m_playerCamera: {fileID: 696320938370797279}
   m_localRenderCamera: {fileID: 5516181086441010449}
   m_playerAnimator: {fileID: 0}
+  m_latencyDisplay: {fileID: 0}
   m_PingCooldown: 5
   m_elapsedTimeSincePing: 0
   m_isServerAccessible: 1
@@ -118,6 +120,7 @@ MonoBehaviour:
   m_beingRevived: 0
   m_isReviving: 0
   m_canDash: 1
+  m_soundEffects: {fileID: 0}
   m_timerSlowed: 5
   m_timerStop: 5
   m_cdChildScare: 10
@@ -135,6 +138,7 @@ MonoBehaviour:
   m_dashDuration: 2.5
   m_dashCooldown: 20
   m_animator: {fileID: 6610718084279313553}
+  m_faceMat: {fileID: 7150789648817633345}
 --- !u!114 &4420112834733810732
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -172,7 +176,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GhostInputController
   m_qteCircle: {fileID: 0}
-  m_promptLabelValid: Confirm transform
 --- !u!114 &1100208937895637651
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -582,6 +585,14 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 72fdd004-b407-4dca-9f7e-17eb8c445dba
     m_ActionName: 'Player/NextStep[/Keyboard/space]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: cd000000-0000-0000-0000-00000000cc01
+    m_ActionName: 'Child/Cancel[/Mouse/rightButton]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: cd000000-0000-0000-0000-00000000cc02
+    m_ActionName: 'Ghost/Cancel[/Mouse/rightButton]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Ghost
@@ -1428,6 +1439,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GhostCameraController
   m_sensitivity: 120
+  m_gamepadSensitivity: 180
   m_distance: 4
   m_minPitch: -40
   m_maxPitch: 70
@@ -1571,8 +1583,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5516181086441010449}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.078459114, y: 0, z: 0, w: 0.99691737}
-  m_LocalPosition: {x: 0, y: 2, z: -5}
+  m_LocalRotation: {x: 2.9204055e-15, y: 0.82202107, z: 2.023118e-15, w: -0.5694571}
+  m_LocalPosition: {x: 247.27014, y: 3.5679903, z: -35.35695}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1643,7 +1655,7 @@ Camera:
     height: 1
   near clip plane: 0.1
   far clip plane: 5000
-  field of view: 60.000004
+  field of view: 67.6
   orthographic: 0
   orthographic size: 10
   m_Depth: 0
@@ -2410,6 +2422,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ae1e80d2fafdb1441895eed4aa763215, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6610718084279313553}
+    - targetCorrespondingSourceObject: {fileID: -4562313575199308709, guid: ae1e80d2fafdb1441895eed4aa763215, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7150789648817633345}
   m_SourcePrefab: {fileID: 100100000, guid: ae1e80d2fafdb1441895eed4aa763215, type: 3}
 --- !u!137 &137177177916578478 stripped
 SkinnedMeshRenderer:
@@ -2473,6 +2488,27 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: ae1e80d2fafdb1441895eed4aa763215, type: 3}
   m_PrefabInstance: {fileID: 1956654672419550219}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &6595531513211744336 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -4562313575199308709, guid: ae1e80d2fafdb1441895eed4aa763215, type: 3}
+  m_PrefabInstance: {fileID: 1956654672419550219}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7150789648817633345
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595531513211744336}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a2380e91627f2c4d8354ab78d594382, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MaterialInstance
+  go: {fileID: 0}
+  material: {fileID: 0}
+  surfaceOffset: {x: 0, y: 0}
+  textureProperty: _BaseMap
 --- !u!1 &9066176435055552214 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -1803999101379144995, guid: ae1e80d2fafdb1441895eed4aa763215, type: 3}
