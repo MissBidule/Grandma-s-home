@@ -204,6 +204,20 @@ public class ChildInputController : MonoBehaviour
     }
 
     /*
+     * @brief OnF is called by the Input System when F input is detected
+     * @param _context: The context of the input action
+     * @return void
+     */
+    public void OnF(InputAction.CallbackContext _context)
+    {
+        if (!isOwner) return;
+        if (_context.performed)
+        {
+            m_childClientController.Dangan();
+        }
+    }
+
+    /*
      * @brief OnEscape is called by the Input System when escape input is detected
      * @param _context: The context of the input action
      * @return void
