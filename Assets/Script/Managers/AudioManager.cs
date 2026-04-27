@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class AudioManager : MonoBehaviour
 {
+    // Faut aussi gérer au début toujours mettre le bon mode (faut que le mode qui est écrit au début de partie s'applique vraiment)
     public void MuteGhostByChild()
     {
         Debug.Log("MUTE GHOST BY CHILD CALL");
@@ -16,6 +17,17 @@ public class AudioManager : MonoBehaviour
                         if(!purrVoicePlayer.muted)
                         {
                         purrVoicePlayer.muted=true;
+                        }
+                    }
+                }
+                if(obj.layer == LayerMask.NameToLayer("Child"))
+                {
+                    PurrVoicePlayer purrVoicePlayer = obj.GetComponent<PurrVoicePlayer>();
+                    if (purrVoicePlayer != null)
+                    {
+                        if(purrVoicePlayer.muted)
+                        {
+                        purrVoicePlayer.muted=false;
                         }
                     }
                 }
