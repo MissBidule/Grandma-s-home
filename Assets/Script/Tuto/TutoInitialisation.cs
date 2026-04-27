@@ -49,6 +49,7 @@ public class TutoInitialisation : MonoBehaviour
                         obj.SetActive(false);
                     }
                 }
+
             }
         }
     }

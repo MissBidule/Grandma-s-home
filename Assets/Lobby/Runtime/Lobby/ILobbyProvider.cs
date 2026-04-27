@@ -24,6 +24,7 @@ namespace PurrLobby {
         Task SetIsReadyAsync(bool isReady);
         Task SetIsGhostAsync(bool isGhost);
         Task SetSkinAsync(int skin);
+        Task SetSkinAndRoleAsync(bool isGhost, int skin);
         Task SetIsInGameAsync(bool isInGame);
         Task SetLobbyDataAsync(string key, string value);
         Task<string> GetLobbyDataAsync(string key);

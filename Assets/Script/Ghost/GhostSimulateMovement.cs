@@ -31,6 +31,7 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
     private QteCircle m_qteCircle;
     
     private bool m_canClimbThisFrame;
+    public bool m_isClimbing { get; private set; }
     private Vector3 m_wallNormal;
 
     private JumpTriggerScript m_jumpTriggerScript;
@@ -96,11 +97,17 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
 
             m_rigidbody.linearVelocity = vel;
 
+            m_isClimbing = true;
             ResetClimbFlags();
             return;
         }
 
+        m_isClimbing = false;
+
+
         Vector3 targetVel = speedModifier * m_walkSpeed * wishDir;
+        
+        m_ghostController.m_soundEffects?.SetWalkingSpeed(_input.sneakPressed ? 0 : (_input.wishDirection * (m_walkSpeed * speedModifier)).magnitude);
 
         Vector3 currentVel = m_rigidbody.linearVelocity;
         Vector3 currentHorizontal = new Vector3(currentVel.x, 0f, currentVel.z);
@@ -152,7 +159,7 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
 
         if (Physics.SphereCast(rayOrigin, 0.2f, rayDirection, out RaycastHit hit, m_climbCheckDistance, m_climbableLayerMask))
         {
-            if (hit.normal.y <= m_wallNormalMaxY || hit.transform.gameObject.layer == LayerMask.NameToLayer("Stairs"))
+            if (hit.normal.y <= m_wallNormalMaxY)
             {
                 m_wallNormal = hit.normal;
                 return true;
@@ -179,6 +186,7 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
     {
         if (!IsGrounded()) return;
         if (m_isJumping) return;
+        m_ghostController.m_soundEffects?.PlayJumpAudio();
         m_rigidbody.AddForce(Vector3.up * m_jumpImpulse, ForceMode.Impulse);
         m_isJumping = true;
     }

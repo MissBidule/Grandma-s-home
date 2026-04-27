@@ -17,7 +17,8 @@ public class ChildController : PlayerControllerCore
     // Camera Parameters
     [NonSerialized] public Vector3 m_cameraPosition;
     [NonSerialized] public Vector3 m_cameraForward;
-
+    [SerializeField] public ChildSoundEffects m_soundEffects;
+    
     [Header("Weapon Switching")]
     public bool m_isRanged;
     public float m_lastShot;
@@ -33,6 +34,7 @@ public class ChildController : PlayerControllerCore
     [SerializeField] [Tooltip("In seconds")] private float m_cdGun = 1.0f;
     [SerializeField] private Transform m_bulletSpawnTransform;
     [SerializeField] private GameObject m_bulletPrefab;
+    [SerializeField] private GameObject m_danganPrefab;
     
     [Header("Speed Modifiers")]
     [SerializeField] [Tooltip("Duration of scared by ghost in seconds")] private float m_scaredDuration = 5.0f;
@@ -42,9 +44,13 @@ public class ChildController : PlayerControllerCore
     [SerializeField] private NetworkAnimator m_animator;
     public bool m_shootAnimRunning = false;
     public MaterialInstance m_faceMat;
+
+    [Header("Miscellaneous")]
+    [SerializeField] private Transform m_gunEnd;
+    [SerializeField] private GameObject m_gunEffectPrefab;
+    private bool m_customAudio = false;
+    private GameObject m_tempGunEffect = null;
     private Rigidbody m_rigidbody;
-
-
 
 
     protected override void OnSpawned()
@@ -67,14 +73,37 @@ public class ChildController : PlayerControllerCore
         PingServer();
         UpdateTimers();
         
-        m_animator.SetFloat("VerticalSpeed", m_rigidbody.linearVelocity.y);
+        m_animator?.SetFloat("VerticalSpeed", m_rigidbody.linearVelocity.y);
         if(m_rigidbody.linearVelocity.y < -0.1f)
         {
             changeFaceMat(new Vector2(0.33f, 0.66f));
         }
     }
     
-    
+    public void Ronpa()
+    {
+        if (!isServer) return;
+        if (m_customAudio) return;
+        m_customAudio = true;
+        SpawnEffect();
+    }
+
+    [ObserversRpc(runLocally:true)]
+    private void SpawnEffect()
+    {
+        m_tempGunEffect = Instantiate(m_gunEffectPrefab, m_gunEnd.transform);
+        m_tempGunEffect.transform.localPosition = Vector3.zero;
+        m_tempGunEffect.transform.localScale = Vector3.one;
+    }
+
+    [ObserversRpc(runLocally:true)]
+    private void UnspawnEffect()
+    {
+        if (m_tempGunEffect != null) {
+            Destroy(m_tempGunEffect);
+            m_tempGunEffect = null;
+        }
+    }
 
     void UpdateTimers()
     {
@@ -96,7 +125,7 @@ public class ChildController : PlayerControllerCore
     public void Attack()
     {
         if (!isServer) return;
-        //if (m_isScared) return; // Return if the player is scared
+        if (m_isScared) return;
         if (m_switchingTime < m_cdSwitch) return;
         callAnimationSetBool("Cac",!m_isRanged);
         changeFaceMat(new Vector2(0,0.66f));
@@ -111,6 +140,15 @@ public class ChildController : PlayerControllerCore
                 else
                     aimTarget = m_cameraPosition + m_cameraForward * 50f;
                 Vector3 shootDir = (aimTarget - m_bulletSpawnTransform.position).normalized;
+                
+                if (!m_customAudio)
+                {
+                    m_soundEffects?.PlayGunAudio();
+                } 
+                else {
+                    m_soundEffects?.PlayCustomAudio(m_danganPrefab.GetComponent<Dangan>().m_audioClip);
+                }
+                
                 ShootForAll(Quaternion.LookRotation(shootDir));
             }
         }
@@ -156,6 +194,7 @@ public class ChildController : PlayerControllerCore
     {
         if (!isServer) return;
         m_isScared = true;
+        m_soundEffects?.PlayScarredAudio();
         //PurrLogger.Log("Ghost Touch", this);
         UpdateScaredToAll(m_isScared);
         StartCoroutine(ScaredTimer(m_scaredDuration));
@@ -196,6 +235,8 @@ public class ChildController : PlayerControllerCore
     {
         Vector3 CacPosition = m_cacTransform.position + m_cameraForward.normalized * 1.5f;
         Collider[] hits = Physics.OverlapSphere(CacPosition, m_attackRange);
+        
+        m_soundEffects?.PlayCacAudio();
 
         foreach (Collider col in hits)
         {
@@ -240,7 +281,9 @@ public class ChildController : PlayerControllerCore
     [ObserversRpc(runLocally:true)]
     void ShootForAll(Quaternion rotation)
     {
-        GameObject bullet = UnityProxy.InstantiateDirectly(m_bulletPrefab, m_bulletSpawnTransform.position, rotation);
+        GameObject bulletPrefab = m_customAudio ? m_danganPrefab : m_bulletPrefab;
+
+        GameObject bullet = UnityProxy.InstantiateDirectly(bulletPrefab, m_bulletSpawnTransform.position, rotation);
         if (isServer)
         {
             Bullet bScript = bullet.GetComponent<Bullet>();
@@ -259,6 +302,8 @@ public class ChildController : PlayerControllerCore
         callAnimationTrigger("OnSwitch");
         changeAttackAnimStatusServer();
         m_isRanged = !m_isRanged;
+        m_customAudio = false;
+        UnspawnEffect();
         m_switchingTime = 0;
         changeAttackAnimStatusClient();
     }

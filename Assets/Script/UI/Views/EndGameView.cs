@@ -13,6 +13,7 @@ namespace Script.UI.Views
         [Header("End Game Information")]
         [SerializeField] private TMP_Text m_winnerText;
         [SerializeField] private GameObject m_hostTools;
+        [SerializeField] private GameObject m_clientTools;
         private bool m_alreadyPressed = false;
 
         private void Awake()
@@ -33,6 +34,7 @@ namespace Script.UI.Views
         public void EnableHostTools()
         {
             m_hostTools.SetActive(true);
+            m_clientTools.SetActive(false);
         }
         
         public void BackToLobby()

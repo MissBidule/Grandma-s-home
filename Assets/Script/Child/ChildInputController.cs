@@ -20,6 +20,7 @@ public class ChildInputController : MonoBehaviour
 
 
     private QteCircle m_qteCircle;
+    private int m_lastInteractFrame = -1;
 
 
     private bool isOwner => m_childClientController != null && m_childClientController.isOwner;
@@ -70,7 +71,25 @@ public class ChildInputController : MonoBehaviour
         if (!isOwner) return;
         if (_context.performed)
         {
+            m_lastInteractFrame = Time.frameCount;
             m_childInteract.OnInteract(m_childInteract.m_onFocus);
+        }
+    }
+
+    /*
+     * @brief OnCancel is called by the Input System when cancel input is detected
+     * @param _context: The context of the input action
+     * @return void
+     */
+    public void OnCancel(InputAction.CallbackContext _context)
+    {
+        if (!isOwner) return;
+        if (_context.performed)
+        {
+            // Prevent double-dispatch when Cancel shares a binding with Interact
+            if (m_lastInteractFrame == Time.frameCount) return;
+            if (!m_qteCircle) m_qteCircle = FindAnyObjectByType<QteCircle>();
+            if (m_qteCircle != null && m_qteCircle.m_isRunning) m_qteCircle.CancelQte();
         }
     }
 
@@ -181,6 +200,20 @@ public class ChildInputController : MonoBehaviour
         if (_context.performed)
         {
             m_childClientController.OnValidation();
+        }
+    }
+
+    /*
+     * @brief OnF is called by the Input System when F input is detected
+     * @param _context: The context of the input action
+     * @return void
+     */
+    public void OnF(InputAction.CallbackContext _context)
+    {
+        if (!isOwner) return;
+        if (_context.performed)
+        {
+            m_childClientController.Dangan();
         }
     }
 

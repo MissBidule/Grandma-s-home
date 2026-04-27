@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 /*
@@ -21,6 +22,12 @@ public class QteCircle : MonoBehaviour
     [SerializeField] private GameObject m_zoneLarge;
     [SerializeField] private GameObject m_zoneMedium;
     [SerializeField] private GameObject m_zoneSmall;
+    [SerializeField] private Volume m_volume;
+    private OutlineVolumeComponent m_outline;
+    private Color defaultOutline1;
+    private Color transpOutline1;
+    private Color defaultOutline2;
+    private Color transpOutline2;
 
     [Header("Debug")]
     [SerializeField] private Renderer m_needleRenderer;
@@ -38,7 +45,19 @@ public class QteCircle : MonoBehaviour
 
     private void Start()
     {
+        //set up the volume
+        VolumeProfile volumeProfile = m_volume?.profile;
+        if(!volumeProfile) throw new System.NullReferenceException(nameof(UnityEngine.Rendering.VolumeProfile));
+
+        if(!volumeProfile.TryGet(out m_outline)) throw new System.NullReferenceException(nameof(m_outline));
+
         SetVisibility(false);
+        defaultOutline1 = m_outline.color1.value;
+        transpOutline1 = m_outline.color1.value;
+        transpOutline1.a = 0;
+        defaultOutline2 = m_outline.color2.value;
+        transpOutline2 = defaultOutline2;
+        transpOutline2.a = 0;
     }
 
     private void SetVisibility(bool _visible)
@@ -54,6 +73,9 @@ public class QteCircle : MonoBehaviour
     */
     public void StartQte(Action<bool> _onFinished)
     {
+        Debug.Log("should change");
+        m_outline.color1.value = transpOutline1;
+        m_outline.color2.value = transpOutline2;
         SetVisibility(true);
         enabled = true;
 
@@ -81,6 +103,8 @@ public class QteCircle : MonoBehaviour
     */
     private void FinishQte(bool _success)
     {
+        m_outline.color1.value = defaultOutline1;
+        m_outline.color2.value = defaultOutline2;
         m_isRunning = false;
 
         SetVisibility(false);

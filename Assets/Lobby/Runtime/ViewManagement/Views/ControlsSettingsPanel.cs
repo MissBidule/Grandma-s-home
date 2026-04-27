@@ -11,6 +11,7 @@ namespace PurrLobby
      * Iterates the InputActionAsset at runtime to build a row for every whitelisted action
      * (Child "Player" map + Ghost map). Interactive rebinding is handled through the
      * InputActionRebindingExtensions API; overrides are serialised to JSON in PlayerPrefs.
+     * Each row also displays the corresponding gamepad icon (read-only) next to the keyboard binding.
      */
     public class ControlsSettingsPanel : MonoBehaviour
     {
@@ -63,6 +64,34 @@ namespace PurrLobby
             { "Ghost/Move/left",  "Left" },
             { "Ghost/Move/right", "Right" },
         };
+
+        // Maps gamepad binding paths to Xbox icon sprite names in Resources/XboxIcons/
+        private static readonly Dictionary<string, string> s_GamepadSprites = new Dictionary<string, string>
+        {
+            { "<Gamepad>/buttonSouth",     "xbox_button_color_a_outline" },
+            { "<Gamepad>/buttonEast",      "xbox_button_color_b_outline" },
+            { "<Gamepad>/buttonWest",      "xbox_button_color_x_outline" },
+            { "<Gamepad>/buttonNorth",     "xbox_button_color_y_outline" },
+            { "<Gamepad>/leftTrigger",     "xbox_lt" },
+            { "<Gamepad>/rightTrigger",    "xbox_rt" },
+            { "<Gamepad>/leftShoulder",    "xbox_lb" },
+            { "<Gamepad>/rightShoulder",   "xbox_rb" },
+            { "<Gamepad>/leftStick",       "xbox_stick_l_up" },
+            { "<Gamepad>/rightStick",      "xbox_stick_r" },
+            { "<Gamepad>/leftStickPress",  "xbox_stick_l_press" },
+            { "<Gamepad>/rightStickPress", "xbox_stick_r_press" },
+            { "<Gamepad>/startButton",     "xbox_button_menu" },
+            { "<Gamepad>/selectButton",    "xbox_button_view" },
+
+            { "<Gamepad>/dpad",            "xbox_dpad_round_all" },
+            { "<Gamepad>/dpad/up",         "xbox_dpad_round_all" },
+            { "<Gamepad>/dpad/down",       "xbox_dpad_round_all" },
+            { "<Gamepad>/dpad/left",       "xbox_dpad_round_all" },
+            { "<Gamepad>/dpad/right",      "xbox_dpad_round_all" },
+        };
+
+        // Cache loaded sprites to avoid repeated Resources.Load calls
+        private static readonly Dictionary<string, Sprite> s_SpriteCache = new Dictionary<string, Sprite>();
 
         private InputActionRebindingExtensions.RebindingOperation m_rebindOp;
         private Transform m_container;
@@ -229,7 +258,7 @@ namespace PurrLobby
          * @param _action  The InputAction to inspect.
          * @return Binding index, or -1 if none was found.
          */
-        private int FindKeyboardBindingIndex(InputAction _action)
+        public static int FindKeyboardBindingIndex(InputAction _action)
         {
             for (int i = 0; i < _action.bindings.Count; i++)
             {
@@ -253,6 +282,60 @@ namespace PurrLobby
             return -1;
         }
 
+        /*
+         * @brief Finds the gamepad binding path for an action.
+         * @return The binding path (e.g. "<Gamepad>/buttonSouth"), or null if not found.
+         */
+        private string FindGamepadBindingPath(InputAction _action)
+        {
+            for (int i = 0; i < _action.bindings.Count; i++)
+            {
+                var b = _action.bindings[i];
+                if (b.isComposite || b.isPartOfComposite) continue;
+                if (b.path.StartsWith("<Gamepad>")) return b.path;
+            }
+            return null;
+        }
+
+        /*
+         * @brief Loads an Xbox icon sprite from Resources/XboxIcons/ by name, with caching.
+         */
+        private Sprite LoadGamepadSprite(string _spriteName)
+        {
+            if (s_SpriteCache.TryGetValue(_spriteName, out var cached))
+                return cached;
+
+            var sprite = Resources.Load<Sprite>($"XboxIcons/{_spriteName}");
+            if (sprite != null)
+                s_SpriteCache[_spriteName] = sprite;
+            return sprite;
+        }
+
+        /*
+         * @brief Creates a small Image element showing the gamepad icon and appends it to the row.
+         */
+        private void AppendGamepadIcon(Transform _rowTransform, InputAction _action)
+        {
+            string gamepadPath = FindGamepadBindingPath(_action);
+            if (gamepadPath == null) return;
+            if (!s_GamepadSprites.TryGetValue(gamepadPath, out string spriteName)) return;
+
+            var sprite = LoadGamepadSprite(spriteName);
+            if (sprite == null) return;
+
+            var iconGO = new GameObject("GamepadIcon", typeof(RectTransform));
+            iconGO.transform.SetParent(_rowTransform, false);
+
+            var img = iconGO.AddComponent<Image>();
+            img.sprite = sprite;
+            img.preserveAspect = true;
+            img.raycastTarget = false;
+
+            var le = iconGO.AddComponent<LayoutElement>();
+            le.preferredWidth = 50;
+            le.preferredHeight = 50;
+        }
+
         private void SpawnKeybindingRow(InputAction _action, int _bindingIndex, string _displayName)
         {
             if (!m_keybindingRowPrefab)
@@ -272,6 +355,9 @@ namespace PurrLobby
             {
                 row.m_button.onClick.AddListener(() => StartRebind(_action, _bindingIndex, row.m_buttonImage, row.m_buttonLabel));
             }
+
+            // Add gamepad icon to the right of the keyboard binding
+            AppendGamepadIcon(row.transform, _action);
         }
 
         /*

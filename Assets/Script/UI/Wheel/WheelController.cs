@@ -13,7 +13,7 @@ public class WheelController : MonoBehaviour
     [SerializeField] private Animator m_anim;
     [NonSerialized] private GhostMorph m_ghostMorph;
     [NonSerialized] private GhostMorphPreview m_ghostMorphPreview;
-    [SerializeField] private List<WheelButtonController> m_wheelButtons;
+    [SerializeField] public List<WheelButtonController> m_wheelButtons;
     [SerializeField] private float m_angleOffset = 114f;
     [SerializeField] private float m_minSelectDistance = 5f;
 
@@ -49,6 +49,40 @@ public class WheelController : MonoBehaviour
     {
         if (!m_isOpen) return;
 
+        // Gamepad: use right stick for highlight, A button to confirm
+        if (InputDeviceTracker.IsGamepadActive)
+        {
+            var gp = Gamepad.current;
+            if (gp != null)
+            {
+                Vector2 stick = gp.rightStick.ReadValue();
+                if (stick.sqrMagnitude > 0.3f)
+                {
+                    float stickAngle = Mathf.Atan2(stick.y, stick.x) * Mathf.Rad2Deg;
+                    int bestIndex = GetButtonIndexFromAngle(stickAngle);
+                    if (bestIndex != m_gamepadHighlightIndex && bestIndex >= 0)
+                    {
+                        m_gamepadHighlightIndex = bestIndex;
+                        ApplyHighlight(bestIndex);
+                        var es = UnityEngine.EventSystems.EventSystem.current;
+                        if (es != null && m_wheelButtons[bestIndex] != null)
+                            es.SetSelectedGameObject(m_wheelButtons[bestIndex].gameObject);
+                    }
+                }
+
+                if (gp.buttonSouth.wasPressedThisFrame && m_gamepadHighlightIndex >= 0)
+                {
+                    var btn = m_wheelButtons[m_gamepadHighlightIndex];
+                    if (btn != null)
+                        btn.Select();
+                    m_gamepadHighlightIndex = -1;
+                }
+            }
+            return;
+        }
+
+        // Mouse: use cursor position for highlight
+        if (Mouse.current == null) return;
         Vector2 dir = Mouse.current.position.ReadValue() - new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
         if (dir.sqrMagnitude < m_minSelectDistance * m_minSelectDistance) return;
 
@@ -82,7 +116,7 @@ public class WheelController : MonoBehaviour
         m_ghostMorph = ghost.GetComponent<GhostMorph>();
         m_ghostMorphPreview = ghost.GetComponentInChildren<GhostMorphPreview>();
 
-        m_ghostMorphPreview.m_wheel = this;
+        if (m_ghostMorphPreview != null) m_ghostMorphPreview.m_wheel = this;
     }
 
     /*
@@ -114,7 +148,10 @@ public class WheelController : MonoBehaviour
 
         m_isOpen = true;
         ApplyHighlight(-1);
-        Cursor.lockState = CursorLockMode.Confined;
+        if (InputDeviceTracker.IsGamepadActive)
+            Cursor.lockState = CursorLockMode.Locked; // Gamepad uses stick, no cursor needed
+        else
+            Cursor.lockState = CursorLockMode.Confined;
         InteractPromptUI.m_Instance.Hide();
         m_anim.SetBool("OpenWheel", true);
     }
@@ -151,6 +188,20 @@ public class WheelController : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         m_anim.SetBool("OpenWheel", false);
+    }
+
+    private int m_gamepadHighlightIndex = -1;
+
+    private int GetButtonIndexFromAngle(float _angle)
+    {
+        if (m_wheelButtons == null || m_wheelButtons.Count == 0) return -1;
+
+        int count = m_wheelButtons.Count;
+        float sliceSize = 360f / count;
+        // Offset so first slot is at top (90°)
+        float adjusted = (_angle - 90f + 3600f) % 360f;
+        int index = Mathf.FloorToInt(adjusted / sliceSize) % count;
+        return Mathf.Clamp(index, 0, count - 1);
     }
 
     /*

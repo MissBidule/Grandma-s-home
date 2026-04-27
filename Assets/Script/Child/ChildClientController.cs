@@ -8,7 +8,9 @@ using UnityEngine.EventSystems;
 
 public class ChildClientController : NetworkBehaviour
 {
+    [SerializeField] private ChildSoundEffects m_soundEffects;
     [SerializeField] private GameObject m_uiHolder_prefab;
+    [SerializeField] public ChildSoundEffects m_childSoundEffects;
     public GameObject m_uiHolder;
     private CinemachineCamera m_playerCamera;
     private ChildCameraController m_cameraOptions;
@@ -32,6 +34,7 @@ public class ChildClientController : NetworkBehaviour
     private float m_attackTime;
 
     private bool m_sneakPressed = false;
+    public bool m_weaponSwapBlocked = false;
 
     private PredictiveMovement m_predictiveMovement;
 
@@ -60,13 +63,17 @@ public class ChildClientController : NetworkBehaviour
         if (m_uiHolder == null)
         {
             m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
+            Canvas canvas = m_uiHolder.GetComponent<Canvas>();
+            canvas.worldCamera = GetComponentInChildren<CinemachineBrain>(true).OutputCamera;
+            canvas.planeDistance = 2.48f;
         }
 
-
+        FindAnyObjectByType<PauseMenuView>().SetCameraForCanvases(GetComponentInChildren<CinemachineBrain>(true).OutputCamera);
+        
         m_qteCircle = m_uiHolder.GetComponentInChildren<QteCircle>();
         // Use PlayerControllerCore.m_playerCamera (Inspector-assigned, always valid)
         // instead of GetComponentInChildren which can fail in multi-instance scenarios
-        var core = GetComponent<PlayerControllerCore>();
+        PlayerControllerCore core = GetComponent<PlayerControllerCore>();
         if (core != null) {
             m_playerCamera = core.m_playerCamera;
             m_cameraOptions = m_playerCamera.GetComponent<ChildCameraController>();
@@ -75,6 +82,8 @@ public class ChildClientController : NetworkBehaviour
 
         if (InstanceHandler.TryGetInstance(out UIsManager uisManager))
             uisManager.ShowView<ChildHUDView>();
+        
+        m_soundEffects.InitOwner();
     }
 
     void Update()
@@ -144,6 +153,14 @@ public class ChildClientController : NetworkBehaviour
         else childHUDView.m_isScared = false;
     }
 
+    public void showHUD(bool _show)
+    {
+        if (!InstanceHandler.TryGetInstance(out ChildHUDView childHUDView))
+            return;
+        childHUDView.gameObject.SetActive(_show);
+        childHUDView.GetComponent<CanvasGroup>().alpha = _show ? 1 : 0;
+    }
+
     public void OnJump()
     {
         if (!isOwner) return;
@@ -179,13 +196,22 @@ public class ChildClientController : NetworkBehaviour
     public void OnSwitchWeapon()
     {
         if (!isOwner) return;
+        if (m_weaponSwapBlocked) return;
         if(!m_childController.m_shootAnimRunning)
         {
             m_switchWeaponPressed = true;
         }
     }
 
-
+    public void Dangan()
+    {
+        if (!isOwner) return;
+        if (!m_childController.m_isRanged) {
+            m_weaponSwapBlocked = false;
+            OnSwitchWeapon();
+        }
+        else m_childController.Ronpa();
+    }
 
     /*
      * @brief  This function allows you to change the visible weapon in the player's hand.
@@ -376,9 +402,11 @@ public class ChildClientController : NetworkBehaviour
             }
         }
             
-        var wishDir = Vector3.zero;
+        Vector3 wishDir = Vector3.zero;
 
         if (_movement.sqrMagnitude < 0.001f) return wishDir;
+
+        Cursor.lockState = CursorLockMode.Locked;
 
         Transform cameraTransform = m_playerCamera.transform;
 
