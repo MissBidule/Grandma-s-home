@@ -42,8 +42,19 @@ public class LeaderboardUI : GameView
             rt.localScale = Vector3.one;
         }
 
+
+
         var bg = m_canvasInstance.transform.Find("Main_Scoreboard_Bg");
-        if (bg == null) return;
+        if (bg != null)
+        {
+            RectTransform bgRT = bg.GetComponent<RectTransform>();
+            // Force le fond à s'étirer sur tout le parent (le LeaderboardUI)
+            bgRT.anchorMin = Vector2.zero;
+            bgRT.anchorMax = Vector2.one;
+            bgRT.offsetMin = new Vector2(50, 50); // Marge interne de 50 pixels
+            bgRT.offsetMax = new Vector2(-50, -50);
+        }
+
         var teams = bg.Find("Teams_Container");
         if (teams == null || teams.childCount < 2) return;
 
