@@ -56,7 +56,10 @@ public class GhostMorph : NetworkBehaviour
         m_currentPrefab = UnityProxy.InstantiateDirectly(_prefab, transform);
         m_currentPrefab.GetComponent<MeshCollider>().convex = true;
         m_currentPrefab.transform.localPosition = _position;
-        m_currentPrefab.transform.localRotation = _rotation;
+        m_currentPrefab.transform.localScale = _prefab.transform.lossyScale;
+        // Account for parent rotation when setting local rotation
+        Quaternion parentRotation = _prefab.transform.parent != null ? _prefab.transform.parent.rotation : Quaternion.identity;
+        m_currentPrefab.transform.localRotation = Quaternion.Inverse(parentRotation) * _rotation;
         m_isMorphed = true;
     }
 
