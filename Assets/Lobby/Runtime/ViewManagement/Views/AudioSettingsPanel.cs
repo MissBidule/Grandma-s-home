@@ -62,9 +62,11 @@ namespace PurrLobby
             InitSlider(m_musicRow,  m_KeyMusic);
             InitSlider(m_sfxRow,    m_KeySFX);
 
-            if (m_masterRow?.m_slider) m_masterRow.m_slider.onValueChanged.AddListener(v => { PlayerPrefs.SetFloat(m_KeyMaster, v); UpdateLabel(m_masterRow, v); /* TODO: apply to AudioMixer */ });
-            if (m_musicRow?.m_slider)  m_musicRow.m_slider.onValueChanged.AddListener(v =>  { PlayerPrefs.SetFloat(m_KeyMusic,  v); UpdateLabel(m_musicRow,  v); /* TODO: apply to AudioMixer */ });
-            if (m_sfxRow?.m_slider)    m_sfxRow.m_slider.onValueChanged.AddListener(v =>    { PlayerPrefs.SetFloat(m_KeySFX,    v); UpdateLabel(m_sfxRow,    v); /* TODO: apply to AudioMixer */ });
+            AudioVolumeManager.ApplyFromPrefs();
+
+            if (m_masterRow?.m_slider) m_masterRow.m_slider.onValueChanged.AddListener(v => { PlayerPrefs.SetFloat(m_KeyMaster, v); UpdateLabel(m_masterRow, v); AudioVolumeManager.SetMaster(v); });
+            if (m_musicRow?.m_slider)  m_musicRow.m_slider.onValueChanged.AddListener(v =>  { PlayerPrefs.SetFloat(m_KeyMusic,  v); UpdateLabel(m_musicRow,  v); AudioVolumeManager.SetMusic(v);  });
+            if (m_sfxRow?.m_slider)    m_sfxRow.m_slider.onValueChanged.AddListener(v =>    { PlayerPrefs.SetFloat(m_KeySFX,    v); UpdateLabel(m_sfxRow,    v); AudioVolumeManager.SetSFX(v);    });
 
             InitInputDeviceDropdown();
             InitVoiceModeDropdown();

@@ -478,6 +478,9 @@ public class SettingsCanvasController : MonoBehaviour
         sl.onValueChanged.AddListener(v => {
             PlayerPrefs.SetFloat(key, v);
             if (lbl) lbl.text = Mathf.RoundToInt(v * 100f) + "%";
+            if (key == "Settings_VolMaster") AudioVolumeManager.SetMaster(v);
+            else if (key == "Settings_VolMusic") AudioVolumeManager.SetMusic(v);
+            else if (key == "Settings_VolSFX") AudioVolumeManager.SetSFX(v);
         });
     }
 
