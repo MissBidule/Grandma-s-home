@@ -18,5 +18,5 @@ using PurrNet;
 public class Dangan : Bullet
 {
     [Header("Sound")]
-    [SerializeField] AudioClip m_audioClip = null;
+    public AudioClip m_audioClip = null;
 }
