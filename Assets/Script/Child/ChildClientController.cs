@@ -203,7 +203,15 @@ public class ChildClientController : NetworkBehaviour
         }
     }
 
-
+    public void Dangan()
+    {
+        if (!isOwner) return;
+        if (!m_childController.m_isRanged) {
+            m_weaponSwapBlocked = false;
+            OnSwitchWeapon();
+        }
+        else m_childController.Ronpa();
+    }
 
     /*
      * @brief  This function allows you to change the visible weapon in the player's hand.

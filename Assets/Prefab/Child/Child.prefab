@@ -285,11 +285,14 @@ MonoBehaviour:
   m_cdGun: 0.2
   m_bulletSpawnTransform: {fileID: 8286851940836659514}
   m_bulletPrefab: {fileID: 366779594710045177, guid: 90e50898fd15e4755813076e701192cc, type: 3}
+  m_danganPrefab: {fileID: 366779594710045177, guid: f23c5130e488a4f21aa6f4f43b565aba, type: 3}
   m_scaredDuration: 5
   m_isScared: 0
   m_animator: {fileID: 3610933806309611657}
   m_shootAnimRunning: 0
   m_faceMat: {fileID: 2546100076293216404}
+  m_gunEnd: {fileID: 1672269840711445722}
+  m_gunEffectPrefab: {fileID: 749431609047458801, guid: b0da421e2c1134554928d576b6c324c9, type: 3}
 --- !u!114 &30589635987039035
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -671,6 +674,10 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: cd000000-0000-0000-0000-00000000cc02
     m_ActionName: 'Ghost/Cancel[/Mouse/rightButton]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: ab0fb0b3-6dd1-43ee-894c-e659bdaba61e
+    m_ActionName: 'Child/F[/Keyboard/f]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Child
