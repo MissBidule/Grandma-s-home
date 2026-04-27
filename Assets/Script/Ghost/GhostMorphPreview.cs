@@ -174,8 +174,10 @@ public class GhostMorphPreview : MonoBehaviour
         }
         m_colliders.Clear();
         ReplaceCollider(collider);
-        transform.localScale = _prefab.transform.localScale;
-        transform.localRotation = _prefab.transform.localRotation;
+        // Account for parent scale and rotation
+        transform.localScale = _prefab.transform.lossyScale;
+        Quaternion parentRotation = _prefab.transform.parent != null ? _prefab.transform.parent.rotation : Quaternion.identity;
+        transform.localRotation = Quaternion.Inverse(parentRotation) * _prefab.transform.rotation;
 
         transform.localPosition = new Vector3(0, 0f, 0f);
 
