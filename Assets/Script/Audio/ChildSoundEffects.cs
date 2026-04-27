@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using PurrNet;
 using PurrNet.Logging;
+using PurrLobby;
 using UnityEngine;
 
 public class ChildSoundEffects : MonoBehaviour
@@ -101,7 +102,7 @@ public class ChildSoundEffects : MonoBehaviour
         }
         
         const float maxSpeed = 5;
-        m_movementAudioSource.volume = _speed/maxSpeed;
+        m_movementAudioSource.volume = (_speed / maxSpeed) * AudioVolumeManager.SFXVolume;
     }
 
     private void PlayAudio(NetworkAudioSource _source, string _name, bool _loop = false, float _loopDuration = 0)
@@ -130,6 +131,7 @@ public class ChildSoundEffects : MonoBehaviour
             return;
         }
         _source.loop = false;
+        _source.volume = AudioVolumeManager.SFXVolume;
         _source.Play();
     }
 
