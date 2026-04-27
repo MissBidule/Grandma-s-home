@@ -72,6 +72,7 @@ public class GhostController : PlayerControllerCore, IInteractable
 
     [Header("Animation")]
     [SerializeField] private NetworkAnimator m_animator;
+    public MaterialInstance m_faceMat;
 
     // -------------------------------------------
     // --- Everything Down Here is Server-Side ---
@@ -224,6 +225,7 @@ public class GhostController : PlayerControllerCore, IInteractable
         m_soundEffects?.PlayDeathAudio();
         ApplyStopToAll();
         m_currentTimerStop = m_timerStop;
+        changeFaceMat(new Vector2(0f, 0.33f));
         m_animator.SetBool("GotShot", false);
         callAnimationTrigger("OnHit");
         StopQTE();
@@ -521,6 +523,27 @@ public class GhostController : PlayerControllerCore, IInteractable
             time += Time.deltaTime;
             yield return null;
         }
+    }
+
+    /*
+     * @brief  This function allows you to change the face material offset based on the current action (or lack thereof).
+     *         It is called to get the server side of the action
+     * @return void
+     */
+    [ServerRpc]
+    public void callChangeFace(Vector2 _surfaceOffset)
+    {
+        changeFaceMat(_surfaceOffset);
+    }
+
+    /*
+     * @brief  This function allows you to change the face material offset based on the current action (or lack thereof).
+     * @return void
+     */
+    [ObserversRpc(runLocally: true)]
+    public void changeFaceMat(Vector2 _surfaceOffset)
+    {
+        m_faceMat.surfaceOffset = _surfaceOffset;
     }
 
     [ServerRpc]
