@@ -217,5 +217,26 @@ public class ChildInputController : MonoBehaviour
             PauseMenuView.Instance?.OnEscapePressed();
         }
     }
+
+    /*
+     * @brief OnPushToTalk is called by the Input System when PushTotalk input is detected
+     * @param _context: The context of the input action
+     * @return void
+     */
+    public void OnPushToTalk(InputAction.CallbackContext _context)
+    {
+        AudioManager audioManager = FindFirstObjectByType<AudioManager>();
+            if (!isOwner) return;
+            if (_context.started)
+            {
+                // On press
+                audioManager.PushToTalk(true);
+            }
+            else if (_context.canceled)
+            {
+                // On release
+                audioManager.PushToTalk(false);
+            }
+    }
 }
 

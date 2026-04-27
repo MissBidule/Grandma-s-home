@@ -41,6 +41,7 @@ public class SettingsCanvasController : MonoBehaviour
     private static bool s_appliedOnce;
 
     private Resolution[] m_resolutions;
+    private AudioManager audioManager;
 
     public static event Action<float> OnSensitivityChanged;
 
@@ -54,6 +55,16 @@ public class SettingsCanvasController : MonoBehaviour
     public void ForceAwake()
     {
         AwakeCalled = true;
+
+        //audioManager = FindFirstObjectByType<AudioManager>();
+        //if (audioManager != null)
+        //{
+          //  Debug.Log("SAY HEEEEEEY");
+        //}
+        //else
+        //{
+          //  Debug.Log("NOOOOOOO");
+        //}
 
         var bg = transform.Find("Settings_Background");
         if (bg == null) { Debug.LogError("SettingsCanvasController: Settings_Background not found"); return; }
@@ -506,7 +517,11 @@ public class SettingsCanvasController : MonoBehaviour
         dd.ClearOptions();
         dd.AddOptions(new List<string> { "Always On", "Push to Talk", "Disabled" });
         dd.SetValueWithoutNotify(PlayerPrefs.GetInt("Settings_VoiceMode", 0));
-        dd.onValueChanged.AddListener(v => PlayerPrefs.SetInt("Settings_VoiceMode", v));
+        dd.onValueChanged.AddListener(v => {
+            PlayerPrefs.SetInt("Settings_VoiceMode", v);
+            ApplyAudioMode(v);
+        
+        });
     }
 
     // ── ACCESSIBILITY ────────────────────────────────────────────────────
@@ -884,6 +899,57 @@ public class SettingsCanvasController : MonoBehaviour
                 s_colorblindCM.blueOutRedIn.Override(0);    
                 s_colorblindCM.blueOutGreenIn.Override(47); 
                 s_colorblindCM.blueOutBlueIn.Override(53);
+                break;
+        }
+    }
+
+    private void ApplyAudioMode(int mode)
+    {
+        switch (mode)
+        {
+            case 0: // proximity
+                //Debug.Log("hello proximity");
+                if (audioManager == null)
+                {
+                    foreach(AudioManager obj in FindObjectsByType<AudioManager>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+                    {
+                        audioManager=obj; 
+                    }
+                }
+                if(audioManager!=null){
+                    audioManager.MuteGhostByChild();
+                    Debug.Log("Player Proximity chat");
+                }
+                break;
+            case 1: // push to talk
+                if (audioManager == null)
+                {
+                    foreach(AudioManager obj in FindObjectsByType<AudioManager>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+                    {
+                        audioManager=obj; 
+                    }
+                }
+
+                if (audioManager != null)
+                {
+                    audioManager.InitPushToTalk();
+                    Debug.Log("push to talk");
+                }
+
+                break;
+            case 2: // mute single player
+                if (audioManager == null)
+                {
+                    foreach(AudioManager obj in FindObjectsByType<AudioManager>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+                    {
+                        audioManager=obj; 
+                    }
+                }
+                if (audioManager != null)
+                {
+                    audioManager.MuteSinglePlayer();
+                    Debug.Log("Mute single player");
+                }
                 break;
         }
     }
