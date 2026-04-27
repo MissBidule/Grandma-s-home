@@ -228,7 +228,7 @@ public class TutoManager : MonoBehaviour
 
         m_steps.Add(new TutoStep
         {
-            message = "<b><color=#5AB4FF>Sabotage</color></b> the highlighted object with [{Ghost.Interact}], use [{Ghost.Validate}] to validate.\nThis will increase the <b><color=#5AB4FF>sabotage bar</color></b> over time.",
+            message = "<b><color=#5AB4FF>Sabotage</color></b> the highlighted object with [{Ghost.Interact}], use [{Ghost.Validate}] to confirm.\nThis will increase the <b><color=#5AB4FF>sabotage bar</color></b> over time.",
             onEnter = () => m_sabotageObject?.SetSabotable(true),
             condition = () => m_sabotageObject != null && m_sabotageObject.m_isSabotaged
         });
@@ -248,7 +248,7 @@ public class TutoManager : MonoBehaviour
         m_steps.Add(new TutoStep
         {
             message = "<b><color=#5AB4FF>Confirm</color></b> the transformation with [{Ghost.Interact}] to <b><color=#5AB4FF>hide yourself</color></b>.",
-            onEnter = () => { SetScanObjectsEnabled(false); SetScanOutline(false); },
+            onEnter = () => { SetScanObjectsEnabled(false); SetScanOutline(false); if (m_ghostClient != null) m_ghostClient.m_morphBlocked = false; },
             condition = () => m_ghostMorph != null && m_ghostMorph.m_isMorphed
         });
 
@@ -324,6 +324,7 @@ public class TutoManager : MonoBehaviour
                 SetScanObjectsEnabled(true);
                 SetScanOutline(true);
                 if (m_ghostClient != null) m_ghostClient.m_cancelPreviewBlocked = true;
+                if (m_ghostClient != null) m_ghostClient.m_morphBlocked = true;
             },
             condition = () =>
             {
@@ -460,13 +461,13 @@ public class TutoManager : MonoBehaviour
         m_ghostTuto.gameObject.SetActive(false);
         m_child.gameObject.SetActive(true);
         SetPlayerActive(m_child.gameObject, true);
-        m_childClient.showHUD(true);
-        m_ghostClient.showHUD(false);
 
         if (m_childClient != null) m_childClient.m_weaponSwapBlocked = true;
 
         SetUIHolderActive("GhostUIHolder(Clone)", false);
         SetUIHolderActive("ChildUIHolder(Clone)", true);
+        m_childClient.showHUD(true);
+        m_ghostClient.showHUD(false);
     }
 
     private void SetUIHolderActive(string _name, bool _active)
@@ -495,6 +496,9 @@ public class TutoManager : MonoBehaviour
             canvasTuto.worldCamera = camBrain.OutputCamera;
             canvasTuto.planeDistance = 0.31f;
             FindAnyObjectByType<PauseMenuView>().SetCameraForCanvases(camBrain.OutputCamera);
+            var uisManager = FindAnyObjectByType<UI.UIsManager>();
+            if (uisManager != null)
+                uisManager.GetComponent<Canvas>().worldCamera = camBrain.OutputCamera;
         }
 
         AudioListener audio = _player.GetComponentInChildren<AudioListener>();

@@ -16,12 +16,15 @@ public class ChildSoundEffects : MonoBehaviour
     [SerializeField] private NetworkAudioSource m_jumpAudioSource;
     [SerializeField] private NetworkAudioSource m_landAudioSource;
     [SerializeField] private NetworkAudioSource m_repairingAudioSource;
+    private AudioClip m_gunAudioClip;
 
     private bool m_isOwner = false;
     
     public void InitOwner()
     {
         m_isOwner = true;
+
+        m_gunAudioClip = m_gunAudioSource.clip;
         
         if (InstanceHandler.TryGetInstance(out ChildSoundEffects childSoundEffects))
             InstanceHandler.UnregisterInstance<ChildSoundEffects>();
@@ -35,11 +38,20 @@ public class ChildSoundEffects : MonoBehaviour
     }
     
     // Movement Will need a bigger script don't touch
+
+    public void PlayCustomAudio(AudioClip _clip)
+    {
+        if (!m_isOwner)
+            return;
+        m_gunAudioSource.clip = _clip;
+        PlayAudio(m_gunAudioSource, "Gun");
+    }
     
     public void PlayGunAudio()
     {
         if (!m_isOwner)
             return;
+        m_gunAudioSource.clip = m_gunAudioClip;
         PlayAudio(m_gunAudioSource, "Gun");
     }
 
