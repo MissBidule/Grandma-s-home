@@ -25,7 +25,10 @@ namespace Script.States
         [Header("Door")]
         [SerializeField] [Tooltip("The DOOR")] private StartingDoor m_startingDoor;
         // TODO Skybox & directional light reference.
-        
+
+        // Panic State Visibility
+        [NonSerialized] public bool m_isPanic = false;
+
         // State Reference
         private PanicState m_panicState;
         private EndGameState m_endGameState;
@@ -259,6 +262,7 @@ namespace Script.States
             PurrLogger.Log($"Moving to Panic State");
             StopTimer();
             UnregisteringListener();
+            m_isPanic = true;
             machine.SetState(m_panicState, new GhostGameStateData(m_ghosts, m_aliveGhosts, m_deadGhosts));
         }
         
