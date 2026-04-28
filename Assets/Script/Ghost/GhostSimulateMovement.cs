@@ -67,10 +67,16 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
         {
             Quaternion targetRotation = Quaternion.LookRotation(wishDir, Vector3.up);
             
+            // Calculate the angle between current and target rotation
+            float angle = Quaternion.Angle(m_rigidbody.rotation, targetRotation);
+            
+            // If we're doing a sharp turn (> 90 degrees), speed up rotation
+            float effectiveRotationSpeed = angle > 90f ? m_rotationSpeed * 1.5f : m_rotationSpeed;
+
             m_rigidbody.rotation = Quaternion.Slerp(
                     m_rigidbody.rotation,
                     targetRotation,
-                    m_rotationSpeed * Time.fixedDeltaTime
+                    effectiveRotationSpeed * Time.fixedDeltaTime
             );
         }
 
