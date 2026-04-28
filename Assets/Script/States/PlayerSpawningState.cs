@@ -19,11 +19,11 @@ namespace Script.States
     public class PlayerSpawningState : StateNode
     {
         [Header("Child spawner")]
-        [SerializeField] private ChildController m_childPrefab;
+        [SerializeField] private ChildController[] m_childPrefabs;
         [SerializeField] private List<Transform> m_childSpawnPoints = new List<Transform>();
 
         [Header("Ghost spawner")]
-        [SerializeField] private GhostController m_ghostPrefab;
+        [SerializeField] private GhostController[] m_ghostPrefabs;
         [Tooltip("Even if rules are to not despawn on disconnect, this will ignore that and always spawn a player.")]
         [SerializeField] private List<Transform> m_ghostSpawnPoints = new List<Transform>();
 
@@ -71,6 +71,7 @@ namespace Script.States
                 networkManager.GetModule<PlayersManager>(m_isServer).TryGetConnection(player, out Connection conn);
 
                 bool isGhost = roleKeeper.IsGhost(conn.connectionId);
+                int skinID = roleKeeper.GetSkinID(conn.connectionId);
 
                 Transform spawnPoint;
                 PlayerControllerCore newPlayer;
@@ -78,12 +79,12 @@ namespace Script.States
                 if (isGhost)
                 {
                     spawnPoint = m_ghostSpawnPoints[currentSpawnGhostIndex++ % m_ghostSpawnPoints.Count];
-                    newPlayer = UnityProxy.Instantiate(m_ghostPrefab, spawnPoint.position, spawnPoint.rotation);
+                    newPlayer = UnityProxy.Instantiate(m_ghostPrefabs[skinID], spawnPoint.position, spawnPoint.rotation);
                 }
                 else
                 {
                     spawnPoint = m_childSpawnPoints[currentSpawnChildIndex++ % m_childSpawnPoints.Count];
-                    newPlayer = UnityProxy.Instantiate(m_childPrefab, spawnPoint.position, spawnPoint.rotation);
+                    newPlayer = UnityProxy.Instantiate(m_childPrefabs[skinID], spawnPoint.position, spawnPoint.rotation);
                 }
                 newPlayer.GiveOwnership(player);
                 newPlayer.m_latencyDisplay = m_latencyDisplay;
