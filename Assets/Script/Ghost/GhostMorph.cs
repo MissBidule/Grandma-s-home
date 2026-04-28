@@ -59,6 +59,12 @@ public class GhostMorph : NetworkBehaviour
         m_currentPrefab.transform.localScale = _prefab.transform.lossyScale;
         m_currentPrefab.transform.localRotation = _rotation;
         m_isMorphed = true;
+
+        BrokeDecor decorComponent;
+        if (m_currentPrefab.TryGetComponent<BrokeDecor>(out decorComponent))
+        {
+            UnityProxy.DestroyDirectly(decorComponent);
+        }
     }
 
     /*
