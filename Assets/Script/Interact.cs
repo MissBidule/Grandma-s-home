@@ -14,6 +14,7 @@ public class Interact : NetworkBehaviour
     [SerializeField] public bool m_isGhost = true;
     public IInteractable m_onFocus; // Can be either GhostStatus or SabotageObject
     [SerializeField] private float m_interactRange = 3f;
+    [SerializeField] private LayerMask m_interactableLayer;
 
     private Transform m_cameraTransform;
     private PlayerControllerCore m_core;
@@ -43,7 +44,7 @@ public class Interact : NetworkBehaviour
     {
         if (m_cameraTransform == null) return null;
 
-        if (!Physics.Raycast(m_cameraTransform.position, m_cameraTransform.forward, out RaycastHit hit, m_interactRange))
+        if (!Physics.Raycast(m_cameraTransform.position, m_cameraTransform.forward, out RaycastHit hit, m_interactRange, m_interactableLayer))
             return null;
 
         IInteractable interactable = hit.collider.GetComponentInParent<IInteractable>();

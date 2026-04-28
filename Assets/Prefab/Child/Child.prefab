@@ -227,6 +227,7 @@ MonoBehaviour:
   m_uiHolder: {fileID: 0}
   m_racket: {fileID: 6242996628224680182}
   m_gun: {fileID: 2718918668122047780}
+  m_weaponSwapBlocked: 0
 --- !u!114 &6565872187536608583
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -284,11 +285,14 @@ MonoBehaviour:
   m_cdGun: 0.2
   m_bulletSpawnTransform: {fileID: 8286851940836659514}
   m_bulletPrefab: {fileID: 366779594710045177, guid: 90e50898fd15e4755813076e701192cc, type: 3}
+  m_danganPrefab: {fileID: 366779594710045177, guid: f23c5130e488a4f21aa6f4f43b565aba, type: 3}
   m_scaredDuration: 5
   m_isScared: 0
   m_animator: {fileID: 3610933806309611657}
   m_shootAnimRunning: 0
   m_faceMat: {fileID: 2546100076293216404}
+  m_gunEnd: {fileID: 1672269840711445722}
+  m_gunEffectPrefab: {fileID: 749431609047458801, guid: b0da421e2c1134554928d576b6c324c9, type: 3}
 --- !u!114 &30589635987039035
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -670,6 +674,10 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: cd000000-0000-0000-0000-00000000cc02
     m_ActionName: 'Ghost/Cancel[/Mouse/rightButton]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: ab0fb0b3-6dd1-43ee-894c-e659bdaba61e
+    m_ActionName: 'Child/F[/Keyboard/f]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Child
@@ -967,6 +975,9 @@ MonoBehaviour:
   _visitiblityRules: {fileID: 0}
   m_isGhost: 0
   m_interactRange: 7
+  m_interactableLayer:
+    serializedVersion: 2
+    m_Bits: 17353
 --- !u!1 &2316951510614423555
 GameObject:
   m_ObjectHideFlags: 0
@@ -2113,12 +2124,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6789539377781295807}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.6886509, y: -0.14228521, z: -0.15511198, w: 0.69386977}
-  m_LocalPosition: {x: -1.2792475, y: 0.068377554, z: -0.5796176}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 3586938384404837907}
+  m_Father: {fileID: 1672269840711445722}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!82 &6379050723526451912
 AudioSource:
@@ -2798,11 +2809,16 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: -7440581300467855770, guid: f56b50329f249d342ac94629edea9bf7, type: 3}
+    - targetCorrespondingSourceObject: {fileID: 4490083610349442223, guid: f56b50329f249d342ac94629edea9bf7, type: 3}
       insertIndex: -1
       addedObject: {fileID: 153609903917462191}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f56b50329f249d342ac94629edea9bf7, type: 3}
+--- !u!4 &1672269840711445722 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4490083610349442223, guid: f56b50329f249d342ac94629edea9bf7, type: 3}
+  m_PrefabInstance: {fileID: 2988951778472163445}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2718918668122047780 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: f56b50329f249d342ac94629edea9bf7, type: 3}
@@ -2811,11 +2827,6 @@ GameObject:
 --- !u!4 &3382303045271920542 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: f56b50329f249d342ac94629edea9bf7, type: 3}
-  m_PrefabInstance: {fileID: 2988951778472163445}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &3586938384404837907 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: -7440581300467855770, guid: f56b50329f249d342ac94629edea9bf7, type: 3}
   m_PrefabInstance: {fileID: 2988951778472163445}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &7651492023346609009

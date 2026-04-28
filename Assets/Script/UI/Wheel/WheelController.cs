@@ -199,7 +199,7 @@ public class WheelController : MonoBehaviour
         int count = m_wheelButtons.Count;
         float sliceSize = 360f / count;
         // Offset so first slot is at top (90°)
-        float adjusted = (90f - _angle + 360f) % 360f;
+        float adjusted = (_angle - 90f + 3600f) % 360f;
         int index = Mathf.FloorToInt(adjusted / sliceSize) % count;
         return Mathf.Clamp(index, 0, count - 1);
     }

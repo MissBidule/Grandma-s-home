@@ -28,7 +28,9 @@ namespace Script.States
 
         [Header("Round Settings")]
         [SerializeField] [Tooltip("Duration of the round in minutes")]
-        private float m_roundDuration = 1.0f;
+        private float m_roundDuration = 60.0f;
+
+        public float m_remainingTime { get; private set; }
 
         private List<GhostController> m_ghosts = new();
         private List<PlayerID> m_aliveGhosts = new();
@@ -103,7 +105,7 @@ namespace Script.States
 
             scoreManager.m_noticeHouseDestroyed += OnHouseDestroyed;
 
-            m_panicTimer = StartCoroutine(PanicTimer(m_roundDuration * 60));
+            m_panicTimer = StartCoroutine(PanicTimer(m_roundDuration));
 
             RpcPanicTimer();
         }
@@ -151,7 +153,17 @@ namespace Script.States
         private IEnumerator PanicTimer(float _duration)
         {
             SetupPanicMode();
-            yield return new WaitForSeconds(_duration);
+            m_remainingTime = _duration;
+
+            while (m_remainingTime > 0)
+
+            {
+
+                yield return new WaitForSeconds(1f);
+
+                m_remainingTime -= 1f;
+
+            }
             PurrLogger.Log("Panic Timer ended", this);
             MoveToEnd(false);
         }

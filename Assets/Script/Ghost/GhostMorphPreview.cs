@@ -43,6 +43,7 @@ public class GhostMorphPreview : MonoBehaviour
     private Transform m_cameraTransform;
     private PlayerControllerCore m_core;
     private Interact m_interact;
+    private GhostClientController m_ghostClientController;
     private Material[] m_ghostOriginalMaterials;
     private Renderer m_ghostBodyRenderer;
     private bool m_rotateLeft = false;
@@ -70,6 +71,7 @@ public class GhostMorphPreview : MonoBehaviour
         if (m_core != null && m_core.m_playerCamera != null)
             m_cameraTransform = m_core.m_playerCamera.transform;
         m_interact = transform.parent.GetComponentInChildren<Interact>();
+        m_ghostClientController = transform.parent.GetComponent<GhostClientController>();
     }
 
 
@@ -111,7 +113,7 @@ public class GhostMorphPreview : MonoBehaviour
         if (!Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, m_scanRange, m_scanLayerMask))
         {
             Debug.Log("No objects detected by the raycast");
-            if (m_GhostPreviewOn) { HidePreview(); InteractPromptUI.m_Instance.Hide(); }
+            if (m_GhostPreviewOn && !(m_ghostClientController?.m_cancelPreviewBlocked ?? false)) { HidePreview(); InteractPromptUI.m_Instance.Hide(); }
             return;
         }
 
@@ -128,7 +130,7 @@ public class GhostMorphPreview : MonoBehaviour
         if (scannableComponent == null)
         {
             Debug.Log($"Object detected but not scannable: {scannedObject.name}");
-            if (m_GhostPreviewOn) { HidePreview(); InteractPromptUI.m_Instance.Hide(); }
+            if (m_GhostPreviewOn && !(m_ghostClientController?.m_cancelPreviewBlocked ?? false)) { HidePreview(); InteractPromptUI.m_Instance.Hide(); }
             return;
         }
 
@@ -172,8 +174,10 @@ public class GhostMorphPreview : MonoBehaviour
         }
         m_colliders.Clear();
         ReplaceCollider(collider);
-        transform.localScale = _prefab.transform.localScale;
-        transform.localRotation = _prefab.transform.localRotation;
+        // Account for parent scale and rotation
+        transform.localScale = _prefab.transform.lossyScale;
+        Quaternion parentRotation = _prefab.transform.parent != null ? _prefab.transform.parent.rotation : Quaternion.identity;
+        transform.localRotation = Quaternion.Inverse(parentRotation) * _prefab.transform.rotation;
 
         transform.localPosition = new Vector3(0, 0f, 0f);
 

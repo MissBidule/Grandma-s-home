@@ -66,13 +66,24 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
         )
         {
             Quaternion targetRotation = Quaternion.LookRotation(wishDir, Vector3.up);
+            
+            // Calculate the angle between current and target rotation
+            float angle = Quaternion.Angle(m_rigidbody.rotation, targetRotation);
+            
+            // If we're doing a sharp turn (> 90 degrees), speed up rotation
+            float effectiveRotationSpeed = angle > 90f ? m_rotationSpeed * 1.5f : m_rotationSpeed;
 
             m_rigidbody.rotation = Quaternion.Slerp(
                     m_rigidbody.rotation,
                     targetRotation,
-                    m_rotationSpeed * Time.fixedDeltaTime
+                    effectiveRotationSpeed * Time.fixedDeltaTime
             );
         }
+
+        // Prevent uncontrolled rotation on Y axis from collisions
+        Vector3 angularVel = m_rigidbody.angularVelocity;
+        angularVel.y = 0f;
+        m_rigidbody.angularVelocity = angularVel;
 
         m_jumpAppliedThisFrame = false;
         if (_input.jumpPressed) 
@@ -113,11 +124,14 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
         Vector3 currentHorizontal = new Vector3(currentVel.x, 0f, currentVel.z);
 
         Vector3 delta = targetVel - currentHorizontal;
-        Vector3 accel = Vector3.ClampMagnitude(delta * (m_acceleration * speedModifier), m_acceleration);
+        
+        // Clamp acceleration magnitude, but preserve the direction of the desired movement
+        float accelMagnitude = Mathf.Min(delta.magnitude, m_acceleration * speedModifier * Time.fixedDeltaTime);
+        Vector3 accel = delta.normalized * accelMagnitude;
 
         // When physics runs in re-simulation, adding force instantly might not compute as expected immediately,
         // but since we sync transforms and preserve linear velocity, Euler velocity integration directly works best.
-        m_rigidbody.linearVelocity += new Vector3(accel.x, 0f, accel.z) * Time.fixedDeltaTime;
+        m_rigidbody.linearVelocity += new Vector3(accel.x, 0f, accel.z);
 
         ResetClimbFlags();
         
@@ -159,7 +173,7 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
 
         if (Physics.SphereCast(rayOrigin, 0.2f, rayDirection, out RaycastHit hit, m_climbCheckDistance, m_climbableLayerMask))
         {
-            if (hit.normal.y <= m_wallNormalMaxY || hit.transform.gameObject.layer == LayerMask.NameToLayer("Stairs"))
+            if (hit.normal.y <= m_wallNormalMaxY)
             {
                 m_wallNormal = hit.normal;
                 return true;
