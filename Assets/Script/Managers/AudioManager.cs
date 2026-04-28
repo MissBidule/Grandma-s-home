@@ -110,7 +110,7 @@ public class AudioManager : MonoBehaviour
                 }
     }
 
-    public void MuteAllPlayer() // ca devrait marcher en vrai non?
+    public void MuteAllPlayerLocally() // ca devrait marcher en vrai non?
     {
         // mode pour deactive le proximity chat; personnes n'entend personne 
         Debug.Log("MUTE ALL PLAYER CALL");

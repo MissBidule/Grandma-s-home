@@ -5,6 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 using Script.States;
+using PurrNet.Voice;
 
 /*
  * @brief In-game pause menu backed by prefab UI (Canvas_Pause_Menu + Canvas_Settings).
@@ -47,6 +48,12 @@ public class PauseMenuView : MonoBehaviour
 
         SetPauseVisible(false);
         m_settingsCanvas.SetActive(false);
+    }
+
+    public void InitAudioMode()
+    {
+        var sc = m_settingsCanvas.GetComponent<SettingsCanvasController>();
+        sc.InitAudioKa();
     }
 
     public void SetCameraForCanvases(Camera cam)

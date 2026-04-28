@@ -55,11 +55,14 @@ public class ChildClientController : NetworkBehaviour
     private void InitOwner()
     {
         m_childInputController = GetComponent<ChildInputController>();
-        AudioManager audioManager = FindFirstObjectByType<AudioManager>();
-        if (audioManager != null)
-        {
-            audioManager.MuteGhostByChild();
-        }
+       // AudioManager audioManager = FindFirstObjectByType<AudioManager>();
+        //if (audioManager != null)
+       // {
+         //   audioManager.MuteGhostByChild();
+        //}
+        PauseMenuView pauseMenuView = FindFirstObjectByType<PauseMenuView>();
+        pauseMenuView.InitAudioMode();
+        
         if (m_uiHolder == null)
         {
             m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);

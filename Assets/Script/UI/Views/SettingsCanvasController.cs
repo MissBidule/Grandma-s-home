@@ -17,6 +17,7 @@ using System.Linq;
  */
 public class SettingsCanvasController : MonoBehaviour
 {
+    int m_currentaudiomode;
     bool AwakeCalled = false;
     public Action OnBack;
 
@@ -445,9 +446,15 @@ public class SettingsCanvasController : MonoBehaviour
     }
 
     // ── AUDIO ────────────────────────────────────────────────────────────
-
-    private void WireAudio()
+    public void InitAudioKa()
+    {   
+        Debug.Log("hey");
+        int mode = PlayerPrefs.GetInt("Settings_VoiceMode", 0);
+        ApplyAudioMode(mode);
+    }
+    public void WireAudio()
     {
+        Debug.Log("coucou");
         var p = m_panelAudio.transform;
         var sliders = new List<Transform>();
         var dropdowns = new List<Transform>();
@@ -473,8 +480,37 @@ public class SettingsCanvasController : MonoBehaviour
         tog.SetIsOnWithoutNotify(PlayerPrefs.GetInt("Settings_VoiceChatEnabled", 1) == 1);
         tog.onValueChanged.AddListener(v => {
             PlayerPrefs.SetInt("Settings_VoiceChatEnabled", v ? 1 : 0);
-            // Kari
+            Debug.Log("c ca genre");
+            if (v)
+            {
+                EnableVoiceChat();
+            }
+            else
+            {
+                DisableVoiceChat();
+            }
+           
         });
+    }
+
+    private void EnableVoiceChat()
+    {
+        ApplyAudioMode(m_currentaudiomode);
+    }
+
+    private void DisableVoiceChat()
+    {
+        if (audioManager == null)
+            {
+                foreach(AudioManager obj in FindObjectsByType<AudioManager>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+                {
+                    audioManager=obj; 
+                }
+            }
+        if(audioManager != null)
+        {
+            audioManager.MuteAllPlayerLocally();
+        }
     }
 
     private void BindVolumeSlider(Transform row, string label, string key)
@@ -516,7 +552,9 @@ public class SettingsCanvasController : MonoBehaviour
         var dd = DropdownOf(row);
         dd.ClearOptions();
         dd.AddOptions(new List<string> { "Always On", "Push to Talk", "Disabled" });
-        dd.SetValueWithoutNotify(PlayerPrefs.GetInt("Settings_VoiceMode", 0));
+        m_currentaudiomode = PlayerPrefs.GetInt("Settings_VoiceMode", 0);
+        dd.SetValueWithoutNotify(m_currentaudiomode);
+        ApplyAudioMode(m_currentaudiomode);
         dd.onValueChanged.AddListener(v => {
             PlayerPrefs.SetInt("Settings_VoiceMode", v);
             ApplyAudioMode(v);

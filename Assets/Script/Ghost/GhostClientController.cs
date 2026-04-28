@@ -61,6 +61,10 @@ public class GhostClientController : NetworkBehaviour
     private void InitOwner()
     {
         m_ghostInputController = GetComponent<GhostInputController>();
+
+        PauseMenuView pauseMenuView = FindFirstObjectByType<PauseMenuView>();
+        pauseMenuView.InitAudioMode();
+        
         // Use PlayerControllerCore.m_playerCamera (Inspector-assigned, always valid)
         // instead of GetComponentInChildren which can fail in multi-instance scenarios
         var core = GetComponent<PlayerControllerCore>();
