@@ -25,13 +25,13 @@ public class GhostMorph : NetworkBehaviour
 
         // Move Start code to OnSpawned for proper network Initialisation
 
-        m_playerCollider = GetComponent<BoxCollider>();
+        m_playerCollider = GetComponent<Collider>();
         m_renderers = m_mesh.GetComponentsInChildren<MeshRenderer>();
     }
 
     void Start()
     {
-        m_playerCollider = GetComponent<BoxCollider>();
+        m_playerCollider = GetComponent<Collider>();
 
 
         m_renderers = m_mesh.GetComponentsInChildren<MeshRenderer>();

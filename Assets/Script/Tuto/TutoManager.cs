@@ -165,8 +165,8 @@ public class TutoManager : MonoBehaviour
         m_ghostMorphTuto.m_isMorphed = true;
         Transform corpsGhostTuto = m_ghostTuto.gameObject.transform.Find("ghost_tpose/corps_F");
 
-        BoxCollider boxCollider = m_ghostTuto.gameObject.GetComponent<BoxCollider>();
-        boxCollider.enabled = false;
+        Collider collider = m_ghostTuto.GetComponent<Collider>();
+        collider.enabled = false;
         if (corpsGhostTuto != null)
             corpsGhostTuto.gameObject.SetActive(false);
 
