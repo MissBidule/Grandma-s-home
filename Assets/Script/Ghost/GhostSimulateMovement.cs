@@ -66,7 +66,7 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
         )
         {
             Quaternion targetRotation = Quaternion.LookRotation(wishDir, Vector3.up);
-
+            
             m_rigidbody.rotation = Quaternion.Slerp(
                     m_rigidbody.rotation,
                     targetRotation,
@@ -113,11 +113,14 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
         Vector3 currentHorizontal = new Vector3(currentVel.x, 0f, currentVel.z);
 
         Vector3 delta = targetVel - currentHorizontal;
-        Vector3 accel = Vector3.ClampMagnitude(delta * (m_acceleration * speedModifier), m_acceleration);
+        
+        // Clamp acceleration magnitude, but preserve the direction of the desired movement
+        float accelMagnitude = Mathf.Min(delta.magnitude, m_acceleration * speedModifier * Time.fixedDeltaTime);
+        Vector3 accel = delta.normalized * accelMagnitude;
 
         // When physics runs in re-simulation, adding force instantly might not compute as expected immediately,
         // but since we sync transforms and preserve linear velocity, Euler velocity integration directly works best.
-        m_rigidbody.linearVelocity += new Vector3(accel.x, 0f, accel.z) * Time.fixedDeltaTime;
+        m_rigidbody.linearVelocity += new Vector3(accel.x, 0f, accel.z);
 
         ResetClimbFlags();
         
