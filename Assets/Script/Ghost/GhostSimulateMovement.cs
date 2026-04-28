@@ -159,7 +159,7 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
 
         if (Physics.SphereCast(rayOrigin, 0.2f, rayDirection, out RaycastHit hit, m_climbCheckDistance, m_climbableLayerMask))
         {
-            if (hit.normal.y <= m_wallNormalMaxY || hit.transform.gameObject.layer == LayerMask.NameToLayer("Stairs"))
+            if (hit.normal.y <= m_wallNormalMaxY)
             {
                 m_wallNormal = hit.normal;
                 return true;
