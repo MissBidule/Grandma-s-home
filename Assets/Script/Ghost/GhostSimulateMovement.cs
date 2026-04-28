@@ -80,6 +80,11 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
             );
         }
 
+        // Prevent uncontrolled rotation on Y axis from collisions
+        Vector3 angularVel = m_rigidbody.angularVelocity;
+        angularVel.y = 0f;
+        m_rigidbody.angularVelocity = angularVel;
+
         m_jumpAppliedThisFrame = false;
         if (_input.jumpPressed) 
         {
