@@ -5,6 +5,7 @@ using Script.UI.Views;
 using UI;
 using Unity.Cinemachine;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class GhostClientController : NetworkBehaviour
 {
@@ -72,6 +73,13 @@ public class GhostClientController : NetworkBehaviour
             canvas.worldCamera = brain?.OutputCamera;
             canvas.planeDistance = 2.48f;
 
+            var outlineVolume = m_uiHolder.GetComponentInChildren<Volume>(true);
+            if (outlineVolume != null) {
+                var profile = outlineVolume.HasInstantiatedProfile() ? outlineVolume.profile : outlineVolume.sharedProfile;
+                if (profile != null && profile.TryGet<OutlineVolumeComponent>(out var outline) && outline != null) {
+                    outline.active = true;
+                }
+            }
         }
         if (brain != null)
             FindAnyObjectByType<PauseMenuView>().SetCameraForCanvases(brain.OutputCamera);

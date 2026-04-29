@@ -5,6 +5,7 @@ using UI;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Rendering;
 
 public class ChildClientController : NetworkBehaviour
 {
@@ -66,6 +67,14 @@ public class ChildClientController : NetworkBehaviour
             Canvas canvas = m_uiHolder.GetComponent<Canvas>();
             canvas.worldCamera = GetComponentInChildren<CinemachineBrain>(true).OutputCamera;
             canvas.planeDistance = 2.48f;
+
+            var outlineVolume = m_uiHolder.GetComponentInChildren<Volume>(true);
+            if (outlineVolume != null) {
+                var profile = outlineVolume.HasInstantiatedProfile() ? outlineVolume.profile : outlineVolume.sharedProfile;
+                if (profile != null && profile.TryGet<OutlineVolumeComponent>(out var outline) && outline != null) {
+                    outline.active = true;
+                }
+            }
         }
 
         FindAnyObjectByType<PauseMenuView>().SetCameraForCanvases(GetComponentInChildren<CinemachineBrain>(true).OutputCamera);
@@ -148,9 +157,10 @@ public class ChildClientController : NetworkBehaviour
         if (!InstanceHandler.TryGetInstance(out ChildHUDView childHUDView))
             return;
 
-        //if (m_childController.m_isScared)
-        //    childHUDView.StartScared(m_childController.GetScaredDuration());
-        else childHUDView.m_isScared = false;
+        if (m_childController.m_isScared)
+            childHUDView.StartScared(m_childController.GetScaredDuration());
+        else
+            childHUDView.m_isScared = false;
     }
 
     public void showHUD(bool _show)

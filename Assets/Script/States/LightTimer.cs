@@ -27,6 +27,7 @@ public class LightTimer : MonoBehaviour
 
     public void StartLightSystem(float _serverGameTime, int _seed)
     {
-        m_dayNightSystem.UpdateSky(_serverGameTime, _seed);
+        if (m_dayNightSystem != null)
+            m_dayNightSystem.UpdateSky(_serverGameTime, _seed);
     }
 }

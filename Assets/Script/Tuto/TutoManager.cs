@@ -58,6 +58,7 @@ public class TutoManager : MonoBehaviour
         m_child = _child;
         m_ghostTuto = _ghostTuto;
         m_ghostTuto.m_isStopped = false;
+        m_ghostTuto.GetComponent<GhostDeathIndicator>()?.setCameraForTuto(m_ghost.m_playerCamera.transform);
         Destroy(m_ghostTuto.GetComponentInChildren<CinemachineBrain>(true).gameObject);
         Destroy(m_ghostTuto.GetComponentInChildren<GhostMorphPreview>(true).gameObject);
         var ghostTutoClient = m_ghostTuto.GetComponent<GhostClientController>();

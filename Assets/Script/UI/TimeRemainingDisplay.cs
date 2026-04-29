@@ -13,44 +13,29 @@ public class TimeRemainingDisplay : MonoBehaviour
     void Start()
     {
         m_roundRunningState = FindAnyObjectByType<RoundRunningState>();
-        Vector2 pos = m_latencyText.rectTransform.anchoredPosition;
-        pos.x = 0f;
-        pos.y = -50f;
-        m_latencyText.rectTransform.anchoredPosition = pos;
+        //Vector2 pos = m_latencyText.rectTransform.anchoredPosition;
+        //pos.x = 0f;
+        //pos.y = -50f;
+        //m_latencyText.rectTransform.anchoredPosition = pos;
     }
 
     void Update()
     {
-        m_latencyText.text = $"Time Remaining: {SecondsToDisplay((int)m_roundRunningState.m_remainingTime)}";
-
         if (m_isPanic)
-
         {
-
-            m_latencyText.text = $"Time Remaining: {SecondsToDisplay((int)m_panicState.m_remainingTime)}";
-
+            m_latencyText.text = $"{SecondsToDisplay((int)m_panicState.m_remainingTime)}";
         }
-
         else
-
         {
-
-            m_latencyText.text = $"Time Remaining: {SecondsToDisplay((int)m_roundRunningState.m_remainingTime)}";
-
+            m_latencyText.text = $"{SecondsToDisplay((int)m_roundRunningState.m_remainingTime)}";
         }
 
         if (m_isPanic != m_roundRunningState.m_isPanic)
-
         {
-
             m_isPanic = m_roundRunningState.m_isPanic;
-
             m_latencyText.color = Color.red;
-
             m_isPanic = true;
-
             m_panicState = FindAnyObjectByType<PanicState>();
-
         }
     }
 
