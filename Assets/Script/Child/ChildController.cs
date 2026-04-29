@@ -1,5 +1,7 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using NUnit.Framework;
 using PurrNet;
 using PurrNet.Logging;
 using UnityEngine;
@@ -155,7 +157,6 @@ public class ChildController : PlayerControllerCore
         else
         {
             Cac();
-            Debug.Log("cac");
         }
     }
     
@@ -238,14 +239,14 @@ public class ChildController : PlayerControllerCore
         
         m_soundEffects?.PlayCacAudio();
 
-        GhostController ghost;
+        HashSet<GhostController> affectedGhosts = new HashSet<GhostController>(); // It's an array without duplicate elements.
         foreach (Collider col in hits)
         {
-            ghost = col.GetComponent<GhostController>();
+            var ghost = col.GetComponent<GhostController>();
             if (ghost != null)
             {
                 ghost.HitCac();
-                CacNotification(ghost);
+                affectedGhosts.Add(ghost);
             }
             if (col.GetComponent<BrokeDecor>())
             {
@@ -265,16 +266,22 @@ public class ChildController : PlayerControllerCore
                         ghostMorph.RevertToOriginal();
                         ghost = col.transform.parent.gameObject.GetComponent<GhostController>();
                         ghost.HitCac();
-                        CacNotification(ghost);
+                        affectedGhosts.Add(ghost);
                     }
                 }
             }
+        }
+
+        foreach (GhostController ghost in affectedGhosts)
+        {
+            CacNotification(ghost);
         }
     }
 
     [ObserversRpc]
     private void CacNotification (GhostController _ghost)
     {
+        if (_ghost == null) return; // Can be true if it was the last ghost, the game ended so all ghost have been destroyed.
         InteractPromptUI.m_Instance.ShowKill(m_username, _ghost.m_username);
     }
 
