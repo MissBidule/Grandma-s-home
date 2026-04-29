@@ -455,7 +455,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
             foreach (Renderer r in m_highlightRenderers)
             {
                 r.GetPropertyBlock(m_propertyBlock);
-                m_propertyBlock.SetColor("_EmissionColor", Color.black);
+                m_propertyBlock.Clear();
                 r.SetPropertyBlock(m_propertyBlock);
             }
         }
