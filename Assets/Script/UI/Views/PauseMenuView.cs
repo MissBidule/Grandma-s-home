@@ -240,9 +240,7 @@ public class PauseMenuView : MonoBehaviour
                 case "back to menu":
                     AddClick(btn, BackToMenu);
                     break;
-                case "back":
-                    var lbl = btn.GetComponentInChildren<TMP_Text>(true);
-                    if (lbl != null) lbl.text = "QUIT";
+                case "quit game":
                     AddClick(btn, QuitGame);
                     break;
             }

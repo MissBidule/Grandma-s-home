@@ -531,7 +531,7 @@ public class SettingsCanvasController : MonoBehaviour
         SetRowLabel(row, "Sensitivity");
         var sl = SliderOf(row);
         var lbl = GetValueLabel(row);
-        sl.minValue = 1f; sl.maxValue = 100f;
+        sl.minValue = 1f; sl.maxValue = 300f;
         float v0 = PlayerPrefs.GetFloat("Settings_MouseSensitivity", 50f);
         sl.SetValueWithoutNotify(v0);
         if (lbl) lbl.text = Mathf.RoundToInt(v0).ToString();
