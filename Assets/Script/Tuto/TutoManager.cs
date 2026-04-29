@@ -29,6 +29,7 @@ public class TutoManager : MonoBehaviour
 
     [Header("UI")]
     [SerializeField] private TutoUIController m_ui;
+    [SerializeField] private TutoInfoController m_info_tuto;
 
     private class TutoStep
     {
@@ -108,7 +109,10 @@ public class TutoManager : MonoBehaviour
             if (vol != null) vol.enabled = false;
         }
 
-        EnterStep(0);
+        if (m_info_tuto != null)
+            m_info_tuto.Show(m_ghostInput, () => EnterStep(0));
+        else
+            EnterStep(0);
     }
 
     private void Update()
