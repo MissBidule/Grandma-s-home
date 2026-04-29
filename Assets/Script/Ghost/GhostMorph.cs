@@ -25,13 +25,13 @@ public class GhostMorph : NetworkBehaviour
 
         // Move Start code to OnSpawned for proper network Initialisation
 
-        m_playerCollider = GetComponent<BoxCollider>();
+        m_playerCollider = GetComponent<Collider>();
         m_renderers = m_mesh.GetComponentsInChildren<MeshRenderer>();
     }
 
     void Start()
     {
-        m_playerCollider = GetComponent<BoxCollider>();
+        m_playerCollider = GetComponent<Collider>();
 
 
         m_renderers = m_mesh.GetComponentsInChildren<MeshRenderer>();
@@ -59,6 +59,12 @@ public class GhostMorph : NetworkBehaviour
         m_currentPrefab.transform.localScale = _prefab.transform.lossyScale;
         m_currentPrefab.transform.localRotation = _rotation;
         m_isMorphed = true;
+
+        BrokeDecor decorComponent;
+        if (m_currentPrefab.TryGetComponent<BrokeDecor>(out decorComponent))
+        {
+            UnityProxy.DestroyDirectly(decorComponent);
+        }
     }
 
     /*
