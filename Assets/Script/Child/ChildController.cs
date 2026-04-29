@@ -236,13 +236,11 @@ public class ChildController : PlayerControllerCore
     {
         Vector3 CacPosition = m_cacTransform.position + m_cameraForward.normalized * 1.5f;
         Collider[] hits = Physics.OverlapSphere(CacPosition, m_attackRange);
-        
-        m_soundEffects?.PlayCacAudio();
 
         HashSet<GhostController> affectedGhosts = new HashSet<GhostController>(); // It's an array without duplicate elements.
         foreach (Collider col in hits)
         {
-            var ghost = col.GetComponent<GhostController>();
+            GhostController ghost = col.GetComponent<GhostController>();
             if (ghost != null)
             {
                 ghost.HitCac();
@@ -250,7 +248,7 @@ public class ChildController : PlayerControllerCore
             }
             if (col.GetComponent<BrokeDecor>())
             {
-                var brokeDecor = col.gameObject.GetComponent<BrokeDecor>();
+                BrokeDecor brokeDecor = col.gameObject.GetComponent<BrokeDecor>();
                 if(brokeDecor != null)
                 {
                     brokeDecor.Broke();
@@ -272,6 +270,11 @@ public class ChildController : PlayerControllerCore
             }
         }
 
+        if (affectedGhosts.Count > 0)
+            m_soundEffects?.PlayHitGhostAudio();
+        else
+            m_soundEffects?.PlayHitAirAudio();
+        
         foreach (GhostController ghost in affectedGhosts)
         {
             CacNotification(ghost);
@@ -317,6 +320,7 @@ public class ChildController : PlayerControllerCore
         UnspawnEffect();
         m_switchingTime = 0;
         changeAttackAnimStatusClient();
+        m_soundEffects?.PlayWeaponSwapAudio();
     }
 
     /*
