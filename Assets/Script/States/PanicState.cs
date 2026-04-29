@@ -150,19 +150,24 @@ namespace Script.States
          * @brief The timer of the round, and sun mover
          * @param float _roundDuration !!! In seconds
          */
+        [ObserversRpc]
+        private void SyncTimeToClients(float _remainingTime)
+        {
+            if (isServer) return;
+            m_remainingTime = _remainingTime;
+        }
+
         private IEnumerator PanicTimer(float _duration)
         {
             SetupPanicMode();
             m_remainingTime = _duration;
+            SyncTimeToClients(m_remainingTime);
 
             while (m_remainingTime > 0)
-
             {
-
                 yield return new WaitForSeconds(1f);
-
                 m_remainingTime -= 1f;
-
+                SyncTimeToClients(m_remainingTime);
             }
             PurrLogger.Log("Panic Timer ended", this);
             MoveToEnd(false);
