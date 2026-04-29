@@ -1,9 +1,10 @@
+using PurrNet;
 using Script.States;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class TimeRemainingDisplay : MonoBehaviour
+public class TimeRemainingDisplay : NetworkBehaviour
 {
     [SerializeField] private TextMeshProUGUI m_latencyText;
     [SerializeField] private GameObject m_timerRoot;
@@ -29,16 +30,19 @@ public class TimeRemainingDisplay : MonoBehaviour
         SetVisible(false);
     }
 
+    protected override void OnSpawned()
+    {
+        base.OnSpawned();
+        m_roundRunningState = FindAnyObjectByType<RoundRunningState>();
+    }
+
     void Update()
     {
-        if (m_roundRunningState == null)
-            m_roundRunningState = FindAnyObjectByType<RoundRunningState>();
-
-        if (m_roundRunningState == null)
-        {
+        if (m_roundRunningState == null) {
             SetVisible(false);
             return;
         }
+
 
         float remaining = m_isPanic && m_panicState != null
             ? m_panicState.m_remainingTime
