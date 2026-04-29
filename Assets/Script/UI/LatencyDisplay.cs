@@ -19,6 +19,8 @@ public class LatencyDisplay : NetworkBehaviour
 
     private void Start()
     {
+        if (m_latencyText != null)
+            m_latencyText.enabled = false;
     }
 
     private void Update()
@@ -55,5 +57,7 @@ public class LatencyDisplay : NetworkBehaviour
     {
         float latency = (Time.time - _sentTime) * 1000f / 2f;
         m_latencyText.text = $"Ping: {latency:F1}ms";
+        if (!m_latencyText.enabled)
+            m_latencyText.enabled = true;
     }
 }

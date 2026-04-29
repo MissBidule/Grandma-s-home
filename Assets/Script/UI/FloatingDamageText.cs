@@ -9,8 +9,11 @@ using TMPro;
 */
 public class FloatingDamageText : MonoBehaviour
 {
-    private const float Duration  = 2f;
-    private const float RiseSpeed = 0.8f;
+    private const float  Duration  = 2f;
+    private const float  RiseSpeed = 0.8f;
+    private const string FontPath  = "Fonts/DarumadropOne-Regular SDF";
+
+    private static TMP_FontAsset s_font;
 
     private TextMeshPro m_text;
     private float       m_timer;
@@ -27,8 +30,14 @@ public class FloatingDamageText : MonoBehaviour
     private void Init(int value)
     {
         m_text                   = gameObject.AddComponent<TextMeshPro>();
+
+        if (s_font == null)
+            s_font = Resources.Load<TMP_FontAsset>(FontPath);
+        if (s_font != null)
+            m_text.font = s_font;
+
         m_text.text              = $"-{value}$";
-        m_text.fontSize          = 2f;
+        m_text.fontSize          = 3f;
         m_text.fontStyle         = FontStyles.Bold;
         m_text.alignment         = TextAlignmentOptions.Center;
         m_text.color             = new Color(1f, 0.25f, 0.25f);
