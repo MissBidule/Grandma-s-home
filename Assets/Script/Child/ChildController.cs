@@ -238,9 +238,10 @@ public class ChildController : PlayerControllerCore
         
         m_soundEffects?.PlayCacAudio();
 
+        GhostController ghost;
         foreach (Collider col in hits)
         {
-            var ghost = col.GetComponent<GhostController>();
+            ghost = col.GetComponent<GhostController>();
             if (ghost != null)
             {
                 ghost.HitCac();
@@ -260,9 +261,12 @@ public class ChildController : PlayerControllerCore
                 {
                     var ghostMorph = col.transform.parent.gameObject.GetComponent<GhostMorph>();
                     if (ghostMorph != null)
-                        {
-                            ghostMorph.RevertToOriginal();
-                        }
+                    {
+                        ghostMorph.RevertToOriginal();
+                        ghost = col.transform.parent.gameObject.GetComponent<GhostController>();
+                        ghost.HitCac();
+                        CacNotification(ghost);
+                    }
                 }
             }
         }
@@ -271,6 +275,7 @@ public class ChildController : PlayerControllerCore
     [ObserversRpc]
     private void CacNotification (GhostController _ghost)
     {
+        if (_ghost == null) return; // Can be true if it's the last ghost that got killed.
         InteractPromptUI.m_Instance.ShowKill(m_username, _ghost.m_username);
     }
 
