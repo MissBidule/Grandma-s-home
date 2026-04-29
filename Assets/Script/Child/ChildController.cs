@@ -133,30 +133,34 @@ public class ChildController : PlayerControllerCore
         changeFaceMat(new Vector2(0,0.66f));
         if (m_isRanged)
         {
-            if (m_lastShot >= m_cdGun)
-            {
-                m_lastShot = 0;
-                Vector3 aimTarget;
-                if (Physics.Raycast(m_cameraPosition, m_cameraForward, out RaycastHit hit, 50f))
-                    aimTarget = hit.point;
-                else
-                    aimTarget = m_cameraPosition + m_cameraForward * 50f;
-                Vector3 shootDir = (aimTarget - m_bulletSpawnTransform.position).normalized;
-                
-                if (!m_customAudio)
-                {
-                    m_soundEffects?.PlayGunAudio();
-                } 
-                else {
-                    m_soundEffects?.PlayCustomAudio(m_danganPrefab.GetComponent<Dangan>().m_audioClip);
-                }
-                
-                ShootForAll(Quaternion.LookRotation(shootDir));
-            }
-        }
-        else
-        {
+            Shoot();
+        } else {
             Cac();
+        }
+    }
+
+    void Shoot()
+    {
+        if (m_lastShot >= m_cdGun)
+        {
+            m_lastShot = 0;
+            Vector3 aimTarget;
+            if (Physics.Raycast(m_cameraPosition, m_cameraForward, out RaycastHit hit, 50f))
+                aimTarget = hit.point;
+            else
+                aimTarget = m_cameraPosition + m_cameraForward * 50f;
+            Vector3 shootDir = (aimTarget - m_bulletSpawnTransform.position).normalized;
+
+            if (!m_customAudio)
+            {
+                m_soundEffects?.PlayGunAudio();
+            }
+            else
+            {
+                m_soundEffects?.PlayCustomAudio(m_danganPrefab.GetComponent<Dangan>().m_audioClip);
+            }
+
+            ShootForAll(Quaternion.LookRotation(shootDir));
         }
     }
     
@@ -245,6 +249,7 @@ public class ChildController : PlayerControllerCore
             var ghost = col.GetComponent<GhostController>();
             if (ghost != null)
             {
+                if (ghost.m_isStopped) continue;
                 ghost.HitCac();
                 affectedGhosts.Add(ghost);
             }
@@ -256,18 +261,17 @@ public class ChildController : PlayerControllerCore
                     brokeDecor.Broke();
                 }
             }
-            if (col.transform.parent) 
+            if (col.transform.parent == null) continue;
+            if (col.transform.parent.gameObject.layer == LayerMask.NameToLayer("Ghost"))
             {
-                if (col.transform.parent.gameObject.layer == LayerMask.NameToLayer("Ghost"))
+                var ghostMorph = col.transform.parent.gameObject.GetComponent<GhostMorph>();
+                if (ghostMorph != null)
                 {
-                    var ghostMorph = col.transform.parent.gameObject.GetComponent<GhostMorph>();
-                    if (ghostMorph != null)
-                    {
-                        ghostMorph.RevertToOriginal();
-                        ghost = col.transform.parent.gameObject.GetComponent<GhostController>();
-                        ghost.HitCac();
-                        affectedGhosts.Add(ghost);
-                    }
+                    ghostMorph.RevertToOriginal();
+                    ghost = col.transform.parent.gameObject.GetComponent<GhostController>();
+                    if (ghost.m_isStopped) continue;
+                    ghost.HitCac();
+                    affectedGhosts.Add(ghost);
                 }
             }
         }
