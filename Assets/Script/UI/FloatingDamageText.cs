@@ -9,8 +9,11 @@ using TMPro;
 */
 public class FloatingDamageText : MonoBehaviour
 {
-    private const float Duration  = 2f;
-    private const float RiseSpeed = 0.8f;
+    private const float  m_duration  = 2f;
+    private const float  m_riseSpeed = 0.8f;
+    private const string m_fontPath  = "Fonts/DarumadropOne-Regular SDF";
+
+    private static TMP_FontAsset s_font;
 
     private TextMeshPro m_text;
     private float       m_timer;
@@ -26,9 +29,15 @@ public class FloatingDamageText : MonoBehaviour
 
     private void Init(int value)
     {
-        m_text                   = gameObject.AddComponent<TextMeshPro>();
+        m_text = gameObject.AddComponent<TextMeshPro>();
+
+        if (s_font == null)
+            s_font = Resources.Load<TMP_FontAsset>(m_fontPath);
+        if (s_font != null)
+            m_text.font = s_font;
+
         m_text.text              = $"-{value}$";
-        m_text.fontSize          = 2f;
+        m_text.fontSize          = 3f;
         m_text.fontStyle         = FontStyles.Bold;
         m_text.alignment         = TextAlignmentOptions.Center;
         m_text.color             = new Color(1f, 0.25f, 0.25f);
@@ -49,15 +58,15 @@ public class FloatingDamageText : MonoBehaviour
     {
         m_timer += Time.deltaTime;
 
-        transform.position += Vector3.up * RiseSpeed * Time.deltaTime;
+        transform.position += Vector3.up * m_riseSpeed * Time.deltaTime;
 
         if (m_cameraTransform != null)
             transform.rotation = m_cameraTransform.rotation;
 
-        float alpha = Mathf.Clamp01(1f - m_timer / Duration);
+        float alpha = Mathf.Clamp01(1f - m_timer / m_duration);
         m_text.color = new Color(m_baseColor.r, m_baseColor.g, m_baseColor.b, alpha);
 
-        if (m_timer >= Duration)
+        if (m_timer >= m_duration)
             Destroy(gameObject);
     }
 }

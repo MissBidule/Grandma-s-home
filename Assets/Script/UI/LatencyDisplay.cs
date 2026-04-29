@@ -19,6 +19,8 @@ public class LatencyDisplay : NetworkBehaviour
 
     private void Start()
     {
+        if (m_latencyText != null)
+            m_latencyText.enabled = false;
     }
 
     private void Update()
@@ -26,9 +28,6 @@ public class LatencyDisplay : NetworkBehaviour
         if (m_started) return;
         if (!m_localPlayer) return;
         Vector2 pos = m_latencyText.rectTransform.anchoredPosition;
-        //pos.x = 0f;
-        //pos.y = 0f;
-        //m_latencyText.rectTransform.anchoredPosition = pos;
         StartCoroutine(PingRoutine());
         m_started = true;
     }
@@ -49,11 +48,11 @@ public class LatencyDisplay : NetworkBehaviour
         m_localPlayer.PingServer(m_startTime);
     }
 
-    
-
     public void ReceivePong(float _sentTime)
     {
         float latency = (Time.time - _sentTime) * 1000f / 2f;
         m_latencyText.text = $"Ping: {latency:F1}ms";
+        if (!m_latencyText.enabled)
+            m_latencyText.enabled = true;
     }
 }
