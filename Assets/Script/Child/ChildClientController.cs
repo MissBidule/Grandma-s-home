@@ -148,9 +148,10 @@ public class ChildClientController : NetworkBehaviour
         if (!InstanceHandler.TryGetInstance(out ChildHUDView childHUDView))
             return;
 
-        //if (m_childController.m_isScared)
-        //    childHUDView.StartScared(m_childController.GetScaredDuration());
-        else childHUDView.m_isScared = false;
+        if (m_childController.m_isScared)
+            childHUDView.StartScared(m_childController.GetScaredDuration());
+        else
+            childHUDView.m_isScared = false;
     }
 
     public void showHUD(bool _show)

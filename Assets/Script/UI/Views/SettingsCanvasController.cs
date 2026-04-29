@@ -531,8 +531,8 @@ public class SettingsCanvasController : MonoBehaviour
         SetRowLabel(row, "Sensitivity");
         var sl = SliderOf(row);
         var lbl = GetValueLabel(row);
-        sl.minValue = 10f; sl.maxValue = 300f;
-        float v0 = PlayerPrefs.GetFloat("Settings_MouseSensitivity", 120f);
+        sl.minValue = 1f; sl.maxValue = 100f;
+        float v0 = PlayerPrefs.GetFloat("Settings_MouseSensitivity", 50f);
         sl.SetValueWithoutNotify(v0);
         if (lbl) lbl.text = Mathf.RoundToInt(v0).ToString();
         sl.onValueChanged.AddListener(v => {
@@ -902,5 +902,6 @@ public class SettingsCanvasController : MonoBehaviour
         if (urp) urp.renderScale = PlayerPrefs.GetFloat("Settings_RenderScale", 1f);
         ApplyFpsCounter(PlayerPrefs.GetInt("Settings_FpsCounter", 0) == 1);
         ApplyColorblind(PlayerPrefs.GetInt("Settings_Colorblind", 0), PlayerPrefs.GetFloat("Settings_ColorblindIntensity", 1f));
+        OnSensitivityChanged?.Invoke(PlayerPrefs.GetFloat("Settings_MouseSensitivity", 50f));
     }
 }
