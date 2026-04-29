@@ -275,7 +275,6 @@ public class ChildController : PlayerControllerCore
     [ObserversRpc]
     private void CacNotification (GhostController _ghost)
     {
-        if (_ghost == null) return; // Can be true if it's the last ghost that got killed.
         InteractPromptUI.m_Instance.ShowKill(m_username, _ghost.m_username);
     }
 
