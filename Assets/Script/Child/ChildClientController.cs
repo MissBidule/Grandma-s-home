@@ -1,5 +1,6 @@
 using PurrNet;
 using PurrNet.Logging;
+using PurrNet.Voice;
 using Script.UI.Views;
 using UI;
 using Unity.Cinemachine;
@@ -55,14 +56,9 @@ public class ChildClientController : NetworkBehaviour
     private void InitOwner()
     {
         m_childInputController = GetComponent<ChildInputController>();
-       // AudioManager audioManager = FindFirstObjectByType<AudioManager>();
-        //if (audioManager != null)
-       // {
-         //   audioManager.MuteGhostByChild();
-        //}
         PauseMenuView pauseMenuView = FindFirstObjectByType<PauseMenuView>();
         pauseMenuView.InitAudioMode();
-        
+
         if (m_uiHolder == null)
         {
             m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
@@ -133,6 +129,15 @@ public class ChildClientController : NetworkBehaviour
         m_jumpPressed = false;
         m_switchWeaponPressed = false;
         m_attackPressed = false;
+
+        foreach (var ghost in FindObjectsByType<GhostController>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+        {
+            PurrVoicePlayer purrVoicePlayer = ghost.GetComponent<PurrVoicePlayer>();
+            if(!purrVoicePlayer.muted)
+                {
+                    purrVoicePlayer.muted = true;
+                }
+        }
     }
 
     public void DebugPrintTrafic()

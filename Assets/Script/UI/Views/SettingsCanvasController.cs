@@ -481,14 +481,14 @@ public class SettingsCanvasController : MonoBehaviour
         tog.onValueChanged.AddListener(v => {
             PlayerPrefs.SetInt("Settings_VoiceChatEnabled", v ? 1 : 0);
             Debug.Log("c ca genre");
-            if (v)
+            /*if (v)
             {
                 EnableVoiceChat();
             }
             else
             {
                 DisableVoiceChat();
-            }
+            }*/
            
         });
     }
@@ -955,7 +955,7 @@ public class SettingsCanvasController : MonoBehaviour
                     }
                 }
                 if(audioManager!=null){
-                    audioManager.MuteGhostByChild();
+                    audioManager.ProximityDefaultMode();
                     Debug.Log("Player Proximity chat");
                 }
                 break;

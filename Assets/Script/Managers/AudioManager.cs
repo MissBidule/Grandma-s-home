@@ -1,10 +1,44 @@
 using PurrNet.Voice;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class AudioManager : MonoBehaviour
 {
     // Faut aussi gérer au début toujours mettre le bon mode (faut que le mode qui est écrit au début de partie s'applique vraiment)
-    public void MuteGhostByChild()
+
+    public void ProximityDefaultMode()
+    {
+        bool isChild=false, isGhost=false;
+        foreach (ChildController child in FindObjectsByType<ChildController>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+        {
+            PlayerInput input = child.GetComponent<PlayerInput>();
+
+            if (input != null && input.enabled)
+            {
+                isChild=true;
+            }
+        }
+        foreach (GhostController ghost in FindObjectsByType<GhostController>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+        {
+            PlayerInput input = ghost.GetComponent<PlayerInput>();
+
+            if (input != null && input.enabled)
+            {
+                isGhost=true;
+            }
+        }
+
+        if (isGhost == true)
+        {
+            ProximityByGhost();
+        }
+        if(isChild == true)
+        {
+            ProximityByChild();
+        }
+
+    }
+    public void ProximityByChild() //faut faire selon si on est ghost ou child
     {
         Debug.Log("MUTE GHOST BY CHILD CALL");
             foreach(GameObject obj in FindObjectsByType<GameObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
@@ -34,6 +68,11 @@ public class AudioManager : MonoBehaviour
             }
     }
 
+    public void ProximityByGhost()
+    {
+        UnMutePlayers();
+    }
+
     public void MuteSinglePlayer() //A verifier
     {
         Debug.Log("MUTE SINGLE PLAYER CALL");
@@ -51,7 +90,7 @@ public class AudioManager : MonoBehaviour
             }
     }
 
-    public void UnMuteSinglePlayer() //A verifier
+    public void UnMutePlayers() //A verifier
     {
         Debug.Log("UN MUTE SINGLE PLAYER CALL");
         foreach(GameObject obj in FindObjectsByType<GameObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
@@ -59,7 +98,7 @@ public class AudioManager : MonoBehaviour
                 PurrVoicePlayer purrVoicePlayer = obj.GetComponent<PurrVoicePlayer>();
                 if (purrVoicePlayer != null)
                 {
-                    if (!purrVoicePlayer.isOwner) continue;
+                    //if (!purrVoicePlayer.isOwner) continue;
                     if(purrVoicePlayer.muted)
                     {
                         purrVoicePlayer.muted = false;
