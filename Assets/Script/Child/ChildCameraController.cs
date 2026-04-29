@@ -10,7 +10,6 @@ using UnityEngine.UIElements;
 public class ChildCameraController : MonoBehaviour
 {
     public float m_sensitivity = 120f;
-    public float m_gamepadSensitivity = 180f;
     public float m_distance = 4f;
     public float m_minPitch = -40f;
     public float m_maxPitch = 70f;
@@ -46,9 +45,35 @@ public class ChildCameraController : MonoBehaviour
         UnityEngine.Cursor.lockState = CursorLockMode.Locked;
     }
 
-    private void OnEnable()  => PurrLobby.AccessibilitySettingsPanel.OnSensitivityChanged += OnSensitivityChanged;
-    private void OnDisable() => PurrLobby.AccessibilitySettingsPanel.OnSensitivityChanged -= OnSensitivityChanged;
-    private void OnSensitivityChanged(float v) => m_sensitivity = v;
+    /*
+     * @brief  Subscribes to sensitivity change events from both menu and pause settings
+     * @return void
+    */
+    private void OnEnable()
+    {
+        PurrLobby.AccessibilitySettingsPanel.OnSensitivityChanged += OnSensitivityChanged;
+        SettingsCanvasController.OnSensitivityChanged += OnSensitivityChanged;
+    }
+
+    /*
+     * @brief Unsubscribes from sensitivity change events
+     * @return void
+    */
+    private void OnDisable()
+    {
+        PurrLobby.AccessibilitySettingsPanel.OnSensitivityChanged -= OnSensitivityChanged;
+        SettingsCanvasController.OnSensitivityChanged -= OnSensitivityChanged;
+    }
+
+    /*
+     * @brief Applies the new sensitivity from the slider.
+     * @params float v the new sensitivity value
+     * @return  void
+    */
+    private void OnSensitivityChanged(float v)
+    {
+        m_sensitivity = v;
+    }
 
     /*
      * @brief   Updates camera rotation and position after player movement
@@ -61,9 +86,12 @@ public class ChildCameraController : MonoBehaviour
         Vector3 desiredOffset;
 
         Vector2 lookInput = m_childInputController.m_lookInputVector;
-        float activeSensitivity = Gamepad.current != null ? m_gamepadSensitivity : m_sensitivity;
-        m_yaw += lookInput.x * activeSensitivity * Time.deltaTime;
-        m_pitch -= lookInput.y * activeSensitivity * Time.deltaTime;
+        float multiplier = 0.1f;
+        var gp = Gamepad.current;
+        if (gp != null && gp.rightStick.ReadValue().sqrMagnitude > 0.04f)
+            multiplier = 6f;
+        m_yaw += lookInput.x * m_sensitivity * multiplier * Time.deltaTime;
+        m_pitch -= lookInput.y * m_sensitivity * multiplier * Time.deltaTime;
         m_pitch = Mathf.Clamp(m_pitch, m_minPitch, m_maxPitch);
 
         rotation = Quaternion.Euler(m_pitch, m_yaw, 0f);

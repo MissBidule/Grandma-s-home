@@ -78,6 +78,7 @@ MonoBehaviour:
   _visitiblityRules: {fileID: 0}
   m_playerCamera: {fileID: 696320938370797279}
   m_cameraEffect: {fileID: 0}
+  m_soundEffects: {fileID: 0}
   m_uiHolder_prefab: {fileID: 8327913135893314490, guid: 62417d2e3b649440abf79d70a9cb310e, type: 3}
   m_uiHolder: {fileID: 0}
   m_wheel: {fileID: 0}
@@ -105,6 +106,7 @@ MonoBehaviour:
   m_playerCamera: {fileID: 696320938370797279}
   m_localRenderCamera: {fileID: 5516181086441010449}
   m_playerAnimator: {fileID: 0}
+  m_latencyDisplay: {fileID: 0}
   m_PingCooldown: 5
   m_elapsedTimeSincePing: 0
   m_isServerAccessible: 1
@@ -119,6 +121,7 @@ MonoBehaviour:
   m_beingRevived: 0
   m_isReviving: 0
   m_canDash: 1
+  m_soundEffects: {fileID: 0}
   m_timerSlowed: 5
   m_timerStop: 5
   m_cdChildScare: 10
@@ -136,6 +139,7 @@ MonoBehaviour:
   m_dashDuration: 2.5
   m_dashCooldown: 20
   m_animator: {fileID: 6470790388057966885}
+  m_faceMat: {fileID: 0}
 --- !u!114 &4420112834733810732
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -173,7 +177,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GhostInputController
   m_qteCircle: {fileID: 0}
-  m_promptLabelValid: Valid
 --- !u!114 &1100208937895637651
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -571,6 +574,18 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: a2fa8b84-2db5-4865-aed7-f67dc01c57a5
     m_ActionName: 'Ghost/Jump[/Keyboard/space]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: cd000000-0000-0000-0000-00000000cc01
+    m_ActionName: 'Child/Cancel[/Mouse/rightButton,/XInputControllerWindows/buttonEast]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: ab0fb0b3-6dd1-43ee-894c-e659bdaba61e
+    m_ActionName: 'Child/F[/Keyboard/f]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: cd000000-0000-0000-0000-00000000cc02
+    m_ActionName: 'Ghost/Cancel[/Mouse/rightButton,/XInputControllerWindows/buttonEast]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Ghost
@@ -953,8 +968,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d7358f2c35665740b840d25b0738715, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SwitchTuto
-  m_GhostTransform: {fileID: 0}
-  m_ChildTransform: {fileID: 0}
   m_IsGhost: 1
 --- !u!114 &2720147927517717862
 MonoBehaviour:
@@ -979,6 +992,9 @@ MonoBehaviour:
   _visitiblityRules: {fileID: 0}
   m_isGhost: 1
   m_interactRange: 7
+  m_interactableLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!1 &3407796363210345922
 GameObject:
   m_ObjectHideFlags: 0
@@ -2111,7 +2127,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 2e58a122c0f394d4890f9494de53e7fd, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 31ba606280ada2748b63da9e954cbc61, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

@@ -26,9 +26,9 @@ public class LatencyDisplay : NetworkBehaviour
         if (m_started) return;
         if (!m_localPlayer) return;
         Vector2 pos = m_latencyText.rectTransform.anchoredPosition;
-        pos.x = 0f;
-        pos.y = 0f;
-        m_latencyText.rectTransform.anchoredPosition = pos;
+        //pos.x = 0f;
+        //pos.y = 0f;
+        //m_latencyText.rectTransform.anchoredPosition = pos;
         StartCoroutine(PingRoutine());
         m_started = true;
     }

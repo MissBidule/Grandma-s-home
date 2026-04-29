@@ -31,8 +31,14 @@ public class ChildHUDView : GameView
         InstanceHandler.RegisterInstance(this);
         if (m_hudMessagePanel == null)
             PurrLogger.LogWarning("hudMessagePanel is null");
-        // TODO The other null check 
-        
+        // TODO The other null check
+
+        if (m_scaredIcon != null) m_scaredIcon.enabled = false;
+        if (m_scaredCooldownOverlay != null)
+        {
+            m_scaredCooldownOverlay.enabled = false;
+            m_scaredCooldownOverlay.fillAmount = 0f;
+        }
     }
 
     protected void OnDestroy()
