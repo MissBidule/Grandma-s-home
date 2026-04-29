@@ -223,11 +223,14 @@ public class GhostController : PlayerControllerCore, IInteractable
         PurrLogger.LogWarning("Ghost Died", this);
         OnDeathChange?.Invoke(true, owner.Value); // True because he dies
         m_soundEffects?.PlayDeathAudio();
+        if (!m_isStopped)
+        {
+            callAnimationTrigger("OnHit");
+        }
         ApplyStopToAll();
         m_currentTimerStop = m_timerStop;
-        changeFaceMat(new Vector2(0f, 0.33f));
+        changeFaceMat(new Vector2(0.5f, 0f));
         m_animator.SetBool("GotShot", false);
-        callAnimationTrigger("OnHit");
         StopQTE();
     }
 
@@ -339,6 +342,7 @@ public class GhostController : PlayerControllerCore, IInteractable
         RequestReviveRpc();
         CancelRevive();
         callAnimationTrigger("Revived");
+        changeFaceMat(new Vector2(0f, 0f));
     }
 
     [ObserversRpc (requireServer: false)]
