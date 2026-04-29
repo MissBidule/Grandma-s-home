@@ -1,5 +1,7 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using NUnit.Framework;
 using PurrNet;
 using PurrNet.Logging;
 using UnityEngine;
@@ -131,31 +133,34 @@ public class ChildController : PlayerControllerCore
         changeFaceMat(new Vector2(0,0.66f));
         if (m_isRanged)
         {
-            if (m_lastShot >= m_cdGun)
-            {
-                m_lastShot = 0;
-                Vector3 aimTarget;
-                if (Physics.Raycast(m_cameraPosition, m_cameraForward, out RaycastHit hit, 50f))
-                    aimTarget = hit.point;
-                else
-                    aimTarget = m_cameraPosition + m_cameraForward * 50f;
-                Vector3 shootDir = (aimTarget - m_bulletSpawnTransform.position).normalized;
-                
-                if (!m_customAudio)
-                {
-                    m_soundEffects?.PlayGunAudio();
-                } 
-                else {
-                    m_soundEffects?.PlayCustomAudio(m_danganPrefab.GetComponent<Dangan>().m_audioClip);
-                }
-                
-                ShootForAll(Quaternion.LookRotation(shootDir));
-            }
-        }
-        else
-        {
+            Shoot();
+        } else {
             Cac();
-            Debug.Log("cac");
+        }
+    }
+
+    void Shoot()
+    {
+        if (m_lastShot >= m_cdGun)
+        {
+            m_lastShot = 0;
+            Vector3 aimTarget;
+            if (Physics.Raycast(m_cameraPosition, m_cameraForward, out RaycastHit hit, 50f))
+                aimTarget = hit.point;
+            else
+                aimTarget = m_cameraPosition + m_cameraForward * 50f;
+            Vector3 shootDir = (aimTarget - m_bulletSpawnTransform.position).normalized;
+
+            if (!m_customAudio)
+            {
+                m_soundEffects?.PlayGunAudio();
+            }
+            else
+            {
+                m_soundEffects?.PlayCustomAudio(m_danganPrefab.GetComponent<Dangan>().m_audioClip);
+            }
+
+            ShootForAll(Quaternion.LookRotation(shootDir));
         }
     }
     
@@ -238,13 +243,15 @@ public class ChildController : PlayerControllerCore
         
         m_soundEffects?.PlayCacAudio();
 
+        HashSet<GhostController> affectedGhosts = new HashSet<GhostController>(); // It's an array without duplicate elements.
         foreach (Collider col in hits)
         {
             var ghost = col.GetComponent<GhostController>();
             if (ghost != null)
             {
+                if (ghost.m_isStopped) continue;
                 ghost.HitCac();
-                CacNotification(ghost);
+                affectedGhosts.Add(ghost);
             }
             if (col.GetComponent<BrokeDecor>())
             {
@@ -254,23 +261,31 @@ public class ChildController : PlayerControllerCore
                     brokeDecor.Broke();
                 }
             }
-            if (col.transform.parent) 
+            if (col.transform.parent == null) continue;
+            if (col.transform.parent.gameObject.layer == LayerMask.NameToLayer("Ghost"))
             {
-                if (col.transform.parent.gameObject.layer == LayerMask.NameToLayer("Ghost"))
+                var ghostMorph = col.transform.parent.gameObject.GetComponent<GhostMorph>();
+                if (ghostMorph != null)
                 {
-                    var ghostMorph = col.transform.parent.gameObject.GetComponent<GhostMorph>();
-                    if (ghostMorph != null)
-                        {
-                            ghostMorph.RevertToOriginal();
-                        }
+                    ghostMorph.RevertToOriginal();
+                    ghost = col.transform.parent.gameObject.GetComponent<GhostController>();
+                    if (ghost.m_isStopped) continue;
+                    ghost.HitCac();
+                    affectedGhosts.Add(ghost);
                 }
             }
+        }
+
+        foreach (GhostController ghost in affectedGhosts)
+        {
+            CacNotification(ghost);
         }
     }
 
     [ObserversRpc]
     private void CacNotification (GhostController _ghost)
     {
+        if (_ghost == null) return; // Can be true if it was the last ghost, the game ended so all ghost have been destroyed.
         InteractPromptUI.m_Instance.ShowKill(m_username, _ghost.m_username);
     }
 

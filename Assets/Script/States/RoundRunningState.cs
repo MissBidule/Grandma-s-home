@@ -81,6 +81,13 @@ namespace Script.States
             m_roleKeeper = FindAnyObjectByType<RoleKeeper>();
         }
         
+        [ObserversRpc]
+        private void SyncTimeToClients(float _remainingTime)
+        {
+            if (isServer) return;
+            m_remainingTime = _remainingTime;
+        }
+
         [ObserversRpc(bufferLast: true)]
         public void StartGameMusic()
         {
@@ -195,11 +202,13 @@ namespace Script.States
             PurrLogger.Log($"Round Duration {_roundDuration}s");
 
             m_remainingTime = _roundDuration;
+            SyncTimeToClients(m_remainingTime);
 
             while (m_remainingTime > 0)
             {
                 yield return new WaitForSeconds(1f);
                 m_remainingTime -= 1f;
+                SyncTimeToClients(m_remainingTime);
             }
 
             // Time ended
@@ -263,7 +272,15 @@ namespace Script.States
             StopTimer();
             UnregisteringListener();
             m_isPanic = true;
+            SyncPanicToClients();
             machine.SetState(m_panicState, new GhostGameStateData(m_ghosts, m_aliveGhosts, m_deadGhosts));
+        }
+
+        [ObserversRpc]
+        private void SyncPanicToClients()
+        {
+            if (isServer) return;
+            m_isPanic = true;
         }
         
         private void MoveToEnd(bool _childWin)

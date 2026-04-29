@@ -73,7 +73,6 @@ public class QteCircle : MonoBehaviour
     */
     public void StartQte(Action<bool> _onFinished)
     {
-        Debug.Log("should change");
         m_outline.color1.value = transpOutline1;
         m_outline.color2.value = transpOutline2;
         SetVisibility(true);

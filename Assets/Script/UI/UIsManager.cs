@@ -203,11 +203,20 @@ namespace UI
         public CanvasGroup m_canvasGroup;
         private bool m_isDisplayed;
 
-        public void OnShow()
+        /*
+         * @brief Marks the view as displayed; override to add custom show behavior
+         * @return void
+        */
+        public virtual void OnShow()
         {
             m_isDisplayed = true;
         }
-        public void OnHide()
+
+        /*
+         * @brief Marks the view as hidden; override to add custom hide behavior
+         * @return void
+        */
+        public virtual void OnHide()
         {
             m_isDisplayed = false;
         }

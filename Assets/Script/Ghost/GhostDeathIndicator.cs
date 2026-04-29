@@ -32,6 +32,11 @@ public class GhostDeathIndicator : MonoBehaviour
         m_indicatorCanvas.gameObject.SetActive(false);
     }
 
+    public void setCameraForTuto(Transform cameraTransform)
+    {
+        m_cameraTransform = cameraTransform;
+    }
+
     /**
     @brief      Called by GhostController.ApplyStopToAll on all clients when this ghost is hit
     */
