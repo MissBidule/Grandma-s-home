@@ -53,18 +53,6 @@ public class ChildClientController : NetworkBehaviour
             InitOwner();
         }
         m_gotOwner = true;
-
-       /* PurrVoicePlayer purrVoicePlayer = GetComponent<PurrVoicePlayer>();
-        if (isOwner)
-            {
-                purrVoicePlayer._inputProvider.Init(purrVoicePlayer);
-                purrVoicePlayer.SetupMicrophone();
-                AudioDevices.onDevicesChanged += purrVoicePlayer.OnDevicesChanged;
-            }
-            else
-            {
-                purrVoicePlayer.SetupRemotePlayback();
-            }*/
     }
 
     private void InitOwner()
@@ -117,12 +105,6 @@ public class ChildClientController : NetworkBehaviour
         if (!m_childInputController) return;
 
         UpdateHUD();
-
-        // DebugPrintTrafic();
-
-        //if (m_childController.m_isScared && m_qteCircle.m_isRunning)
-        //    m_qteCircle.CancelQte();
-
         var moveVec = m_childInputController.m_movementInputVector;
         var wishDir = GetDirectionIntention(moveVec);
 
@@ -152,7 +134,6 @@ public class ChildClientController : NetworkBehaviour
         m_switchWeaponPressed = false;
         m_attackPressed = false;
 
-        // a retirer
         foreach (var ghost in FindObjectsByType<GhostController>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
         {
             PurrVoicePlayer purrVoicePlayer = ghost.GetComponent<PurrVoicePlayer>();

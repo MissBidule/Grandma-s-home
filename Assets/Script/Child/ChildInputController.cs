@@ -37,9 +37,6 @@ public class ChildInputController : MonoBehaviour
         m_childInteract = GetComponentInChildren<Interact>();
         m_tutoChildCac = GetComponentInChildren<TutoChildCAC>();
         m_tutoChildInstructions = GetComponentInChildren<TutoInstructions>();
-
-
-        //m_isPushToTalkMode=
     }
 
     /*
@@ -243,7 +240,6 @@ public class ChildInputController : MonoBehaviour
      */
     public void OnPushToTalk(InputAction.CallbackContext _context)
     {
-        Debug.Log(m_isPushToTalkModeChild);
         if(m_isPushToTalkModeChild==1)
         {
             AudioManager audioManager = FindFirstObjectByType<AudioManager>();

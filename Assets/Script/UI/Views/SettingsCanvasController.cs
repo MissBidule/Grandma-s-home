@@ -56,17 +56,6 @@ public class SettingsCanvasController : MonoBehaviour
     public void ForceAwake()
     {
         AwakeCalled = true;
-
-        //audioManager = FindFirstObjectByType<AudioManager>();
-        //if (audioManager != null)
-        //{
-          //  Debug.Log("SAY HEEEEEEY");
-        //}
-        //else
-        //{
-          //  Debug.Log("NOOOOOOO");
-        //}
-
         var bg = transform.Find("Settings_Background");
         if (bg == null) { Debug.LogError("SettingsCanvasController: Settings_Background not found"); return; }
 
@@ -446,9 +435,8 @@ public class SettingsCanvasController : MonoBehaviour
     }
 
     // ── AUDIO ────────────────────────────────────────────────────────────
-    public void InitAudioKa()
+    public void InitAudioCanvas()
     {   
-        Debug.Log("hey");
         int mode = PlayerPrefs.GetInt("Settings_VoiceMode", 0);
         ApplyAudioMode(mode);
         ChildInputController.m_isPushToTalkModeChild = m_currentaudiomode;
@@ -463,12 +451,9 @@ public class SettingsCanvasController : MonoBehaviour
             {
                 DisableVoiceChatLocally();
             }
-
-
     }
     public void WireAudio()
     {
-        Debug.Log("coucou");
         var p = m_panelAudio.transform;
         var sliders = new List<Transform>();
         var dropdowns = new List<Transform>();
@@ -487,14 +472,13 @@ public class SettingsCanvasController : MonoBehaviour
         if (toggles.Count   >= 1) BindVoiceChatEnabled(toggles[0]);
     }
 
-    private void BindVoiceChatEnabled(Transform row) // verifier si c'est initialiser au debut de la partie si on change dans les options
+    private void BindVoiceChatEnabled(Transform row) 
     {
         SetRowLabel(row, "Enable Voice Chat");
         var tog = ToggleOf(row);
         tog.SetIsOnWithoutNotify(PlayerPrefs.GetInt("Settings_VoiceChatEnabled", 1) == 1);
         tog.onValueChanged.AddListener(v => {
             PlayerPrefs.SetInt("Settings_VoiceChatEnabled", v ? 1 : 0);
-            Debug.Log("c ca genre");
             if (v)
             {
                 EnableVoiceChat();
@@ -509,8 +493,6 @@ public class SettingsCanvasController : MonoBehaviour
 
     private void EnableVoiceChat()
     {
-       // ApplyAudioMode(m_currentaudiomode);
-
        if (audioManager == null)
             {
                 foreach(AudioManager obj in FindObjectsByType<AudioManager>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
@@ -973,8 +955,7 @@ public class SettingsCanvasController : MonoBehaviour
     {
         switch (mode)
         {
-            case 0: // proximity
-                //Debug.Log("hello proximity");
+            case 0:
                 if (audioManager == null)
                 {
                     foreach(AudioManager obj in FindObjectsByType<AudioManager>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
@@ -984,10 +965,9 @@ public class SettingsCanvasController : MonoBehaviour
                 }
                 if(audioManager!=null){
                     audioManager.ProximityDefaultMode();
-                    Debug.Log("Player Proximity chat");
                 }
                 break;
-            case 1: // push to talk
+            case 1:
                 if (audioManager == null)
                 {
                     foreach(AudioManager obj in FindObjectsByType<AudioManager>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
@@ -999,11 +979,10 @@ public class SettingsCanvasController : MonoBehaviour
                 if (audioManager != null)
                 {
                     audioManager.InitPushToTalk();
-                    Debug.Log("push to talk");
                 }
 
                 break;
-            case 2: // mute single player
+            case 2:
                 if (audioManager == null)
                 {
                     foreach(AudioManager obj in FindObjectsByType<AudioManager>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
@@ -1014,7 +993,6 @@ public class SettingsCanvasController : MonoBehaviour
                 if (audioManager != null)
                 {
                     audioManager.MuteSinglePlayer();
-                    Debug.Log("Mute single player");
                 }
                 break;
         }

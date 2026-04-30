@@ -58,7 +58,7 @@ public class PauseMenuView : MonoBehaviour
     public void InitAudioMode()
     {
         var sc = m_settingsCanvas.GetComponent<SettingsCanvasController>();
-        sc.InitAudioKa();
+        sc.InitAudioCanvas();
     }
 
 
