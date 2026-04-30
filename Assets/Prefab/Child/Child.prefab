@@ -161,8 +161,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a037be86c21a5e4cb550fb2f2f65fd6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChildClientController
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -170,6 +168,8 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   m_soundEffects: {fileID: 852684189040359417}
   m_uiHolder_prefab: {fileID: 377348635625698099, guid: b651665fc18bb9743b016c9975896383, type: 3}
   m_uiHolder: {fileID: 0}
@@ -201,8 +201,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e615a781e5c582a4d85bba5c306c81ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChildController
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -210,11 +208,13 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   m_playerCamera: {fileID: 3116613213369430143}
   m_localRenderCamera: {fileID: 2479407354322227593}
   m_playerAnimator: {fileID: 0}
   m_latencyDisplay: {fileID: 0}
-  m_PingCooldown: 5
+  m_PingCooldown: 10
   m_elapsedTimeSincePing: 0
   m_isServerAccessible: 1
   m_isClientAccessible: 1
@@ -643,8 +643,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 12cf33844d765b246855f943e21c97ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: PurrVoice.Runtime::PurrNet.Voice.PurrVoicePlayer
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -652,18 +650,20 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
-  _audioFilters:
-    _ownerAuth: 0
-    _filters: []
-  _enableSmoothing: 1
-  _visualAmplitudeScale: 3
-  _visualTimeScale: 1
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _inputProvider: {fileID: 613093929203921896}
   _outputProvider: {fileID: 8610913410535433184}
   muted: 0
   _enableLocalPlayback: 0
   _localOutputProvider: {fileID: -7897050309470336131}
   _currentDevice: 
+  _audioFilters:
+    _ownerAuth: 0
+    _filters: []
+  _enableSmoothing: 1
+  _visualAmplitudeScale: 3
+  _visualTimeScale: 1
 --- !u!82 &-3510194049335302436
 AudioSource:
   m_ObjectHideFlags: 0
@@ -843,8 +843,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5681fe548eb84304ea28a286062791f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkIdentity
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -852,6 +850,8 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
 --- !u!114 &8426097431854167158
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -864,8 +864,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f4200a6cbd99a248bdb02181c4ca497, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PredictiveMovement
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -873,6 +871,8 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
 --- !u!114 &1021629915726153006
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -885,8 +885,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1f174e5903fe8340ae065ea130d4979, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChildSimulateMovement
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -894,6 +892,8 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   m_speed: 6.2
   m_acceleration: 25
   m_jumpImpulse: 6
@@ -912,8 +912,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e3702c3e2f382d4bbe96170f351c660, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Interact
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -921,6 +919,8 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   m_isGhost: 0
   m_interactRange: 7
   m_interactableLayer:
@@ -1068,8 +1068,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1f137a33c6343d44852c91b96225750, type: 3}
   m_Name: 
   m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkAudioSource
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -1077,6 +1075,8 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _audioSource: {fileID: 6238344585826117457}
   _ownerAuth: 1
 --- !u!1 &2316951510614423555
@@ -1323,8 +1323,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1f137a33c6343d44852c91b96225750, type: 3}
   m_Name: 
   m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkAudioSource
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -1332,6 +1330,8 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _audioSource: {fileID: 1861110593847852732}
   _ownerAuth: 1
 --- !u!1 &2479407354322227593
@@ -1647,8 +1647,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1f137a33c6343d44852c91b96225750, type: 3}
   m_Name: 
   m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkAudioSource
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -1656,6 +1654,8 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _audioSource: {fileID: 4329543203981150913}
   _ownerAuth: 1
 --- !u!1 &3975913229166522787
@@ -1866,8 +1866,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1f137a33c6343d44852c91b96225750, type: 3}
   m_Name: 
   m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkAudioSource
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -1875,6 +1873,8 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _audioSource: {fileID: 1536345253387442597}
   _ownerAuth: 1
 --- !u!1 &6321095137117031978
@@ -2187,8 +2187,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1f137a33c6343d44852c91b96225750, type: 3}
   m_Name: 
   m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkAudioSource
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -2196,6 +2194,8 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _audioSource: {fileID: 7099147446217738222}
   _ownerAuth: 1
 --- !u!1 &7154388799126042335
@@ -2340,8 +2340,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1f137a33c6343d44852c91b96225750, type: 3}
   m_Name: 
   m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkAudioSource
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -2349,6 +2347,8 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _audioSource: {fileID: 6395549606168288690}
   _ownerAuth: 1
 --- !u!1 &7302031092460971295
@@ -2493,8 +2493,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1f137a33c6343d44852c91b96225750, type: 3}
   m_Name: 
   m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkAudioSource
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -2502,6 +2500,8 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _audioSource: {fileID: 1974449364206092242}
   _ownerAuth: 1
 --- !u!1 &7457707817508041840
@@ -2748,8 +2748,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1f137a33c6343d44852c91b96225750, type: 3}
   m_Name: 
   m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkAudioSource
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -2757,6 +2755,8 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _audioSource: {fileID: 1718596759016614015}
   _ownerAuth: 1
 --- !u!1 &8321170004280547216
@@ -2968,8 +2968,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1f137a33c6343d44852c91b96225750, type: 3}
   m_Name: 
   m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkAudioSource
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -2977,6 +2975,8 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _audioSource: {fileID: 3372080515573665166}
   _ownerAuth: 1
 --- !u!1 &9131624489842456874
@@ -3501,8 +3501,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7b598b9d8509d64abb9fdaf07fa3f6e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: PurrNet.Runtime::PurrNet.NetworkAnimator
-  _networkRules: {fileID: 0}
-  _visitiblityRules: {fileID: 0}
   _isSetup: 0
   _prefabId: -2147483648
   _componentIndex: -2147483648
@@ -3510,6 +3508,8 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _invertedPathToNearestParent: 
   _directChildren: []
+  _networkRules: {fileID: 0}
+  _visitiblityRules: {fileID: 0}
   _animator: {fileID: 5487723789930694463}
   _ownerAuth: 0
   _autoSyncParameters: 1
