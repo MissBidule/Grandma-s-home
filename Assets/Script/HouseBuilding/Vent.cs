@@ -26,6 +26,7 @@ namespace Script.HouseBuilding
         
         [Header("Exit")]
         [SerializeField] private SyncVar<VentExit> m_exit;
+        private VentExit m_hidenVentExit;
         
         private void Start()
         {
@@ -46,9 +47,21 @@ namespace Script.HouseBuilding
             SetHighlight(false);
         }
 
+        [ServerRpc(requireOwnership: false)]
         public void LinkExit(VentExit _exit)
         {
+            if (!isServer)
+                return;
+            PurrLogger.Log($"Linking Vent Exit {m_exit.isControllingSyncVar}", this);
             m_exit.value = _exit;
+            m_hidenVentExit = _exit;
+        }
+
+        [ObserversRpc(bufferLast:true)]
+        public void JustLinkDammit(VentExit _exit)
+        {
+            m_exit.value = _exit;
+            m_hidenVentExit = _exit;
         }
 
         public void OnFocus(Interact _player)
@@ -84,9 +97,6 @@ namespace Script.HouseBuilding
         
         public void OnInteract(Interact _player)
         {
-            if (m_exit.value == null)
-                return;
-
             PlayerControllerCore playerController = _player.GetComponentInParent<PlayerControllerCore>();
             TP_Player(playerController.gameObject);
         }
@@ -94,6 +104,11 @@ namespace Script.HouseBuilding
         [ServerRpc(requireOwnership: false)]
         private void TP_Player(GameObject _player)
         {
+            if (m_exit.value == null)
+            {
+                _player.transform.position = m_hidenVentExit.GetExitTransform.position;
+                return;
+            }
             _player.transform.position = m_exit.value.GetExitTransform.position;
         }
         
