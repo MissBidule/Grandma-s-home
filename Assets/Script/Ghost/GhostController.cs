@@ -418,7 +418,6 @@ public class GhostController : PlayerControllerCore, IInteractable
     
     public void StartDash()
     {
-        if (m_isStopped) return;
         if (!m_canDash)
         {
             // case when can't dash

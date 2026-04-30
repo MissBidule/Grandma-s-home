@@ -28,6 +28,9 @@ public class Bullet : NetworkBehaviour
     
     [SerializeField] float m_impactTimeBeforeDespawn = 1f;
 
+    [SerializeField] private NetworkAudioSource m_slimeSoundAudioSource;
+    [SerializeField] private NetworkAudioSource m_slimeOnGhostSoundAudioSource;
+
     public bool m_amIServerSide = false; 
 
     void Start()
@@ -51,10 +54,12 @@ public class Bullet : NetworkBehaviour
         {
             if (_other.transform.parent.gameObject.layer == LayerMask.NameToLayer("Ghost"))
             {
-                var ghost = _other.transform.parent.gameObject.GetComponent<GhostMorph>();
+                GhostMorph ghost = _other.transform.parent.gameObject.GetComponent<GhostMorph>();
                 if (ghost != null)
                 {   
                     ghost.RevertToOriginal();
+                    if (m_slimeOnGhostSoundAudioSource.clip != null)
+                        m_slimeOnGhostSoundAudioSource.Play();
                 }
             }
         }
@@ -76,6 +81,8 @@ public class Bullet : NetworkBehaviour
                     if (m_amIServerSide) // Only calling HitRanged on the server side
                     {
                         ghost.HitRanged();
+                        if (m_slimeOnGhostSoundAudioSource.clip != null)
+                            m_slimeOnGhostSoundAudioSource.Play();
                     }
                 }
             }
@@ -102,6 +109,8 @@ public class Bullet : NetworkBehaviour
         spawnPos.z -= 0.3f;
         spawnPos.y += m_offsetFromSurface;
         SpawnForAll(spawnPos);
+        if (m_slimeSoundAudioSource.clip != null)
+            m_slimeSoundAudioSource.Play();
     }
 
     [ObserversRpc(runLocally:true)]

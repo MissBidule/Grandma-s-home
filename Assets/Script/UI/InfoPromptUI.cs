@@ -54,10 +54,10 @@ public class InfoPromptUI : MonoBehaviour
     }
 
     private void InstantiateObject(GameObject _gameObject, string _message) {
-        _gameObject.transform.SetParent(m_group, false);
-        _gameObject.transform.SetAsFirstSibling();
-        _gameObject.GetComponentInChildren<TextMeshProUGUI>(true).text = _message;
         _gameObject.SetActive(true);
+        _gameObject.transform.SetParent(m_group);
+        _gameObject.transform.SetAsFirstSibling();
+        _gameObject.GetComponentInChildren<TextMeshProUGUI>().text = _message;
         StartCoroutine(FadeOut(_gameObject));
     }
 

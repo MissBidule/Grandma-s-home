@@ -40,9 +40,9 @@ public class TimeRemainingDisplay : NetworkBehaviour
     {
         if (m_roundRunningState == null) {
             SetVisible(false);
-            m_roundRunningState = FindAnyObjectByType<RoundRunningState>();
             return;
         }
+
 
         float remaining = m_isPanic && m_panicState != null
             ? m_panicState.m_remainingTime
