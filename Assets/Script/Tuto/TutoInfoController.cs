@@ -20,6 +20,7 @@ public class TutoInfoController : MonoBehaviour
     [SerializeField] private Button m_confirmButton;
 
     private GameObject[] m_pages;
+    private Category m_currentCategory;
     private PlayerInput m_playerInput;
     private int m_currentPage;
     private Action m_onComplete;
@@ -43,6 +44,7 @@ public class TutoInfoController : MonoBehaviour
 
     public void Show(Category _category, PlayerInput _playerInput, Action _onComplete)
     {
+        m_currentCategory = _category;
         m_pages = _category switch
         {
             Category.Ghost => m_ghostPages,
@@ -134,8 +136,9 @@ public class TutoInfoController : MonoBehaviour
 
         if (m_confirmButton != null)
         {
+            bool showConfirm = isLast || m_currentCategory == Category.All;
             m_nextButton.gameObject.SetActive(!isLast);
-            m_confirmButton.gameObject.SetActive(isLast);
+            m_confirmButton.gameObject.SetActive(showConfirm);
         }
         else
         {
