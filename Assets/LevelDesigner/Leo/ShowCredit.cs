@@ -15,6 +15,7 @@ public class ShowCredit : MonoBehaviour
 
     private void Start()
     {
+        creditBouton.SetActive(false);
     }
     public void seeCredit(GameObject creditPanel)
     {

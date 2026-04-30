@@ -18,11 +18,16 @@ public class StartingDoor : NetworkBehaviour
 
     [Header("Invisible Wall")]
     [SerializeField] private GameObject m_invisibleWall;
+    
+    [Header("SFX")]
+    [SerializeField] private NetworkAudioSource m_soundEffects;
 
     [ObserversRpc(runLocally: true, requireServer: true)]
     public void OpenDoors()
     {
         m_invisibleWall.SetActive(false);
+        if (m_soundEffects.clip != null)
+            m_soundEffects.Play();
         StartCoroutine(AnimateDoor(m_pivot1, m_openAngle));
         StartCoroutine(AnimateDoor(m_pivot2, -m_openAngle));
     }
