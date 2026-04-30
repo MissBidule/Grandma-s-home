@@ -397,7 +397,7 @@ public class TutoManager : MonoBehaviour
 
         m_steps.Add(new TutoStep
         {
-            message = "<b><color=#5AB4FF>Repair</color></b> the sabotage with [{Child.Interact}], use [{Child.Validate}] to validate.",
+            message = "<b><color=#5AB4FF>Repair</color></b> the sabotage with [{Child.Interact}], use [{Child.Validate}] to confirm.",
             condition = () => m_sabotageObject != null && !m_sabotageObject.m_isSabotaged
         });
 
@@ -496,6 +496,10 @@ public class TutoManager : MonoBehaviour
         SetPlayerActive(m_child.gameObject, true);
 
         if (m_childClient != null) m_childClient.m_weaponSwapBlocked = true;
+
+        var childBrain = m_child.GetComponentInChildren<CinemachineBrain>();
+        if (childBrain != null)
+            m_ghostTuto.GetComponent<GhostDeathIndicator>()?.setCameraForTuto(childBrain.OutputCamera.transform);
 
         SetUIHolderActive("GhostUIHolder(Clone)", false);
         SetUIHolderActive("ChildUIHolder(Clone)", true);

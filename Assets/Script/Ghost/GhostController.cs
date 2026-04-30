@@ -418,7 +418,6 @@ public class GhostController : PlayerControllerCore, IInteractable
     
     public void StartDash()
     {
-        if (m_isStopped) return;
         if (!m_canDash)
         {
             // case when can't dash
@@ -548,6 +547,7 @@ public class GhostController : PlayerControllerCore, IInteractable
     [ObserversRpc(runLocally: true)]
     public void changeFaceMat(Vector2 _surfaceOffset)
     {
+        if (m_faceMat == null) return;
         m_faceMat.surfaceOffset = _surfaceOffset;
     }
 

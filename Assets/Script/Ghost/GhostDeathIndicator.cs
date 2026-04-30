@@ -35,6 +35,8 @@ public class GhostDeathIndicator : MonoBehaviour
     public void setCameraForTuto(Transform cameraTransform)
     {
         m_cameraTransform = cameraTransform;
+        m_isLocalPlayerGhost = true;
+        m_initialized = true;
     }
 
     /**
