@@ -52,7 +52,15 @@ namespace Script.HouseBuilding
         {
             if (!isServer)
                 return;
-            PurrLogger.Log($"Linking Vent Exit {m_exit.isControllingSyncVar}", this);
+            //PurrLogger.Log($"Linking Vent Exit {m_exit.isControllingSyncVar}", this);
+            m_exit.value = _exit;
+            m_hidenVentExit = _exit;
+            DoubleLinkExit(_exit); // Just to be sure 
+        }
+
+        [ObserversRpc]
+        public void DoubleLinkExit(VentExit _exit)
+        {
             m_exit.value = _exit;
             m_hidenVentExit = _exit;
         }
