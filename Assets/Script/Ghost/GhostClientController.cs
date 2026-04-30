@@ -349,7 +349,8 @@ public class GhostClientController : NetworkBehaviour
         Vector3 wishDir = Vector3.zero;
         if (_movement.sqrMagnitude > 0.0001f) {
             wishDir = (forward * _movement.y + right * _movement.x).normalized;
-            Cursor.lockState = CursorLockMode.Locked;
+            if (m_wheel != null && !m_wheel.IsWheelOpen())
+                Cursor.lockState = CursorLockMode.Locked;
         }
 
         return wishDir;
