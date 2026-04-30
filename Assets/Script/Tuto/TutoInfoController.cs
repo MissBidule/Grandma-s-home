@@ -47,9 +47,8 @@ public class TutoInfoController : MonoBehaviour
         {
             Category.Ghost => m_ghostPages,
             Category.Child => m_childPages,
-            Category.End   => m_endPages,
-            Category.All   => m_allPages,
-            _              => null
+            Category.End => m_endPages,
+            Category.All => m_allPages
         };
 
         if (m_pages == null || m_pages.Length == 0)

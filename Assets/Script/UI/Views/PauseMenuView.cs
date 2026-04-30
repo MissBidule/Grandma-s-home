@@ -255,9 +255,7 @@ public class PauseMenuView : MonoBehaviour
 
     public void ShowTutoInfo()
     {
-        Debug.Log("[PauseMenu] ShowTutoInfo called");
         var info = FindAnyObjectByType<TutoInfoController>(FindObjectsInactive.Include);
-        Debug.Log($"[PauseMenu] TutoInfoController found: {info != null}");
         if (info == null) return;
 
         SetPauseVisible(false);
