@@ -79,7 +79,7 @@ namespace PurrNet.Voice
             SetupVisualization(freq);
         }
 
-        protected override void OnSpawned()
+        /*protected override void OnSpawned()
         {
             base.OnSpawned();
 
@@ -95,10 +95,24 @@ namespace PurrNet.Voice
             }
         }
 
-        protected override void OnDespawned()
+        protected override void OnDespawned() //peut etre garder ca 
         {
             base.OnDespawned();
             Cleanup();
+        }*/
+
+        protected override void OnOwnerChanged(PlayerID? oldOwner, PlayerID? newOwner, bool asServer)
+        {
+            if (isOwner)
+            {
+                _inputProvider.Init(this);
+                SetupMicrophone();
+                AudioDevices.onDevicesChanged += OnDevicesChanged;
+            }
+            else
+            {
+                SetupRemotePlayback();
+            }
         }
 
         protected override void OnDestroy()
@@ -155,8 +169,10 @@ namespace PurrNet.Voice
                 {
                     micDevice.Start();
                 }
-                if(isController){
-                _transport.SetFrequency(micDevice.frequency);}
+                //if(isController) //a voir
+                //{
+                    _transport.SetFrequency(micDevice.frequency);
+                //}
             }
             else
             {
