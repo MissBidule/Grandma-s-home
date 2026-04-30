@@ -17,7 +17,7 @@ using System.Linq;
  */
 public class SettingsCanvasController : MonoBehaviour
 {
-    int m_currentaudiomode;
+    public int m_currentaudiomode;
     bool AwakeCalled = false;
     public Action OnBack;
 
@@ -451,6 +451,8 @@ public class SettingsCanvasController : MonoBehaviour
         Debug.Log("hey");
         int mode = PlayerPrefs.GetInt("Settings_VoiceMode", 0);
         ApplyAudioMode(mode);
+        ChildInputController.m_isPushToTalkModeChild = m_currentaudiomode;
+        GhostInputController.m_isPushToTalkModeGhost = m_currentaudiomode;
 
         bool enabled = PlayerPrefs.GetInt("Settings_VoiceChatEnabled", 1)==1;
         if (enabled)
@@ -582,9 +584,11 @@ public class SettingsCanvasController : MonoBehaviour
         dd.onValueChanged.AddListener(v => {
             PlayerPrefs.SetInt("Settings_VoiceMode", v);
             ApplyAudioMode(v);
+            ChildInputController.m_isPushToTalkModeChild = v;
+            GhostInputController.m_isPushToTalkModeGhost = v;
         
         });
-    }
+        }
 
     // ── ACCESSIBILITY ────────────────────────────────────────────────────
 

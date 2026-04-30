@@ -21,6 +21,7 @@ public class ChildInputController : MonoBehaviour
 
     private QteCircle m_qteCircle;
     private int m_lastInteractFrame = -1;
+    static public int m_isPushToTalkModeChild;
 
 
     private bool isOwner => m_childClientController != null && m_childClientController.isOwner;
@@ -36,6 +37,9 @@ public class ChildInputController : MonoBehaviour
         m_childInteract = GetComponentInChildren<Interact>();
         m_tutoChildCac = GetComponentInChildren<TutoChildCAC>();
         m_tutoChildInstructions = GetComponentInChildren<TutoInstructions>();
+
+
+        //m_isPushToTalkMode=
     }
 
     /*
@@ -239,7 +243,10 @@ public class ChildInputController : MonoBehaviour
      */
     public void OnPushToTalk(InputAction.CallbackContext _context)
     {
-        AudioManager audioManager = FindFirstObjectByType<AudioManager>();
+        Debug.Log(m_isPushToTalkModeChild);
+        if(m_isPushToTalkModeChild==1)
+        {
+            AudioManager audioManager = FindFirstObjectByType<AudioManager>();
             if (!isOwner) return;
             if (_context.started)
             {
@@ -251,6 +258,11 @@ public class ChildInputController : MonoBehaviour
                 // On release
                 audioManager.PushToTalk(false);
             }
+        }
+        else
+        {
+            return;
+        }
     }
 }
 

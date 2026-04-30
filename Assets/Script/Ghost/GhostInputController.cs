@@ -23,6 +23,7 @@ public class GhostInputController : MonoBehaviour
     private TutoInstructions m_tutoChildInstructions;
     public QteCircle m_qteCircle;
     private int m_lastInteractFrame = -1;
+    static public int m_isPushToTalkModeGhost;
 
     private bool isOwner => m_ghostClientController != null && m_ghostClientController.isOwner;
 
@@ -315,8 +316,10 @@ public class GhostInputController : MonoBehaviour
      */
     public void OnPushToTalk(InputAction.CallbackContext _context)
     {
-        // comment je fais en sorte que ca se lance pas si on appuie sur la touche...
-        AudioManager audioManager = FindFirstObjectByType<AudioManager>();
+        Debug.Log(m_isPushToTalkModeGhost);
+        if(m_isPushToTalkModeGhost==1)
+        {
+            AudioManager audioManager = FindFirstObjectByType<AudioManager>();
             if (!isOwner) return;
             if (_context.started)
             {
@@ -328,5 +331,10 @@ public class GhostInputController : MonoBehaviour
                 // On release
                 audioManager.PushToTalk(false);
             }
+        }
+        else
+        {
+            return;
+        }
     }
 }
