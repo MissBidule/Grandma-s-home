@@ -71,13 +71,7 @@ namespace PurrNet.Voice
         }
 
         public void SetFrequency(int frequency)
-        {
-            if (!isController)
-            {
-                Debug.LogError($"Only the controller can set the frequency. Current controller: {owner}, current player: {localPlayer}");
-                return;
-            }
-            
+        {       
             _frequency.value = frequency;
         }
 
