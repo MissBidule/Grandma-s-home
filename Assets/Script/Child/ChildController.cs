@@ -151,16 +151,22 @@ public class ChildController : PlayerControllerCore
                 aimTarget = m_cameraPosition + m_cameraForward * 50f;
             Vector3 shootDir = (aimTarget - m_bulletSpawnTransform.position).normalized;
 
-            if (!m_customAudio)
-            {
-                m_soundEffects?.PlayGunAudio();
-            }
-            else
-            {
-                m_soundEffects?.PlayCustomAudio(m_danganPrefab.GetComponent<Dangan>().m_audioClip);
-            }
+            PlaySFX();
 
             ShootForAll(Quaternion.LookRotation(shootDir));
+        }
+    }
+
+    [ObserversRpc]
+    public void PlaySFX()
+    {
+        if (!m_customAudio)
+        {
+            m_soundEffects?.PlayGunAudio();
+        }
+        else
+        {
+            m_soundEffects?.PlayCustomAudio(m_danganPrefab.GetComponent<Dangan>().m_audioClip); // what is that
         }
     }
     
@@ -274,15 +280,22 @@ public class ChildController : PlayerControllerCore
             }
         }
 
-        if (affectedGhosts.Count > 0)
-            m_soundEffects?.PlayHitGhostAudio();
-        else
-            m_soundEffects?.PlayHitAirAudio();
+        PlayCaC_SFX(affectedGhosts.Count > 0);
         
         foreach (GhostController ghost in affectedGhosts)
         {
             CacNotification(ghost);
         }
+    }
+
+    // Without that the server tries to play the sound, but somehow he doesn't have the rights.
+    [ObserversRpc(runLocally:true)]
+    public void PlayCaC_SFX(bool _hitSomething)
+    {
+        if (_hitSomething)
+            m_soundEffects?.PlayHitGhostAudio();
+        else
+            m_soundEffects?.PlayHitAirAudio();
     }
 
     [ObserversRpc]
