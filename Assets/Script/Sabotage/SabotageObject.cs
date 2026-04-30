@@ -147,8 +147,8 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         if (childClientController = _player.GetComponentInParent<ChildClientController>())
         {
             childClientController.RepairAnimation(true);
-            if (childClientController.m_childSoundEffects!=null)
-                childClientController.m_childSoundEffects.PlayRepairAudio();
+            if (childClientController.m_soundEffects!=null)
+                childClientController.m_soundEffects.PlayRepairAudio();
             else
                 PurrLogger.LogError("Child Client Controller SFX not found", this);
         }
@@ -240,8 +240,8 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         if (childClientController != null)
         {
             childClientController.RepairAnimation(false);
-            if (childClientController.m_childSoundEffects!=null)
-                childClientController.m_childSoundEffects.StopRepairAudio();
+            if (childClientController.m_soundEffects!=null)
+                childClientController.m_soundEffects.StopRepairAudio();
             else
                 PurrLogger.LogError("Child Client Controller SFX not found", this);
         }

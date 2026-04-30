@@ -9,9 +9,8 @@ using UnityEngine.Rendering;
 
 public class ChildClientController : NetworkBehaviour
 {
-    [SerializeField] private ChildSoundEffects m_soundEffects;
+    [SerializeField] public ChildSoundEffects m_soundEffects;
     [SerializeField] private GameObject m_uiHolder_prefab;
-    [SerializeField] public ChildSoundEffects m_childSoundEffects;
     public GameObject m_uiHolder;
     private CinemachineCamera m_playerCamera;
     private ChildCameraController m_cameraOptions;
