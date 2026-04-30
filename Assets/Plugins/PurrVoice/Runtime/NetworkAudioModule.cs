@@ -13,14 +13,15 @@ namespace PurrNet.Voice
         private int _chunkSize;
         private int _bufferPos;
         private ProcessSamplesDelegate _processSamples;
-        private SyncVar<int> _frequency = new(-1, ownerAuth:true);
+        private int _frequency = -1;
         private OpusCodec _clientCodec;
         private OpusCodec _serverCodec;
-        
+        private Action<int> onChanged;
+
         public event Action<int> OnFrequencyChanged 
         {
-            add => _frequency.onChanged += value;
-            remove => _frequency.onChanged -= value;
+            add => onChanged += value;
+            remove => onChanged -= value;
         }
 
         public int frequency => _frequency;
@@ -34,7 +35,7 @@ namespace PurrNet.Voice
 
         public NetworkAudioModule(ProcessSamplesDelegate processSamples = null)
         {
-            _frequency.onChanged += OnFrequencySet;
+            onChanged += OnFrequencySet;
             _processSamples = processSamples;
         }
 
@@ -71,19 +72,14 @@ namespace PurrNet.Voice
         }
 
         public void SetFrequency(int frequency)
-        {
-            if (!isController)
-            {
-                Debug.LogError($"Only the controller can set the frequency. Current controller: {owner}, current player: {localPlayer}");
-                return;
-            }
-            
-            _frequency.value = frequency;
+        {       
+            _frequency = frequency;
+            onChanged?.Invoke(frequency);
         }
 
         public void SendAudioChunk(ArraySegment<float> segment)
         {
-            if (!isOwner || _frequency.value < 0 || _chunkBuffer.Length <= 0 || _clientCodec == null) return;
+            if (!isOwner || _frequency < 0 || _chunkBuffer.Length <= 0 || _clientCodec == null) return;
 
             int offset = 0;
             while (offset < segment.Count)

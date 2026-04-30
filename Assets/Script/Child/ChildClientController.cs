@@ -1,5 +1,6 @@
 using PurrNet;
 using PurrNet.Logging;
+using PurrNet.Voice;
 using Script.UI.Views;
 using UI;
 using Unity.Cinemachine;
@@ -9,9 +10,8 @@ using UnityEngine.Rendering;
 
 public class ChildClientController : NetworkBehaviour
 {
-    [SerializeField] private ChildSoundEffects m_soundEffects;
+    [SerializeField] public ChildSoundEffects m_soundEffects;
     [SerializeField] private GameObject m_uiHolder_prefab;
-    [SerializeField] public ChildSoundEffects m_childSoundEffects;
     public GameObject m_uiHolder;
     private CinemachineCamera m_playerCamera;
     private ChildCameraController m_cameraOptions;
@@ -49,7 +49,9 @@ public class ChildClientController : NetworkBehaviour
 
     protected override void OnOwnerChanged(PurrNet.PlayerID? oldOwner, PurrNet.PlayerID? newOwner, bool asServer)
     {
-        if (isOwner) InitOwner();
+        if (isOwner) {
+            InitOwner();
+        }
         m_gotOwner = true;
     }
 

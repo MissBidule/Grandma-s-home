@@ -62,17 +62,18 @@ namespace PurrNet.Voice
             FilterAwake();
         }
 
-        private void OnFrequencyInitialized(int freq)
+        protected override void OnOwnerChanged(PlayerID? oldOwner, PlayerID? newOwner, bool asServer)
         {
-            DebugAwake(freq);
-            SetupVisualization(freq);
+            if (isOwner)
+            {
+                init((PlayerID)newOwner);
+            }
         }
 
-        protected override void OnSpawned()
+        [ObserversRpc (requireServer: false, runLocally: true, bufferLast: true)]
+        public void init(PlayerID owner)
         {
-            base.OnSpawned();
-
-            if (isOwner)
+            if (owner == localPlayer)
             {
                 _inputProvider.Init(this);
                 SetupMicrophone();
@@ -82,6 +83,25 @@ namespace PurrNet.Voice
             {
                 SetupRemotePlayback();
             }
+        }
+
+        void Start()
+        {
+            if (owner.HasValue && owner.Value != localPlayer)
+            {
+                ForceFrequencyReload(owner.Value);
+                SetupRemotePlayback();
+            }
+        }
+
+        private void OnFrequencyInitialized(int freq)
+        {
+            DebugAwake(freq);
+            SetupVisualization(freq);
+        }
+
+        protected override void OnSpawned()
+        {
         }
 
         protected override void OnDespawned()
@@ -117,7 +137,7 @@ namespace PurrNet.Voice
             _localOutputProvider?.output?.Stop();
             output?.Stop();
             
-            AudioDevices.onDevicesChanged += OnDevicesChanged;
+            AudioDevices.onDevicesChanged -= OnDevicesChanged;
         }
 
         private void SetupMicrophone()
@@ -144,13 +164,19 @@ namespace PurrNet.Voice
                 {
                     micDevice.Start();
                 }
-                
-                _transport.SetFrequency(micDevice.frequency);
+
+                updateFrequency(micDevice.frequency, (PlayerID)localPlayer);
             }
             else
             {
                 PurrLogger.LogError($"No microphone devices found for {name}. Please connect a microphone.", this);
             }
+        }
+
+        [ObserversRpc(requireServer: false, runLocally: true, bufferLast: true)]
+        private void updateFrequency(int frequency, PlayerID player)
+        {
+            _transport.SetFrequency(frequency);
         }
 
         public void ChangeMicrophone(IAudioInputSource mic)
@@ -228,6 +254,15 @@ namespace PurrNet.Voice
         private void OnReplayingSample(ArraySegment<float> obj)
         {
             onReceivedSample?.Invoke(obj);
+        }
+
+        [TargetRpc(requireServer: false, runLocally: true, bufferLast: true)]
+        private void ForceFrequencyReload(PlayerID target)
+        {
+            if (micDevice != null)
+            {
+                updateFrequency(micDevice.frequency, target);
+            }
         }
 
         private void OnDevicesChanged()
