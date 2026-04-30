@@ -8,7 +8,25 @@ public class AudioManager : MonoBehaviour
 
     public void ProximityDefaultMode()
     {
-        bool isChild=false, isGhost=false;
+        UnMutePlayers();
+        UnMuteAllPlayerLocally();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        /*bool isChild=false, isGhost=false;
         foreach (ChildController child in FindObjectsByType<ChildController>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
         {
             PlayerInput input = child.GetComponent<PlayerInput>();
@@ -16,6 +34,7 @@ public class AudioManager : MonoBehaviour
             if (input != null && input.enabled)
             {
                 isChild=true;
+                Debug.Log("pourquoiiii"+ child.gameObject);
             }
         }
         foreach (GhostController ghost in FindObjectsByType<GhostController>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
@@ -35,7 +54,7 @@ public class AudioManager : MonoBehaviour
         if(isChild == true)
         {
             ProximityByChild();
-        }
+        }*/
 
     }
     public void ProximityByChild() //faut faire selon si on est ghost ou child
@@ -45,14 +64,21 @@ public class AudioManager : MonoBehaviour
             {
                 if(obj.layer == LayerMask.NameToLayer("Ghost"))
                 {
-                    PurrVoicePlayer purrVoicePlayer = obj.GetComponent<PurrVoicePlayer>();
+                    AudioSource audioSource = obj.GetComponent<AudioSource>();
+                    if (audioSource != null)
+                    {
+                        audioSource.volume=0;
+                    }
+
+
+                    /*PurrVoicePlayer purrVoicePlayer = obj.GetComponent<PurrVoicePlayer>();
                     if (purrVoicePlayer != null)
                     {
                         if(!purrVoicePlayer.muted)
                         {
-                        purrVoicePlayer.muted=true;
+                        purrVoicePlayer.muted=true; // faux => baisse le songs
                         }
-                    }
+                    }*/
                 }
                 if(obj.layer == LayerMask.NameToLayer("Child"))
                 {
@@ -95,6 +121,12 @@ public class AudioManager : MonoBehaviour
         Debug.Log("UN MUTE SINGLE PLAYER CALL");
         foreach(GameObject obj in FindObjectsByType<GameObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
             {
+                //AudioSource audioSource = obj.gameObject.GetComponent<AudioSource>();
+                //if (audioSource != null)
+                //{
+                 //   audioSource.volume=0;
+                //}
+
                 PurrVoicePlayer purrVoicePlayer = obj.GetComponent<PurrVoicePlayer>();
                 if (purrVoicePlayer != null)
                 {
@@ -152,16 +184,34 @@ public class AudioManager : MonoBehaviour
     public void MuteAllPlayerLocally() // ca devrait marcher en vrai non?
     {
         // mode pour deactive le proximity chat; personnes n'entend personne 
-        Debug.Log("MUTE ALL PLAYER CALL");
-        foreach(GameObject obj in FindObjectsByType<GameObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+        Debug.Log("MUTE ALL PLAYER LOCALY CALL");
+        foreach(PlayerInput obj in FindObjectsByType<PlayerInput>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
             {
-                PurrVoicePlayer purrVoicePlayer = obj.GetComponent<PurrVoicePlayer>();
+                AudioSource audioSource = obj.gameObject.GetComponent<AudioSource>();
+                if (audioSource != null)
+                {
+                    audioSource.volume=0;
+                }
+                /*PurrVoicePlayer purrVoicePlayer = obj.GetComponent<PurrVoicePlayer>();
                 if (purrVoicePlayer != null)
                 {
                     if(!purrVoicePlayer.muted)
                     {
                         purrVoicePlayer.muted = true;
                     }
+                }*/
+            }
+    }
+
+    public void UnMuteAllPlayerLocally()
+    {
+        Debug.Log(" UN MUTE ALL PLAYER LOCALY CALL");
+        foreach(PlayerInput obj in FindObjectsByType<PlayerInput>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+            {
+                AudioSource audioSource = obj.gameObject.GetComponent<AudioSource>();
+                if (audioSource != null)
+                {
+                    audioSource.volume=1;
                 }
             }
     }

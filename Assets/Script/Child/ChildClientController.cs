@@ -152,6 +152,7 @@ public class ChildClientController : NetworkBehaviour
         m_switchWeaponPressed = false;
         m_attackPressed = false;
 
+        // a retirer
         foreach (var ghost in FindObjectsByType<GhostController>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
         {
             PurrVoicePlayer purrVoicePlayer = ghost.GetComponent<PurrVoicePlayer>();

@@ -451,6 +451,18 @@ public class SettingsCanvasController : MonoBehaviour
         Debug.Log("hey");
         int mode = PlayerPrefs.GetInt("Settings_VoiceMode", 0);
         ApplyAudioMode(mode);
+
+        bool enabled = PlayerPrefs.GetInt("Settings_VoiceChatEnabled", 1)==1;
+        if (enabled)
+            {
+                EnableVoiceChat();
+            }
+        else
+            {
+                DisableVoiceChatLocally();
+            }
+
+
     }
     public void WireAudio()
     {
@@ -473,7 +485,7 @@ public class SettingsCanvasController : MonoBehaviour
         if (toggles.Count   >= 1) BindVoiceChatEnabled(toggles[0]);
     }
 
-    private void BindVoiceChatEnabled(Transform row)
+    private void BindVoiceChatEnabled(Transform row) // verifier si c'est initialiser au debut de la partie si on change dans les options
     {
         SetRowLabel(row, "Enable Voice Chat");
         var tog = ToggleOf(row);
@@ -481,24 +493,36 @@ public class SettingsCanvasController : MonoBehaviour
         tog.onValueChanged.AddListener(v => {
             PlayerPrefs.SetInt("Settings_VoiceChatEnabled", v ? 1 : 0);
             Debug.Log("c ca genre");
-            /*if (v)
+            if (v)
             {
                 EnableVoiceChat();
             }
             else
             {
-                DisableVoiceChat();
-            }*/
+                DisableVoiceChatLocally();
+            }
            
         });
     }
 
     private void EnableVoiceChat()
     {
-        ApplyAudioMode(m_currentaudiomode);
+       // ApplyAudioMode(m_currentaudiomode);
+
+       if (audioManager == null)
+            {
+                foreach(AudioManager obj in FindObjectsByType<AudioManager>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+                {
+                    audioManager=obj; 
+                }
+            }
+        if(audioManager != null)
+        {
+            audioManager.UnMuteAllPlayerLocally();
+        }
     }
 
-    private void DisableVoiceChat()
+    private void DisableVoiceChatLocally()
     {
         if (audioManager == null)
             {
