@@ -2,6 +2,7 @@ using PurrNet;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
@@ -127,6 +128,7 @@ public class PauseMenuView : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         EventSystem.current?.SetSelectedGameObject(null);
+        foreach (var pi in PlayerInput.all) pi.ActivateInput();
         OnPauseChanged?.Invoke(false);
     }
 
@@ -176,6 +178,7 @@ public class PauseMenuView : MonoBehaviour
         Cursor.lockState = CursorLockMode.Confined;
         Cursor.visible = !InputDeviceTracker.IsGamepadActive;
         EnsureEventSystem();
+        foreach (var pi in PlayerInput.all) pi.DeactivateInput();
         if (InputDeviceTracker.IsGamepadActive)
             EventSystem.current?.SetSelectedGameObject(m_resumeButton?.gameObject);
         OnPauseChanged?.Invoke(true);
@@ -243,8 +246,23 @@ public class PauseMenuView : MonoBehaviour
                 case "quit game":
                     AddClick(btn, QuitGame);
                     break;
+                case "guide":
+                    AddClick(btn, ShowTutoInfo);
+                    break;
             }
         }
+    }
+
+    public void ShowTutoInfo()
+    {
+        Debug.Log("[PauseMenu] ShowTutoInfo called");
+        var info = FindAnyObjectByType<TutoInfoController>(FindObjectsInactive.Include);
+        Debug.Log($"[PauseMenu] TutoInfoController found: {info != null}");
+        if (info == null) return;
+
+        SetPauseVisible(false);
+        RestoreOtherCanvases();
+        info.Show(TutoInfoController.Category.All, null, OpenMenu);
     }
 
     private void WireSettingsButtons()

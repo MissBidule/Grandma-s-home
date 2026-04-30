@@ -6,22 +6,52 @@ using UnityEngine.UI;
 
 public class TutoInfoController : MonoBehaviour
 {
+    public enum Category { Ghost, Child, End, All }
+
     [Header("Pages assign in order")]
-    [SerializeField] private GameObject[] m_pages;
+    [SerializeField] private GameObject[] m_ghostPages;
+    [SerializeField] private GameObject[] m_childPages;
+    [SerializeField] private GameObject[] m_endPages;
+    [SerializeField] private GameObject[] m_allPages;
 
     [Header("Navigation buttons")]
     [SerializeField] private Button m_nextButton;
     [SerializeField] private Button m_prevButton;
     [SerializeField] private Button m_confirmButton;
 
+    private GameObject[] m_pages;
     private PlayerInput m_playerInput;
     private int m_currentPage;
     private Action m_onComplete;
     private CursorLockMode m_previousLockMode;
     private bool m_previousCursorVisible;
+    private CanvasGroup m_canvasGroup;
 
-    public void Show(PlayerInput _playerInput, Action _onComplete)
+    private void Awake()
     {
+        m_canvasGroup = GetComponent<CanvasGroup>();
+        SetVisible(false);
+    }
+
+    private void SetVisible(bool _visible)
+    {
+        if (m_canvasGroup == null) return;
+        m_canvasGroup.alpha          = _visible ? 1f : 0f;
+        m_canvasGroup.interactable   = _visible;
+        m_canvasGroup.blocksRaycasts = _visible;
+    }
+
+    public void Show(Category _category, PlayerInput _playerInput, Action _onComplete)
+    {
+        m_pages = _category switch
+        {
+            Category.Ghost => m_ghostPages,
+            Category.Child => m_childPages,
+            Category.End   => m_endPages,
+            Category.All   => m_allPages,
+            _              => null
+        };
+
         if (m_pages == null || m_pages.Length == 0)
         {
             _onComplete?.Invoke();
@@ -39,9 +69,16 @@ public class TutoInfoController : MonoBehaviour
 
         m_playerInput?.DeactivateInput();
 
-        gameObject.SetActive(true);
+        SetVisible(true);
         RefreshPage();
         SelectCurrentButton();
+    }
+
+    private void LateUpdate()
+    {
+        if (m_canvasGroup == null || m_canvasGroup.alpha <= 0f) return;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 
     public void OnNext()
@@ -67,7 +104,7 @@ public class TutoInfoController : MonoBehaviour
 
         m_playerInput?.ActivateInput();
 
-        gameObject.SetActive(false);
+        SetVisible(false);
         m_onComplete?.Invoke();
     }
 
@@ -82,6 +119,11 @@ public class TutoInfoController : MonoBehaviour
 
     private void RefreshPage()
     {
+        foreach (var p in m_ghostPages) if (p) p.SetActive(false);
+        foreach (var p in m_childPages) if (p) p.SetActive(false);
+        foreach (var p in m_endPages)   if (p) p.SetActive(false);
+        foreach (var p in m_allPages)   if (p) p.SetActive(false);
+
         for (int i = 0; i < m_pages.Length; i++)
             if (m_pages[i] != null)
                 m_pages[i].SetActive(i == m_currentPage);

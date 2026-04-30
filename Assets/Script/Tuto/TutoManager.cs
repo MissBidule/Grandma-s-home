@@ -29,7 +29,9 @@ public class TutoManager : MonoBehaviour
 
     [Header("UI")]
     [SerializeField] private TutoUIController m_ui;
-    [SerializeField] private TutoInfoController m_info_tuto;
+    [SerializeField] private GameObject m_timerObject;
+
+    private TutoInfoController m_info_tuto;
 
     private class TutoStep
     {
@@ -95,6 +97,10 @@ public class TutoManager : MonoBehaviour
             (m_ghostClient == null || m_ghostClient.m_uiHolder != null) &&
             (m_childClient == null || m_childClient.m_uiHolder != null));
 
+        m_timerObject?.SetActive(false);
+
+        m_info_tuto = FindAnyObjectByType<TutoInfoController>(FindObjectsInactive.Include);
+
         SetPlayerActive(m_ghost.gameObject, true);
         m_ghostClient.showHUD(true);
         SetPlayerActive(m_child.gameObject, false);
@@ -110,7 +116,7 @@ public class TutoManager : MonoBehaviour
         }
 
         if (m_info_tuto != null)
-            m_info_tuto.Show(m_ghostInput, () => EnterStep(0));
+            m_info_tuto.Show(TutoInfoController.Category.Ghost, m_ghostInput, () => EnterStep(0));
         else
             EnterStep(0);
     }
@@ -133,8 +139,20 @@ public class TutoManager : MonoBehaviour
 
         if (next >= m_steps.Count)
         {
-            m_ui.ShowText("Tutorial <b><color=#5AB4FF>complete</color></b>! If you are done press <b><color=#5AB4FF>Esc</color></b> to <b><color=#5AB4FF>exit</color></b>.");
             m_currentStep = m_steps.Count;
+            m_waitingForFade = true;
+            m_ui.HideText();
+            if (m_info_tuto != null)
+                m_info_tuto.Show(TutoInfoController.Category.End, m_childInput, () =>
+                {
+                    m_waitingForFade = false;
+                    m_ui.ShowText("Tutorial <b><color=#5AB4FF>complete</color></b>! Press <b><color=#5AB4FF>Esc</color></b> to exit.");
+                });
+            else
+            {
+                m_waitingForFade = false;
+                m_ui.ShowText("Tutorial <b><color=#5AB4FF>complete</color></b>! Press <b><color=#5AB4FF>Esc</color></b> to exit.");
+            }
             return;
         }
 
@@ -144,8 +162,18 @@ public class TutoManager : MonoBehaviour
             m_currentRawMessage = null;
             m_ui.HideText();
             m_ui.FadeAndSwitch(
-                _onBlack: SwitchToChild,
-                _onDone: () => { m_waitingForFade = false; EnterStep(next); }
+                _onBlack: () =>
+                {
+                    SwitchToChild();
+                    if (m_info_tuto != null)
+                        m_info_tuto.Show(TutoInfoController.Category.Child, m_childInput, () => { m_waitingForFade = false; EnterStep(next); });
+                    else
+                    {
+                        m_waitingForFade = false;
+                        EnterStep(next);
+                    }
+                },
+                _onDone: null
             );
             return;
         }
