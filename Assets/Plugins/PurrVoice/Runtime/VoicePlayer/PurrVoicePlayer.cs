@@ -10,7 +10,7 @@ namespace PurrNet.Voice
     
     public partial class PurrVoicePlayer : NetworkIdentity
     {
-        [SerializeField, PurrLock] private InputProvider _inputProvider;
+        [SerializeField, PurrLock] public InputProvider _inputProvider;
         [SerializeField, PurrLock] private OutputProvider _outputProvider;
         
         /// <summary>
@@ -61,6 +61,17 @@ namespace PurrNet.Voice
             _outputProvider.output.onEndPlayingSample += OnReplayingSample;
             FilterAwake();
         }
+
+        /*void Update()
+        {
+            if(_currentDevice==null)
+            {
+                Debug.Log("waw le update de")
+                _inputProvider.Init(this);
+                SetupMicrophone();
+                AudioDevices.onDevicesChanged += OnDevicesChanged;
+            }
+        }*/
 
         private void OnFrequencyInitialized(int freq)
         {
@@ -120,7 +131,7 @@ namespace PurrNet.Voice
             AudioDevices.onDevicesChanged += OnDevicesChanged;
         }
 
-        private void SetupMicrophone()
+        public void SetupMicrophone()
         {
             if (micDevice != null)
             {
@@ -144,8 +155,8 @@ namespace PurrNet.Voice
                 {
                     micDevice.Start();
                 }
-                
-                _transport.SetFrequency(micDevice.frequency);
+                if(isController){
+                _transport.SetFrequency(micDevice.frequency);}
             }
             else
             {
@@ -176,7 +187,7 @@ namespace PurrNet.Voice
                 micDevice.onSampleReady += OnMicrophoneData;
         }
 
-        private void SetupRemotePlayback()
+        public void SetupRemotePlayback()
         {
             output.Start();
         }
@@ -230,7 +241,7 @@ namespace PurrNet.Voice
             onReceivedSample?.Invoke(obj);
         }
 
-        private void OnDevicesChanged()
+        public void OnDevicesChanged()
         {
             if (!isOwner) return;
             if (!this || !gameObject) return;

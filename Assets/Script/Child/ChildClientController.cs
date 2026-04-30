@@ -52,6 +52,18 @@ public class ChildClientController : NetworkBehaviour
     {
         if (isOwner) InitOwner();
         m_gotOwner = true;
+
+        PurrVoicePlayer purrVoicePlayer = GetComponent<PurrVoicePlayer>();
+        if (isOwner)
+            {
+                purrVoicePlayer._inputProvider.Init(purrVoicePlayer);
+                purrVoicePlayer.SetupMicrophone();
+                AudioDevices.onDevicesChanged += purrVoicePlayer.OnDevicesChanged;
+            }
+            else
+            {
+                purrVoicePlayer.SetupRemotePlayback();
+            }
     }
 
     private void InitOwner()
