@@ -57,13 +57,6 @@ namespace Script.HouseBuilding
             m_hidenVentExit = _exit;
         }
 
-        [ObserversRpc(bufferLast:true)]
-        public void JustLinkDammit(VentExit _exit)
-        {
-            m_exit.value = _exit;
-            m_hidenVentExit = _exit;
-        }
-
         public void OnFocus(Interact _player)
         {
             m_isFocused = true;
