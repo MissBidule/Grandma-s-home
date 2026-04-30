@@ -115,10 +115,7 @@ public class TutoManager : MonoBehaviour
             if (vol != null) vol.enabled = false;
         }
 
-        if (m_info_tuto != null)
-            m_info_tuto.Show(TutoInfoController.Category.Ghost, m_ghostInput, () => EnterStep(0));
-        else
-            EnterStep(0);
+        m_info_tuto?.Show(TutoInfoController.Category.Ghost, m_ghostInput, () => EnterStep(0));
     }
 
     private void Update()
@@ -142,17 +139,11 @@ public class TutoManager : MonoBehaviour
             m_currentStep = m_steps.Count;
             m_waitingForFade = true;
             m_ui.HideText();
-            if (m_info_tuto != null)
-                m_info_tuto.Show(TutoInfoController.Category.End, m_childInput, () =>
-                {
-                    m_waitingForFade = false;
-                    m_ui.ShowText("Tutorial <b><color=#5AB4FF>complete</color></b>! Press <b><color=#5AB4FF>Esc</color></b> to exit.");
-                });
-            else
+            m_info_tuto?.Show(TutoInfoController.Category.End, m_childInput, () =>
             {
                 m_waitingForFade = false;
                 m_ui.ShowText("Tutorial <b><color=#5AB4FF>complete</color></b>! Press <b><color=#5AB4FF>Esc</color></b> to exit.");
-            }
+            });
             return;
         }
 
@@ -165,13 +156,7 @@ public class TutoManager : MonoBehaviour
                 _onBlack: () =>
                 {
                     SwitchToChild();
-                    if (m_info_tuto != null)
-                        m_info_tuto.Show(TutoInfoController.Category.Child, m_childInput, () => { m_waitingForFade = false; EnterStep(next); });
-                    else
-                    {
-                        m_waitingForFade = false;
-                        EnterStep(next);
-                    }
+                    m_info_tuto?.Show(TutoInfoController.Category.Child, m_childInput, () => { m_waitingForFade = false; EnterStep(next); });
                 },
                 _onDone: null
             );
@@ -210,7 +195,6 @@ public class TutoManager : MonoBehaviour
         }
         m_ghostTuto.m_isSlowed = false;
     }
-
 
     private void BuildSteps()
     {
@@ -559,7 +543,6 @@ public class TutoManager : MonoBehaviour
 
     private void SetBreakable(bool _active) =>
         ForEachScanObject(obj => { var bd = obj.GetComponentInChildren<BrokeDecor>(); if (bd) bd.m_isBreakable = _active; });
-
 
     private void SetRenderingOutline(GameObject _target, string _layerName, bool _active)
     {
