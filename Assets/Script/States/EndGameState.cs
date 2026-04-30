@@ -151,7 +151,7 @@ namespace Script.States
         {
             PurrLogger.LogWarning("Server is not accessible. Returning to menu.", this);
             FindAnyObjectByType<LobbyDataHolder>().SetCurrentLobby(default);
-            StopGame();
+            BackToMenu();
         }
 
         [ObserversRpc(runLocally: true)]

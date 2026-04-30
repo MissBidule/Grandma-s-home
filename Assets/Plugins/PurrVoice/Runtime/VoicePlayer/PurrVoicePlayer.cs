@@ -43,18 +43,6 @@ namespace PurrNet.Voice
 
         private void Awake()
         {
-            Debug.Log($"PurrVoicePlayer Awake on {gameObject.name}");
-            if (isOwner)
-            {
-                _inputProvider.Init(this);
-                SetupMicrophone();
-                AudioDevices.onDevicesChanged += OnDevicesChanged;
-            }
-            else
-            {
-                SetupRemotePlayback();
-            }
-
             if (!_outputProvider)
             {
                 PurrLogger.LogError($"Can't initialize PurrVoicePlayer with no output provider!", this);
@@ -74,6 +62,41 @@ namespace PurrNet.Voice
             FilterAwake();
         }
 
+        protected override void OnOwnerChanged(PlayerID? oldOwner, PlayerID? newOwner, bool asServer)
+        {
+            if (isOwner)
+            {
+                init((PlayerID)newOwner);
+            }
+            else Debug.Log("not owner", this);
+        }
+
+        [ObserversRpc (requireServer: false, runLocally: true, bufferLast: true)]
+        public void init(PlayerID owner)
+        {
+            if (owner == localPlayer)
+            {
+                Debug.Log("Initializing as owner purrvoice");
+                _inputProvider.Init(this);
+                SetupMicrophone();
+                AudioDevices.onDevicesChanged += OnDevicesChanged;
+            }
+            else
+            {
+                Debug.Log("Initializing as client purrvoice");
+                SetupRemotePlayback();
+            }
+        }
+
+        void Start()
+        {
+            if (owner.HasValue && owner.Value != localPlayer)
+            {
+                Debug.Log("Initializing as client purrvoice");
+                SetupRemotePlayback();
+            }
+        }
+
         private void OnFrequencyInitialized(int freq)
         {
             DebugAwake(freq);
@@ -82,18 +105,6 @@ namespace PurrNet.Voice
 
         protected override void OnSpawned()
         {
-        //     base.OnSpawned();
-
-        //     if (isOwner)
-        //     {
-        //         _inputProvider.Init(this);
-        //         SetupMicrophone();
-        //         AudioDevices.onDevicesChanged += OnDevicesChanged;
-        //     }
-        //     else
-        //     {
-        //         SetupRemotePlayback();
-        //     }
         }
 
         protected override void OnDespawned()

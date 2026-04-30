@@ -1,5 +1,6 @@
 using PurrNet;
 using PurrNet.Logging;
+using PurrNet.Voice;
 using Script.UI.Views;
 using UI;
 using Unity.Cinemachine;
@@ -49,7 +50,9 @@ public class ChildClientController : NetworkBehaviour
 
     protected override void OnOwnerChanged(PurrNet.PlayerID? oldOwner, PurrNet.PlayerID? newOwner, bool asServer)
     {
-        if (isOwner) InitOwner();
+        if (isOwner) {
+            InitOwner();
+        }
         m_gotOwner = true;
     }
 
