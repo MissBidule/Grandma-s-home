@@ -43,6 +43,18 @@ namespace PurrNet.Voice
 
         private void Awake()
         {
+            Debug.Log($"PurrVoicePlayer Awake on {gameObject.name}");
+            if (isOwner)
+            {
+                _inputProvider.Init(this);
+                SetupMicrophone();
+                AudioDevices.onDevicesChanged += OnDevicesChanged;
+            }
+            else
+            {
+                SetupRemotePlayback();
+            }
+
             if (!_outputProvider)
             {
                 PurrLogger.LogError($"Can't initialize PurrVoicePlayer with no output provider!", this);
@@ -70,18 +82,18 @@ namespace PurrNet.Voice
 
         protected override void OnSpawned()
         {
-            base.OnSpawned();
+        //     base.OnSpawned();
 
-            if (isOwner)
-            {
-                _inputProvider.Init(this);
-                SetupMicrophone();
-                AudioDevices.onDevicesChanged += OnDevicesChanged;
-            }
-            else
-            {
-                SetupRemotePlayback();
-            }
+        //     if (isOwner)
+        //     {
+        //         _inputProvider.Init(this);
+        //         SetupMicrophone();
+        //         AudioDevices.onDevicesChanged += OnDevicesChanged;
+        //     }
+        //     else
+        //     {
+        //         SetupRemotePlayback();
+        //     }
         }
 
         protected override void OnDespawned()
