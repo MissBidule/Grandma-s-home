@@ -29,6 +29,9 @@ public class TutoManager : MonoBehaviour
 
     [Header("UI")]
     [SerializeField] private TutoUIController m_ui;
+    [SerializeField] private GameObject m_timerObject;
+
+    private TutoInfoController m_info_tuto;
 
     private class TutoStep
     {
@@ -94,6 +97,10 @@ public class TutoManager : MonoBehaviour
             (m_ghostClient == null || m_ghostClient.m_uiHolder != null) &&
             (m_childClient == null || m_childClient.m_uiHolder != null));
 
+        m_timerObject?.SetActive(false);
+
+        m_info_tuto = FindAnyObjectByType<TutoInfoController>(FindObjectsInactive.Include);
+
         SetPlayerActive(m_ghost.gameObject, true);
         m_ghostClient.showHUD(true);
         SetPlayerActive(m_child.gameObject, false);
@@ -108,7 +115,7 @@ public class TutoManager : MonoBehaviour
             if (vol != null) vol.enabled = false;
         }
 
-        EnterStep(0);
+        m_info_tuto?.Show(TutoInfoController.Category.Ghost, m_ghostInput, () => EnterStep(0));
     }
 
     private void Update()
@@ -129,8 +136,14 @@ public class TutoManager : MonoBehaviour
 
         if (next >= m_steps.Count)
         {
-            m_ui.ShowText("Tutorial <b><color=#5AB4FF>complete</color></b>! If you are done press <b><color=#5AB4FF>Esc</color></b> to <b><color=#5AB4FF>exit</color></b>.");
             m_currentStep = m_steps.Count;
+            m_waitingForFade = true;
+            m_ui.HideText();
+            m_info_tuto?.Show(TutoInfoController.Category.End, m_childInput, () =>
+            {
+                m_waitingForFade = false;
+                m_ui.ShowText("Tutorial <b><color=#5AB4FF>complete</color></b>! Press <b><color=#5AB4FF>Esc</color></b> to exit.");
+            });
             return;
         }
 
@@ -140,8 +153,12 @@ public class TutoManager : MonoBehaviour
             m_currentRawMessage = null;
             m_ui.HideText();
             m_ui.FadeAndSwitch(
-                _onBlack: SwitchToChild,
-                _onDone: () => { m_waitingForFade = false; EnterStep(next); }
+                _onBlack: () =>
+                {
+                    SwitchToChild();
+                    m_info_tuto?.Show(TutoInfoController.Category.Child, m_childInput, () => { m_waitingForFade = false; EnterStep(next); });
+                },
+                _onDone: null
             );
             return;
         }
@@ -178,7 +195,6 @@ public class TutoManager : MonoBehaviour
         }
         m_ghostTuto.m_isSlowed = false;
     }
-
 
     private void BuildSteps()
     {
@@ -365,7 +381,7 @@ public class TutoManager : MonoBehaviour
 
         m_steps.Add(new TutoStep
         {
-            message = "<b><color=#5AB4FF>Repair</color></b> the sabotage with [{Child.Interact}], use [{Child.Validate}] to validate.",
+            message = "<b><color=#5AB4FF>Repair</color></b> the sabotage with [{Child.Interact}], use [{Child.Validate}] to confirm.",
             condition = () => m_sabotageObject != null && !m_sabotageObject.m_isSabotaged
         });
 
@@ -465,6 +481,10 @@ public class TutoManager : MonoBehaviour
 
         if (m_childClient != null) m_childClient.m_weaponSwapBlocked = true;
 
+        var childBrain = m_child.GetComponentInChildren<CinemachineBrain>();
+        if (childBrain != null)
+            m_ghostTuto.GetComponent<GhostDeathIndicator>()?.setCameraForTuto(childBrain.OutputCamera.transform);
+
         SetUIHolderActive("GhostUIHolder(Clone)", false);
         SetUIHolderActive("ChildUIHolder(Clone)", true);
         m_childClient.showHUD(true);
@@ -523,7 +543,6 @@ public class TutoManager : MonoBehaviour
 
     private void SetBreakable(bool _active) =>
         ForEachScanObject(obj => { var bd = obj.GetComponentInChildren<BrokeDecor>(); if (bd) bd.m_isBreakable = _active; });
-
 
     private void SetRenderingOutline(GameObject _target, string _layerName, bool _active)
     {

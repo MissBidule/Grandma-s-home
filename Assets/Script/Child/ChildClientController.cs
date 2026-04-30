@@ -92,7 +92,7 @@ public class ChildClientController : NetworkBehaviour
         if (InstanceHandler.TryGetInstance(out UIsManager uisManager))
             uisManager.ShowView<ChildHUDView>();
         
-        m_soundEffects.InitOwner();
+        m_soundEffects?.InitOwner();
     }
 
     void Update()
