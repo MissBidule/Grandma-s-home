@@ -16,6 +16,7 @@ public class GhostSoundEffects : MonoBehaviour
     [SerializeField] private NetworkAudioSource m_deathAudioSource;
     [SerializeField] private NetworkAudioSource m_reviveAudioSource;
     [SerializeField] private NetworkAudioSource m_revivingAudioSource;
+    [SerializeField] private NetworkAudioSource m_transformAudioSource;
     private bool m_isOwner = false;
     
     public void InitOwner()
@@ -73,6 +74,13 @@ public class GhostSoundEffects : MonoBehaviour
         if (!m_isOwner)
             return;
         PlayAudio(m_reviveAudioSource, "Revive");
+    }
+    
+    public void PlayTransformAudio()
+    {
+        if (!m_isOwner)
+            return;
+        PlayAudio(m_transformAudioSource, "Transform");
     }
     
     public void PlayRevivingAudio()

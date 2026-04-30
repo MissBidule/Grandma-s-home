@@ -11,11 +11,13 @@ public class ChildSoundEffects : MonoBehaviour
     [Header("Network Audio Sources")]
     [SerializeField] private NetworkAudioSource m_movementAudioSource;
     [SerializeField] private NetworkAudioSource m_gunAudioSource;
-    [SerializeField] private NetworkAudioSource m_cacAudioSource;
+    [SerializeField] private NetworkAudioSource m_hitGhostAudioSource;
+    [SerializeField] private NetworkAudioSource m_hitAirAudioSource;
     [SerializeField] private NetworkAudioSource m_scarredAudioSource;
     [SerializeField] private NetworkAudioSource m_jumpAudioSource;
     [SerializeField] private NetworkAudioSource m_landAudioSource;
     [SerializeField] private NetworkAudioSource m_repairingAudioSource;
+    [SerializeField] private NetworkAudioSource m_weaponSwapAudioSource;
     private AudioClip m_gunAudioClip;
 
     private bool m_isOwner = false;
@@ -55,11 +57,25 @@ public class ChildSoundEffects : MonoBehaviour
         PlayAudio(m_gunAudioSource, "Gun");
     }
 
-    public void PlayCacAudio()
+    public void PlayHitGhostAudio()
     {
         if (!m_isOwner)
             return;
-        PlayAudio(m_cacAudioSource, "CAC");
+        PlayAudio(m_hitGhostAudioSource, "CAC Ghost");
+    }
+    
+    public void PlayHitAirAudio()
+    {
+        if (!m_isOwner)
+            return;
+        PlayAudio(m_hitAirAudioSource, "CAC Air");
+    }
+    
+    public void PlayWeaponSwapAudio()
+    {
+        if (!m_isOwner)
+            return;
+        PlayAudio(m_weaponSwapAudioSource, "Swap");
     }
 
     public void PlayScarredAudio()

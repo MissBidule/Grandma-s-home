@@ -124,5 +124,7 @@ public class GhostMorph : NetworkBehaviour
         InstantiateForAll(_prefab, _position, _rotation);
 
         m_isMorphed = true;
+        
+        
     }
 }

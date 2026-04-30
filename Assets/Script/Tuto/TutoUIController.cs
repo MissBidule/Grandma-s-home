@@ -22,14 +22,13 @@ public class TutoUIController : MonoBehaviour
     public void ShowText(string _text)
     {
         if (m_instructionText == null) return;
-        m_instructionText.gameObject.SetActive(true);
         m_instructionText.text = _text;
     }
 
     public void HideText()
     {
         if (m_instructionText != null)
-            m_instructionText.gameObject.SetActive(false);
+            m_instructionText.text = string.Empty;
     }
 
     public void FadeAndSwitch(Action _onBlack, Action _onDone = null)

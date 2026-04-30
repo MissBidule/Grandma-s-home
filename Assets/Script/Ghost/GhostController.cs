@@ -547,6 +547,7 @@ public class GhostController : PlayerControllerCore, IInteractable
     [ObserversRpc(runLocally: true)]
     public void changeFaceMat(Vector2 _surfaceOffset)
     {
+        if (m_faceMat == null) return;
         m_faceMat.surfaceOffset = _surfaceOffset;
     }
 
