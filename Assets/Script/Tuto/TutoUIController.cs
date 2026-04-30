@@ -17,19 +17,18 @@ public class TutoUIController : MonoBehaviour
     {
         if (m_fadeOverlay != null)
             SetFadeAlpha(0f);
-        m_instructionText?.gameObject.SetActive(true);
     }
 
     public void ShowText(string _text)
     {
         if (m_instructionText == null) return;
-        m_instructionText?.gameObject.SetActive(true);
         m_instructionText.text = _text;
     }
 
     public void HideText()
     {
-        m_instructionText?.gameObject.SetActive(false);
+        if (m_instructionText != null)
+            m_instructionText.text = string.Empty;
     }
 
     public void FadeAndSwitch(Action _onBlack, Action _onDone = null)
