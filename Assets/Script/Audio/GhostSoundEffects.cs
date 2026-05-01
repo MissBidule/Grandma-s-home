@@ -34,96 +34,168 @@ public class GhostSoundEffects : NetworkBehaviour
         InstanceHandler.UnregisterInstance<ChildSoundEffects>();
     }
     
-    [ObserversRpc(bufferLast:true)]
+    [ServerRpc]
     public void PlayScarringAudio()
+    {
+        PlayScarringAudioRPC();
+    }
+    
+    [ObserversRpc(bufferLast:true)]
+    public void PlayScarringAudioRPC()
     {
         // if (!m_isOwner)
         //     return;
         PlayAudio(m_scarringAudioSource, "Scarred");
     }
     
-    [ObserversRpc(bufferLast:true)]
+    [ServerRpc]
     public void PlayJumpAudio()
+    {
+        PlayJumpAudioRPC();
+    }
+    
+    [ObserversRpc(bufferLast:true)]
+    public void PlayJumpAudioRPC()
     {
         // if (!m_isOwner)
         //     return;
         PlayAudio(m_jumpAudioSource, "Jump");
     }
     
-    [ObserversRpc(bufferLast:true)]
+    [ServerRpc]
     public void PlayLandAudio()
+    {
+        PlayLandAudioRPC();
+    }
+    
+    [ObserversRpc(bufferLast:true)]
+    public void PlayLandAudioRPC()
     {
         // if (!m_isOwner)
         //     return;
         PlayAudio(m_landAudioSource, "Land");
     }
     
-    [ObserversRpc(bufferLast:true)]
+    [ServerRpc]
     public void PlayDashAudio()
+    {
+        PlayDashAudioRPC();
+    }
+    
+    [ObserversRpc(bufferLast:true)]
+    public void PlayDashAudioRPC()
     {
         // if (!m_isOwner)
         //     return;
         PlayAudio(m_dashAudioSource, "Dash");
     }
     
-    [ObserversRpc(bufferLast:true)]
+    [ServerRpc]
     public void PlayDeathAudio()
+    {
+        PlayDeathAudioRPC();
+    }
+    
+    [ObserversRpc(bufferLast:true)]
+    public void PlayDeathAudioRPC()
     {
         // if (!m_isOwner)
         //     return;
         PlayAudio(m_deathAudioSource, "Death");
     }
     
-    [ObserversRpc(bufferLast:true)]
+    [ServerRpc]
     public void PlayReviveAudio()
+    {
+        PlayReviveAudioRPC();
+    }
+    
+    [ObserversRpc(bufferLast:true)]
+    public void PlayReviveAudioRPC()
     {
         // if (!m_isOwner)
         //     return;
         PlayAudio(m_reviveAudioSource, "Revive");
     }
     
-    [ObserversRpc(bufferLast:true)]
+    [ServerRpc]
     public void PlayTransformAudio()
+    {
+        PlayTransformAudioRPC();
+    }
+    
+    [ObserversRpc(bufferLast:true)]
+    public void PlayTransformAudioRPC()
     {
         // if (!m_isOwner)
         //     return;
         PlayAudio(m_transformAudioSource, "Transform");
     }
     
-    [ObserversRpc(bufferLast:true)]
+    [ServerRpc]
     public void PlayRevivingAudio()
+    {
+        PlayRevivingAudioRPC();
+    }
+    
+    [ObserversRpc(bufferLast:true)]
+    public void PlayRevivingAudioRPC()
     {
         // if (!m_isOwner)
         //     return;
         PlayAudio(m_revivingAudioSource, "Reviving", true);
     }
     
-    [ObserversRpc(bufferLast:true)]
+    [ServerRpc]
     public void StopRevivingAudio()
+    {
+        StopRevivingAudioRPC();
+    }
+    
+    [ObserversRpc(bufferLast:true)]
+    public void StopRevivingAudioRPC()
     {
         // if (!m_isOwner)
         //     return;
         StopAudio(m_revivingAudioSource, "Reviving");
     }
     
-    [ObserversRpc(bufferLast:true)]
+    [ServerRpc]
     public void PlaySabotageAudio()
+    {
+        PlaySabotageAudioRPC();
+    }
+    
+    [ObserversRpc(bufferLast:true)]
+    public void PlaySabotageAudioRPC()
     {
         // if (!m_isOwner)
         //     return;
         PlayAudio(m_sabotagingAudioSource, "Repair", true);
     }
     
-    [ObserversRpc(bufferLast:true)]
+    [ServerRpc]
     public void StopSabotageAudio()
+    {
+        StopSabotageAudioRPC();
+    }
+    
+    [ObserversRpc(bufferLast:true)]
+    public void StopSabotageAudioRPC()
     {
         // if (!m_isOwner)
         //     return;
         StopAudio(m_sabotagingAudioSource, "Repair");
     }
     
-    [ObserversRpc(bufferLast:true)]
+    [ServerRpc]
     public void SetWalkingSpeed(float _speed)
+    {
+        SetWalkingSpeedRPC(_speed);
+    }
+    
+    [ObserversRpc(bufferLast:true)]
+    public void SetWalkingSpeedRPC(float _speed)
     {
         // if (!m_isOwner)
         //     return;

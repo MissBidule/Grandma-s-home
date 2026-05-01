@@ -41,8 +41,14 @@ public class ChildSoundEffects : NetworkBehaviour
     
     // Movement Will need a bigger script don't touch
 
-    [ObserversRpc(bufferLast:true)]
+    [ServerRpc]
     public void PlayCustomAudio(AudioClip _clip)
+    {
+        PlayCustomAudioRPC(_clip);
+    }
+    
+    [ObserversRpc(bufferLast:true)]
+    public void PlayCustomAudioRPC(AudioClip _clip)
     {
         // if (!m_isOwner)
         //     return;
@@ -50,8 +56,14 @@ public class ChildSoundEffects : NetworkBehaviour
         PlayAudio(m_gunAudioSource, "Gun");
     }
     
-    [ObserversRpc(bufferLast:true)]
+    [ServerRpc]
     public void PlayGunAudio()
+    {
+        PlayGunAudioRPC();
+    }
+    
+    [ObserversRpc(bufferLast:true)]
+    public void PlayGunAudioRPC()
     {
         // if (!m_isOwner)
         //     return;
@@ -59,72 +71,126 @@ public class ChildSoundEffects : NetworkBehaviour
         PlayAudio(m_gunAudioSource, "Gun");
     }
 
-    [ObserversRpc(bufferLast:true)]
+    [ServerRpc]
     public void PlayHitGhostAudio()
+    {
+        PlayHitGhostAudioRPC();
+    }
+    
+    [ObserversRpc(bufferLast:true)]
+    public void PlayHitGhostAudioRPC()
     {
         // if (!m_isOwner)
         //     return;
         PlayAudio(m_hitGhostAudioSource, "CAC Ghost");
     }
     
-    [ObserversRpc(bufferLast:true)]
+    [ServerRpc]
     public void PlayHitAirAudio()
+    {
+        PlayHitAirAudioRPC();
+    }
+    
+    [ObserversRpc(bufferLast:true)]
+    public void PlayHitAirAudioRPC()
     {
         // if (!m_isOwner)
         //     return;
         PlayAudio(m_hitAirAudioSource, "CAC Air");
     }
     
-    [ObserversRpc(bufferLast:true)]
+    [ServerRpc]
     public void PlayWeaponSwapAudio()
+    {
+        PlayWeaponSwapAudioRPC();
+    }
+    
+    [ObserversRpc(bufferLast:true)]
+    public void PlayWeaponSwapAudioRPC()
     {
         // if (!m_isOwner)
         //     return;
         PlayAudio(m_weaponSwapAudioSource, "Swap");
     }
 
-    [ObserversRpc(bufferLast:true)]
+    [ServerRpc]
     public void PlayScarredAudio()
+    {
+        PlayScarredAudioRPC();
+    }
+
+    [ObserversRpc(bufferLast:true)]
+    public void PlayScarredAudioRPC()
     {
         // if (!m_isOwner)
         //     return;
         PlayAudio(m_scarredAudioSource, "Scarred");
     }
 
-    [ObserversRpc(bufferLast:true)]
+    [ServerRpc]
     public void PlayJumpAudio()
+    {
+        PlayJumpAudioRPC();
+    }
+
+    [ObserversRpc(bufferLast:true)]
+    public void PlayJumpAudioRPC()
     {
         // if (!m_isOwner)
         //     return;
         PlayAudio(m_jumpAudioSource, "Jump");
     }
 
-    [ObserversRpc(bufferLast:true)]
+    [ServerRpc]
     public void PlayLandAudio()
+    {
+        PlayLandAudioRPC();
+    }
+
+    [ObserversRpc(bufferLast:true)]
+    public void PlayLandAudioRPC()
     {
         // if (!m_isOwner)
         //     return;
         PlayAudio(m_landAudioSource, "Land");
     }
 
-    [ObserversRpc(bufferLast:true)]
+    [ServerRpc]
     public void PlayRepairAudio()
+    {
+        PlayRepairAudioRPC();
+    }
+    
+    [ObserversRpc(bufferLast:true)]
+    public void PlayRepairAudioRPC()
     {
         // if (!m_isOwner)
         //     return;
         PlayAudio(m_repairingAudioSource, "Repair", true);
     }
     
-    [ObserversRpc(bufferLast:true)]
+    [ServerRpc]
     public void StopRepairAudio()
+    {
+        StopRepairAudioRPC();
+    }
+    
+    [ObserversRpc(bufferLast:true)]
+    public void StopRepairAudioRPC()
     {
         // if (!m_isOwner)
         //     return;
         StopAudio(m_repairingAudioSource, "Repair");
     }
 
-    [ObserversRpc(bufferLast:true)]
+    [ServerRpc]
     public void SetWalkingSpeed(float _speed)
+    {
+        SetWalkingSpeedRPC(_speed);
+    }
+    
+    [ObserversRpc(bufferLast:true)]
+    public void SetWalkingSpeedRPC(float _speed)
     {
         // if (!m_isOwner)
         //     return;
