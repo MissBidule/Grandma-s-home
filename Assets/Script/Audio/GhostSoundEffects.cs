@@ -4,7 +4,7 @@ using PurrLobby;
 using System.Collections;
 using UnityEngine;
 
-public class GhostSoundEffects : MonoBehaviour
+public class GhostSoundEffects : NetworkBehaviour
 {
     [Header("Network Audio Sources")]
     [SerializeField] private NetworkAudioSource m_movementAudioSource;
@@ -34,101 +34,113 @@ public class GhostSoundEffects : MonoBehaviour
         InstanceHandler.UnregisterInstance<ChildSoundEffects>();
     }
     
+    [ObserversRpc(bufferLast:true)]
     public void PlayScarringAudio()
     {
-        if (!m_isOwner)
-            return;
+        // if (!m_isOwner)
+        //     return;
         PlayAudio(m_scarringAudioSource, "Scarred");
     }
     
+    [ObserversRpc(bufferLast:true)]
     public void PlayJumpAudio()
     {
-        if (!m_isOwner)
-            return;
+        // if (!m_isOwner)
+        //     return;
         PlayAudio(m_jumpAudioSource, "Jump");
     }
     
+    [ObserversRpc(bufferLast:true)]
     public void PlayLandAudio()
     {
-        if (!m_isOwner)
-            return;
+        // if (!m_isOwner)
+        //     return;
         PlayAudio(m_landAudioSource, "Land");
     }
     
+    [ObserversRpc(bufferLast:true)]
     public void PlayDashAudio()
     {
-        if (!m_isOwner)
-            return;
+        // if (!m_isOwner)
+        //     return;
         PlayAudio(m_dashAudioSource, "Dash");
     }
     
+    [ObserversRpc(bufferLast:true)]
     public void PlayDeathAudio()
     {
-        if (!m_isOwner)
-            return;
+        // if (!m_isOwner)
+        //     return;
         PlayAudio(m_deathAudioSource, "Death");
     }
     
+    [ObserversRpc(bufferLast:true)]
     public void PlayReviveAudio()
     {
-        if (!m_isOwner)
-            return;
+        // if (!m_isOwner)
+        //     return;
         PlayAudio(m_reviveAudioSource, "Revive");
     }
     
+    [ObserversRpc(bufferLast:true)]
     public void PlayTransformAudio()
     {
-        if (!m_isOwner)
-            return;
+        // if (!m_isOwner)
+        //     return;
         PlayAudio(m_transformAudioSource, "Transform");
     }
     
+    [ObserversRpc(bufferLast:true)]
     public void PlayRevivingAudio()
     {
-        if (!m_isOwner)
-            return;
+        // if (!m_isOwner)
+        //     return;
         PlayAudio(m_revivingAudioSource, "Reviving", true);
     }
     
+    [ObserversRpc(bufferLast:true)]
     public void StopRevivingAudio()
     {
-        if (!m_isOwner)
-            return;
+        // if (!m_isOwner)
+        //     return;
         StopAudio(m_revivingAudioSource, "Reviving");
     }
     
+    [ObserversRpc(bufferLast:true)]
     public void PlaySabotageAudio()
     {
-        if (!m_isOwner)
-            return;
+        // if (!m_isOwner)
+        //     return;
         PlayAudio(m_sabotagingAudioSource, "Repair", true);
     }
     
+    [ObserversRpc(bufferLast:true)]
     public void StopSabotageAudio()
     {
-        if (!m_isOwner)
-            return;
+        // if (!m_isOwner)
+        //     return;
         StopAudio(m_sabotagingAudioSource, "Repair");
     }
     
+    [ObserversRpc(bufferLast:true)]
     public void SetWalkingSpeed(float _speed)
     {
-        if (!m_isOwner)
-            return;
+        // if (!m_isOwner)
+        //     return;
         //print(_speed);
         if (_speed < 0.1f)
         {
-            m_movementAudioSource.Stop();
+            m_movementAudioSource.audioSource.Stop();
             return;
         }
 
-        if (!m_movementAudioSource.isPlaying)
+        if (!m_movementAudioSource.audioSource.isPlaying)
         {
-            m_movementAudioSource.Play();
+            m_movementAudioSource.audioSource.Play();
         }
         
         const float maxSpeed = 5;
-        m_movementAudioSource.volume = (_speed / maxSpeed) * AudioVolumeManager.SFXVolume;
+        m_movementAudioSource.audioSource.volume = (_speed / maxSpeed) * AudioVolumeManager.SFXVolume;
     }
 
     private void PlayAudio(NetworkAudioSource _source, string _name, bool _loop = false, float _loopDuration = 0)
@@ -151,20 +163,20 @@ public class GhostSoundEffects : MonoBehaviour
                 StartCoroutine(LoopSource(_source, _name, _loopDuration));
             else
             {
-                _source.loop = true;
-                _source.Play();
+                _source.audioSource.loop = true;
+                _source.audioSource.Play();
             }
             return;
         }
-        _source.loop = false;
-        _source.volume = AudioVolumeManager.SFXVolume;
-        _source.Play();
+        _source.audioSource.loop = false;
+        _source.audioSource.volume = AudioVolumeManager.SFXVolume;
+        _source.audioSource.Play();
     }
 
     private IEnumerator LoopSource(NetworkAudioSource _source, string _name, float _loopDuration)
     {
-        _source.loop = true;
-        _source.Play();
+        _source.audioSource.loop = true;
+        _source.audioSource.Play();
         yield return new WaitForSeconds(_loopDuration);
         StopAudio(_source, _name);
     }
@@ -183,7 +195,7 @@ public class GhostSoundEffects : MonoBehaviour
             return;
         }
         
-        _source.Stop();
-        _source.time = 0;
+        _source.audioSource.Stop();
+        _source.audioSource.time = 0;
     }
 }

@@ -5,7 +5,7 @@ using PurrNet.Logging;
 using PurrLobby;
 using UnityEngine;
 
-public class ChildSoundEffects : MonoBehaviour
+public class ChildSoundEffects : NetworkBehaviour
 {
     
     [Header("Network Audio Sources")]
@@ -41,98 +41,109 @@ public class ChildSoundEffects : MonoBehaviour
     
     // Movement Will need a bigger script don't touch
 
+    [ObserversRpc(bufferLast:true)]
     public void PlayCustomAudio(AudioClip _clip)
     {
-        if (!m_isOwner)
-            return;
+        // if (!m_isOwner)
+        //     return;
         m_gunAudioSource.clip = _clip;
         PlayAudio(m_gunAudioSource, "Gun");
     }
     
+    [ObserversRpc(bufferLast:true)]
     public void PlayGunAudio()
     {
-        if (!m_isOwner)
-            return;
+        // if (!m_isOwner)
+        //     return;
         m_gunAudioSource.clip = m_gunAudioClip;
         PlayAudio(m_gunAudioSource, "Gun");
     }
 
+    [ObserversRpc(bufferLast:true)]
     public void PlayHitGhostAudio()
     {
-        if (!m_isOwner)
-            return;
+        // if (!m_isOwner)
+        //     return;
         PlayAudio(m_hitGhostAudioSource, "CAC Ghost");
     }
     
+    [ObserversRpc(bufferLast:true)]
     public void PlayHitAirAudio()
     {
-        if (!m_isOwner)
-            return;
+        // if (!m_isOwner)
+        //     return;
         PlayAudio(m_hitAirAudioSource, "CAC Air");
     }
     
+    [ObserversRpc(bufferLast:true)]
     public void PlayWeaponSwapAudio()
     {
-        if (!m_isOwner)
-            return;
+        // if (!m_isOwner)
+        //     return;
         PlayAudio(m_weaponSwapAudioSource, "Swap");
     }
 
+    [ObserversRpc(bufferLast:true)]
     public void PlayScarredAudio()
     {
-        if (!m_isOwner)
-            return;
+        // if (!m_isOwner)
+        //     return;
         PlayAudio(m_scarredAudioSource, "Scarred");
     }
 
+    [ObserversRpc(bufferLast:true)]
     public void PlayJumpAudio()
     {
-        if (!m_isOwner)
-            return;
+        // if (!m_isOwner)
+        //     return;
         PlayAudio(m_jumpAudioSource, "Jump");
     }
 
+    [ObserversRpc(bufferLast:true)]
     public void PlayLandAudio()
     {
-        if (!m_isOwner)
-            return;
+        // if (!m_isOwner)
+        //     return;
         PlayAudio(m_landAudioSource, "Land");
     }
 
+    [ObserversRpc(bufferLast:true)]
     public void PlayRepairAudio()
     {
-        if (!m_isOwner)
-            return;
+        // if (!m_isOwner)
+        //     return;
         PlayAudio(m_repairingAudioSource, "Repair", true);
     }
     
+    [ObserversRpc(bufferLast:true)]
     public void StopRepairAudio()
     {
-        if (!m_isOwner)
-            return;
+        // if (!m_isOwner)
+        //     return;
         StopAudio(m_repairingAudioSource, "Repair");
     }
 
+    [ObserversRpc(bufferLast:true)]
     public void SetWalkingSpeed(float _speed)
     {
-        if (!m_isOwner)
-            return;
+        // if (!m_isOwner)
+        //     return;
         //print(_speed);
         if (_speed < 3f)
         {
-            m_movementAudioSource.Stop();
+            m_movementAudioSource.audioSource.Stop();
             return;
         }
 
-        if (!m_movementAudioSource.isPlaying)
+        if (!m_movementAudioSource.audioSource.isPlaying)
         {
-            m_movementAudioSource.Play();
+            m_movementAudioSource.audioSource.Play();
         }
         
         const float maxSpeed = 5;
-        m_movementAudioSource.volume = (_speed / maxSpeed) * AudioVolumeManager.SFXVolume;
+        m_movementAudioSource.audioSource.volume = (_speed / maxSpeed) * AudioVolumeManager.SFXVolume;
     }
-
+    
     private void PlayAudio(NetworkAudioSource _source, string _name, bool _loop = false, float _loopDuration = 0)
     {
         if (_source == null)
@@ -153,20 +164,20 @@ public class ChildSoundEffects : MonoBehaviour
                 StartCoroutine(LoopSource(_source, _name, _loopDuration));
             else
             {
-                _source.loop = true;
-                _source.Play();
+                _source.audioSource.loop = true;
+                _source.audioSource.Play();
             }
             return;
         }
-        _source.loop = false;
-        _source.volume = AudioVolumeManager.SFXVolume;
-        _source.Play();
+        _source.audioSource.loop = false;
+        _source.audioSource.volume = AudioVolumeManager.SFXVolume;
+        _source.audioSource.Play();
     }
 
     private IEnumerator LoopSource(NetworkAudioSource _source, string _name, float _loopDuration)
     {
-        _source.loop = true;
-        _source.Play();
+        _source.audioSource.loop = true;
+        _source.audioSource.Play();
         yield return new WaitForSeconds(_loopDuration);
         StopAudio(_source, _name);
     }
@@ -185,8 +196,8 @@ public class ChildSoundEffects : MonoBehaviour
             return;
         }
         
-        _source.Stop();
-        _source.time = 0;
+        _source.audioSource.Stop();
+        _source.audioSource.time = 0;
     }
     
 }
