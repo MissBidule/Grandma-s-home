@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -439,17 +440,11 @@ public class SettingsCanvasController : MonoBehaviour
     {
         int mode = PlayerPrefs.GetInt("Settings_VoiceMode", 1);
         ApplyAudioMode(mode);
-        ChildInputController.m_isPushToTalkModeChild = m_currentaudiomode;
-        GhostInputController.m_isPushToTalkModeGhost = m_currentaudiomode;
+        ChildInputController.m_isPushToTalkModeChild = mode;
+        GhostInputController.m_isPushToTalkModeGhost = mode;
         bool enabled = PlayerPrefs.GetInt("Settings_VoiceChatEnabled", 1)==1;
-        if (enabled)
-            {
-                EnableVoiceChat();
-            }
-        else
-            {
-                DisableVoiceChatLocally();
-            }
+        Debug.Log("?! init : " + enabled);
+        EnableVoiceChat(enabled);
     }
     public void WireAudio()
     {
@@ -475,48 +470,27 @@ public class SettingsCanvasController : MonoBehaviour
     {
         SetRowLabel(row, "Enable Voice Chat");
         var tog = ToggleOf(row);
-        tog.SetIsOnWithoutNotify(PlayerPrefs.GetInt("Settings_VoiceChatEnabled", 1) == 1);
+        var currentVoiceChatEnabled = PlayerPrefs.GetInt("Settings_VoiceChatEnabled", 1) == 1;
+        tog.SetIsOnWithoutNotify(currentVoiceChatEnabled);
+        EnableVoiceChat(currentVoiceChatEnabled);
         tog.onValueChanged.AddListener(v => {
             PlayerPrefs.SetInt("Settings_VoiceChatEnabled", v ? 1 : 0);
-            if (v)
-            {
-                EnableVoiceChat();
-            }
-            else
-            {
-                DisableVoiceChatLocally();
-            }
+            Debug.Log("?! BVCE : " + v);
+            EnableVoiceChat(v);
            
         });
+        
     }
 
-    private void EnableVoiceChat()
+    private void EnableVoiceChat(bool _enable)
     {
        if (audioManager == null)
-            {
-                foreach(AudioManager obj in FindObjectsByType<AudioManager>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
-                {
-                    audioManager=obj; 
-                }
-            }
-        if(audioManager != null)
         {
-            audioManager.UnMuteAllPlayerLocally();
+            audioManager = FindAnyObjectByType<AudioManager>(FindObjectsInactive.Exclude);
         }
-    }
-
-    private void DisableVoiceChatLocally()
-    {
-        if (audioManager == null)
-            {
-                foreach(AudioManager obj in FindObjectsByType<AudioManager>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
-                {
-                    audioManager=obj; 
-                }
-            }
         if(audioManager != null)
         {
-            audioManager.MuteAllPlayerLocally();
+            audioManager.MuteAllPlayerLocally(!_enable);
         }
     }
 
@@ -952,47 +926,22 @@ public class SettingsCanvasController : MonoBehaviour
 
     private void ApplyAudioMode(int mode)
     {
+        if (audioManager == null)
+        {
+            audioManager = FindAnyObjectByType<AudioManager>(FindObjectsInactive.Exclude);
+        }
+        if (audioManager == null) return;
         switch (mode)
         {
             case 0:
-                if (audioManager == null)
-                {
-                    foreach(AudioManager obj in FindObjectsByType<AudioManager>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
-                    {
-                        audioManager=obj; 
-                    }
-                }
-                if(audioManager!=null){
-                    audioManager.ProximityDefaultMode();
-                }
+                audioManager.ProximityDefaultMode();
                 break;
             case 1:
-                if (audioManager == null)
-                {
-                    foreach(AudioManager obj in FindObjectsByType<AudioManager>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
-                    {
-                        audioManager=obj; 
-                    }
-                }
-
-                if (audioManager != null)
-                {
-                    audioManager.InitPushToTalk();
-                }
+                audioManager.InitPushToTalk();
 
                 break;
             case 2:
-                if (audioManager == null)
-                {
-                    foreach(AudioManager obj in FindObjectsByType<AudioManager>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
-                    {
-                        audioManager=obj; 
-                    }
-                }
-                if (audioManager != null)
-                {
-                    audioManager.MuteSinglePlayer();
-                }
+                audioManager.MuteSinglePlayer();
                 break;
         }
     }

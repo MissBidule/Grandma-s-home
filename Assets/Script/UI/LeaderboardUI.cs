@@ -63,9 +63,9 @@ public class LeaderboardUI : GameView
     {
         m_canvasInstance = Instantiate(m_leaderboardCanvasPrefab, transform);
         m_canvasInstance.name = "Canvas_Leaderboard";
-        if (m_canvasInstance.TryGetComponent<GraphicRaycaster>(out var gr)) 
+        if (m_canvasInstance.TryGetComponent<GraphicRaycaster>(out var gr)) DestroyImmediate(gr);
+        if (m_canvasInstance.TryGetComponent<CanvasScaler>(out var cs)) DestroyImmediate(cs);
         if (m_canvasInstance.TryGetComponent<Canvas>(out var c)) DestroyImmediate(c);
-        if (m_canvasInstance.TryGetComponent<CanvasScaler>(out var cs)) DestroyImmediate(cs);DestroyImmediate(gr);
         var rt = m_canvasInstance.GetComponent<RectTransform>();
         if (rt != null)
         {
@@ -82,10 +82,9 @@ public class LeaderboardUI : GameView
         if (bg != null)
         {
             RectTransform bgRT = bg.GetComponent<RectTransform>();
-            // Force le fond à s'étirer sur tout le parent (le LeaderboardUI)
             bgRT.anchorMin = Vector2.zero;
             bgRT.anchorMax = Vector2.one;
-            bgRT.offsetMin = new Vector2(50, 50); // Marge interne de 50 pixels
+            bgRT.offsetMin = new Vector2(50, 50); 
             bgRT.offsetMax = new Vector2(-50, -50);
         }
 

@@ -4,8 +4,6 @@ using UnityEngine.InputSystem;
 
 public class AudioManager : MonoBehaviour
 {
-    // Faut aussi gérer au début toujours mettre le bon mode (faut que le mode qui est écrit au début de partie s'applique vraiment)
-
     public void ProximityDefaultMode()
     {
         UnMutePlayers();
@@ -83,26 +81,14 @@ public class AudioManager : MonoBehaviour
                 }
     }
 
-    public void MuteAllPlayerLocally()
+    public void MuteAllPlayerLocally(bool _mute)
     {
         foreach(PlayerInput obj in FindObjectsByType<PlayerInput>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
             {
                 AudioSource audioSource = obj.gameObject.GetComponent<AudioSource>();
                 if (audioSource != null)
                 {
-                    audioSource.volume=0;
-                }
-            }
-    }
-
-    public void UnMuteAllPlayerLocally()
-    {
-        foreach(PlayerInput obj in FindObjectsByType<PlayerInput>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
-            {
-                AudioSource audioSource = obj.gameObject.GetComponent<AudioSource>();
-                if (audioSource != null)
-                {
-                    audioSource.volume=1;
+                    audioSource.volume=_mute ? 0 : 1;
                 }
             }
     }
