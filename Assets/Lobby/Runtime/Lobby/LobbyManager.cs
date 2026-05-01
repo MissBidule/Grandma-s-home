@@ -226,7 +226,7 @@ namespace PurrLobby
                 }
                 else
                 {
-                    Invoke("ReconnectToLobbyAsync", .5f);
+                    Invoke("ReconnectToLobbyAsync", UnityEngine.Random.Range(0.3f, 0.5f));
                 }
                 _restartAsked = false;
                 _restartGame = true;
