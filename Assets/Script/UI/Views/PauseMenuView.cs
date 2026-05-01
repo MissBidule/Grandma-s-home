@@ -110,6 +110,9 @@ public class PauseMenuView : MonoBehaviour
         if (Time.unscaledTime < m_escapeLockUntil) return;
         m_escapeLockUntil = Time.unscaledTime + 0.25f;
 
+        var guide = FindAnyObjectByType<TutoInfoController>(FindObjectsInactive.Include);
+        if (guide != null && guide.IsVisible) { guide.ForceClose(Resume); return; }
+
         if (m_settingsCanvas != null && m_settingsCanvas.activeSelf)
             CloseOptions();
         else if (m_isPaused)
