@@ -424,8 +424,6 @@ public class ChildClientController : NetworkBehaviour
 
         if (_movement.sqrMagnitude < 0.001f) return wishDir;
 
-        Cursor.lockState = CursorLockMode.Locked;
-
         Transform cameraTransform = m_playerCamera.transform;
 
         Vector3 forward = cameraTransform.forward;

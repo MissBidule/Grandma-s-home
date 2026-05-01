@@ -78,6 +78,7 @@ public class TutoInfoController : MonoBehaviour
     private void LateUpdate()
     {
         if (m_canvasGroup == null || m_canvasGroup.alpha <= 0f) return;
+        if (PauseMenuView.IsPaused) return;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }

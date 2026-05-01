@@ -219,15 +219,13 @@ public class PlayerControllerCore : NetworkBehaviour
     private void OnPauseChanged(bool paused)
     {
         if (!isOwner) return;
+        if (!paused && InstanceHandler.TryGetInstance(out EndGameState es) && es.IsGameOver) return;
         var playerInput = GetComponent<PlayerInput>();
-        if (playerInput == null) return;
-        if(!m_tutoOn)
+        if (playerInput == null || !playerInput.enabled) return;
+        foreach (var action in playerInput.actions)
         {
-            foreach (var action in playerInput.actions)
-            {
-                if (action.name == "Escape") continue;
-                if (paused) action.Disable(); else action.Enable();
-            }
+            if (action.name == "Escape") continue;
+            if (paused) action.Disable(); else action.Enable();
         }
         if (!paused)
         {
