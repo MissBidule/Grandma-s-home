@@ -62,11 +62,9 @@ public class ChildClientController : NetworkBehaviour
         }
         m_childController.StartGameMusic();
         m_childInputController = GetComponent<ChildInputController>();
-        AudioManager audioManager = FindFirstObjectByType<AudioManager>();
-        if (audioManager != null)
-        {
-            audioManager.MuteGhostByChild();
-        }
+        PauseMenuView pauseMenuView = FindFirstObjectByType<PauseMenuView>();
+        pauseMenuView.InitAudioMode();
+
         if (m_uiHolder == null)
         {
             m_uiHolder = UnityProxy.InstantiateDirectly(m_uiHolder_prefab);
@@ -112,12 +110,6 @@ public class ChildClientController : NetworkBehaviour
         if (!m_childInputController) return;
 
         UpdateHUD();
-
-        // DebugPrintTrafic();
-
-        //if (m_childController.m_isScared && m_qteCircle.m_isRunning)
-        //    m_qteCircle.CancelQte();
-
         var moveVec = m_childInputController.m_movementInputVector;
         var wishDir = GetDirectionIntention(moveVec);
 
@@ -146,6 +138,15 @@ public class ChildClientController : NetworkBehaviour
         m_jumpPressed = false;
         m_switchWeaponPressed = false;
         m_attackPressed = false;
+
+        foreach (var ghost in FindObjectsByType<GhostController>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+        {
+            PurrVoicePlayer purrVoicePlayer = ghost.gameObject.GetComponent<PurrVoicePlayer>();
+            if(!purrVoicePlayer.muted)
+            {
+                purrVoicePlayer.muted = true;
+            }
+        }
     }
 
     public void DebugPrintTrafic()

@@ -23,6 +23,7 @@ public class GhostInputController : MonoBehaviour
     private TutoInstructions m_tutoChildInstructions;
     public QteCircle m_qteCircle;
     private int m_lastInteractFrame = -1;
+    static public int m_isPushToTalkModeGhost;
 
     private bool isOwner => m_ghostClientController != null && m_ghostClientController.isOwner;
 
@@ -33,6 +34,12 @@ public class GhostInputController : MonoBehaviour
      */
     void Start()
     {
+        if (m_isPushToTalkModeGhost == 1)
+        {
+            AudioManager audioManager = FindFirstObjectByType<AudioManager>();
+            audioManager.PushToTalk(false);
+        }
+
         m_ghostClientController = GetComponent<GhostClientController>();
         m_ghostMorph = GetComponent<GhostMorph>();
         m_ghostMorphPreview = GetComponentInChildren<GhostMorphPreview>();
@@ -306,5 +313,33 @@ public class GhostInputController : MonoBehaviour
 
             PauseMenuView.Instance?.OnEscapePressed();
         }   
+    }
+
+    /*
+     * @brief OnPushToTalk is called by the Input System when PushTotalk input is detected
+     * @param _context: The context of the input action
+     * @return void
+     */
+    public void OnPushToTalk(InputAction.CallbackContext _context)
+    {
+        if(m_isPushToTalkModeGhost==1)
+        {
+            AudioManager audioManager = FindFirstObjectByType<AudioManager>();
+            if (!isOwner) return;
+            if (_context.started)
+            {
+                // On press
+                audioManager.PushToTalk(true);
+            }
+            else if (_context.canceled)
+            {
+                // On release
+                audioManager.PushToTalk(false);
+            }
+        }
+        else
+        {
+            return;
+        }
     }
 }

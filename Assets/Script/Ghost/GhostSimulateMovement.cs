@@ -118,7 +118,11 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
 
         Vector3 targetVel = speedModifier * m_walkSpeed * wishDir;
         
-        m_ghostController.m_soundEffects?.SetWalkingSpeed(_input.sneakPressed ? 0 : (_input.wishDirection * (m_walkSpeed * speedModifier)).magnitude);
+        // Only send RPC if we have a valid network connection and are the owner
+        if (isOwner && isSpawned)
+        {
+            m_ghostController.m_soundEffects?.SetWalkingSpeed(_input.sneakPressed ? 0 : (_input.wishDirection * (m_walkSpeed * speedModifier)).magnitude);
+        }
 
         Vector3 currentVel = m_rigidbody.linearVelocity;
         Vector3 currentHorizontal = new Vector3(currentVel.x, 0f, currentVel.z);
@@ -193,14 +197,20 @@ public class GhostSimulateMovement : NetworkBehaviour, ISimulateMovement
     }
 
     /*
-    * @brief   Makes the child jump by applying an impulse force upwards
+    * @brief   Makes the ghost jump by applying an impulse force upwards
      * @return  void
      */
     public void Jump()
     {
         if (!IsGrounded()) return;
         if (m_isJumping) return;
-        m_ghostController.m_soundEffects?.PlayJumpAudio();
+        
+        // Only send RPC if we have a valid network connection and are the owner
+        if (isOwner && isSpawned && m_ghostController != null && m_ghostController.m_soundEffects != null)
+        {
+            m_ghostController.m_soundEffects.PlayJumpAudio();
+        }
+        
         m_rigidbody.AddForce(Vector3.up * m_jumpImpulse, ForceMode.Impulse);
         m_isJumping = true;
     }

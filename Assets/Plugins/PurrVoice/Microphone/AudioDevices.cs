@@ -42,6 +42,9 @@ namespace PurrNet.Voice
 
         readonly List<Device> _pool = new ();
 
+        private float _lastQueryTime = -1f;
+        private static readonly float QueryInterval = 0.5f;
+
         /// <summary>
         /// Returns true if the microphone permission has been granted.
         /// </summary>
@@ -215,6 +218,14 @@ namespace PurrNet.Voice
         static void QueryDevicesUnity()
         {
 #if !UNITY_WEBGL || UNITY_EDITOR
+            if (_instance != null)
+            {
+                float now = Time.unscaledTime;
+                if (_instance._lastQueryTime >= 0 && now - _instance._lastQueryTime < QueryInterval)
+                    return;
+                _instance._lastQueryTime = now;
+            }
+
             var actual = Microphone.devices;
             var current = _devices;
 

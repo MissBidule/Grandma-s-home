@@ -5,7 +5,7 @@ using PurrNet.Logging;
 using PurrLobby;
 using UnityEngine;
 
-public class ChildSoundEffects : MonoBehaviour
+public class ChildSoundEffects : NetworkBehaviour
 {
     
     [Header("Network Audio Sources")]
@@ -41,98 +41,175 @@ public class ChildSoundEffects : MonoBehaviour
     
     // Movement Will need a bigger script don't touch
 
+    [ServerRpc]
     public void PlayCustomAudio(AudioClip _clip)
     {
-        if (!m_isOwner)
-            return;
+        PlayCustomAudioRPC(_clip);
+    }
+    
+    [ObserversRpc(bufferLast:true)]
+    public void PlayCustomAudioRPC(AudioClip _clip)
+    {
+        // if (!m_isOwner)
+        //     return;
         m_gunAudioSource.clip = _clip;
         PlayAudio(m_gunAudioSource, "Gun");
     }
     
+    [ServerRpc]
     public void PlayGunAudio()
     {
-        if (!m_isOwner)
-            return;
+        PlayGunAudioRPC();
+    }
+    
+    [ObserversRpc(bufferLast:true)]
+    public void PlayGunAudioRPC()
+    {
+        // if (!m_isOwner)
+        //     return;
         m_gunAudioSource.clip = m_gunAudioClip;
         PlayAudio(m_gunAudioSource, "Gun");
     }
 
+    [ServerRpc]
     public void PlayHitGhostAudio()
     {
-        if (!m_isOwner)
-            return;
+        PlayHitGhostAudioRPC();
+    }
+    
+    [ObserversRpc(bufferLast:true)]
+    public void PlayHitGhostAudioRPC()
+    {
+        // if (!m_isOwner)
+        //     return;
         PlayAudio(m_hitGhostAudioSource, "CAC Ghost");
     }
     
+    [ServerRpc]
     public void PlayHitAirAudio()
     {
-        if (!m_isOwner)
-            return;
+        PlayHitAirAudioRPC();
+    }
+    
+    [ObserversRpc(bufferLast:true)]
+    public void PlayHitAirAudioRPC()
+    {
+        // if (!m_isOwner)
+        //     return;
         PlayAudio(m_hitAirAudioSource, "CAC Air");
     }
     
+    [ServerRpc]
     public void PlayWeaponSwapAudio()
     {
-        if (!m_isOwner)
-            return;
+        PlayWeaponSwapAudioRPC();
+    }
+    
+    [ObserversRpc(bufferLast:true)]
+    public void PlayWeaponSwapAudioRPC()
+    {
+        // if (!m_isOwner)
+        //     return;
         PlayAudio(m_weaponSwapAudioSource, "Swap");
     }
 
+    [ServerRpc]
     public void PlayScarredAudio()
     {
-        if (!m_isOwner)
-            return;
+        PlayScarredAudioRPC();
+    }
+
+    [ObserversRpc(bufferLast:true)]
+    public void PlayScarredAudioRPC()
+    {
+        // if (!m_isOwner)
+        //     return;
         PlayAudio(m_scarredAudioSource, "Scarred");
     }
 
+    [ServerRpc]
     public void PlayJumpAudio()
     {
-        if (!m_isOwner)
-            return;
+        PlayJumpAudioRPC();
+    }
+
+    [ObserversRpc(bufferLast:true)]
+    public void PlayJumpAudioRPC()
+    {
+        // if (!m_isOwner)
+        //     return;
         PlayAudio(m_jumpAudioSource, "Jump");
     }
 
+    [ServerRpc]
     public void PlayLandAudio()
     {
-        if (!m_isOwner)
-            return;
+        PlayLandAudioRPC();
+    }
+
+    [ObserversRpc(bufferLast:true)]
+    public void PlayLandAudioRPC()
+    {
+        // if (!m_isOwner)
+        //     return;
         PlayAudio(m_landAudioSource, "Land");
     }
 
+    [ServerRpc]
     public void PlayRepairAudio()
     {
-        if (!m_isOwner)
-            return;
+        PlayRepairAudioRPC();
+    }
+    
+    [ObserversRpc(bufferLast:true)]
+    public void PlayRepairAudioRPC()
+    {
+        // if (!m_isOwner)
+        //     return;
         PlayAudio(m_repairingAudioSource, "Repair", true);
     }
     
+    [ServerRpc]
     public void StopRepairAudio()
     {
-        if (!m_isOwner)
-            return;
+        StopRepairAudioRPC();
+    }
+    
+    [ObserversRpc(bufferLast:true)]
+    public void StopRepairAudioRPC()
+    {
+        // if (!m_isOwner)
+        //     return;
         StopAudio(m_repairingAudioSource, "Repair");
     }
 
+    [ServerRpc]
     public void SetWalkingSpeed(float _speed)
     {
-        if (!m_isOwner)
-            return;
+        SetWalkingSpeedRPC(_speed);
+    }
+    
+    [ObserversRpc(bufferLast:true)]
+    public void SetWalkingSpeedRPC(float _speed)
+    {
+        // if (!m_isOwner)
+        //     return;
         //print(_speed);
         if (_speed < 3f)
         {
-            m_movementAudioSource.Stop();
+            m_movementAudioSource.audioSource.Stop();
             return;
         }
 
-        if (!m_movementAudioSource.isPlaying)
+        if (!m_movementAudioSource.audioSource.isPlaying)
         {
-            m_movementAudioSource.Play();
+            m_movementAudioSource.audioSource.Play();
         }
         
         const float maxSpeed = 5;
-        m_movementAudioSource.volume = (_speed / maxSpeed) * AudioVolumeManager.SFXVolume;
+        m_movementAudioSource.audioSource.volume = (_speed / maxSpeed) * AudioVolumeManager.SFXVolume;
     }
-
+    
     private void PlayAudio(NetworkAudioSource _source, string _name, bool _loop = false, float _loopDuration = 0)
     {
         if (_source == null)
@@ -153,20 +230,20 @@ public class ChildSoundEffects : MonoBehaviour
                 StartCoroutine(LoopSource(_source, _name, _loopDuration));
             else
             {
-                _source.loop = true;
-                _source.Play();
+                _source.audioSource.loop = true;
+                _source.audioSource.Play();
             }
             return;
         }
-        _source.loop = false;
-        _source.volume = AudioVolumeManager.SFXVolume;
-        _source.Play();
+        _source.audioSource.loop = false;
+        _source.audioSource.volume = AudioVolumeManager.SFXVolume;
+        _source.audioSource.Play();
     }
 
     private IEnumerator LoopSource(NetworkAudioSource _source, string _name, float _loopDuration)
     {
-        _source.loop = true;
-        _source.Play();
+        _source.audioSource.loop = true;
+        _source.audioSource.Play();
         yield return new WaitForSeconds(_loopDuration);
         StopAudio(_source, _name);
     }
@@ -185,8 +262,8 @@ public class ChildSoundEffects : MonoBehaviour
             return;
         }
         
-        _source.Stop();
-        _source.time = 0;
+        _source.audioSource.Stop();
+        _source.audioSource.time = 0;
     }
     
 }

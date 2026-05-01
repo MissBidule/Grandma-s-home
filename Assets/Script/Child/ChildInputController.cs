@@ -21,6 +21,7 @@ public class ChildInputController : MonoBehaviour
 
     private QteCircle m_qteCircle;
     private int m_lastInteractFrame = -1;
+    static public int m_isPushToTalkModeChild;
 
 
     private bool isOwner => m_childClientController != null && m_childClientController.isOwner;
@@ -36,6 +37,15 @@ public class ChildInputController : MonoBehaviour
         m_childInteract = GetComponentInChildren<Interact>();
         m_tutoChildCac = GetComponentInChildren<TutoChildCAC>();
         m_tutoChildInstructions = GetComponentInChildren<TutoInstructions>();
+    }
+
+    void Start()
+    {
+        if (m_isPushToTalkModeChild == 1)
+        {
+            AudioManager audioManager = FindFirstObjectByType<AudioManager>();
+            audioManager.PushToTalk(false);
+        }
     }
 
     /*
@@ -229,6 +239,30 @@ public class ChildInputController : MonoBehaviour
         {
             m_childClientController.OnEscape();
             PauseMenuView.Instance?.OnEscapePressed();
+        }
+    }
+
+    /*
+     * @brief OnPushToTalk is called by the Input System when PushTotalk input is detected
+     * @param _context: The context of the input action
+     * @return void
+     */
+    public void OnPushToTalk(InputAction.CallbackContext _context)
+    {
+        if(m_isPushToTalkModeChild==1)
+        {
+            AudioManager audioManager = FindFirstObjectByType<AudioManager>();
+            if (!isOwner) return;
+            if (_context.started)
+            {
+                // On press
+                audioManager.PushToTalk(true);
+            }
+            else if (_context.canceled)
+            {
+                // On release
+                audioManager.PushToTalk(false);
+            }
         }
     }
 }
