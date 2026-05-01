@@ -34,6 +34,12 @@ public class GhostInputController : MonoBehaviour
      */
     void Start()
     {
+        if (m_isPushToTalkModeGhost == 1)
+        {
+            AudioManager audioManager = FindFirstObjectByType<AudioManager>();
+            audioManager.PushToTalk(false);
+        }
+
         m_ghostClientController = GetComponent<GhostClientController>();
         m_ghostMorph = GetComponent<GhostMorph>();
         m_ghostMorphPreview = GetComponentInChildren<GhostMorphPreview>();
@@ -316,7 +322,6 @@ public class GhostInputController : MonoBehaviour
      */
     public void OnPushToTalk(InputAction.CallbackContext _context)
     {
-        Debug.Log(m_isPushToTalkModeGhost);
         if(m_isPushToTalkModeGhost==1)
         {
             AudioManager audioManager = FindFirstObjectByType<AudioManager>();

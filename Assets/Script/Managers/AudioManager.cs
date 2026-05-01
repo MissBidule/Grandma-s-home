@@ -7,107 +7,71 @@ public class AudioManager : MonoBehaviour
     public void ProximityDefaultMode()
     {
         UnMutePlayers();
-        //UnMuteAllPlayerLocally();
-        UnMuteAllPlayerLocallyProximity();
     }
 
     public void MuteSinglePlayer()
     {
-        foreach(GameObject obj in FindObjectsByType<GameObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+        foreach(PlayerControllerCore obj in FindObjectsByType<PlayerControllerCore>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+        {
+            PurrVoicePlayer purrVoicePlayer = obj.gameObject.GetComponent<PurrVoicePlayer>();
+            if (purrVoicePlayer != null)
             {
-                PurrVoicePlayer purrVoicePlayer = obj.GetComponent<PurrVoicePlayer>();
-                if (purrVoicePlayer != null)
-                {
-                    if (!purrVoicePlayer.isOwner) continue;
-                    if(!purrVoicePlayer.muted)
-                    {
-                        purrVoicePlayer.muted = true;
-                    }
-                }
+                if (!purrVoicePlayer.isOwner) continue;
+                purrVoicePlayer.muted=true;
+                return;
             }
+        }
     }
 
     public void UnMutePlayers()
     {
-        foreach(GameObject obj in FindObjectsByType<GameObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+        foreach(PlayerControllerCore obj in FindObjectsByType<PlayerControllerCore>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            PurrVoicePlayer purrVoicePlayer = obj.gameObject.GetComponent<PurrVoicePlayer>();
+            if (purrVoicePlayer != null)
             {
-                PurrVoicePlayer purrVoicePlayer = obj.GetComponent<PurrVoicePlayer>();
-                if (purrVoicePlayer != null)
-                {
-                    if(purrVoicePlayer.muted)
-                    {
-                        purrVoicePlayer.muted = false;
-                    }
-                }
+                purrVoicePlayer.muted = false;
             }
+        }
     }
 
 
     public void InitPushToTalk()
     {
-        foreach(GameObject obj in FindObjectsByType<GameObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+        MuteSinglePlayer();
+    }
+
+    public void PushToTalk(bool _push) 
+    {
+        foreach(PlayerControllerCore obj in FindObjectsByType<PlayerControllerCore>(FindObjectsInactive.Include, FindObjectsSortMode.None))
         {
-            PurrVoicePlayer purrVoicePlayer = obj.GetComponent<PurrVoicePlayer>();
+            if (!obj.isOwner) continue;
+            PurrVoicePlayer purrVoicePlayer = obj.gameObject.GetComponent<PurrVoicePlayer>();
             if (purrVoicePlayer != null)
             {
-                if (!purrVoicePlayer.isOwner) continue;
-                if(!purrVoicePlayer.muted)
+                if(_push)
+                {
+                    purrVoicePlayer.muted=false;
+                }
+                else
                 {
                     purrVoicePlayer.muted=true;
                 }
-            }
+            } 
+            return;  
         }
-    }
-    public void PushToTalk(bool _push) 
-    {
-        foreach(GameObject obj in FindObjectsByType<GameObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
-            {
-                if(obj.layer == LayerMask.NameToLayer("Child") || obj.layer == LayerMask.NameToLayer("Ghost"))
-                {
-                    PurrVoicePlayer purrVoicePlayer = obj.GetComponent<PurrVoicePlayer>();
-                        if (purrVoicePlayer != null)
-                        {
-                            if (!purrVoicePlayer.isOwner) continue;
-                            if(_push)
-                            {
-                                purrVoicePlayer.muted=false;
-                            }
-                            else
-                            {
-                                purrVoicePlayer.muted=true;
-                            }
-                        }   
-                    }
-                }
     }
 
     public void MuteAllPlayerLocally(bool _mute)
     {
-        foreach(PlayerInput obj in FindObjectsByType<PlayerInput>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+        foreach(PlayerControllerCore obj in FindObjectsByType<PlayerControllerCore>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (obj.isOwner) continue;
+            AudioSource audioSource = obj.gameObject.GetComponent<AudioSource>();
+            if (audioSource != null)
             {
-                AudioSource audioSource = obj.gameObject.GetComponent<AudioSource>();
-                if (audioSource != null)
-                {
-                    audioSource.volume=_mute ? 0 : 1;
-                }
+                audioSource.volume = _mute ? 0 : 1;
             }
-    }
-
-    public void UnMuteAllPlayerLocallyProximity()
-    {
-        foreach(GameObject obj in FindObjectsByType<GameObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
-            {
-                PurrVoicePlayer purrVoicePlayer = obj.GetComponent<PurrVoicePlayer>();
-                if (purrVoicePlayer != null)
-                    {
-                        if (purrVoicePlayer.isOwner) continue;
-                        AudioSource audioSource = obj.gameObject.GetComponent<AudioSource>();
-                        if (audioSource != null)
-                        {
-                            audioSource.volume=1;
-                        }
-                    }
-                
-            }
+        }
     }
 }

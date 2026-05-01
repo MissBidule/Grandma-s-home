@@ -443,7 +443,6 @@ public class SettingsCanvasController : MonoBehaviour
         ChildInputController.m_isPushToTalkModeChild = mode;
         GhostInputController.m_isPushToTalkModeGhost = mode;
         bool enabled = PlayerPrefs.GetInt("Settings_VoiceChatEnabled", 1)==1;
-        Debug.Log("?! init : " + enabled);
         EnableVoiceChat(enabled);
     }
     public void WireAudio()
@@ -475,7 +474,6 @@ public class SettingsCanvasController : MonoBehaviour
         EnableVoiceChat(currentVoiceChatEnabled);
         tog.onValueChanged.AddListener(v => {
             PlayerPrefs.SetInt("Settings_VoiceChatEnabled", v ? 1 : 0);
-            Debug.Log("?! BVCE : " + v);
             EnableVoiceChat(v);
            
         });

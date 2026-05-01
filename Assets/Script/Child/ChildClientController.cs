@@ -140,11 +140,11 @@ public class ChildClientController : NetworkBehaviour
 
         foreach (var ghost in FindObjectsByType<GhostController>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
         {
-            PurrVoicePlayer purrVoicePlayer = ghost.GetComponent<PurrVoicePlayer>();
+            PurrVoicePlayer purrVoicePlayer = ghost.gameObject.GetComponent<PurrVoicePlayer>();
             if(!purrVoicePlayer.muted)
-                {
-                    purrVoicePlayer.muted = true;
-                }
+            {
+                purrVoicePlayer.muted = true;
+            }
         }
     }
 

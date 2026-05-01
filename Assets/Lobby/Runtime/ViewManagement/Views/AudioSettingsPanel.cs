@@ -116,7 +116,7 @@ namespace PurrLobby
             dd.onValueChanged.AddListener(i =>
             {
                 PlayerPrefs.SetString(m_KeyInputDevice, devices[i]);
-                // TODO: transmettre le device sélectionné à PurrVoice
+                // TODO: transmettre le device selectionne a PurrVoice
             });
         }
 
@@ -131,7 +131,7 @@ namespace PurrLobby
             dd.onValueChanged.AddListener(i =>
             {
                 PlayerPrefs.SetInt(m_KeyVoiceMode, i);
-                // TODO: appliquer le voice mode à PurrVoice
+                // TODO: appliquer le voice mode a PurrVoice
             });
         }
 

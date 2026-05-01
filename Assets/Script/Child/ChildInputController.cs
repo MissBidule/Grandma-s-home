@@ -39,6 +39,15 @@ public class ChildInputController : MonoBehaviour
         m_tutoChildInstructions = GetComponentInChildren<TutoInstructions>();
     }
 
+    void Start()
+    {
+        if (m_isPushToTalkModeChild == 1)
+        {
+            AudioManager audioManager = FindFirstObjectByType<AudioManager>();
+            audioManager.PushToTalk(false);
+        }
+    }
+
     /*
      * @brief OnMove is called by the Input System when movement input is detected
      * @param _context: The context of the input action.
@@ -254,10 +263,6 @@ public class ChildInputController : MonoBehaviour
                 // On release
                 audioManager.PushToTalk(false);
             }
-        }
-        else
-        {
-            return;
         }
     }
 }
