@@ -93,6 +93,20 @@ public class SettingsCanvasController : MonoBehaviour
         }
     }
 
+    /*
+     * @brief Resets every tab toggle and its tint when the settings canvas closes.
+     */
+    private void OnDisable()
+    {
+        foreach (var t in m_tabTints)
+        {
+            if (t.tog == null) continue;
+            t.tog.SetIsOnWithoutNotify(false);
+            var c = t.tog.colors;
+            if (c.normalColor != t.normal) { c.normalColor = t.normal; t.tog.colors = c; }
+        }
+    }
+
     public void OpenOnTabInt(int tab) => OpenOnTab((SettingsTab)tab);
 
     // Opens the canvas on a specific tab without triggering the camera-switch
