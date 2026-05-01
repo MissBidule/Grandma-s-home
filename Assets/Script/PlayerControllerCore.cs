@@ -128,7 +128,8 @@ public class PlayerControllerCore : NetworkBehaviour
         if (!InstanceHandler.TryGetInstance(out UIsManager uisManager))
             return;
         uisManager.ToggleUIVision(GetComponentInChildren<CinemachineBrain>(true));
-        Cursor.lockState = CursorLockMode.Locked;
+        if (IntroVideoPlayer.Instance == null || IntroVideoPlayer.Instance.IsDone)
+            Cursor.lockState = CursorLockMode.Locked;
     }
 
     private void ApplyOwnership()
@@ -222,7 +223,8 @@ public class PlayerControllerCore : NetworkBehaviour
 
     private void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked;
+        if (IntroVideoPlayer.Instance == null || IntroVideoPlayer.Instance.IsDone)
+            Cursor.lockState = CursorLockMode.Locked;
         if (m_playerCamera == null)
         {
             return;

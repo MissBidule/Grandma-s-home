@@ -9,11 +9,19 @@ public class IntroVideoPlayer : MonoBehaviour
 
     [SerializeField] private VideoPlayer m_videoPlayer;
     [SerializeField] private RawImage m_screen;
+    [SerializeField] private GameObject m_returnButton;
 
     private void Awake()
     {
         Instance = this;
         IsDone = false;
+    }
+
+    private void LateUpdate()
+    {
+        if (IsDone) return;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 
     private System.Collections.IEnumerator Start()
@@ -25,6 +33,7 @@ public class IntroVideoPlayer : MonoBehaviour
         IsDone = true;
         m_videoPlayer.Stop();
         if (m_screen != null) m_screen.color = Color.clear;
+        m_returnButton?.SetActive(false);
     }
 
     private void OnDestroy()
