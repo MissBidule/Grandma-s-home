@@ -34,6 +34,8 @@ public class IntroVideoPlayer : MonoBehaviour
         m_videoPlayer.Stop();
         if (m_screen != null) m_screen.color = Color.clear;
         m_returnButton?.SetActive(false);
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     private void OnDestroy()
