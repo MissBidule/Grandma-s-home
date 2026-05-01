@@ -567,7 +567,19 @@ MonoBehaviour:
     m_ActionId: 3d09c0f7-6836-414d-9309-10e51013ab1f
     m_ActionName: 'Ghost/Escape[/Keyboard/escape]'
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 6565872187536608583}
+        m_TargetAssemblyTypeName: ChildInputController, Assembly-CSharp
+        m_MethodName: OnPushToTalk
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: c3a731d8-4118-4b9c-95c0-f220f2fbb833
     m_ActionName: 'Child/PushToTalk[/Keyboard/t]'
   - m_PersistentCalls:
@@ -660,7 +672,13 @@ MonoBehaviour:
   _currentDevice: 
   _audioFilters:
     _ownerAuth: 0
-    _filters: []
+    _filters:
+    - _filter: {fileID: 11400000, guid: b0e0d0823301ab6408aefd4b30df783a, type: 2}
+      _filterLevel: 0
+      strength: 1
+    - _filter: {fileID: 11400000, guid: b0e0d0823301ab6408aefd4b30df783a, type: 2}
+      _filterLevel: 2
+      strength: 1
   _enableSmoothing: 1
   _visualAmplitudeScale: 3
   _visualTimeScale: 1

@@ -7,6 +7,7 @@ using UnityEngine.InputSystem.UI;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
 using Script.States;
+using PurrNet.Voice;
 using UI;
 
 /*
@@ -54,6 +55,12 @@ public class PauseMenuView : MonoBehaviour
         SetPauseVisible(false);
         m_settingsCanvas.SetActive(false);
     }
+    public void InitAudioMode()
+    {
+        var sc = m_settingsCanvas.GetComponent<SettingsCanvasController>();
+        sc.InitAudioCanvas();
+    }
+
 
     /*
      * @brief Configures both pause canvases to render through the player camera (so post-process applies)

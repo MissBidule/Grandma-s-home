@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -17,6 +18,7 @@ using System.Linq;
  */
 public class SettingsCanvasController : MonoBehaviour
 {
+    public int m_currentaudiomode;
     bool AwakeCalled = false;
     public Action OnBack;
 
@@ -41,6 +43,7 @@ public class SettingsCanvasController : MonoBehaviour
     private static bool s_appliedOnce;
 
     private Resolution[] m_resolutions;
+    private AudioManager audioManager;
 
     public static event Action<float> OnSensitivityChanged;
 
@@ -54,7 +57,6 @@ public class SettingsCanvasController : MonoBehaviour
     public void ForceAwake()
     {
         AwakeCalled = true;
-
         var bg = transform.Find("Settings_Background");
         if (bg == null) { Debug.LogError("SettingsCanvasController: Settings_Background not found"); return; }
 
@@ -434,8 +436,16 @@ public class SettingsCanvasController : MonoBehaviour
     }
 
     // ── AUDIO ────────────────────────────────────────────────────────────
-
-    private void WireAudio()
+    public void InitAudioCanvas()
+    {
+        int mode = PlayerPrefs.GetInt("Settings_VoiceMode", 1);
+        ApplyAudioMode(mode);
+        ChildInputController.m_isPushToTalkModeChild = mode;
+        GhostInputController.m_isPushToTalkModeGhost = mode;
+        bool enabled = PlayerPrefs.GetInt("Settings_VoiceChatEnabled", 1)==1;
+        EnableVoiceChat(enabled);
+    }
+    public void WireAudio()
     {
         var p = m_panelAudio.transform;
         var sliders = new List<Transform>();
@@ -455,15 +465,31 @@ public class SettingsCanvasController : MonoBehaviour
         if (toggles.Count   >= 1) BindVoiceChatEnabled(toggles[0]);
     }
 
-    private void BindVoiceChatEnabled(Transform row)
+    private void BindVoiceChatEnabled(Transform row) 
     {
         SetRowLabel(row, "Enable Voice Chat");
         var tog = ToggleOf(row);
-        tog.SetIsOnWithoutNotify(PlayerPrefs.GetInt("Settings_VoiceChatEnabled", 1) == 1);
+        var currentVoiceChatEnabled = PlayerPrefs.GetInt("Settings_VoiceChatEnabled", 1) == 1;
+        tog.SetIsOnWithoutNotify(currentVoiceChatEnabled);
+        EnableVoiceChat(currentVoiceChatEnabled);
         tog.onValueChanged.AddListener(v => {
             PlayerPrefs.SetInt("Settings_VoiceChatEnabled", v ? 1 : 0);
-            // Kari
+            EnableVoiceChat(v);
+           
         });
+        
+    }
+
+    private void EnableVoiceChat(bool _enable)
+    {
+       if (audioManager == null)
+        {
+            audioManager = FindAnyObjectByType<AudioManager>(FindObjectsInactive.Exclude);
+        }
+        if(audioManager != null)
+        {
+            audioManager.MuteAllPlayerLocally(!_enable);
+        }
     }
 
     private void BindVolumeSlider(Transform row, string label, string key)
@@ -505,9 +531,17 @@ public class SettingsCanvasController : MonoBehaviour
         var dd = DropdownOf(row);
         dd.ClearOptions();
         dd.AddOptions(new List<string> { "Always On", "Push to Talk", "Disabled" });
-        dd.SetValueWithoutNotify(PlayerPrefs.GetInt("Settings_VoiceMode", 0));
-        dd.onValueChanged.AddListener(v => PlayerPrefs.SetInt("Settings_VoiceMode", v));
-    }
+        m_currentaudiomode = PlayerPrefs.GetInt("Settings_VoiceMode", 1);
+        dd.SetValueWithoutNotify(m_currentaudiomode);
+        ApplyAudioMode(m_currentaudiomode);
+        dd.onValueChanged.AddListener(v => {
+            PlayerPrefs.SetInt("Settings_VoiceMode", v);
+            ApplyAudioMode(v);
+            ChildInputController.m_isPushToTalkModeChild = v;
+            GhostInputController.m_isPushToTalkModeGhost = v;
+        
+        });
+        }
 
     // ── ACCESSIBILITY ────────────────────────────────────────────────────
 
@@ -884,6 +918,28 @@ public class SettingsCanvasController : MonoBehaviour
                 s_colorblindCM.blueOutRedIn.Override(0);    
                 s_colorblindCM.blueOutGreenIn.Override(47); 
                 s_colorblindCM.blueOutBlueIn.Override(53);
+                break;
+        }
+    }
+
+    private void ApplyAudioMode(int mode)
+    {
+        if (audioManager == null)
+        {
+            audioManager = FindAnyObjectByType<AudioManager>(FindObjectsInactive.Exclude);
+        }
+        if (audioManager == null) return;
+        switch (mode)
+        {
+            case 0:
+                audioManager.ProximityDefaultMode();
+                break;
+            case 1:
+                audioManager.InitPushToTalk();
+
+                break;
+            case 2:
+                audioManager.MuteSinglePlayer();
                 break;
         }
     }

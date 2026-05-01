@@ -116,7 +116,7 @@ namespace PurrLobby
             dd.onValueChanged.AddListener(i =>
             {
                 PlayerPrefs.SetString(m_KeyInputDevice, devices[i]);
-                // TODO: transmettre le device sélectionné à PurrVoice
+                // TODO: transmettre le device selectionne a PurrVoice
             });
         }
 
@@ -131,12 +131,12 @@ namespace PurrLobby
             dd.onValueChanged.AddListener(i =>
             {
                 PlayerPrefs.SetInt(m_KeyVoiceMode, i);
-                // TODO: appliquer le voice mode à PurrVoice
+                // TODO: appliquer le voice mode a PurrVoice
             });
         }
 
         public static string GetSelectedInputDevice() => PlayerPrefs.GetString("Settings_InputDevice", "");
-        public static int GetVoiceMode() => PlayerPrefs.GetInt("Settings_VoiceMode", 0);
+        public static int GetVoiceMode() => PlayerPrefs.GetInt("Settings_VoiceMode", 1);
 
         private void InitSlider(OptionRowSlider _row, string _key)
         {
