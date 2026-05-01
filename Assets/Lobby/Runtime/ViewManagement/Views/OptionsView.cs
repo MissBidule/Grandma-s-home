@@ -28,6 +28,7 @@ namespace PurrLobby
         // Programmatic mode only
         public System.Action OnBack;
         private bool _programmatic;
+        private AudioClip m_buttonClickSound;
 
         private static readonly Color TabActive   = Color.white;
         private static readonly Color TabInactive = new Color(0.55f, 0.55f, 0.55f, 1f);
@@ -43,8 +44,12 @@ namespace PurrLobby
 
         public override void OnShow()
         {
+            // Load default button click sound
+            if (m_buttonClickSound == null)
+                m_buttonClickSound = Resources.Load<AudioClip>("Audio/MenuButtonSFX");
+            
             ShowPanel(videoPanel);
-            if (resetButton) resetButton.onClick.AddListener(ResetAll);
+            if (resetButton) resetButton.onClick.AddListener(() => { PlayButtonClickSound(); ResetAll(); });
         }
 
         public override void OnHide()
@@ -61,10 +66,10 @@ namespace PurrLobby
             if (controlsPanel)      controlsPanel.ResetToDefaults();
         }
 
-        public void OnVideoTabClicked()    => ShowPanel(videoPanel);
-        public void OnAudioTabClicked()    => ShowPanel(audioPanel);
-        public void OnAccessTabClicked()   => ShowPanel(accessibilityPanel);
-        public void OnControlsTabClicked() => ShowPanel(controlsPanel);
+        public void OnVideoTabClicked()    { PlayButtonClickSound(); ShowPanel(videoPanel); }
+        public void OnAudioTabClicked()    { PlayButtonClickSound(); ShowPanel(audioPanel); }
+        public void OnAccessTabClicked()   { PlayButtonClickSound(); ShowPanel(accessibilityPanel); }
+        public void OnControlsTabClicked() { PlayButtonClickSound(); ShowPanel(controlsPanel); }
 
         private void ShowPanel(MonoBehaviour panel)
         {
@@ -90,6 +95,20 @@ namespace PurrLobby
         private void SetTabActive(Image img, bool active)
         {
             if (img) img.color = active ? activeTabColor : inactiveTabColor;
+        }
+
+        private void PlayButtonClickSound()
+        {
+            if (m_buttonClickSound != null)
+            {
+                var go = new GameObject("ButtonClickSound");
+                var audioSource = go.AddComponent<AudioSource>();
+                audioSource.clip = m_buttonClickSound;
+                audioSource.spatialBlend = 0f;
+                audioSource.volume = 0.5f;
+                audioSource.Play();
+                Destroy(go, m_buttonClickSound.length);
+            }
         }
 
         // ── Programmatic API (in-game pause path) ─────────────────────────────

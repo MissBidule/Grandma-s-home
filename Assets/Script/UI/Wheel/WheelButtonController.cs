@@ -11,6 +11,7 @@ public class WheelButtonController : MonoBehaviour
     private Image m_iconImage;
     private Button m_button;
     private Vector3 m_originalScale;
+    private AudioClip m_buttonClickSound;
 
     private WheelController m_wheelController;
 
@@ -25,8 +26,11 @@ public class WheelButtonController : MonoBehaviour
         m_iconImage = iconTransform.GetComponent<Image>();
         m_button = GetComponent<Button>();
         m_originalScale = transform.localScale;
+        m_buttonClickSound = Resources.Load<AudioClip>("Audio/MenuButtonSFX");
 
         m_wheelController = GetComponentInParent<WheelController>();
+
+        m_button.onClick.AddListener(PlayButtonClickSound);
 
         UpdateIcon();
     }
@@ -136,5 +140,17 @@ public class WheelButtonController : MonoBehaviour
     public void OnSlotSelectedForReplacement()
     {
         m_wheelController.OnSlotChosenForReplacement(this);
+    }
+
+    private void PlayButtonClickSound()
+    {
+        if (m_buttonClickSound == null) return;
+        GameObject go = new GameObject("TempAudioSource");
+        AudioSource audioSource = go.AddComponent<AudioSource>();
+        audioSource.clip = m_buttonClickSound;
+        audioSource.volume = 0.5f;
+        audioSource.spatialBlend = 0f;
+        audioSource.Play();
+        Destroy(go, m_buttonClickSound.length);
     }
 }

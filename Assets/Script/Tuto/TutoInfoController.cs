@@ -27,10 +27,12 @@ public class TutoInfoController : MonoBehaviour
     private CursorLockMode m_previousLockMode;
     private bool m_previousCursorVisible;
     private CanvasGroup m_canvasGroup;
+    private AudioClip m_buttonClickSound;
 
     private void Awake()
     {
         m_canvasGroup = GetComponent<CanvasGroup>();
+        m_buttonClickSound = Resources.Load<AudioClip>("Audio/MenuButtonSFX");
         SetVisible(false);
     }
 
@@ -84,6 +86,7 @@ public class TutoInfoController : MonoBehaviour
 
     public void OnNext()
     {
+        PlayButtonClickSound();
         if (m_currentPage >= m_pages.Length - 1) { Complete(); return; }
         m_currentPage++;
         RefreshPage();
@@ -92,6 +95,7 @@ public class TutoInfoController : MonoBehaviour
 
     public void OnPrev()
     {
+        PlayButtonClickSound();
         if (m_currentPage <= 0) return;
         m_currentPage--;
         RefreshPage();
@@ -100,6 +104,7 @@ public class TutoInfoController : MonoBehaviour
 
     public void Complete()
     {
+        PlayButtonClickSound();
         Cursor.lockState = m_previousLockMode;
         Cursor.visible = m_previousCursorVisible;
 
@@ -144,5 +149,17 @@ public class TutoInfoController : MonoBehaviour
         {
             m_nextButton.gameObject.SetActive(true);
         }
+    }
+
+    private void PlayButtonClickSound()
+    {
+        if (m_buttonClickSound == null) return;
+        GameObject go = new GameObject("TempAudioSource");
+        AudioSource audioSource = go.AddComponent<AudioSource>();
+        audioSource.clip = m_buttonClickSound;
+        audioSource.volume = 0.5f;
+        audioSource.spatialBlend = 0f;
+        audioSource.Play();
+        Destroy(go, m_buttonClickSound.length);
     }
 }

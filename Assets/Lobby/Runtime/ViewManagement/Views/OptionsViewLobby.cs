@@ -22,6 +22,7 @@ namespace PurrLobby
         // Programmatic mode only
         public System.Action OnBack;
         private bool _programmatic;
+        private AudioClip m_buttonClickSound;
 
         private static readonly Color TabActive   = Color.white;
         private static readonly Color TabInactive = new Color(0.55f, 0.55f, 0.55f, 1f);
@@ -30,7 +31,7 @@ namespace PurrLobby
 
         private void OnEnable()
         {
-            if (_programmatic) if (resetButton) resetButton.onClick.AddListener(ResetAll);
+            if (_programmatic) if (resetButton) resetButton.onClick.AddListener(() => { PlayButtonClickSound(); ResetAll(); });
         }
 
         private void OnDisable()
@@ -59,6 +60,10 @@ namespace PurrLobby
                                OptionRowSlider sliderPrefab, OptionRowButton buttonPrefab,
                                OptionRowKeybinding keybindingPrefab, OptionSectionTitle sectionTitlePrefab)
         {
+            // Load default button click sound
+            if (m_buttonClickSound == null)
+                m_buttonClickSound = Resources.Load<AudioClip>("Audio/MenuButtonSFX");
+            
             _programmatic = true;
             BuildLayout(dropdownPrefab, togglePrefab, sliderPrefab, buttonPrefab, keybindingPrefab, sectionTitlePrefab);
         }
@@ -113,7 +118,7 @@ namespace PurrLobby
             StyleButton(backGO, new Color(0.25f, 0.25f, 0.30f, 1f),
                                 new Color(0.35f, 0.35f, 0.40f, 1f),
                                 new Color(0.18f, 0.18f, 0.22f, 1f));
-            backGO.GetComponent<Button>().onClick.AddListener(() => OnBack?.Invoke());
+            backGO.GetComponent<Button>().onClick.AddListener(() => { PlayButtonClickSound(); OnBack?.Invoke(); });
             AddLabel(backGO.transform, "< Back", 18);
 
             // ── Reset button ───────────────────────────────────────────────────
@@ -123,7 +128,7 @@ namespace PurrLobby
             StyleButton(resetGO, new Color(0.35f, 0.18f, 0.08f, 1f),
                                  new Color(0.45f, 0.28f, 0.12f, 1f),
                                  new Color(0.25f, 0.10f, 0.04f, 1f));
-            resetGO.GetComponent<Button>().onClick.AddListener(ResetAll);
+            resetGO.GetComponent<Button>().onClick.AddListener(() => { PlayButtonClickSound(); ResetAll(); });
             AddLabel(resetGO.transform, "Reset", 18);
         }
 
@@ -255,6 +260,20 @@ namespace PurrLobby
         }
 
         // ── RectTransform helpers ─────────────────────────────────────────────
+
+        private void PlayButtonClickSound()
+        {
+            if (m_buttonClickSound != null)
+            {
+                var go = new GameObject("ButtonClickSound");
+                var audioSource = go.AddComponent<AudioSource>();
+                audioSource.clip = m_buttonClickSound;
+                audioSource.spatialBlend = 0f;
+                audioSource.volume = 0.5f;
+                audioSource.Play();
+                Destroy(go, m_buttonClickSound.length);
+            }
+        }
 
         private static GameObject MakeGO(string name, Transform parent)
         {

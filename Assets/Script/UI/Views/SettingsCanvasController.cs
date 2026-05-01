@@ -39,6 +39,7 @@ public class SettingsCanvasController : MonoBehaviour
     private static Volume s_colorblindVolume;
     private static ChannelMixer s_colorblindCM;
     private static bool s_appliedOnce;
+    private AudioClip m_buttonClickSound;
 
     private Resolution[] m_resolutions;
 
@@ -47,6 +48,9 @@ public class SettingsCanvasController : MonoBehaviour
     public void Awake()
     {
         if (AwakeCalled) return;
+        // Load default button click sound
+        if (m_buttonClickSound == null)
+            m_buttonClickSound = Resources.Load<AudioClip>("Audio/MenuButtonSFX");
         ForceAwake();
     }
 
@@ -153,6 +157,7 @@ public class SettingsCanvasController : MonoBehaviour
         tog.onValueChanged.AddListener(on =>
         {
             if (!on) return;
+            PlayButtonClickSound();
             ShowTab(panel);
             if (m_navigator != null)
             {
@@ -190,6 +195,7 @@ public class SettingsCanvasController : MonoBehaviour
         {
             back.onClick.AddListener(() =>
             {
+                PlayButtonClickSound();
                 if (m_navigator != null && m_vcamBack != null)
                 {
                     gameObject.SetActive(false);
@@ -200,7 +206,7 @@ public class SettingsCanvasController : MonoBehaviour
         }
 
         var reset = bg.Find("Reset Button")?.GetComponent<Button>();
-        if (reset != null) reset.onClick.AddListener(ResetAll);
+        if (reset != null) reset.onClick.AddListener(() => { PlayButtonClickSound(); ResetAll(); });
     }
 
     public void ResetAll()
@@ -687,7 +693,7 @@ public class SettingsCanvasController : MonoBehaviour
             UpdateKeyLabel(btnLbl, action, bindingIndex);
             btn.onClick.RemoveAllListeners();
             int idx = bindingIndex;
-            btn.onClick.AddListener(() => StartRebind(action, idx, btnLbl));
+            btn.onClick.AddListener(() => { PlayButtonClickSound(); StartRebind(action, idx, btnLbl); });
             AttachGamepadIcon(btn, action);
         }
 
@@ -903,5 +909,19 @@ public class SettingsCanvasController : MonoBehaviour
         ApplyFpsCounter(PlayerPrefs.GetInt("Settings_FpsCounter", 0) == 1);
         ApplyColorblind(PlayerPrefs.GetInt("Settings_Colorblind", 0), PlayerPrefs.GetFloat("Settings_ColorblindIntensity", 1f));
         OnSensitivityChanged?.Invoke(PlayerPrefs.GetFloat("Settings_MouseSensitivity", 50f));
+    }
+
+    private void PlayButtonClickSound()
+    {
+        if (m_buttonClickSound != null)
+        {
+            var go = new GameObject("ButtonClickSound");
+            var audioSource = go.AddComponent<AudioSource>();
+            audioSource.clip = m_buttonClickSound;
+            audioSource.spatialBlend = 0f;
+            audioSource.volume = 0.5f;
+            audioSource.Play();
+            Destroy(go, m_buttonClickSound.length);
+        }
     }
 }

@@ -30,10 +30,15 @@ public class PauseMenuView : MonoBehaviour
     private float m_escapeLockUntil;
     private readonly System.Collections.Generic.List<Canvas> m_hiddenCanvases = new();
     private OutlineSuppressor.Handle m_outlineHandle;
+    [SerializeField] private AudioClip m_buttonClickSound;
 
     private void Awake()
     {
         Instance = this;
+
+        // Load default button click sound
+        if (m_buttonClickSound == null)
+            m_buttonClickSound = Resources.Load<AudioClip>("Audio/MenuButtonSFX");
 
         m_pauseCanvas = Instantiate(m_pauseCanvasPrefab, transform);
         m_pauseCanvas.name = "Canvas_Pause_Menu";
@@ -297,9 +302,24 @@ public class PauseMenuView : MonoBehaviour
         return tmp.text.Replace("\n", " ").Replace("  ", " ").Trim().ToLowerInvariant();
     }
 
-    private static void AddClick(Button btn, System.Action action)
+    private void AddClick(Button btn, System.Action action)
     {
         btn.onClick.RemoveAllListeners();
         btn.onClick.AddListener(() => action?.Invoke());
+        btn.onClick.AddListener(PlayButtonClickSound);
+    }
+
+    private void PlayButtonClickSound()
+    {
+        if (m_buttonClickSound != null)
+        {
+            var go = new GameObject("ButtonClickSound");
+            var audioSource = go.AddComponent<AudioSource>();
+            audioSource.clip = m_buttonClickSound;
+            audioSource.spatialBlend = 0f;
+            audioSource.volume = 0.5f;
+            audioSource.Play();
+            Destroy(go, m_buttonClickSound.length);
+        }
     }
 }

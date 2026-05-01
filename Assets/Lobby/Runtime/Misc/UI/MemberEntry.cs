@@ -24,10 +24,15 @@ namespace PurrLobby
         public string MemberId => _memberId;
         public LobbyManager _lobbyManager;
         private RoleKeeper _roleKeeper;
+        private AudioClip m_buttonClickSound;
 
         public void Init(LobbyUser _user)
         {
             _roleKeeper = FindAnyObjectByType<RoleKeeper>();
+            
+            // Load button click sound
+            if (m_buttonClickSound == null)
+                m_buttonClickSound = Resources.Load<AudioClip>("Audio/MenuButtonSFX");
 
             //cosmetic
             userName.text = _user.DisplayName;
@@ -45,6 +50,7 @@ namespace PurrLobby
                 LockReady(false);
                 roleButton.interactable = true;
                 readyButton.onClick.AddListener(delegate {
+                    PlayButtonClickSound();
                     roleButton.interactable = !roleButton.interactable;
                 });
                 UserBG.color = new Color(0.824f, 0.302f, 0.78f, 1);
@@ -81,6 +87,20 @@ namespace PurrLobby
             _skin = skin;
             FindAnyObjectByType<RoleKeeper>().SwitchRole(_memberId, isGhost, skin);
             avatar.texture = _roleKeeper.GetSkinImage(_memberId);
+        }
+
+        private void PlayButtonClickSound()
+        {
+            if (m_buttonClickSound != null)
+            {
+                var go = new GameObject("ButtonClickSound");
+                var audioSource = go.AddComponent<AudioSource>();
+                audioSource.clip = m_buttonClickSound;
+                audioSource.spatialBlend = 0f;
+                audioSource.volume = 0.5f;
+                audioSource.Play();
+                Destroy(go, m_buttonClickSound.length);
+            }
         }
     }
 }

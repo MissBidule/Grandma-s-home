@@ -7,10 +7,14 @@ public class DiegeticButton : MonoBehaviour
     private Outline[] outlineEffects; //stock les composants Outline pour les activer/desactiver au hover
     public bool outlineAlwaysOn = false; //permet de garder les outlines actifs même sans hover 
     public Animator animator; //reference à l'animator pour jouer les animations du bouton
+    [SerializeField] private AudioClip m_clickSound;
 
     private void Start()
     {
-       
+        // Load default click sound
+        if (m_clickSound == null)
+            m_clickSound = Resources.Load<AudioClip>("Audio/MenuButtonSFX");
+
         outlineEffects = GetComponentsInChildren<Outline>();
         //desactive les outlines au debut pour ne pas les voir avant le hover
         foreach (Outline outline in outlineEffects)
@@ -53,9 +57,24 @@ public class DiegeticButton : MonoBehaviour
     private void OnMouseDown()
     {
         if (!enabled) return;
+        PlayClickSound();
         if (OnClick != null)
         {
             OnClick.Invoke();
+        }
+    }
+
+    private void PlayClickSound()
+    {
+        if (m_clickSound != null)
+        {
+            var go = new GameObject("ButtonClickSound");
+            var audioSource = go.AddComponent<AudioSource>();
+            audioSource.clip = m_clickSound;
+            audioSource.spatialBlend = 0f;
+            audioSource.volume = 0.5f;
+            audioSource.Play();
+            Destroy(go, m_clickSound.length);
         }
     }
 }
