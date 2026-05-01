@@ -136,7 +136,7 @@ namespace PurrLobby
         }
 
         public static string GetSelectedInputDevice() => PlayerPrefs.GetString("Settings_InputDevice", "");
-        public static int GetVoiceMode() => PlayerPrefs.GetInt("Settings_VoiceMode", 0);
+        public static int GetVoiceMode() => PlayerPrefs.GetInt("Settings_VoiceMode", 1);
 
         private void InitSlider(OptionRowSlider _row, string _key)
         {

@@ -437,7 +437,7 @@ public class SettingsCanvasController : MonoBehaviour
     // ── AUDIO ────────────────────────────────────────────────────────────
     public void InitAudioCanvas()
     {   
-        int mode = PlayerPrefs.GetInt("Settings_VoiceMode", 0);
+        int mode = PlayerPrefs.GetInt("Settings_VoiceMode", 1);
         ApplyAudioMode(mode);
         ChildInputController.m_isPushToTalkModeChild = m_currentaudiomode;
         GhostInputController.m_isPushToTalkModeGhost = m_currentaudiomode;
@@ -560,7 +560,7 @@ public class SettingsCanvasController : MonoBehaviour
         var dd = DropdownOf(row);
         dd.ClearOptions();
         dd.AddOptions(new List<string> { "Always On", "Push to Talk", "Disabled" });
-        m_currentaudiomode = PlayerPrefs.GetInt("Settings_VoiceMode", 0);
+        m_currentaudiomode = PlayerPrefs.GetInt("Settings_VoiceMode", 1);
         dd.SetValueWithoutNotify(m_currentaudiomode);
         ApplyAudioMode(m_currentaudiomode);
         dd.onValueChanged.AddListener(v => {
