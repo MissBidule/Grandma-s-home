@@ -98,6 +98,8 @@ public class TutoInfoController : MonoBehaviour
         SelectCurrentButton();
     }
 
+    public bool IsVisible => m_canvasGroup != null && m_canvasGroup.alpha > 0f;
+
     public void Complete()
     {
         Cursor.lockState = m_previousLockMode;
@@ -107,6 +109,14 @@ public class TutoInfoController : MonoBehaviour
 
         SetVisible(false);
         m_onComplete?.Invoke();
+    }
+
+    public void Close()
+    {
+        Cursor.lockState = m_previousLockMode;
+        Cursor.visible = m_previousCursorVisible;
+        m_playerInput?.ActivateInput();
+        SetVisible(false);
     }
 
     private void SelectCurrentButton()

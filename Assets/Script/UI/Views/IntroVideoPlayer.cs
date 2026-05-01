@@ -32,10 +32,9 @@ public class IntroVideoPlayer : MonoBehaviour
         yield return new WaitForSeconds((float)m_videoPlayer.length);
         IsDone = true;
         m_videoPlayer.Stop();
-        if (m_screen != null) m_screen.color = Color.clear;
-        m_returnButton?.SetActive(false);
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        gameObject.SetActive(false);
     }
 
     private void OnDestroy()

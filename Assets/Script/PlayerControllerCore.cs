@@ -223,7 +223,11 @@ public class PlayerControllerCore : NetworkBehaviour
         if (playerInput == null) return;
         if(!m_tutoOn)
         {
-            playerInput.enabled = !paused;
+            foreach (var action in playerInput.actions)
+            {
+                if (action.name == "Escape") continue;
+                if (paused) action.Disable(); else action.Enable();
+            }
         }
         if (!paused)
         {
