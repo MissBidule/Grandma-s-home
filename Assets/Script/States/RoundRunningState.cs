@@ -78,6 +78,13 @@ namespace Script.States
             m_roleKeeper = FindAnyObjectByType<RoleKeeper>();
         }
         
+        [ObserversRpc(runLocally: true)]
+        private void KeepCursorFree(bool _free)
+        {
+            Cursor.lockState = _free ? CursorLockMode.None : CursorLockMode.Locked;
+            Cursor.visible = _free;
+        }
+
         [ObserversRpc]
         private void SyncTimeToClients(float _remainingTime)
         {
@@ -180,8 +187,9 @@ namespace Script.States
             // Call Ethan day/night cycle
             StartDayNight(_roundDuration + m_startDelay, DateTime.Now.Millisecond);
             
-            // Wait for players to settle in the starting room before opening the doors
+            KeepCursorFree(true);
             yield return new WaitForSeconds(m_startDelay);
+            KeepCursorFree(false);
 
             m_startingDoor.OpenDoors();
 

@@ -63,6 +63,13 @@ namespace UI
             m_eventListener.SetActive(!m_eventListener.activeSelf);
         }
 
+        public void RestoreUIForEndGame()
+        {
+            m_UICamera.enabled = true;
+            GetComponent<Canvas>().worldCamera = m_UICamera;
+            if (!m_eventListener.activeSelf) m_eventListener.SetActive(true);
+        }
+
         /*
          * @brief Toggle The View of the given Type
          */
