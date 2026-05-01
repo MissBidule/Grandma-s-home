@@ -64,6 +64,8 @@ public class GhostController : PlayerControllerCore, IInteractable
     [SerializeField] [Tooltip("In seconds")] private float m_dashDuration = 2.5f;
     [SerializeField] [Tooltip("In seconds")] private float m_dashCooldown = 20f;
     private float m_currentDashCooldown = 0f;
+    
+    public float GetDashCooldown => m_dashCooldown;
 
     private Rigidbody m_rigidbody;
 

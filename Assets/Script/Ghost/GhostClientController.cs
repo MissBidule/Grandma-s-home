@@ -215,7 +215,7 @@ public class GhostClientController : NetworkBehaviour
             {
                 if (m_ghostHUDView.m_dash_disabled)
                     return;
-                m_ghostHUDView.DashDisabled();
+                m_ghostHUDView.DashDisabled(m_ghostController.GetDashCooldown);
                 break;
             }
             case false when m_ghostController.m_canDash && m_ghostHUDView.m_dash_disabled:

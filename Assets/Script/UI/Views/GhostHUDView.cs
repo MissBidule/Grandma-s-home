@@ -26,7 +26,8 @@ namespace Script.UI.Views
         
         [SerializeField] private Slider m_brokenScoreSlider;
         [SerializeField] private TMP_Text m_scoreBroken;
-        
+
+        private Coroutine m_dashCD;
         
         // TODO find way to unserielize
         public bool m_dash_disabled = false;
@@ -70,7 +71,7 @@ namespace Script.UI.Views
             ShowMessage("Dash Start");
         }
 
-        public void DashDisabled()
+        public void DashDisabled(float _dashCooldown)
         {
             m_dashIcon.color = Color.white;
             if (m_dash_active)
@@ -80,6 +81,7 @@ namespace Script.UI.Views
             }
             m_dashCooldownOverlay.fillAmount = 1f;
             m_dash_disabled = true;
+            StartDashCooldown(_dashCooldown);
         }
 
         public void DashReady()
@@ -88,6 +90,7 @@ namespace Script.UI.Views
             if (m_dashCooldownOverlay != null)
                 m_dashCooldownOverlay.fillAmount = 0f;
             m_dash_disabled = false;
+            StopCoroutine(m_dashCD);
         }
 
         /*
@@ -99,7 +102,7 @@ namespace Script.UI.Views
             m_dashIcon.color = Color.white;
 
             m_dashCooldownOverlay.fillAmount = 1f;
-            StartCoroutine(IconCooldown(m_dashCooldownOverlay, _time, "Dash cooled-down"));
+            m_dashCD = StartCoroutine(IconCooldown(m_dashCooldownOverlay, _time, "Dash cooled-down"));
         }
 
         public void ScaredActivate(float _timer)
