@@ -123,6 +123,7 @@ public class GhostClientController : NetworkBehaviour
     void Update()
     {
         if (!isOwner) return;
+        if (IntroVideoPlayer.Instance != null && !IntroVideoPlayer.Instance.IsDone) return;
         m_ghostController.PingClient();
         if (m_ghostController == null || m_ghostInputController == null || m_playerCamera == null) return; // "just in case"
 

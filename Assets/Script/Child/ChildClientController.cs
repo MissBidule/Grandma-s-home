@@ -103,6 +103,7 @@ public class ChildClientController : NetworkBehaviour
     {
         if (!isOwner) return;
         if (!m_gotOwner) return;
+        if (IntroVideoPlayer.Instance != null && !IntroVideoPlayer.Instance.IsDone) return;
 
         m_childController.PingClient();
 

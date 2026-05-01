@@ -164,14 +164,16 @@ namespace Script.States
             PurrLogger.Log("Setting up EndGameUI", this);
             if (!InstanceHandler.TryGetInstance(out EndGameView endGameView))
                 return;
-            
+
             endGameView.SetupEndGameUI(_childWin);
-            
+
             if (!InstanceHandler.TryGetInstance(out UIsManager uisManager))
                 return;
-            
+
             uisManager.ShowView<EndGameView>();
-            uisManager.ToggleUIVision();
+            uisManager.RestoreUIForEndGame();
+
+            EndVideoPlayer.Instance?.Play(_childWin);
 
         }
     }

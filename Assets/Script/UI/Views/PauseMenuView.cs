@@ -101,9 +101,6 @@ public class PauseMenuView : MonoBehaviour
 
     private void Update()
     {
-        var kb = UnityEngine.InputSystem.Keyboard.current;
-        if (m_isPaused && kb != null && kb.escapeKey.wasPressedThisFrame) { OnEscapePressed(); return; }
-
         var gp = UnityEngine.InputSystem.Gamepad.current;
         if (gp == null) return;
         if (gp.startButton.wasPressedThisFrame) { OnEscapePressed(); return; }
@@ -117,10 +114,12 @@ public class PauseMenuView : MonoBehaviour
         if (Time.unscaledTime < m_escapeLockUntil) return;
         m_escapeLockUntil = Time.unscaledTime + 0.25f;
 
-        if (m_settingsCanvas != null && m_settingsCanvas.activeSelf)
-            CloseOptions();
-        else if (m_isPaused)
+        if (m_isPaused)
+        {
+            var guide = FindAnyObjectByType<TutoInfoController>(FindObjectsInactive.Include);
+            guide?.Close();
             Resume();
+        }
         else if (!InstanceHandler.TryGetInstance(out EndGameState endGameState) || !endGameState.IsGameOver)
             OpenMenu();
     }
@@ -132,11 +131,10 @@ public class PauseMenuView : MonoBehaviour
         m_settingsCanvas.SetActive(false);
         RestoreOtherCanvases();
         OutlineSuppressor.Release(ref m_outlineHandle);
+        EventSystem.current?.SetSelectedGameObject(null);
+        OnPauseChanged?.Invoke(false);
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        EventSystem.current?.SetSelectedGameObject(null);
-        foreach (var pi in PlayerInput.all) pi.ActivateInput();
-        OnPauseChanged?.Invoke(false);
     }
 
     public void OpenOptions()
@@ -185,7 +183,6 @@ public class PauseMenuView : MonoBehaviour
         Cursor.lockState = CursorLockMode.Confined;
         Cursor.visible = !InputDeviceTracker.IsGamepadActive;
         EnsureEventSystem();
-        foreach (var pi in PlayerInput.all) pi.DeactivateInput();
         if (InputDeviceTracker.IsGamepadActive)
             EventSystem.current?.SetSelectedGameObject(m_resumeButton?.gameObject);
         OnPauseChanged?.Invoke(true);
