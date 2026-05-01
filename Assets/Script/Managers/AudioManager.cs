@@ -9,7 +9,8 @@ public class AudioManager : MonoBehaviour
     public void ProximityDefaultMode()
     {
         UnMutePlayers();
-        UnMuteAllPlayerLocally();
+        //UnMuteAllPlayerLocally();
+        UnMuteAllPlayerLocallyProximity();
     }
 
     public void MuteSinglePlayer()
@@ -103,6 +104,24 @@ public class AudioManager : MonoBehaviour
                 {
                     audioSource.volume=1;
                 }
+            }
+    }
+
+    public void UnMuteAllPlayerLocallyProximity()
+    {
+        foreach(GameObject obj in FindObjectsByType<GameObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+            {
+                PurrVoicePlayer purrVoicePlayer = obj.GetComponent<PurrVoicePlayer>();
+                if (purrVoicePlayer != null)
+                    {
+                        if (purrVoicePlayer.isOwner) continue;
+                        AudioSource audioSource = obj.gameObject.GetComponent<AudioSource>();
+                        if (audioSource != null)
+                        {
+                            audioSource.volume=1;
+                        }
+                    }
+                
             }
     }
 }

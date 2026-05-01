@@ -436,12 +436,11 @@ public class SettingsCanvasController : MonoBehaviour
 
     // ── AUDIO ────────────────────────────────────────────────────────────
     public void InitAudioCanvas()
-    {   
+    {
         int mode = PlayerPrefs.GetInt("Settings_VoiceMode", 1);
         ApplyAudioMode(mode);
         ChildInputController.m_isPushToTalkModeChild = m_currentaudiomode;
         GhostInputController.m_isPushToTalkModeGhost = m_currentaudiomode;
-
         bool enabled = PlayerPrefs.GetInt("Settings_VoiceChatEnabled", 1)==1;
         if (enabled)
             {
