@@ -62,10 +62,14 @@ public class ChildSimulateMovement : NetworkBehaviour, ISimulateMovement
 
         m_rigidbody.linearVelocity += new Vector3(accel.x, 0f, accel.z) * Time.fixedDeltaTime;
 
-        if (!_input.sneakPressed)
-            m_childController.m_soundEffects?.SetWalkingSpeed((_input.wishDirection * (m_speed * speedModifier)).magnitude);
-        else
-            m_childController.m_soundEffects?.SetWalkingSpeed(0);
+        // Only send RPC if we have a valid network connection and are the owner
+        if (isOwner && isSpawned)
+        {
+            if (!_input.sneakPressed)
+                m_childController.m_soundEffects?.SetWalkingSpeed((_input.wishDirection * (m_speed * speedModifier)).magnitude);
+            else
+                m_childController.m_soundEffects?.SetWalkingSpeed(0);
+        }
 
         m_jumpAppliedThisFrame = false;
         if (_input.jumpPressed) 
@@ -101,10 +105,25 @@ public class ChildSimulateMovement : NetworkBehaviour, ISimulateMovement
     {
         if (!IsGrounded()) return;
         if (m_isJumping) return;
-        m_childController.m_soundEffects?.PlayJumpAudio();
+        
+        // Only send RPC if we have a valid network connection and are the owner
+        if (isOwner && isSpawned && m_childController != null && m_childController.m_soundEffects != null)
+        {
+            m_childController.m_soundEffects.PlayJumpAudio();
+        }
+        
         m_rigidbody.AddForce(Vector3.up * m_jumpImpulse, ForceMode.Impulse);
-        m_childController.callChangeFace(new Vector2(0.66f, 0.66f));
-        m_animator.SetTrigger("OnJump");
+        
+        if (m_childController != null)
+        {
+            m_childController.callChangeFace(new Vector2(0.66f, 0.66f));
+        }
+        
+        if (m_animator != null)
+        {
+            m_animator.SetTrigger("OnJump");
+        }
+        
         m_isJumping = true;
     }
 

@@ -161,13 +161,15 @@ public class ChildController : PlayerControllerCore
     [ObserversRpc]
     public void PlaySFX()
     {
+        if (m_soundEffects == null) return;
+        
         if (!m_customAudio)
         {
-            m_soundEffects?.PlayGunAudio();
+            m_soundEffects.PlayGunAudio();
         }
         else
         {
-            m_soundEffects?.PlayCustomAudio(m_danganPrefab.GetComponent<Dangan>().m_audioClip); // what is that
+            m_soundEffects.PlayCustomAudio(m_danganPrefab.GetComponent<Dangan>().m_audioClip); // what is that
         }
     }
     
@@ -206,7 +208,12 @@ public class ChildController : PlayerControllerCore
     {
         if (!isServer) return;
         m_isScared = true;
-        m_soundEffects?.PlayScarredAudio();
+        
+        if (m_soundEffects != null)
+        {
+            m_soundEffects.PlayScarredAudio();
+        }
+        
         //PurrLogger.Log("Ghost Touch", this);
         UpdateScaredToAll(m_isScared);
         StartCoroutine(ScaredTimer(m_scaredDuration));
@@ -293,10 +300,12 @@ public class ChildController : PlayerControllerCore
     [ObserversRpc(runLocally:true)]
     public void PlayCaC_SFX(bool _hitSomething)
     {
+        if (m_soundEffects == null) return;
+        
         if (_hitSomething)
-            m_soundEffects?.PlayHitGhostAudio();
+            m_soundEffects.PlayHitGhostAudio();
         else
-            m_soundEffects?.PlayHitAirAudio();
+            m_soundEffects.PlayHitAirAudio();
     }
 
     [ObserversRpc]
@@ -337,7 +346,12 @@ public class ChildController : PlayerControllerCore
         UnspawnEffect();
         m_switchingTime = 0;
         changeAttackAnimStatusClient();
-        m_soundEffects?.PlayWeaponSwapAudio();
+        
+        if (m_soundEffects != null)
+        {
+            m_soundEffects.PlayWeaponSwapAudio();
+        }
+        
         m_isRanged = !m_isRanged;
     }
 
