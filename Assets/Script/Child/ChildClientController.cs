@@ -57,6 +57,10 @@ public class ChildClientController : NetworkBehaviour
 
     private void InitOwner()
     {
+        if (m_childController == null) {
+            m_childController = GetComponent<ChildController>();
+        }
+        m_childController.StartGameMusic();
         m_childInputController = GetComponent<ChildInputController>();
         AudioManager audioManager = FindFirstObjectByType<AudioManager>();
         if (audioManager != null)
