@@ -82,6 +82,7 @@ public class ChildController : PlayerControllerCore
         }
     }
     
+    [ServerRpc]
     public void Ronpa()
     {
         if (!isServer) return;
@@ -153,7 +154,7 @@ public class ChildController : PlayerControllerCore
 
             PlaySFX();
 
-            ShootForAll(Quaternion.LookRotation(shootDir));
+            ShootForAll(Quaternion.LookRotation(shootDir), m_customAudio);
         }
     }
 
@@ -310,11 +311,11 @@ public class ChildController : PlayerControllerCore
      * @return void
      */
     [ObserversRpc(runLocally:true)]
-    void ShootForAll(Quaternion rotation)
+    void ShootForAll(Quaternion _rotation, bool _customAudio)
     {
-        GameObject bulletPrefab = m_customAudio ? m_danganPrefab : m_bulletPrefab;
+        GameObject bulletPrefab = _customAudio ? m_danganPrefab : m_bulletPrefab;
 
-        GameObject bullet = UnityProxy.InstantiateDirectly(bulletPrefab, m_bulletSpawnTransform.position, rotation);
+        GameObject bullet = UnityProxy.InstantiateDirectly(bulletPrefab, m_bulletSpawnTransform.position, _rotation);
         if (isServer)
         {
             Bullet bScript = bullet.GetComponent<Bullet>();
@@ -332,12 +333,12 @@ public class ChildController : PlayerControllerCore
         if(m_switchingTime < m_cdSwitch) return;
         callAnimationTrigger("OnSwitch");
         changeAttackAnimStatusServer();
-        m_isRanged = !m_isRanged;
         m_customAudio = false;
         UnspawnEffect();
         m_switchingTime = 0;
         changeAttackAnimStatusClient();
         m_soundEffects?.PlayWeaponSwapAudio();
+        m_isRanged = !m_isRanged;
     }
 
     /*
@@ -348,8 +349,8 @@ public class ChildController : PlayerControllerCore
     [ObserversRpc(runLocally:true)]
     public void changeAttackAnimStatusClient()
     {
-        if (!isOwner) return;
-        m_isRanged = !m_isRanged;
+        if (!isOwner || isServer) return;
+        if (m_shootAnimRunning) m_isRanged = !m_isRanged;
         m_shootAnimRunning = !m_shootAnimRunning;
     }
 

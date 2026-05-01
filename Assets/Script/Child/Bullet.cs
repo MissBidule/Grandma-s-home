@@ -28,8 +28,8 @@ public class Bullet : NetworkBehaviour
     
     [SerializeField] float m_impactTimeBeforeDespawn = 1f;
 
-    [SerializeField] private NetworkAudioSource m_slimeSoundAudioSource;
-    [SerializeField] private NetworkAudioSource m_slimeOnGhostSoundAudioSource;
+    [SerializeField] private GameObject m_slimeSoundAudioSource;
+    [SerializeField] private GameObject m_slimeOnGhostSoundAudioSource;
 
     public bool m_amIServerSide = false; 
 
@@ -58,8 +58,8 @@ public class Bullet : NetworkBehaviour
                 if (ghost != null)
                 {   
                     ghost.RevertToOriginal();
-                    if (m_slimeOnGhostSoundAudioSource.clip != null)
-                        m_slimeOnGhostSoundAudioSource.Play();
+                    if (m_slimeOnGhostSoundAudioSource.GetComponent<NetworkAudioSource>()?.clip != null)
+                        m_slimeOnGhostSoundAudioSource.GetComponent<NetworkAudioSource>().Play();
                 }
             }
         }
@@ -81,8 +81,8 @@ public class Bullet : NetworkBehaviour
                     if (m_amIServerSide) // Only calling HitRanged on the server side
                     {
                         ghost.HitRanged();
-                        if (m_slimeOnGhostSoundAudioSource.clip != null)
-                            m_slimeOnGhostSoundAudioSource.Play();
+                        if (m_slimeOnGhostSoundAudioSource.GetComponent<NetworkAudioSource>()?.clip != null)
+                            SpawnSoundForAll(true, ghost.transform.position);
                     }
                 }
             }
@@ -92,6 +92,16 @@ public class Bullet : NetworkBehaviour
             }
         }
         Destroy(gameObject);
+    }
+
+    [ObserversRpc(runLocally:true)]
+    void SpawnSoundForAll(bool ghostHit, Vector3 _position)
+    {
+        GameObject tempSound = UnityProxy.InstantiateDirectly(ghostHit ? m_slimeOnGhostSoundAudioSource : m_slimeSoundAudioSource, _position, Quaternion.identity);
+        tempSound.GetComponent<AudioSource>().enabled = true;
+        NetworkAudioSource nas = tempSound.GetComponent<NetworkAudioSource>();
+        nas.enabled = true;
+        Destroy(tempSound.gameObject, nas.clip.length);
     }
 
     /**
@@ -109,8 +119,8 @@ public class Bullet : NetworkBehaviour
         spawnPos.z -= 0.3f;
         spawnPos.y += m_offsetFromSurface;
         SpawnForAll(spawnPos);
-        if (m_slimeSoundAudioSource.clip != null)
-            m_slimeSoundAudioSource.Play();
+        if (m_slimeSoundAudioSource.GetComponent<NetworkAudioSource>()?.clip != null)
+            SpawnSoundForAll(false, spawnPos);
     }
 
     [ObserversRpc(runLocally:true)]
