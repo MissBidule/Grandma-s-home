@@ -61,6 +61,10 @@ public class GhostClientController : NetworkBehaviour
 
     private void InitOwner()
     {
+        if (m_ghostController == null) {
+            m_ghostController = GetComponent<GhostController>();
+        }
+        m_ghostController.StartGameMusic();
         m_ghostInputController = GetComponent<GhostInputController>();
         // Use PlayerControllerCore.m_playerCamera (Inspector-assigned, always valid)
         // instead of GetComponentInChildren which can fail in multi-instance scenarios

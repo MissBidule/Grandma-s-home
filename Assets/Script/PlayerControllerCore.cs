@@ -47,6 +47,17 @@ public class PlayerControllerCore : NetworkBehaviour
     }
 
     /**
+    @brief      Starts the game music for all clients
+    @details    Makes sure everyone gets here at one point 
+    */    
+    public void StartGameMusic()
+    {
+        if (Script.Audio.MusicLooper.Instance == null)
+            return;
+        Script.Audio.MusicLooper.Instance.PlayMusic(Script.Audio.MusicTrack.Game);
+    }
+
+    /**
     @brief      Server accessibility check
     @details    Will trigger if the server or client is not accessible and trigger the end of the game or the player disconnection 
     */
@@ -79,7 +90,7 @@ public class PlayerControllerCore : NetworkBehaviour
         {
             m_isClientAccessible = false;
             Debug.LogWarning("Client is not accessible. Last ping was " + m_elapsedTimeSincePing + " seconds ago.");
-            DisconnectPlayer();
+            DisconnectPlayer(owner.Value);
             UnityProxy.Destroy(gameObject, 2f);
         }
     }
@@ -87,20 +98,21 @@ public class PlayerControllerCore : NetworkBehaviour
     [ServerRpc (requireOwnership: false)]
     public void PingFromClient()
     {
-        PingReceived();
+        PingReceived(owner.Value);
     }
 
-    [ObserversRpc (runLocally: true)]
-    private void PingReceived()
+    [TargetRpc (runLocally: true)]
+    private void PingReceived(PlayerID _target)
     {
         m_elapsedTimeSincePing = 0f;
     }
 
     [ObserversRpc]
-    private void DisconnectPlayer()
+    private void DisconnectPlayer(PlayerID _playerID)
     {
         FindAnyObjectByType<RoleKeeper>()?.SetMemberDisconnected(m_memberID);
         FindAnyObjectByType<LeaderboardUI>()?.UpdateDisconnected();
+        if (_playerID == localPlayer) FindAnyObjectByType<EndGameState>().BackToMenu();
     }
 
     /*

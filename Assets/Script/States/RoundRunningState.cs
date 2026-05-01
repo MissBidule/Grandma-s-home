@@ -68,9 +68,6 @@ namespace Script.States
                         break;
                 }
             }
-            
-            // Play Music
-            StartGameMusic();
 
             ClearLists();
             
@@ -93,14 +90,6 @@ namespace Script.States
         {
             if (isServer) return;
             m_remainingTime = _remainingTime;
-        }
-
-        [ObserversRpc(bufferLast: true)]
-        public void StartGameMusic()
-        {
-            if (MusicLooper.Instance == null)
-                return;
-            MusicLooper.Instance.PlayMusic(MusicTrack.Game);
         }
 
         protected override void OnDestroy()
