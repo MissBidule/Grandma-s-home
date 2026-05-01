@@ -64,6 +64,8 @@ public class GhostController : PlayerControllerCore, IInteractable
     [SerializeField] [Tooltip("In seconds")] private float m_dashDuration = 2.5f;
     [SerializeField] [Tooltip("In seconds")] private float m_dashCooldown = 20f;
     private float m_currentDashCooldown = 0f;
+    
+    public float GetDashCooldown => m_dashCooldown;
 
     private Rigidbody m_rigidbody;
 
@@ -222,7 +224,12 @@ public class GhostController : PlayerControllerCore, IInteractable
             return;
         PurrLogger.LogWarning("Ghost Died", this);
         OnDeathChange?.Invoke(true, owner.Value); // True because he dies
-        m_soundEffects?.PlayDeathAudio();
+        
+        if (m_soundEffects != null)
+        {
+            m_soundEffects.PlayDeathAudio();
+        }
+        
         if (!m_isStopped)
         {
             callAnimationTrigger("OnHit");
@@ -279,7 +286,12 @@ public class GhostController : PlayerControllerCore, IInteractable
         m_beingRevived = true;
         m_reviver.RevivingBuddy(m_reviveDuration);
         m_reviver.FreezeReviverRpc();
-        m_soundEffects?.PlayRevivingAudio();
+        
+        if (m_soundEffects != null)
+        {
+            m_soundEffects.PlayRevivingAudio();
+        }
+        
         if (_reviver.isOwner && InteractPromptUI.m_Instance != null) InteractPromptUI.m_Instance.Hide();
     }
 
@@ -299,7 +311,11 @@ public class GhostController : PlayerControllerCore, IInteractable
         m_reviveTimer = 0f;
         m_reviver.UnfreezeReviverRpc();
         m_reviver = null;
-        m_soundEffects?.StopRevivingAudio();
+        
+        if (m_soundEffects != null)
+        {
+            m_soundEffects.StopRevivingAudio();
+        }
     }
 
     /**
@@ -331,7 +347,12 @@ public class GhostController : PlayerControllerCore, IInteractable
         PurrLogger.LogWarning("Ghost Revive", this);
         OnDeathChange?.Invoke(false, owner.Value); // False because he undies
         ForceRevive();
-        m_soundEffects?.PlayReviveAudio();
+        
+        if (m_soundEffects != null)
+        {
+            m_soundEffects.PlayReviveAudio();
+        }
+        
         if (!m_reviver.m_isStopped)
             m_rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
     }
@@ -425,7 +446,10 @@ public class GhostController : PlayerControllerCore, IInteractable
             return;
         }
         
-        m_soundEffects?.PlayDashAudio();
+        if (m_soundEffects != null)
+        {
+            m_soundEffects.PlayDashAudio();
+        }
         
         ApplyDashToAll(true, false);
         m_currentDashCooldown = m_dashCooldown;
@@ -442,7 +466,13 @@ public class GhostController : PlayerControllerCore, IInteractable
     public void StartSpookyScary()
     {
         m_canScareChild = false;
-        m_soundEffects?.PlayScarringAudio();
+        
+        // Only send RPC if we have a valid network connection and are the owner
+        if (isOwner && isSpawned && m_soundEffects != null)
+        {
+            m_soundEffects.PlayScarringAudio();
+        }
+        
         ApplyScaryToAll(m_canScareChild);
         StartCoroutine(ScaryCooldown(m_cdChildScare));
     }

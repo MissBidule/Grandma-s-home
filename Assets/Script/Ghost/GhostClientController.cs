@@ -219,7 +219,7 @@ public class GhostClientController : NetworkBehaviour
             {
                 if (m_ghostHUDView.m_dash_disabled)
                     return;
-                m_ghostHUDView.DashDisabled();
+                m_ghostHUDView.DashDisabled(m_ghostController.GetDashCooldown);
                 break;
             }
             case false when m_ghostController.m_canDash && m_ghostHUDView.m_dash_disabled:
@@ -381,7 +381,11 @@ public class GhostClientController : NetworkBehaviour
             m_ghostController.m_wishDir = Vector3.zero;
             m_ghostController.m_morphInputReleased = false;
             m_ghostMorph.Morphing(_prefab, _pos, _rotation);
-            m_soundEffects?.PlayTransformAudio();
+            
+            if (m_soundEffects != null)
+            {
+                m_soundEffects.PlayTransformAudio();
+            }
         }
         else if (!m_ghostController.m_morphInputReleased)
         {
