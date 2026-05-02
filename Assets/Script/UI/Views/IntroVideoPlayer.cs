@@ -9,7 +9,7 @@ public class IntroVideoPlayer : MonoBehaviour
 
     [SerializeField] private VideoPlayer m_videoPlayer;
     [SerializeField] private RawImage m_screen;
-    [SerializeField] private GameObject m_returnButton;
+    public bool m_canLockCursor = false;
 
     private void Awake()
     {
@@ -40,5 +40,18 @@ public class IntroVideoPlayer : MonoBehaviour
     private void OnDestroy()
     {
         if (Instance == this) Instance = null;
+    }
+
+    public void SkipVideo()
+    {
+        StopCoroutine(Start());
+        IsDone = true;
+        if (m_canLockCursor)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+        m_videoPlayer.Stop();
+        gameObject.SetActive(false);
     }
 }
