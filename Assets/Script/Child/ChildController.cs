@@ -82,7 +82,7 @@ public class ChildController : PlayerControllerCore
         }
     }
     
-    [ServerRpc]
+    [ServerRpc(requireOwnership:false)]
     public void Ronpa()
     {
         if (!isServer) return;
