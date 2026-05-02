@@ -53,8 +53,6 @@ public class GhostMorph : NetworkBehaviour
         m_mesh.SetActive(false);
         if (isOwner) InteractPromptUI.m_Instance.Hide();
 
-        
-
         m_currentPrefab = UnityProxy.InstantiateDirectly(_prefab, transform);
         m_currentPrefab.GetComponent<MeshCollider>().convex = true;
         m_currentPrefab.transform.localPosition = _position;
@@ -62,6 +60,7 @@ public class GhostMorph : NetworkBehaviour
         m_currentPrefab.transform.localRotation = _rotation;
         m_isMorphed = true;
 
+        m_currentPrefab.layer = LayerMask.NameToLayer("MorphLayer");
         BrokeDecor decorComponent;
         if (m_currentPrefab.TryGetComponent<BrokeDecor>(out decorComponent))
         {
