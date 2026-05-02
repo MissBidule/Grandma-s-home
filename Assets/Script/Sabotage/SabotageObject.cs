@@ -294,11 +294,6 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     {
         if (m_isSabotaged) return;
         SabotageForAll();
-        if (m_sfxAudioSource != null && m_sfxAudioSource.clip != null)
-        {
-            m_sfxAudioSource.loop = true;
-            m_sfxAudioSource.Play();
-        }
         if(InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
         {
             scoreManager.AddPointSabotage(info.sender);
@@ -309,6 +304,11 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     [ObserversRpc(runLocally:true, requireServer:true)]
     private void SabotageForAll()
     {
+        if (m_sfxAudioSource != null && m_sfxAudioSource.clip != null)
+        {
+            m_sfxAudioSource.loop = true;
+            m_sfxAudioSource.Play();
+        }
         m_isSabotaged = true;
         m_repairEnabled = false;
         m_interactPrefab.SetActive(false);
@@ -339,13 +339,6 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     private void UnsabotageRPC(RPCInfo info = default)
     {
         UnsabotageForAll();
-        
-        
-        if (m_sfxAudioSource != null && m_sfxAudioSource.clip != null)
-        {
-            m_sfxAudioSource.loop = true;
-            m_sfxAudioSource.Stop();
-        }
 
         if(InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
             scoreManager.SubPointSabotage(info.sender);
@@ -389,6 +382,11 @@ public class SabotageObject : NetworkBehaviour, IInteractable
     [ObserversRpc(runLocally:true, requireServer:true)]
     private void UnsabotageForAll()
     {
+        if (m_sfxAudioSource != null && m_sfxAudioSource.clip != null)
+        {
+            m_sfxAudioSource.loop = true;
+            m_sfxAudioSource.Stop();
+        }
         m_isSabotaged = false;
         m_repairEnabled = false;
         m_interactPrefab.SetActive(false);

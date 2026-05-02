@@ -14,8 +14,8 @@ namespace PurrLobby
 
         public static void ApplyFromPrefs()
         {
-            SetMaster(PlayerPrefs.GetFloat("Settings_VolMaster",1f));
-            SetMusic(PlayerPrefs.GetFloat("Settings_VolMusic",1f));
+            SetMaster(PlayerPrefs.GetFloat("Settings_VolMaster",0.5f));
+            SetMusic(PlayerPrefs.GetFloat("Settings_VolMusic",0.5f));
             SetSFX(PlayerPrefs.GetFloat("Settings_VolSFX",1f));
         }
 
