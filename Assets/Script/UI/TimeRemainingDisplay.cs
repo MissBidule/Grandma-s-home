@@ -38,11 +38,20 @@ public class TimeRemainingDisplay : NetworkBehaviour
 
     void Update()
     {
+        if (m_roundRunningState == null)
+            m_roundRunningState = FindAnyObjectByType<RoundRunningState>();
         if (m_roundRunningState == null) {
             SetVisible(false);
             return;
         }
 
+
+        if (!m_isPanic && m_roundRunningState.m_isPanic)
+        {
+            m_isPanic = true;
+            m_latencyText.color = Color.red;
+            m_panicState = FindAnyObjectByType<PanicState>();
+        }
 
         float remaining = m_isPanic && m_panicState != null
             ? m_panicState.m_remainingTime
@@ -54,14 +63,6 @@ public class TimeRemainingDisplay : NetworkBehaviour
         if (!shouldShow) return;
 
         m_latencyText.text = $"{SecondsToDisplay((int)remaining)}";
-
-        if (m_isPanic != m_roundRunningState.m_isPanic)
-        {
-            m_isPanic = m_roundRunningState.m_isPanic;
-            m_latencyText.color = Color.red;
-            m_isPanic = true;
-            m_panicState = FindAnyObjectByType<PanicState>();
-        }
     }
 
     private void SetVisible(bool _visible)

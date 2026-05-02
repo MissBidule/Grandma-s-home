@@ -85,7 +85,7 @@ namespace Script.States
             Cursor.visible = _free;
         }
 
-        [ObserversRpc]
+        [ObserversRpc(bufferLast: true)]
         private void SyncTimeToClients(float _remainingTime)
         {
             if (isServer) return;
