@@ -151,7 +151,7 @@ namespace PurrLobby
             if (!m_sliderRowPrefab) return null;
             var row = Instantiate(m_sliderRowPrefab, m_container, false);
             if (row.m_label) row.m_label.text = _labelText;
-            if (row.m_slider) { row.m_slider.minValue = 0f; row.m_slider.maxValue = 1f; row.m_slider.value = 1f; }
+            if (row.m_slider) { row.m_slider.minValue = 0f; row.m_slider.maxValue = 1f; row.m_slider.value = .5f; }
             return row;
         }
 

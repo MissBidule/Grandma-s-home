@@ -78,13 +78,7 @@ namespace Script.Audio
             m_mainAudioSource = audioSources[0];
             m_transitionAudioSource = audioSources[1];
 
-            AudioVolumeManager.OnMusicVolumeChanged += SetMusicVolume;
-            SetMusicVolume(PlayerPrefs.GetFloat("Settings_VolMusic", 0.5f));
-        }
-
-        private void OnDestroy()
-        {
-            AudioVolumeManager.OnMusicVolumeChanged -= SetMusicVolume;
+            m_musicVolume = 1f;
         }
 
         private void Start()
