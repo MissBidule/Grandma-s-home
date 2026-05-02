@@ -6,7 +6,7 @@ namespace PurrLobby
 {
     public static class AudioVolumeManager
     {
-        public static float SFXVolume {get; private set;} = 1f;
+        public static float SFXVolume {get; private set;} = .5f;
 
         public static event Action<float> OnMusicVolumeChanged;
 
@@ -37,9 +37,9 @@ namespace PurrLobby
          */
         public static void ApplyFromPrefs()
         {
-            SetMaster(PlayerPrefs.GetFloat("Settings_VolMaster",1f));
-            SetMusic(PlayerPrefs.GetFloat("Settings_VolMusic",1f));
-            SetSFX(PlayerPrefs.GetFloat("Settings_VolSFX",1f));
+            SetMaster(PlayerPrefs.GetFloat("Settings_VolMaster",.5f));
+            SetMusic(PlayerPrefs.GetFloat("Settings_VolMusic",.5f));
+            SetSFX(PlayerPrefs.GetFloat("Settings_VolSFX",.5f));
         }
 
         /*

@@ -512,7 +512,7 @@ public class SettingsCanvasController : MonoBehaviour
         var sl = SliderOf(row);
         var lbl = GetValueLabel(row);
         sl.minValue = 0f; sl.maxValue = 1f;
-        float v0 = PlayerPrefs.GetFloat(key, 1f);
+        float v0 = PlayerPrefs.GetFloat(key, .5f);
         sl.SetValueWithoutNotify(v0);
         if (lbl) lbl.text = Mathf.RoundToInt(v0 * 100f) + "%";
         sl.onValueChanged.AddListener(v => {
