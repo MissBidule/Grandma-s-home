@@ -81,31 +81,9 @@ public class ChildCameraController : MonoBehaviour
     */
     private void LateUpdate()
     {
-        Vector3 basePivot = m_target.position + m_target.right * m_xOffset + m_pivotOffset;
-        Vector3 pivot = basePivot;
+        Vector3 pivot = m_target.position + m_target.right * m_xOffset + m_pivotOffset;
         Quaternion rotation;
         Vector3 desiredOffset;
-
-        // Check for collision directly above the pivot with a raycast
-        // First check if there's already a collision at the pivot position
-        Collider[] collidersAtPivot = Physics.OverlapSphere(basePivot, m_collisionRadius, m_collisionMask);
-        if (collidersAtPivot.Length > 0)
-        {
-            // Already colliding, lower pivot to just below the player body
-            float safeHeight = m_collisionRadius;
-            pivot = new Vector3(basePivot.x, m_target.position.y + safeHeight, basePivot.z);
-        }
-        else if (Physics.Raycast(
-            basePivot,
-            Vector3.up,
-            out RaycastHit hitAbove,
-            m_pivotOffset.y,
-            m_collisionMask))
-        {
-            // Normal case: raycast upward detects ceiling
-            float safeHeight = Mathf.Max(m_collisionRadius, hitAbove.distance - m_collisionOffset);
-            pivot = new Vector3(basePivot.x, m_target.position.y + safeHeight, basePivot.z);
-        }
 
         Vector2 lookInput = m_childInputController.m_lookInputVector;
         float multiplier = 0.1f;
