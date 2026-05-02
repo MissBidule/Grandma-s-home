@@ -34,7 +34,7 @@ public class GhostSoundEffects : NetworkBehaviour
         InstanceHandler.UnregisterInstance<ChildSoundEffects>();
     }
     
-    [ServerRpc]
+    [ServerRpc(requireOwnership:false)]
     public void PlayScarringAudio()
     {
         PlayScarringAudioRPC();
@@ -48,7 +48,7 @@ public class GhostSoundEffects : NetworkBehaviour
         PlayAudio(m_scarringAudioSource, "Scarred");
     }
     
-    [ServerRpc]
+    [ServerRpc(requireOwnership:false)]
     public void PlayJumpAudio()
     {
         PlayJumpAudioRPC();
@@ -62,7 +62,7 @@ public class GhostSoundEffects : NetworkBehaviour
         PlayAudio(m_jumpAudioSource, "Jump");
     }
     
-    [ServerRpc]
+    [ServerRpc(requireOwnership:false)]
     public void PlayLandAudio()
     {
         PlayLandAudioRPC();
@@ -76,7 +76,7 @@ public class GhostSoundEffects : NetworkBehaviour
         PlayAudio(m_landAudioSource, "Land");
     }
     
-    [ServerRpc]
+    [ServerRpc(requireOwnership:false)]
     public void PlayDashAudio()
     {
         PlayDashAudioRPC();
@@ -90,7 +90,7 @@ public class GhostSoundEffects : NetworkBehaviour
         PlayAudio(m_dashAudioSource, "Dash");
     }
     
-    [ServerRpc]
+    [ServerRpc(requireOwnership:false)]
     public void PlayDeathAudio()
     {
         PlayDeathAudioRPC();
@@ -104,7 +104,7 @@ public class GhostSoundEffects : NetworkBehaviour
         PlayAudio(m_deathAudioSource, "Death");
     }
     
-    [ServerRpc]
+    [ServerRpc(requireOwnership:false)]
     public void PlayReviveAudio()
     {
         PlayReviveAudioRPC();
@@ -118,7 +118,7 @@ public class GhostSoundEffects : NetworkBehaviour
         PlayAudio(m_reviveAudioSource, "Revive");
     }
     
-    [ServerRpc]
+    [ServerRpc(requireOwnership:false)]
     public void PlayTransformAudio()
     {
         PlayTransformAudioRPC();
@@ -132,7 +132,7 @@ public class GhostSoundEffects : NetworkBehaviour
         PlayAudio(m_transformAudioSource, "Transform");
     }
     
-    [ServerRpc]
+    [ServerRpc(requireOwnership:false)]
     public void PlayRevivingAudio()
     {
         PlayRevivingAudioRPC();
@@ -146,7 +146,7 @@ public class GhostSoundEffects : NetworkBehaviour
         PlayAudio(m_revivingAudioSource, "Reviving", true);
     }
     
-    [ServerRpc]
+    [ServerRpc(requireOwnership:false)]
     public void StopRevivingAudio()
     {
         StopRevivingAudioRPC();
@@ -160,7 +160,7 @@ public class GhostSoundEffects : NetworkBehaviour
         StopAudio(m_revivingAudioSource, "Reviving");
     }
     
-    [ServerRpc]
+    [ServerRpc(requireOwnership:false)]
     public void PlaySabotageAudio()
     {
         PlaySabotageAudioRPC();
@@ -174,7 +174,7 @@ public class GhostSoundEffects : NetworkBehaviour
         PlayAudio(m_sabotagingAudioSource, "Repair", true);
     }
     
-    [ServerRpc]
+    [ServerRpc(requireOwnership:false)]
     public void StopSabotageAudio()
     {
         StopSabotageAudioRPC();
@@ -188,7 +188,7 @@ public class GhostSoundEffects : NetworkBehaviour
         StopAudio(m_sabotagingAudioSource, "Repair");
     }
     
-    [ServerRpc]
+    [ServerRpc(requireOwnership:false)]
     public void SetWalkingSpeed(float _speed)
     {
         SetWalkingSpeedRPC(_speed);

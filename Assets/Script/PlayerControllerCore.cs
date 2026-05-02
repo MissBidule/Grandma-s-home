@@ -182,7 +182,7 @@ public class PlayerControllerCore : NetworkBehaviour
     /*
      FOR LATENCY PING NOT HEARTBEAT
      */
-    [ServerRpc]
+    [ServerRpc(requireOwnership:false)]
     public void PingServer(float sentTime, RPCInfo info = default)
     {
         // info.sender = le client qui a envoye

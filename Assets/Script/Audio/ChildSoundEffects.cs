@@ -41,7 +41,7 @@ public class ChildSoundEffects : NetworkBehaviour
     
     // Movement Will need a bigger script don't touch
 
-    [ServerRpc]
+    [ServerRpc(requireOwnership:false)]
     public void PlayCustomAudio(AudioClip _clip)
     {
         PlayCustomAudioRPC(_clip);
@@ -56,7 +56,7 @@ public class ChildSoundEffects : NetworkBehaviour
         PlayAudio(m_gunAudioSource, "Gun");
     }
     
-    [ServerRpc]
+    [ServerRpc(requireOwnership:false)]
     public void PlayGunAudio()
     {
         PlayGunAudioRPC();
@@ -71,7 +71,7 @@ public class ChildSoundEffects : NetworkBehaviour
         PlayAudio(m_gunAudioSource, "Gun");
     }
 
-    [ServerRpc]
+    [ServerRpc(requireOwnership:false)]
     public void PlayHitGhostAudio()
     {
         PlayHitGhostAudioRPC();
@@ -85,7 +85,7 @@ public class ChildSoundEffects : NetworkBehaviour
         PlayAudio(m_hitGhostAudioSource, "CAC Ghost");
     }
     
-    [ServerRpc]
+    [ServerRpc(requireOwnership:false)]
     public void PlayHitAirAudio()
     {
         PlayHitAirAudioRPC();
@@ -99,7 +99,7 @@ public class ChildSoundEffects : NetworkBehaviour
         PlayAudio(m_hitAirAudioSource, "CAC Air");
     }
     
-    [ServerRpc]
+    [ServerRpc(requireOwnership:false)]
     public void PlayWeaponSwapAudio()
     {
         PlayWeaponSwapAudioRPC();
@@ -113,7 +113,7 @@ public class ChildSoundEffects : NetworkBehaviour
         PlayAudio(m_weaponSwapAudioSource, "Swap");
     }
 
-    [ServerRpc]
+    [ServerRpc(requireOwnership:false)]
     public void PlayScarredAudio()
     {
         PlayScarredAudioRPC();
@@ -127,7 +127,7 @@ public class ChildSoundEffects : NetworkBehaviour
         PlayAudio(m_scarredAudioSource, "Scarred");
     }
 
-    [ServerRpc]
+    [ServerRpc(requireOwnership:false)]
     public void PlayJumpAudio()
     {
         PlayJumpAudioRPC();
@@ -141,7 +141,7 @@ public class ChildSoundEffects : NetworkBehaviour
         PlayAudio(m_jumpAudioSource, "Jump");
     }
 
-    [ServerRpc]
+    [ServerRpc(requireOwnership:false)]
     public void PlayLandAudio()
     {
         PlayLandAudioRPC();
@@ -155,7 +155,7 @@ public class ChildSoundEffects : NetworkBehaviour
         PlayAudio(m_landAudioSource, "Land");
     }
 
-    [ServerRpc]
+    [ServerRpc(requireOwnership:false)]
     public void PlayRepairAudio()
     {
         PlayRepairAudioRPC();
@@ -169,7 +169,7 @@ public class ChildSoundEffects : NetworkBehaviour
         PlayAudio(m_repairingAudioSource, "Repair", true);
     }
     
-    [ServerRpc]
+    [ServerRpc(requireOwnership:false)]
     public void StopRepairAudio()
     {
         StopRepairAudioRPC();
@@ -183,7 +183,7 @@ public class ChildSoundEffects : NetworkBehaviour
         StopAudio(m_repairingAudioSource, "Repair");
     }
 
-    [ServerRpc]
+    [ServerRpc(requireOwnership:false)]
     public void SetWalkingSpeed(float _speed)
     {
         SetWalkingSpeedRPC(_speed);
