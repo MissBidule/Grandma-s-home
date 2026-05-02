@@ -150,7 +150,7 @@ namespace Script.States
          * @brief The timer of the round, and sun mover
          * @param float _roundDuration !!! In seconds
          */
-        [ObserversRpc]
+        [ObserversRpc(bufferLast: true)]
         private void SyncTimeToClients(float _remainingTime)
         {
             if (isServer) return;
