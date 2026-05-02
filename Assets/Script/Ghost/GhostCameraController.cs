@@ -79,10 +79,32 @@ public class GhostCameraController : MonoBehaviour
     */
     private void LateUpdate()
     {
-        Vector3 pivot = m_target.position + m_pivotOffset;
+        Vector3 basePivot = m_target.position + m_pivotOffset;
+        Vector3 pivot = basePivot;
         Quaternion rotation;
         Vector3 desiredOffset;
         float finalDistance = m_distance;
+
+        // Check for collision directly above the pivot with a raycast
+        // First check if there's already a collision at the pivot position
+        Collider[] collidersAtPivot = Physics.OverlapSphere(basePivot, m_collisionRadius, m_collisionMask);
+        if (collidersAtPivot.Length > 0)
+        {
+            // Already colliding, lower pivot to just below the ghost body
+            float safeHeight = m_collisionRadius;
+            pivot = new Vector3(basePivot.x, m_target.position.y + safeHeight, basePivot.z);
+        }
+        else if (Physics.Raycast(
+            basePivot,
+            Vector3.up,
+            out RaycastHit hitAbove,
+            m_pivotOffset.y,
+            m_collisionMask))
+        {
+            // Normal case: raycast upward detects ceiling
+            float safeHeight = Mathf.Max(m_collisionRadius, hitAbove.distance - m_collisionOffset);
+            pivot = new Vector3(basePivot.x, m_target.position.y + safeHeight, basePivot.z);
+        }
 
         bool blockLookInput = (m_ghostClientController.m_wheel != null && m_ghostClientController.m_wheel.IsWheelOpen())
             || (m_ghostController != null && m_ghostController.m_isReviving);
@@ -111,7 +133,6 @@ public class GhostCameraController : MonoBehaviour
         {
             finalDistance = Mathf.Max(0f, hit.distance - m_collisionOffset);
         }
-
         float speed = finalDistance < m_currentDistance ? m_cameraSnapSpeed : m_cameraReturnSpeed;
         m_currentDistance = Mathf.Lerp(m_currentDistance, finalDistance, speed * Time.deltaTime);
 
