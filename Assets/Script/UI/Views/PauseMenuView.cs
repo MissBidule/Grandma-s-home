@@ -19,6 +19,7 @@ public class PauseMenuView : MonoBehaviour
 {
     public static event System.Action<bool> OnPauseChanged;
     public static PauseMenuView Instance { get; private set; }
+    public static bool IsPaused => Instance != null && Instance.m_isPaused;
 
     [SerializeField] private GameObject m_pauseCanvasPrefab;
     [SerializeField] private GameObject m_settingsCanvasPrefab;
@@ -133,8 +134,11 @@ public class PauseMenuView : MonoBehaviour
         OutlineSuppressor.Release(ref m_outlineHandle);
         EventSystem.current?.SetSelectedGameObject(null);
         OnPauseChanged?.Invoke(false);
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        if (!InstanceHandler.TryGetInstance(out EndGameState endGameState) || !endGameState.IsGameOver)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
     }
 
     public void OpenOptions()
