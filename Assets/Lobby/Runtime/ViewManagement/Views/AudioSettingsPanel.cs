@@ -141,7 +141,7 @@ namespace PurrLobby
         private void InitSlider(OptionRowSlider _row, string _key)
         {
             if (_row?.m_slider == null) return;
-            float v = PlayerPrefs.GetFloat(_key, 1f);
+            float v = PlayerPrefs.GetFloat(_key, 0.5f);
             _row.m_slider.value = v;
             UpdateLabel(_row, v);
         }
