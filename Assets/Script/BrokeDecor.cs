@@ -85,7 +85,7 @@ public class BrokeDecor : NetworkBehaviour
         if (m_alreadyBroken != true){
             if(InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
             {
-                scoreManager.AddPointBroken(info.sender,m_scoreValue);
+                scoreManager.AddPointBroken(m_scoreValue);
                 m_alreadyBroken = true;
             }
         }

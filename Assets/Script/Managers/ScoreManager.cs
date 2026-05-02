@@ -12,16 +12,23 @@ using UnityEngine;
 */
 public class ScoreManager : NetworkBehaviour
 {
-    [SerializeField] private SyncDictionary<PlayerID, ScoreData> m_scoresSabotage = new();
-    [SerializeField] private SyncDictionary<PlayerID, ScoreData2> m_scoresBroken = new();
-    [SerializeField] private SyncVar<float> m_sabotageBonusTotal = new();
-    [SerializeField] private float m_maxScoreSabotage=5.0f;
-    [SerializeField] private int m_maxScoreBroken=5;
+    private float m_maxScoreSabotage=1.0f;
+    private SyncVar<float> m_currentScoreSabotage = new();
+    private int m_maxScoreBroken = 750;
+    private SyncVar<int> m_currentScoreBroken = new();
+    private int m_nbSabotaged = 0;
     
     private float m_timer;
     
     public Action<bool> m_noticeHouseDestroyed; // false if only sabotaged
     private bool m_sabotagedCalled = false;
+
+    /* VALUES ! ALL IN PERCENT % ! */
+    private float m_repairValue = 0.2f;
+    private float m_sabotageValue = 0.1f;
+    // This number is multiplied by the number of sabotage.
+    // It is applied every second.
+    private float m_sabotageBonus = 0.01f;
 
     private void Awake()
     {
@@ -52,43 +59,13 @@ public class ScoreManager : NetworkBehaviour
         if (m_timer >= 1f)
         {
             m_timer = 0f;
-            SabotageBonus();
+            ApplySabotageBonus();
         }
 
-        if (GetFinalScoreSabotage() > m_maxScoreSabotage && !m_sabotagedCalled)
+        if (m_currentScoreSabotage > m_maxScoreSabotage && !m_sabotagedCalled)
         {
             m_noticeHouseDestroyed?.Invoke(false);
             m_sabotagedCalled = true;
-        }
-
-        float sabotagePoints = 0; 
-        foreach (var entry in m_scoresSabotage)
-        {
-            sabotagePoints += entry.Value.pointSabotage;
-        }
-        if(sabotagePoints==0)
-        {
-            ResetSabotageScore();
-        }
-    }
-
-    public struct ScoreData
-    {
-        public float pointSabotage;      
-
-        public override string ToString()
-        {
-            return $"{pointSabotage}";
-        }
-    }
-
-    public struct ScoreData2
-    {   
-        public int pointBroken;   
-
-        public override string ToString()
-        {
-            return $"{pointBroken}";
         }
     }
 
@@ -96,16 +73,9 @@ public class ScoreManager : NetworkBehaviour
      * @details This function calculates the bonus points for sabotage (the bonus is 0.3).
      * @return void
      */
-    private void SabotageBonus()
+    private void ApplySabotageBonus()
     {
-        float totalSabotage = 0;
-
-        foreach (var entry in m_scoresSabotage)
-        {
-            totalSabotage += entry.Value.pointSabotage;
-        }
-
-        m_sabotageBonusTotal.value += totalSabotage * 0.01f;  
+        m_currentScoreSabotage.value += m_sabotageBonus * m_nbSabotaged;  
     }
 
     /*
@@ -114,14 +84,10 @@ public class ScoreManager : NetworkBehaviour
      * @return void
      */
     [ServerRpc(requireOwnership:false)]
-    public void AddPointSabotage(PlayerID _playerID) 
+    public void AddPointSabotage() 
     {
-        CheckForDictonaryEntrySabotage(_playerID);
-
-        var ScoreData = m_scoresSabotage[_playerID];
-        ScoreData.pointSabotage++; 
-        m_scoresSabotage[_playerID] = ScoreData; 
-         
+        m_currentScoreSabotage.value += m_sabotageValue;
+        m_nbSabotaged++;
     }
 
     /*
@@ -132,36 +98,10 @@ public class ScoreManager : NetworkBehaviour
     [ServerRpc(requireOwnership:false)]
     public void SubPointSabotage(PlayerID _playerID)
     {
-        CheckForDictonaryEntrySabotage(_playerID);
-
-        float sabotagePoints = 0;
-        foreach (var entry in m_scoresSabotage)
-        {
-            sabotagePoints += entry.Value.pointSabotage;
-        }
-
-        var ScoreData = m_scoresSabotage[_playerID];
-
-        if (sabotagePoints > 0)   
-        {
-            ScoreData.pointSabotage--;
-        }
-
-        m_scoresSabotage[_playerID] = ScoreData;     
-    }
-
-    /*
-     * @details This function calculates and returns the final sabotage score.
-     * @return float : The final sabotage score: score of sabotage + bonus sabotage
-     */
-    private float GetFinalScoreSabotage() 
-    {
-        float sabotagePoints = 0;
-        foreach (var entry in m_scoresSabotage)
-        {
-            sabotagePoints += entry.Value.pointSabotage;
-        }
-        return sabotagePoints + m_sabotageBonusTotal.value;
+        m_currentScoreSabotage.value -= m_repairValue;
+        if (m_currentScoreSabotage.value < 0)
+            m_currentScoreSabotage.value = 0;
+         m_nbSabotaged--;
     }
 
     /*
@@ -172,22 +112,10 @@ public class ScoreManager : NetworkBehaviour
      * @return void
      */
     [ServerRpc(requireOwnership:false)]
-    public void AddPointBroken(PlayerID _playerID, int _valeurObjectBroken)
+    public void AddPointBroken(int _valeurObjectBroken)
     {
-        CheckForDictonaryEntryBroken(_playerID);
-
-        var ScoreData = m_scoresBroken[_playerID];
-        ScoreData.pointBroken=ScoreData.pointBroken + _valeurObjectBroken;
-        m_scoresBroken[_playerID] = ScoreData;  
-
-        float totalBroken = 0;
-
-        foreach (var entry in m_scoresBroken)
-        {
-            totalBroken += entry.Value.pointBroken;
-        }
-
-        if(totalBroken >= m_maxScoreBroken)
+        m_currentScoreBroken.value += _valeurObjectBroken;
+        if(m_currentScoreBroken.value >= m_maxScoreBroken)
         {
             m_noticeHouseDestroyed?.Invoke(true);
         }
@@ -200,63 +128,20 @@ public class ScoreManager : NetworkBehaviour
     [ServerRpc(requireOwnership:false)]
     public void ResetScore()   
     {
-        m_scoresSabotage.Clear();
-        m_scoresBroken.Clear();
+        m_currentScoreBroken.value = 0;
+        m_currentScoreSabotage.value = 0;
     }
-    
-    /*
-     * @details This function resets the Sabotage score.
-     * @return void
-     */
-    [ServerRpc(requireOwnership:false)]
-    public void ResetSabotageScore()   
-    {
-        m_scoresSabotage.Clear();
-    }
-
-    /*
-     * @details This function checks which player changed the Sabotage score.
-     * @param _playerID: ID of the player.
-     * @return void
-     */
-    private void CheckForDictonaryEntrySabotage(PlayerID _playerID)
-    {
-        if(!m_scoresSabotage.ContainsKey(_playerID))
-        {
-            m_scoresSabotage.Add(_playerID, new ScoreData());
-        }
-    } 
-
-    /*
-     * @details This function checks which player changed the Broken score.
-     * @param _playerID: Id of the player.
-     * @return void
-     */
-    private void CheckForDictonaryEntryBroken(PlayerID _playerID)
-    {
-        if(!m_scoresBroken.ContainsKey(_playerID)) 
-        {
-            m_scoresBroken.Add(_playerID, new ScoreData2());
-        } 
-    } 
     
     /*
      * @details This function refreshes the Score UI.
      * @return void
      */
-    private void RefreshUI() // GetFinalScore() et totalBroken a utiliser sur une view plutot qu un canvas!
+    private void RefreshUI()
     {
-        int totalBroken = 0;
-
-        foreach (KeyValuePair<PlayerID, ScoreData2> entry in m_scoresBroken)
-        {
-            totalBroken += entry.Value.pointBroken;
-        }
-        
         if (InstanceHandler.TryGetInstance(out GhostHUDView ghostHUDView))
-            ghostHUDView.UpdateScore(GetFinalScoreSabotage(), m_maxScoreSabotage, totalBroken, m_maxScoreBroken);
+            ghostHUDView.UpdateScore(m_currentScoreSabotage.value, m_maxScoreSabotage, m_currentScoreBroken.value, m_maxScoreBroken);
         
         if (InstanceHandler.TryGetInstance(out ChildHUDView childHUDView))
-            childHUDView.UpdateScore(GetFinalScoreSabotage(), m_maxScoreSabotage, totalBroken, m_maxScoreBroken);
+            childHUDView.UpdateScore(m_currentScoreSabotage.value, m_maxScoreSabotage, m_currentScoreBroken.value, m_maxScoreBroken);
     }
 }

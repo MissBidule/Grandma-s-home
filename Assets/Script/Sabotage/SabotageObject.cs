@@ -288,7 +288,6 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         }
     }
 
-// le [] sert vraiment? a verifier
     [ServerRpc(requireOwnership:false)]
     private void SabotageRPC(RPCInfo info = default)
     {
@@ -296,7 +295,7 @@ public class SabotageObject : NetworkBehaviour, IInteractable
         SabotageForAll();
         if(InstanceHandler.TryGetInstance(out ScoreManager scoreManager))
         {
-            scoreManager.AddPointSabotage(info.sender);
+            scoreManager.AddPointSabotage();
         }
 
     }
