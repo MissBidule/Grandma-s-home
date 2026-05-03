@@ -55,8 +55,9 @@ namespace UI
             if (m_UIAlreadyToggled) return;
             m_UIAlreadyToggled = true;
             HideView<WaitForPlayerView>();
-            Debug.Log("Toggling UI Vision");
-            GetComponentInChildren<IntroVideoPlayer>(true).m_canLockCursor = true;
+            Debug.Log("Loading completed");
+            var introVideoPlayer = GetComponentInChildren<IntroVideoPlayer>(true);
+            if (introVideoPlayer != null) introVideoPlayer.m_canLockCursor = true;
             m_UICamera.enabled = !m_UICamera.enabled;
             if (_cinemachineBrain != null)
                 GetComponent<Canvas>().worldCamera = _cinemachineBrain.OutputCamera;
