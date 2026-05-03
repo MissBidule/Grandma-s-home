@@ -42,6 +42,7 @@ public class QteCircle : MonoBehaviour
     private int m_currentPhaseIndex;
     public bool m_isRunning;
     private Action<bool> m_onFinished;
+    private OutlineSuppressor.Handle m_outlineHandle;
 
     private void Start()
     {
@@ -76,6 +77,7 @@ public class QteCircle : MonoBehaviour
         m_outline.color1.value = transpOutline1;
         m_outline.color2.value = transpOutline2;
         SetVisibility(true);
+        m_outlineHandle = OutlineSuppressor.Acquire(m_outlineHandle);
         enabled = true;
 
         m_onFinished = _onFinished;
@@ -105,6 +107,7 @@ public class QteCircle : MonoBehaviour
         m_outline.color1.value = defaultOutline1;
         m_outline.color2.value = defaultOutline2;
         m_isRunning = false;
+        OutlineSuppressor.Release(ref m_outlineHandle);
 
         SetVisibility(false);
         enabled = false;

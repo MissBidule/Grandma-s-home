@@ -26,6 +26,7 @@ public class WheelController : MonoBehaviour
     private Sprite m_pendingIconToAdd;
     private bool m_isOpen = false;
     private int m_highlightedIndex = -1;
+    private OutlineSuppressor.Handle m_outlineHandle;
 
     /*
      * @brief Awake is called when the script instance is being loaded
@@ -147,6 +148,7 @@ public class WheelController : MonoBehaviour
         if (m_ghostMorph != null && m_ghostMorph.m_isMorphed) return;
 
         m_isOpen = true;
+        m_outlineHandle = OutlineSuppressor.Acquire(m_outlineHandle);
         ApplyHighlight(-1);
         if (InputDeviceTracker.IsGamepadActive)
             Cursor.lockState = CursorLockMode.Locked; // Gamepad uses stick, no cursor needed
@@ -164,6 +166,7 @@ public class WheelController : MonoBehaviour
     public void Close()
     {
         m_isOpen = false;
+        OutlineSuppressor.Release(ref m_outlineHandle);
 
         int confirmedIndex = m_highlightedIndex;
         ApplyHighlight(-1);
