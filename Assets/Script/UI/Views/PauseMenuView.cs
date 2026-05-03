@@ -251,7 +251,7 @@ public class PauseMenuView : MonoBehaviour
                 case "back to menu":
                     AddClick(btn, BackToMenu);
                     break;
-                case "quit game":
+                case "close game":
                     AddClick(btn, QuitGame);
                     break;
                 case "guide":
