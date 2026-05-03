@@ -478,6 +478,7 @@ public class TutoManager : MonoBehaviour
         m_ghostTuto.gameObject.SetActive(false);
         m_child.gameObject.SetActive(true);
         SetPlayerActive(m_child.gameObject, true);
+        Cursor.lockState = CursorLockMode.Locked;
 
         if (m_childClient != null) m_childClient.m_weaponSwapBlocked = true;
 
