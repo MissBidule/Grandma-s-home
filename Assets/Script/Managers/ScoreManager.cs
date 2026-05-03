@@ -24,11 +24,11 @@ public class ScoreManager : NetworkBehaviour
     private bool m_sabotagedCalled = false;
 
     /* VALUES ! ALL IN PERCENT % ! */
-    private float m_repairValue = 0.2f;
-    private float m_sabotageValue = 0.1f;
+    [SerializeField] private float m_repairValue = 0.2f;
+    [SerializeField] private float m_sabotageValue = 0.1f;
     // This number is multiplied by the number of sabotage.
     // It is applied every second.
-    private float m_sabotageBonus = 0.01f;
+    [SerializeField] private float m_sabotageBonus = 0.01f;
 
     private void Awake()
     {
@@ -101,7 +101,7 @@ public class ScoreManager : NetworkBehaviour
         m_currentScoreSabotage.value -= m_repairValue;
         if (m_currentScoreSabotage.value < 0)
             m_currentScoreSabotage.value = 0;
-         m_nbSabotaged--;
+        m_nbSabotaged--;
     }
 
     /*
@@ -138,10 +138,11 @@ public class ScoreManager : NetworkBehaviour
      */
     private void RefreshUI()
     {
-        if (InstanceHandler.TryGetInstance(out GhostHUDView ghostHUDView))
+        if (InstanceHandler.TryGetInstance(out GhostHUDView ghostHUDView)) {
             ghostHUDView.UpdateScore(m_currentScoreSabotage.value, m_maxScoreSabotage, m_currentScoreBroken.value, m_maxScoreBroken);
-        
-        if (InstanceHandler.TryGetInstance(out ChildHUDView childHUDView))
+        }
+        if (InstanceHandler.TryGetInstance(out ChildHUDView childHUDView)){
             childHUDView.UpdateScore(m_currentScoreSabotage.value, m_maxScoreSabotage, m_currentScoreBroken.value, m_maxScoreBroken);
+        }
     }
 }
