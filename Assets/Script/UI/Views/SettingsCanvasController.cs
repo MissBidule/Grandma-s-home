@@ -346,6 +346,7 @@ public class SettingsCanvasController : MonoBehaviour
         var dd = DropdownOf(row);
         m_resolutions = Screen.resolutions;
         var opts = new List<string>();
+        var resolutionIndices = new List<int>();
         var seen = new HashSet<string>();
         int cur = 0;
         for (int i = 0; i < m_resolutions.Length; i++)
@@ -354,6 +355,7 @@ public class SettingsCanvasController : MonoBehaviour
             string s = $"{r.width} x {r.height}";
             if (!seen.Add(s)) continue;
             opts.Add(s);
+            resolutionIndices.Add(i);
             if (r.width == Screen.currentResolution.width && r.height == Screen.currentResolution.height) cur = opts.Count - 1;
         }
         dd.ClearOptions();
@@ -362,7 +364,7 @@ public class SettingsCanvasController : MonoBehaviour
         dd.SetValueWithoutNotify(Mathf.Clamp(saved, 0, opts.Count - 1));
         dd.onValueChanged.AddListener(v => {
             PlayerPrefs.SetInt("Settings_Resolution", v);
-            if (v < m_resolutions.Length) { var r = m_resolutions[v]; Screen.SetResolution(r.width, r.height, Screen.fullScreenMode); }
+            if (v < resolutionIndices.Count) { var r = m_resolutions[resolutionIndices[v]]; Screen.SetResolution(r.width, r.height, Screen.fullScreenMode); }
         });
     }
 
