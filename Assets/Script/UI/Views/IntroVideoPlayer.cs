@@ -43,6 +43,12 @@ public class IntroVideoPlayer : MonoBehaviour
             gameObject.SetActive(false);
             yield break;
         }
+        else
+        {
+            //Else, play the video normally, RIGHT?
+            m_videoPlayer.Prepare();
+            yield return new WaitUntil(() => m_videoPlayer.isPrepared);
+        }
 
         m_videoPlayer.renderMode = VideoRenderMode.APIOnly;
         m_videoPlayer.errorReceived += OnVideoErrorReceived;
