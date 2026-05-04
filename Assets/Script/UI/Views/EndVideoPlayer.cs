@@ -32,6 +32,14 @@ public class EndVideoPlayer : MonoBehaviour
 
     public void Play(bool _childWin)
     {
+        // On Linux skip the end video to avoid VideoPlayer issues
+        if (Application.platform == RuntimePlatform.LinuxPlayer || Application.platform == RuntimePlatform.LinuxEditor)
+        {
+            Debug.LogWarning("EndVideoPlayer: Detected Linux platform — skipping end video.");
+            gameObject.SetActive(false);
+            return;
+        }
+
         gameObject.SetActive(true);
         VideoClip intro = _childWin ? m_childWinIntro : m_ghostWinIntro;
         VideoClip loop = _childWin ? m_childWinLoop : m_ghostWinLoop;

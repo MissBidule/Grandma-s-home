@@ -11,6 +11,9 @@ public class IntroVideoPlayer : MonoBehaviour
     [SerializeField] private RawImage m_screen;
     public bool m_canLockCursor = false;
 
+    private bool m_errorReceived = false;
+    private string m_lastError = string.Empty;
+
     private void Awake()
     {
         Instance = this;
@@ -26,15 +29,50 @@ public class IntroVideoPlayer : MonoBehaviour
 
     private System.Collections.IEnumerator Start()
     {
-        m_videoPlayer.Prepare();
-        yield return new WaitUntil(() => m_videoPlayer.isPrepared);
+        // On Linux skip the intro video entirely (avoid broken VideoPlayer on some Linux setups)
+        if (Application.platform == RuntimePlatform.LinuxPlayer || Application.platform == RuntimePlatform.LinuxEditor)
+        {
+            Debug.LogWarning("IntroVideoPlayer: Detected Linux platform — skipping intro video.");
+            IsDone = true;
+            if (m_canLockCursor)
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+            }
+            m_videoPlayer.Stop();
+            gameObject.SetActive(false);
+            yield break;
+        }
+
+        m_videoPlayer.renderMode = VideoRenderMode.APIOnly;
+        m_videoPlayer.errorReceived += OnVideoErrorReceived;
+
+        if (m_screen != null)
+            m_screen.texture = m_videoPlayer.texture;
+
+        // Route audio if an AudioSource exists on the same GameObject
+        var audio = GetComponent<AudioSource>();
+        if (audio != null)
+        {
+            m_videoPlayer.audioOutputMode = VideoAudioOutputMode.AudioSource;
+            m_videoPlayer.SetTargetAudioSource(0, audio);
+        }
+
         m_videoPlayer.Play();
+
         yield return new WaitForSeconds((float)m_videoPlayer.length);
         IsDone = true;
         m_videoPlayer.Stop();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         gameObject.SetActive(false);
+    }
+
+    private void OnVideoErrorReceived(VideoPlayer source, string message)
+    {
+        m_errorReceived = true;
+        m_lastError = message;
+        Debug.LogError("VideoPlayer error: " + message);
     }
 
     private void OnDestroy()
