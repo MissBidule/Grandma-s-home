@@ -39,6 +39,7 @@ public class GhostMorphPreview : MonoBehaviour
     private MaterialPropertyBlock m_propertyBlock;
 
     [SerializeField] private Material m_ghostTransparentMaterial;
+    [SerializeField] private int m_matToSwapIndex = 0;
 
     private Transform m_cameraTransform;
     private PlayerControllerCore m_core;
@@ -451,7 +452,7 @@ public class GhostMorphPreview : MonoBehaviour
             if (m_ghostOriginalMaterials == null)
                 m_ghostOriginalMaterials = m_ghostBodyRenderer.sharedMaterials;
             var mats = m_ghostBodyRenderer.sharedMaterials;
-            mats[0] = m_ghostTransparentMaterial;
+            mats[m_matToSwapIndex] = m_ghostTransparentMaterial;
             m_ghostBodyRenderer.sharedMaterials = mats;
         }
         else if (m_ghostBodyRenderer != null && m_ghostOriginalMaterials != null)
