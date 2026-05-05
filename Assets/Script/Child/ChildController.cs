@@ -86,14 +86,14 @@ public class ChildController : PlayerControllerCore
     public void Ronpa()
     {
         if (!isServer) return;
-        if (m_customAudio) return;
-        m_customAudio = true;
         SpawnEffect();
     }
 
     [ObserversRpc(runLocally:true)]
     private void SpawnEffect()
     {
+        if (m_customAudio) return;
+        m_customAudio = true;
         m_tempGunEffect = Instantiate(m_gunEffectPrefab, m_gunEnd.transform);
         m_tempGunEffect.transform.localPosition = Vector3.zero;
         m_tempGunEffect.transform.localScale = Vector3.one;
@@ -102,6 +102,7 @@ public class ChildController : PlayerControllerCore
     [ObserversRpc(runLocally:true)]
     private void UnspawnEffect()
     {
+        m_customAudio = false;
         if (m_tempGunEffect != null) {
             Destroy(m_tempGunEffect);
             m_tempGunEffect = null;
@@ -158,7 +159,7 @@ public class ChildController : PlayerControllerCore
         }
     }
 
-    [ObserversRpc]
+    [ObserversRpc (runLocally:true)]
     public void PlaySFX()
     {
         if (m_soundEffects == null) return;
@@ -342,7 +343,6 @@ public class ChildController : PlayerControllerCore
         if(m_switchingTime < m_cdSwitch) return;
         callAnimationTrigger("OnSwitch");
         changeAttackAnimStatusServer();
-        m_customAudio = false;
         UnspawnEffect();
         m_switchingTime = 0;
         changeAttackAnimStatusClient();
